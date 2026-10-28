@@ -1,8 +1,8 @@
 [![skills.sh](https://skills.sh/b/raphaelsalaja/skills)](https://skills.sh/raphaelsalaja/skills)
 
-A collection of agent skills for interface motion, sound, typography and visual detail.
+A collection of agent skills for building interfaces with coding agents.
 
-These skills cover the checks written on [userinterface.wiki](https://www.userinterface.wiki). The articles and the single compiled skill live in [userinterface-wiki](https://github.com/raphaelsalaja/userinterface-wiki). This repository splits those checks into one skill per category, so an agent can load the topic in front of it.
+They come in two kinds. **Principle** skills hold a standard the agent applies while it works. **Procedure** skills run a job in order, and the ones marked user-invoked only run when you call them.
 
 ## The pair
 
@@ -12,18 +12,24 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 
 ## Skills
 
-- [**animation-principles**](skills/animation-principles/SKILL.md): Reviews press scale, squash and stretch, stagger and staging so one motion holds the frame.
-- [**timing-functions**](skills/timing-functions/SKILL.md): Chooses springs, easing, linear time or no motion from the interaction, then checks duration.
-- [**exit-animations**](skills/exit-animations/SKILL.md): Reviews Motion exit animations for AnimatePresence wrappers, keys, modes and nested exits.
-- [**laws-of-ux**](skills/laws-of-ux/SKILL.md): Reviews targets, choices, response time and grouping against the UX laws used on userinterface.wiki.
-- [**visual-design**](skills/visual-design/SKILL.md): Sets concentric radii, layered shadows, alpha borders and a shared spacing scale.
-- [**pseudo-elements**](skills/pseudo-elements/SKILL.md): Reviews decorative pseudo-elements, native control styling and the View Transitions API.
-- [**interface-sound**](skills/interface-sound/SKILL.md): Reviews UI audio so sound confirms, stays optional and never replaces a visual cue.
-- [**synthesize-sound**](skills/synthesize-sound/SKILL.md): Reviews Web Audio UI sounds for one shared context, exponential decay and click-sized parameters.
-- [**interface-typography**](skills/interface-typography/SKILL.md): Sets tabular numbers, OpenType features, wrapping and uppercase spacing for interface text.
-- [**container-bounds**](skills/container-bounds/SKILL.md): Animates container width and height by measuring an inner element and transitioning an outer one.
-- [**predictive-prefetch**](skills/predictive-prefetch/SKILL.md): Prefetches from cursor trajectory and keyboard focus, not from hover or from everything in view.
-- [**morphing-icons**](skills/morphing-icons/SKILL.md): Builds icons that morph through three shared SVG lines, including collapsed lines and rotation groups.
+### Principles
+
+- [**scope**](skills/scope/SKILL.md): Changes **exactly what was asked**, keeps what already worked and finishes every item in the message.
+- [**reuse**](skills/reuse/SKILL.md): Reaches for the **project's own components**, then a maintained library, then a native feature, before writing new code.
+- [**restraint**](skills/restraint/SKILL.md): Ships the **smallest thing** that does the job and deletes what nobody asked for.
+- [**copy**](skills/copy/SKILL.md): Writes interface labels in **Title Case**, short and plain, with one-line descriptions and no em dashes.
+- [**defaults**](skills/defaults/SKILL.md): Applies house defaults for **scroll edges**, surfaces, corners, focus, app chrome motion, hotkeys and stacked dialogs.
+
+### Procedures
+
+- [**verify**](skills/verify/SKILL.md): Checks a change **in the running app** before calling it done, then says where to see it.
+- [**gather**](skills/gather/SKILL.md): Collects references from **the user's own library**, their boards and pattern sites onto one linked board before a design is built.
+- [**match**](skills/match/SKILL.md): Rebuilds a named reference from its **real source and computed values**, then compares the two side by side.
+- [**rule**](skills/rule/SKILL.md): Turns a **repeated correction** into a short project rule with the broken and fixed line, then applies it to existing code.
+- [**ship**](skills/ship/SKILL.md): Commits, pushes, merges and releases a change, **watches the checks** and confirms it is live. User-invoked.
+- [**prototype**](skills/prototype/SKILL.md): Builds several **real, labelled variants** of one idea on a single page so the user can pick, then deletes the rest. User-invoked.
+- [**lab**](skills/lab/SKILL.md): Builds a temporary page that shows **every variant and state** of real components at once, each linked to its source. User-invoked.
+- [**audit**](skills/audit/SKILL.md): Reviews a change, a session or a whole codebase **against every skill** in this collection and returns one ranked, numbered report. User-invoked.
 
 ## Install
 
@@ -33,9 +39,20 @@ npx skills add raphaelsalaja/skills
 
 ## Use a skill
 
-Installing the collection registers every skill. Ask for the work in plain language, such as a motion review or a morphing icon, and the matching skill applies. You can also point an agent at one `SKILL.md` and tell it to follow that file.
+Principle skills and `verify`, `gather`, `match` and `rule` apply on their own when the work calls for them. Call the user-invoked ones by name:
+
+```text
+/ship
+/prototype a denser filter bar
+/lab the menu components
+/audit the uncommitted diff
+```
 
 A review ends as `file:line` findings with a rule id, then a short summary table. `Block` means a high-severity finding remains. `Approve` means it does not.
+
+## Archive
+
+The interface checks from [userinterface.wiki](https://www.userinterface.wiki) that used to live here are in `archive/interface-skills/`. The earlier article skills are in `archive/original-article-skills/`. Neither folder is installed.
 
 ## Claude Code plugin
 
@@ -43,3 +60,5 @@ A review ends as `file:line` findings with a rule id, then a short summary table
 /plugin marketplace add raphaelsalaja/skills
 /plugin install userinterface@userinterface
 ```
+
+Plugin skills take the plugin name as a prefix, such as `/userinterface:audit`.
