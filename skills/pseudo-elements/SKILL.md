@@ -1,333 +1,81 @@
 ---
 name: pseudo-elements
-description: Audit CSS for pseudo-element best practices and View Transitions API usage. Use when reviewing hover effects, decorative layers, or page transitions. Outputs file:line findings.
+description: Reviews decorative pseudo-elements, native control styling and the View Transitions API.
 license: MIT
 metadata:
   author: raphael-salaja
-  version: "2.0.0"
-  source: /content/taking-advantage-of-pseudo-elements/index.mdx
+  version: "1.0.0"
+  source: https://www.userinterface.wiki
 ---
 
-# Pseudo Elements
+# Pseudo-elements
 
-Review CSS and JavaScript for pseudo-element best practices and View Transitions API usage.
+This skill reviews CSS pseudo-elements and the View Transitions API. It prefers a pseudo-element over an extra node when the layer is decorative.
 
-## How It Works
+Every check is a pair. The broken line sits beside the line that replaces it.
 
-1. Read the specified files (or prompt user for files/pattern)
-2. Check against all rules below
-3. Output findings in `file:line` format
+`content: ""` is required or `::before` and `::after` do not render. That is exact. A second DOM node used only as a wash or a hit pad is a finding when a pseudo-element can do it. Minimum target size belongs to `laws-of-ux`. Shadow animation via a pseudo-element belongs to `visual-design`. Component exit mounting belongs to `exit-animations`.
 
-## Rule Categories
+## When to use
 
-| Priority | Category | Prefix |
-|----------|----------|--------|
-| 1 | Before/After | `pseudo-` |
-| 2 | View Transitions | `transition-` |
-| 3 | Native Styling | `native-` |
+Use this when styling hover layers, hit areas, placeholders, selections, dialog backdrops or a shared-element page change. Use `exit-animations` for a Motion tree that mounts and unmounts in place.
 
-## Rules
+## 1. Read the decorative layers
 
-### Before/After Rules
+Read the files in scope. List `::before`, `::after`, `::backdrop`, `::placeholder`, `::selection`, `::marker`, `::first-line` and any `view-transition-name` or `startViewTransition` call.
 
-#### `pseudo-content-required`
-::before and ::after require content property to render.
+## 2. Check generated boxes
 
-**Fail:**
-```css
-.button::before {
-  position: absolute;
-  background: var(--gray-3);
-}
-```
+`::before` and `::after` set `content`, usually `""`. That is `pseudo-content-required`. Decorative washes, underlines and hit pads use a pseudo-element instead of an empty `span`. That is `pseudo-over-dom-node`. An absolute pseudo-element has a `position: relative` parent. That is `pseudo-position-relative-parent`. If the pseudo covers the text, put the text above it, typically with `z-index: -1` on the pseudo. That is `pseudo-z-index-layering`.
 
-**Pass:**
-```css
-.button::before {
-  content: "";
-  position: absolute;
-  background: var(--gray-3);
-}
-```
+Expand a hit area with a negative inset on the pseudo, as in `inset: -8px -12px`. That is `pseudo-hit-target-expansion`. The `32px` minimum target is `laws-of-ux`.
 
-#### `pseudo-over-dom-node`
-Use pseudo-elements for decorative content instead of extra DOM nodes.
+Style list markers with `::marker`, not a fake bullet element. That is `pseudo-marker-styling`. Style the first line of a passage with `::first-line`. That is `pseudo-first-line-styling`.
 
-**Fail:**
-```tsx
-<button className={styles.button}>
-  <span className={styles.background} /> {/* Unnecessary DOM node */}
-  Click me
-</button>
-```
+## 3. Check native pseudos and view transitions
 
-**Pass:**
-```tsx
-<button className={styles.button}>
-  Click me
-</button>
-```
-```css
-.button::before {
-  content: "";
-  /* decorative background */
-}
-```
+A `dialog` or popover dims the page with `::backdrop`, not a sibling overlay `div`. That is `native-backdrop-styling`. Placeholder text uses `::placeholder`. That is `native-placeholder-styling`. Selection color uses `::selection`. That is `native-selection-styling`.
 
-#### `pseudo-position-relative-parent`
-Parent must have position: relative for absolute pseudo-elements.
+An element that should morph across a page sets `view-transition-name` on the single participant. That is `transition-name-required`. The name is unique while the transition runs. That is `transition-name-unique`. Clear the name from the source when the target takes it. That is `transition-name-cleanup`. Prefer `document.startViewTransition` over a Motion `layoutId` for that shared-element page change. That is `transition-over-js-library`. Custom timing goes on `::view-transition-group`, not only the default crossfade. That is `transition-style-pseudo-elements`.
 
-**Fail:**
-```css
-.button::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-/* .button has no position */
-```
+## 4. Report and stop
 
-**Pass:**
-```css
-.button {
-  position: relative;
-}
+Write findings, then the summary. Do not replace a semantic element with a pseudo-element.
+## The pair
 
-.button::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-}
-```
+Every check is a pair. The broken line sits beside the line that replaces it.
 
-#### `pseudo-z-index-layering`
-Pseudo-elements need z-index to layer correctly with content.
+| Rule | Broken | Replacement |
+| --- | --- | --- |
+| `pseudo-content-required` | `.button::before { position: absolute }` | Add `content: ""` |
+| `pseudo-over-dom-node` | `<span className={styles.background} />` inside a button | `.button::before` for that wash |
+| `pseudo-position-relative-parent` | Absolute `::before` on a static parent | `.button { position: relative }` |
+| `pseudo-z-index-layering` | A `::before` wash with no `z-index` over the label | `z-index: -1` on the pseudo |
+| `pseudo-hit-target-expansion` | A hit box equal to the glyph | `inset: -8px -12px` on `::before` |
+| `pseudo-marker-styling` | A fake bullet element | `li::marker` |
+| `pseudo-first-line-styling` | A wrapped first-line span | `p::first-line` |
+| `native-backdrop-styling` | A sibling overlay behind `<dialog>` | `dialog::backdrop` |
+| `native-placeholder-styling` | A placeholder `<span>` toggled on empty input | `input::placeholder` |
+| `native-selection-styling` | A selection color set on a wrapper | `::selection` |
+| `transition-name-unique` | `.card { view-transition-name: card }` on every card | One name on the active element |
+| `transition-name-cleanup` | The source keeps `viewTransitionName` after the swap | Clear it inside the callback |
+| `transition-over-js-library` | `layoutId` for a cross-page shared element | `document.startViewTransition` |
 
-**Fail:**
-```css
-.button::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--gray-3);
-}
-/* Covers button text */
-```
+## Reporting
 
-**Pass:**
-```css
-.button {
-  position: relative;
-  z-index: 1;
-}
+**Severity.** `HIGH` is a pseudo-element that never renders because `content` is missing, or a view-transition name that collides. `MEDIUM` is an extra decorative node, a backdrop `div`, a name that is not cleared, or a hit area that was not expanded. `LOW` is an unstyled `::selection` or `::marker` where the rest of the UI is styled.
 
-.button::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: var(--gray-3);
-  z-index: -1;
-}
-```
+**Verification.** Read the declared values in the files in scope. A browser is optional. Mark any check you could not run as `Not verified`.
 
-#### `pseudo-hit-target-expansion`
-Use negative inset values to expand hit targets without extra markup.
-
-**Fail:**
-```tsx
-<div className={styles.wrapper}> {/* Extra wrapper for hit target */}
-  <a className={styles.link}>Link</a>
-</div>
-```
-
-**Pass:**
-```css
-.link {
-  position: relative;
-}
-
-.link::before {
-  content: "";
-  position: absolute;
-  inset: -8px -12px;
-}
-```
-
-### View Transitions Rules
-
-#### `transition-name-required`
-Elements participating in view transitions need view-transition-name.
-
-**Fail:**
-```ts
-document.startViewTransition(() => {
-  // No view-transition-name assigned
-  targetImg.src = newSrc;
-});
-```
-
-**Pass:**
-```ts
-sourceImg.style.viewTransitionName = "card";
-document.startViewTransition(() => {
-  sourceImg.style.viewTransitionName = "";
-  targetImg.style.viewTransitionName = "card";
-});
-```
-
-#### `transition-name-unique`
-Each view-transition-name must be unique on the page during transition.
-
-**Fail:**
-```css
-.card {
-  view-transition-name: card;
-}
-/* Multiple cards with same name */
-```
-
-**Pass:**
-```ts
-// Assign unique name only to transitioning element
-element.style.viewTransitionName = `card-${id}`;
-```
-
-#### `transition-name-cleanup`
-Remove view-transition-name after transition completes.
-
-**Fail:**
-```ts
-sourceImg.style.viewTransitionName = "card";
-document.startViewTransition(() => {
-  targetImg.style.viewTransitionName = "card";
-});
-// sourceImg still has name, causes conflict on next transition
-```
-
-**Pass:**
-```ts
-sourceImg.style.viewTransitionName = "card";
-document.startViewTransition(() => {
-  sourceImg.style.viewTransitionName = "";
-  targetImg.style.viewTransitionName = "card";
-});
-```
-
-#### `transition-over-js-library`
-Prefer View Transitions API over JavaScript animation libraries for page transitions.
-
-**Fail:**
-```tsx
-import { motion } from "motion/react";
-
-function ImageLightbox() {
-  return (
-    <motion.img layoutId="hero" /> // JS-based shared element transition
-  );
-}
-```
-
-**Pass:**
-```ts
-function openLightbox(img: HTMLImageElement) {
-  img.style.viewTransitionName = "hero";
-  document.startViewTransition(() => {
-    // Native browser transition
-  });
-}
-```
-
-#### `transition-style-pseudo-elements`
-Style view transition pseudo-elements for custom animations.
-
-**Fail:**
-```ts
-document.startViewTransition(() => { /* ... */ });
-// Uses default crossfade
-```
-
-**Pass:**
-```css
-::view-transition-group(card) {
-  animation-duration: 300ms;
-  animation-timing-function: cubic-bezier(0.215, 0.61, 0.355, 1);
-}
-```
-
-### Native Styling Rules
-
-#### `native-backdrop-styling`
-Use ::backdrop pseudo-element for dialog/popover backgrounds.
-
-**Fail:**
-```tsx
-<>
-  <div className={styles.overlay} onClick={close} />
-  <dialog className={styles.dialog}>{children}</dialog>
-</>
-```
-
-**Pass:**
-```css
-dialog::backdrop {
-  background: var(--black-a6);
-  backdrop-filter: blur(4px);
-}
-```
-
-#### `native-placeholder-styling`
-Use ::placeholder for input placeholder styling, not wrapper elements.
-
-**Fail:**
-```tsx
-<div className={styles.inputWrapper}>
-  {!value && <span className={styles.placeholder}>Enter text...</span>}
-  <input value={value} />
-</div>
-```
-
-**Pass:**
-```css
-input::placeholder {
-  color: var(--gray-9);
-  opacity: 1;
-}
-```
-
-#### `native-selection-styling`
-Use ::selection for text selection styling.
-
-**Pass:**
-```css
-::selection {
-  background: var(--blue-a5);
-  color: var(--gray-12);
-}
-```
-
-## Output Format
-
-When reviewing files, output findings as:
+**Format.** One finding per root cause:
 
 ```
-file:line - [rule-id] description of issue
-
-Example:
-components/button/styles.module.css:12 - [pseudo-content-required] ::before missing content property
-components/lightbox/index.tsx:45 - [transition-over-js-library] Using motion layoutId instead of View Transitions API
+file:line - [rule-id] what is wrong
 ```
 
-## Summary Table
-
-After findings, output a summary:
+Then a summary:
 
 | Rule | Count | Severity |
-|------|-------|----------|
-| `pseudo-content-required` | 2 | HIGH |
-| `pseudo-over-dom-node` | 1 | MEDIUM |
-| `transition-name-cleanup` | 1 | MEDIUM |
+| --- | --- | --- |
 
-## References
-
-- [MDN Pseudo-elements Reference](https://developer.mozilla.org/en-US/docs/Web/CSS/Reference/Selectors/Pseudo-elements)
-- [View Transitions API](https://developer.mozilla.org/en-US/docs/Web/API/View_Transitions_API)
+`Block` when any `HIGH` remains. `Approve` otherwise, and leave lesser rows in the table. Never `Approve` a file you did not read. With nothing to report, say "No actionable findings" and list what was not verified.

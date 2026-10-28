@@ -1,0 +1,14 @@
+{
+  "name": "userinterface",
+  "description": "Agent skills for interface motion, sound, typography and visual detail.",
+  "owner": {
+    "name": "Raphael Salaja"
+  },
+  "plugins": [
+    {
+      "name": "userinterface",
+      "source": "./",
+      "description": "Skills for interface motion, sound, typography and visual detail, from the checks on userinterface.wiki."
+    }
+  ]
+}
