@@ -1,0 +1,11 @@
+{
+  "name": "userinterface",
+  "description": "Skills for interface motion, sound, typography and visual detail, from the checks on userinterface.wiki.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Raphael Salaja"
+  },
+  "homepage": "https://www.userinterface.wiki/",
+  "repository": "https://github.com/raphaelsalaja/skills",
+  "license": "MIT"
+}
