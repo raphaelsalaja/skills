@@ -1,7 +1,7 @@
 {
   "name": "userinterface",
-  "description": "Skills for interface motion, sound, typography and visual detail, from the checks on userinterface.wiki.",
-  "version": "1.0.0",
+  "description": "Skills for building interfaces with coding agents: scope, reuse, restraint, copy, defaults, verification, inspiration, references, rules, prototypes, labs, shipping and audits.",
+  "version": "2.0.0",
   "author": {
     "name": "Raphael Salaja"
   },

@@ -4,54 +4,70 @@ This file is the single source of guidance for coding agents working in this rep
 
 ## What this repository is
 
-A collection of agent skills for the interface checks on [userinterface.wiki](https://www.userinterface.wiki). It is distributed two ways: via `npx skills add raphaelsalaja/skills` and as the Claude Code plugin `userinterface` served by the marketplace in this same repository. It is documentation. There is no repository-wide build, lint or test tooling.
+A collection of agent skills for building interfaces with coding agents. It is distributed two ways: via `npx skills add raphaelsalaja/skills` and as the Claude Code plugin `userinterface` served by the marketplace in this same repository. It is documentation. There is no repository-wide build, lint or test tooling.
 
-The house rule is the pair. Every rule shows the broken line and the line that replaces it. `## The pair` in each skill is that rule, and a finding is `file:line - [rule-id]`.
+The house rule is the pair. Every rule shows the broken line and the line that replaces it. `## The pair` in each skill is that rule, and a finding is `file:line - [rule-id]`. When a finding is about the work rather than a file, cite the request or the step instead: `request 2 - [rule-id]`.
 
-The long-form articles, demos and the single compiled skill `userinterface-wiki` stay in [raphaelsalaja/userinterface-wiki](https://github.com/raphaelsalaja/userinterface-wiki). Do not paste those essays back into this repo. A skill here states the rule, the exact value and the detection pattern. It does not restate a sibling skill.
+A skill states the rule, the exact value and the detection pattern. It does not restate a sibling skill. It names no person, company or outside product as its source.
 
-`.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` define the plugin and its marketplace. Both are named `userinterface`, so plugin users invoke skills as `/userinterface:timing-functions` while skills-CLI users invoke `/timing-functions`. Skills are discovered from `skills/` automatically, so adding a skill needs no manifest change. Bump `version` in `plugin.json` in the same commit as any change under `skills/`. That number is the only signal plugin users update on.
+`.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` define the plugin and its marketplace. Both are named `userinterface`, so plugin users invoke skills as `/userinterface:verify` while skills-CLI users invoke `/verify`. Skills are discovered from `skills/` automatically, so adding a skill needs no manifest change. Bump `version` in `plugin.json` in the same commit as any change under `skills/`. That number is the only signal plugin users update on.
 
 `opencode.json` registers `skills/` under `skills.paths` so opencode loads the collection while this repository itself is open.
 
+## Archive
+
+`archive/interface-skills/` holds the twelve interface checks from userinterface.wiki that `skills/` used to ship. `archive/original-article-skills/` holds the article skills before them. Nothing under `archive/` is installed. Do not edit it except to restore a skill, which moves it back into `skills/` with a version bump.
+
+## Two kinds of skill
+
+**Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy` and `defaults`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
+
+**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `ship`, `prototype`, `lab` and `audit`. Their steps are numbered `## 1.` onward.
+
+## Invocation
+
+`ship`, `prototype`, `lab` and `audit` are user-invoked. Each one sets `disable-model-invocation: true` in its frontmatter and `allow_implicit_invocation: false` under `policy` in `agents/openai.yaml`. Set both or neither. The README line ends with "User-invoked." Every other skill may load on its own.
+
 ## Structure
 
-Each skill lives in `skills/<skill-name>/`, with `SKILL.md` as the entry point. `agents/openai.yaml` carries the display name.
+Each skill lives in `skills/<name>/`, with `SKILL.md` as the entry point. `agents/openai.yaml` carries the display name and the short description. A supporting file such as `recipes.md`, `sources.md` or `report.md` sits beside `SKILL.md` only when it holds code or a format too long for the skill. Link it from the section that uses it.
 
 Every `SKILL.md` carries:
 
-- Frontmatter with `name` matching the directory, and a `description` of one or two sentences. The description matches that skill's line in `README.md`.
+- Frontmatter with `name` matching the directory, a one-sentence `description` and the invocation flag where it applies. The description matches that skill's line in `README.md`, without the bold.
 - A plain-name H1 and a two-sentence opener saying what the skill does.
-- A calibration of how hard to press, including which values are exact.
-- `## When to use`.
-- Numbered steps for the procedure, then principle sections for the rules.
+- A calibration section whose heading states how hard to press, including which values are exact and when the skill applies.
 - A hand-off naming the sibling that owns an adjacent topic, in backticks, never as a relative link. Each skill directory ships on its own.
+- Principle sections or numbered steps, by kind.
 - A `## The pair` table. Each row is a rule id, the broken line and the line that replaces it. That table is the house rule.
 - A `## Reporting` section with the severity ladder and the `file:line - [rule-id]` format.
 
-Headings are sentence case. Number them only where the steps run in order. Straight quotes. No em dashes. En dashes are for numeric ranges only. No serial comma.
+Every rule id starts with its skill's name, such as `defaults-fade-not-cut`. Each id appears once in the prose and once in the pair.
+
+Headings are sentence case. Straight quotes. No em dashes. En dashes are for numeric ranges only. No serial comma.
 
 ## Rule ownership
 
 | Skill | Owns |
 | --- | --- |
-| `animation-principles` | Press scale `0.98`, squash inside `0.95`–`1.05`, stagger under `50ms`, one focal motion, dimmed backdrops, stacking |
-| `timing-functions` | Spring versus easing versus linear versus none, duration bands, the `300ms` cap, context-menu entrances |
-| `exit-animations` | `AnimatePresence`, exit props, keys, presence hooks, modes, nested `propagate` |
-| `pseudo-elements` | `::before` and `::after`, native pseudos, view-transition names |
-| `interface-sound` | When UI sound may play, mute, volume, reduced motion, preload |
-| `synthesize-sound` | One `AudioContext`, exponential envelopes, click length and filter |
-| `morphing-icons` | The three-line SVG icon model, collapsed lines, rotation groups |
-| `container-bounds` | Measure the inner node, animate the outer node |
-| `laws-of-ux` | Target size, hit area, choices, the `400ms` response, grouping laws |
-| `predictive-prefetch` | Trajectory prefetch versus hover or viewport prefetch |
-| `interface-typography` | Figures, OpenType, wrapping, uppercase spacing |
-| `visual-design` | Concentric radius, shadows, alpha borders, the spacing scale |
+| `verify` | Evidence from the running result, repeat reports, where to see the change |
+| `scope` | Every ask in the message, the smallest reading, earlier instructions, keeping what worked, no phasing |
+| `reuse` | Own component, then library, then platform, then custom, one standard, fixes in the primitive and the sibling sweep |
+| `restraint` | Unrequested interface, settings and code, fallbacks, legacy, deleting instead of deferring, narrating comments |
+| `copy` | Title Case labels, word count, one-line descriptions, status tense, em dashes and ellipses |
+| `defaults` | Scroll edges, clipped shadows, pills, decoration, focus rings, hotkeys in inputs, chrome motion, stacked dialogs |
+| `gather` | Finding references across the user's library, boards and pattern sites, the linked board, saving picks |
+| `match` | Inspecting a named reference, computed values, state inventory, side-by-side proof |
+| `rule` | Writing a correction into the agent file, conflicts between rules, sweeping old breaks |
+| `ship` | Commits, changesets, pushes, merges, pull requests per bug, releases, deploy checks |
+| `prototype` | Labelled real-code variants of one idea, pruning after the pick |
+| `lab` | Every state of real components forced open on one development page |
+| `audit` | Review scope, running every skill, merging by root cause, the numbered report and the verdict |
 
-`timing-functions` owns the `300ms` animation cap. `laws-of-ux` owns the `400ms` response threshold. `exit-animations` may cite `300ms` only for `mode="wait"`, and it names `timing-functions` beside that number. `pseudo-elements` owns the negative-inset hit recipe. `laws-of-ux` owns the `32px` minimum and points at `pseudo-elements` for the inset.
+`reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `copy` owns the words that stay. `defaults` owns how the surfaces that stay behave. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
 
 ## Authoring
 
-A description change updates `README.md` in the same commit. A rename updates the directory, the frontmatter `name` and `display_name` in `agents/openai.yaml`.
+A description change updates `README.md` in the same commit. A rename updates the directory, the frontmatter `name`, the rule id prefix and `display_name` in `agents/openai.yaml`.
 
 Sentences stay at or under 30 words, counting a code span as one word. Before adding a sentence, check whether another skill already owns that rule.

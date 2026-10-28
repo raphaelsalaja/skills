@@ -1,0 +1,61 @@
+# Sources
+
+How to reach each source in `SKILL.md`. Search them in this order and skip any the user has not connected.
+
+## What the user gave
+
+| Input | Reach it with |
+| --- | --- |
+| Open browser tabs | List the tabs and read each page |
+| Screenshots in the thread | Read the images |
+| Design files | The Figma MCP `get_screenshot` on the linked node |
+| Live sites | Open the page. For exact values, hand over to `match` |
+
+## Pond
+
+The user's own library of saves from Instagram, X, Pinterest, Are.na, Cosmos and the web. Pond runs as a local MCP server over stdio:
+
+```json
+{
+  "mcpServers": {
+    "pond": {
+      "command": "/Applications/Pond.app/Contents/MacOS/Pond",
+      "args": ["--mcp"]
+    }
+  }
+}
+```
+
+Copy the exact command from Pond, under Settings, Model Context Protocol. The Search Saves switch under Access must be on.
+
+| Tool | Use |
+| --- | --- |
+| `search_library` | Search by meaning, such as `{ "query": "dense settings with grouped rows" }` |
+| `search_library` with `saveId` | Saves that look like one the user likes |
+| `query_library` | Filter by source, folder, tag or `savedSince` |
+| `list_folders` | Find the user's own groupings before searching |
+| `read_save` | Caption, text in images, note, link and metadata |
+| `grep_library` | Exact words inside captions, notes and image text |
+| `open_save`, `apply_filter` | Show a result in the Pond window |
+
+A save's files sit in `<Library>.pond/items/<id>.info/`, so a board can show the original image. The Local API also saves URLs with `POST /enqueue`, and `created: false` means the URL is already saved. Its token stays in Pond's settings and is never pasted into chat.
+
+## Boards
+
+| Source | Reach it with |
+| --- | --- |
+| Are.na | The user's channels in the logged-in browser, or the v3 API |
+| Cosmos | The user's clusters in the logged-in browser |
+| Pinterest | The user's boards in the logged-in browser or with computer use |
+
+Read the user's existing channel and board names before creating one.
+
+## Pattern libraries
+
+| Tool | Use |
+| --- | --- |
+| Mobbin `search_screens` | Single screens. Set `platform` to `web` for desktop and web work |
+| Mobbin `search_flows` | Multi-step flows, such as onboarding or checkout |
+| Mobbin `search_sections` | Sections of marketing sites |
+| Mobbin `exclude_screen_ids` | Leave out screens already shown when the user asks for more |
+| Mobbin `list_collections`, `get_collection_contents` | The user's own saved collections, searched first |
