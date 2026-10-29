@@ -33,7 +33,7 @@ Check the scope against each skill and record what you inspected.
 | `reuse` | New components, styles and icons against the shared package |
 | `restraint` | Unrequested UI, settings, fallbacks, dead code and narrating comments |
 | `copy` | Every label, description and status string |
-| `defaults` | Scroll edges, surfaces, focus, hotkeys, chrome motion and dialogs |
+| `defaults` | Surfaces, type, motion, sound, focus, names, forms, loading, hotkeys and dialogs |
 | `gather` | Each reference board: platform, links and the part to take |
 | `match` | Each named reference, when the work copies one |
 | `rule` | Repeated corrections with no written rule, and edits that break one |
