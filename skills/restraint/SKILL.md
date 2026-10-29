@@ -15,7 +15,7 @@ Label wording belongs to `copy`. Reusing an existing part belongs to `reuse`.
 
 ## Nothing beside the ask
 
-Add no sections, badges, counts, captions, footers, icons inside buttons or decorative effects the user did not request. A count badge on every row is `restraint-no-unrequested-ui`.
+Add no sections, badges, counts, captions, footers, icons inside buttons, sounds or decorative effects the user did not request. A count badge on every row is `restraint-no-unrequested-ui`.
 
 ## No feedback the screen already gives
 

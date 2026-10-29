@@ -51,7 +51,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `reuse` | Own component, then library, then platform, then custom, one standard, fixes in the primitive and the sibling sweep |
 | `restraint` | Unrequested interface, settings and code, fallbacks, legacy, deleting instead of deferring, narrating comments |
 | `copy` | Title Case labels, word count, one-line descriptions, status tense, em dashes and ellipses |
-| `defaults` | Scroll edges, clipped shadows, pills, decoration, focus rings, hotkeys in inputs, chrome motion, stacked dialogs |
+| `defaults` | Scroll edges, shadows, surfaces, theme, focus and accessible names, hit areas, links and URL state, forms, loading, type rendering, motion timing and exits, sound cues, hotkeys in inputs, dialogs |
 | `gather` | Finding references across the user's library, boards and pattern sites, the linked board, saving picks |
 | `match` | Inspecting a named reference, computed values, state inventory, side-by-side proof |
 | `rule` | Writing a correction into the agent file, conflicts between rules, sweeping old breaks |
