@@ -29,6 +29,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**ship**](skills/ship/SKILL.md): Commits, pushes, merges and releases a change, **watches the checks** and confirms it is live. User-invoked.
 - [**prototype**](skills/prototype/SKILL.md): Builds several **real, labelled variants** of one idea on a single page so the user can pick, then deletes the rest. User-invoked.
 - [**lab**](skills/lab/SKILL.md): Builds a temporary page that shows **every variant and state** of real components at once, each linked to its source. User-invoked.
+- [**deconstruct**](skills/deconstruct/SKILL.md): Breaks an animation or interaction into **a state machine and a timeline** of every property, on a page you can scrub through. User-invoked.
 - [**audit**](skills/audit/SKILL.md): Reviews a change, a session or a whole codebase **against every skill** in this collection and returns one ranked, numbered report. User-invoked.
 
 ## Install
@@ -45,6 +46,7 @@ Principle skills and `verify`, `gather`, `match` and `rule` apply on their own w
 /ship
 /prototype a denser filter bar
 /lab the menu components
+/deconstruct the copy button animation
 /audit the uncommitted diff
 ```
 
