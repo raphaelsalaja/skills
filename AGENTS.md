@@ -14,10 +14,6 @@ A skill states the rule, the exact value and the detection pattern. It does not 
 
 `opencode.json` registers `skills/` under `skills.paths` so opencode loads the collection while this repository itself is open.
 
-## Archive
-
-`archive/interface-skills/` holds the twelve interface checks from userinterface.wiki that `skills/` used to ship. `archive/original-article-skills/` holds the article skills before them. Nothing under `archive/` is installed. Do not edit it except to restore a skill, which moves it back into `skills/` with a version bump.
-
 ## Two kinds of skill
 
 **Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy` and `defaults`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
