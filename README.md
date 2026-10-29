@@ -54,10 +54,6 @@ Principle skills and `verify`, `gather`, `match` and `rule` apply on their own w
 
 A review ends as `file:line` findings with a rule id, then a short summary table. `Block` means a high-severity finding remains. `Approve` means it does not.
 
-## Archive
-
-The interface checks from [userinterface.wiki](https://www.userinterface.wiki) that used to live here are in `archive/interface-skills/`. The earlier article skills are in `archive/original-article-skills/`. Neither folder is installed.
-
 ## Claude Code plugin
 
 ```text
