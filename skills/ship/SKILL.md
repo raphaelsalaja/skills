@@ -20,7 +20,7 @@ Run `git status` and read every changed file. Name any file you did not change i
 
 ## 2. Commit per change
 
-Make one commit per logical change, with a message that says what changed. One commit for a feature, a fix and a rename is `ship-commit-per-change`. In a package that publishes releases, add the changeset with the change. A release-bound change with no changeset is `ship-changeset-for-packages`.
+Make one commit per logical change. One commit for a feature, a fix and a rename is `ship-commit-per-change`. Write every message as a Conventional Commit: `type(scope): summary` in the imperative, lowercase and with no full stop. Use `feat`, `fix`, `docs`, `refactor`, `chore` or another standard type, and mark a breaking change with `!` after the type. A message like "Remove the archive." is `ship-conventional-commits`. In a package that publishes releases, add the changeset with the change. A release-bound change with no changeset is `ship-changeset-for-packages`.
 
 ## 3. Push, merge and tidy
 
@@ -46,7 +46,8 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | --- | --- | --- |
 | `ship-flag-stray-files` | `git add -A` with someone else's file in the tree | The file named, then a question |
 | `ship-no-secrets` | `.env.local` committed | `.env.local` ignored, the secret flagged for rotation |
-| `ship-commit-per-change` | One commit: "updates" | `fix: keep shadows inside the scroller` |
+| `ship-commit-per-change` | One commit for a feature, a fix and a rename | Three commits, one per change |
+| `ship-conventional-commits` | `Remove the archive.` | `chore: remove the archive` |
 | `ship-changeset-for-packages` | A package fix with no changeset | The changeset in the same commit |
 | `ship-merge-and-tidy` | Merged, the branch still checked out | Merged, deleted, back on `main` |
 | `ship-one-pr-per-bug` | One pull request for three bugs | Three pull requests |
@@ -58,7 +59,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a committed secret, a stray file committed or a release with failing checks. `MEDIUM` is a bundled commit or pull request, an open issue after the fix or steps handed back that could have run. `LOW` is a missing screenshot or a branch left after merge.
+**Severity.** `HIGH` is a committed secret, a stray file committed or a release with failing checks. `MEDIUM` is a bundled commit or pull request, an open issue after the fix or steps handed back that could have run. `LOW` is a message that is not a Conventional Commit, a missing screenshot or a branch left after merge.
 
 **Format.** One finding per root cause, citing the step when no file applies:
 
