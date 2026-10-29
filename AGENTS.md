@@ -22,11 +22,11 @@ A skill states the rule, the exact value and the detection pattern. It does not 
 
 **Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy` and `defaults`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
 
-**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `ship`, `prototype`, `lab`, `deconstruct` and `audit`. Their steps are numbered `## 1.` onward.
+**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment` and `audit`. Their steps are numbered `## 1.` onward.
 
 ## Invocation
 
-`ship`, `prototype`, `lab`, `deconstruct` and `audit` are user-invoked. Each one sets `disable-model-invocation: true` in its frontmatter and `allow_implicit_invocation: false` under `policy` in `agents/openai.yaml`. Set both or neither. The README line ends with "User-invoked." Every other skill may load on its own.
+`ship`, `prototype`, `lab`, `deconstruct`, `alignment` and `audit` are user-invoked. Each one sets `disable-model-invocation: true` in its frontmatter and `allow_implicit_invocation: false` under `policy` in `agents/openai.yaml`. Set both or neither. The README line ends with "User-invoked." Every other skill may load on its own.
 
 ## Structure
 
@@ -63,6 +63,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `prototype` | Labelled real-code variants of one idea, pruning after the pick |
 | `lab` | Every state of real components forced open on one development page |
 | `deconstruct` | Motion broken into named states, events and per-property tracks, the scrubbable viewer |
+| `alignment` | Measured edges, gaps, ink centring, optical nudges, concentric radii, visual weight, the annotated report |
 | `audit` | Review scope, running every skill, merging by root cause, the numbered report and the verdict |
 
 `reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `copy` owns the words that stay. `defaults` owns how the surfaces that stay behave. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
