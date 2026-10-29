@@ -10,7 +10,7 @@ The house rule is the pair. Every rule shows the broken line and the line that r
 
 A skill states the rule, the exact value and the detection pattern. It does not restate a sibling skill. It names no person, company or outside product as its source.
 
-`.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` define the plugin and its marketplace. Both are named `userinterface`, so plugin users invoke skills as `/userinterface:verify` while skills-CLI users invoke `/verify`. Skills are discovered from `skills/` automatically, so adding a skill needs no manifest change. Bump `version` in `plugin.json` in the same commit as any change under `skills/`. That number is the only signal plugin users update on.
+`.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` define the plugin and its marketplace. Both are named `userinterface`, so plugin users invoke skills as `/userinterface:verify` while skills-CLI users invoke `/verify`. Skills are discovered from `skills/` automatically, so adding a skill needs no manifest change. Bump `version` in `plugin.json` in the same commit as any change under `skills/`. That number is the only signal plugin users update on. Commit messages follow Conventional Commits, such as `feat(defaults): add the safe-area rule`.
 
 `opencode.json` registers `skills/` under `skills.paths` so opencode loads the collection while this repository itself is open.
 
@@ -55,7 +55,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `gather` | Finding references across the user's library, boards and pattern sites, the linked board, saving picks |
 | `match` | Inspecting a named reference, computed values, state inventory, side-by-side proof |
 | `rule` | Writing a correction into the agent file, conflicts between rules, sweeping old breaks |
-| `ship` | Commits, changesets, pushes, merges, pull requests per bug, releases, deploy checks |
+| `ship` | Commits and their Conventional Commit messages, changesets, pushes, merges, pull requests per bug, releases, deploy checks |
 | `prototype` | Labelled real-code variants of one idea, pruning after the pick |
 | `lab` | Every state of real components forced open on one development page |
 | `deconstruct` | Motion broken into named states, events and per-property tracks, the scrubbable viewer |
