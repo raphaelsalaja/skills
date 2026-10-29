@@ -30,13 +30,16 @@ Copy the exact command from Pond, under Settings, Model Context Protocol. The Se
 
 | Tool | Use |
 | --- | --- |
-| `search_library` | Search by meaning, such as `{ "query": "dense settings with grouped rows" }` |
-| `search_library` with `saveId` | Saves that look like one the user likes |
-| `query_library` | Filter by source, folder, tag or `savedSince` |
+| `search_library` | Search by meaning, such as `{ "query": "website design" }` |
+| `search_library` with `source` | Only one platform, such as `arena`, `cosmos`, `pinterest` or `savee` |
+| `search_library` with `visual: { "kind": "saveId", "id" }` | Saves that look like one the user likes |
+| `query_library` | Filter by keywords, source, folder, tag or `savedSince` |
 | `list_folders` | Find the user's own groupings before searching |
 | `read_save` | Caption, text in images, note, link and metadata |
-| `grep_library` | Exact words inside captions, notes and image text |
+| `grep_library` | Exact words in `query` inside captions, notes and image text |
 | `open_save`, `apply_filter` | Show a result in the Pond window |
+
+Keep queries to two or three words and run several. A long descriptive query can return nothing while its short parts match.
 
 A save's files sit in `<Library>.pond/items/<id>.info/`, so a board can show the original image. The Local API also saves URLs with `POST /enqueue`, and `created: false` means the URL is already saved. Its token stays in Pond's settings and is never pasted into chat.
 
