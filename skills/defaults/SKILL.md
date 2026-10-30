@@ -1,17 +1,17 @@
 ---
 name: defaults
-description: Applies house defaults for scroll edges, surfaces, type, motion, sound, focus, forms, loading, hotkeys and dialogs.
+description: Applies house defaults for scroll edges, surfaces, type, sound, focus, forms, loading, hotkeys and dialogs.
 ---
 
 # Defaults
 
-This skill holds the interface defaults that apply on every screen. It covers surfaces, type, motion, sound, focus, forms, loading and overlays.
+This skill holds the interface defaults that apply on every screen. It covers surfaces, type, sound, focus, forms, loading and overlays.
 
 ## Tokens first, then these values
 
 Use the project's token wherever one exists for a value below. Where none exists, the values here are exact. A hard scroll cut or a clipped shadow is a finding in any style.
 
-Words and punctuation belong to `copy`. Building any of these with the project's primitive belongs to `reuse`. Whether a sound or an animation should exist at all belongs to `restraint`. Concentric radii, optical nudges and icon alignment belong to `alignment`. Taking an existing animation apart belongs to `deconstruct`.
+Words and punctuation belong to `copy`. Building any of these with the project's primitive belongs to `reuse`. Whether a sound or an animation should exist at all belongs to `restraint`. How things move belongs to `motion`. Concentric radii, optical nudges and icon alignment belong to `alignment`.
 
 ## Scroll edges fade
 
@@ -103,6 +103,10 @@ Set `-webkit-tap-highlight-color: transparent` once on the root, and give every 
 
 Buttons and links set `touch-action: manipulation`, so a tap fires without waiting for a second tap. A tap that lands 300ms late is `defaults-fast-tap`. See [recipes.md](recipes.md#mobile-baseline).
 
+## Hover styles need a hover pointer
+
+Wrap hover-only styles in `@media (hover: hover) and (pointer: fine)`, or a tap leaves them stuck on touch screens. A card that stays lifted after a tap is `defaults-hover-capable-only`.
+
 ## Full-height layouts use dynamic units
 
 An app shell or a bottom-pinned bar uses `100dvh`, and a first screen uses `min-height: 100svh`. A `100vh` shell whose bottom button hides under the URL bar is `defaults-dynamic-viewport`.
@@ -183,107 +187,11 @@ Format them through `Intl.NumberFormat`, `Intl.DateTimeFormat` and `Intl.PluralR
 
 Toasts, result counts and inline validation sit in a polite live region, `role="status"`, rendered empty before its text changes. A toast that screen readers never hear is `defaults-announce-updates`.
 
-## App chrome fades
-
-Page switches, panels and loading states fade with `opacity` and do not slide or scale. That is `defaults-opacity-for-chrome`. Animate only the axis that changes. Animating width when only height changes is `defaults-changing-axis-only`.
-
-## Entrances do not replay
-
-Switching pages does not replay entrances. Set `initial={false}` on the route-level `AnimatePresence`, and on any that wraps a state swap. That is `defaults-no-replay-on-entry`. A cached view renders at once, with no fade or skeleton flash. That is `defaults-no-flash-on-return`. See [recipes.md](recipes.md#route-transitions).
-
 ## Waits show feedback at once
 
 An action responds within 400ms or shows feedback straight away, as an optimistic value, a skeleton or a progress bar. A loading branch that returns `null` is `defaults-instant-feedback`.
 
 Hold a spinner or skeleton back 150–300ms, then keep it up at least 300–500ms once shown. A skeleton that flashes for one frame is `defaults-no-flicker-loading`. A skeleton matches the layout it stands in for. See [recipes.md](recipes.md#loading-delay).
-
-## Name the properties you animate
-
-A transition lists the properties it animates, usually `opacity` and `transform`. `transition: all` is `defaults-name-the-properties`.
-
-## Toggled state transitions, keyframes run once
-
-Interactive state changes use transitions or springs, which retarget when the user reverses. A keyframe animation on a toggled class is `defaults-transitions-for-state`. Keep keyframes for sequences that run once.
-
-## Motion starts where it comes from
-
-A dropdown or popover scales from its trigger, with `transform-origin` set to that edge. A menu growing from its own centre is `defaults-origin-from-trigger`. Modals stay centred, because no trigger anchors them.
-
-## Nothing grows from zero
-
-An entrance starts from `scale(0.95)` or higher, together with `opacity: 0`. `scale(0)` is `defaults-no-scale-from-zero`.
-
-## Gestures use springs
-
-Drag, swipe and any motion the user can reverse mid-flight use a spring. On release, pass the pointer velocity into it. A drag release on a fixed `ease-out` is `defaults-spring-for-gestures`. See [recipes.md](recipes.md#drag-release).
-
-## Flicks dismiss, edges resist
-
-A swipe dismisses on distance or on speed, so past about `0.11` px per millisecond a short flick is enough. A sheet that ignores a fast flick is `defaults-flick-dismisses`.
-
-Dragging past a boundary meets growing friction rather than a wall. A drawer that stops dead at the top is `defaults-friction-at-edges`. Capture the pointer once a drag starts and ignore extra touches. See [recipes.md](recipes.md#flick-to-dismiss).
-
-## Every gesture has a button
-
-Each drag, swipe or pinch also works with a click and with the keyboard. A list that reorders only by dragging is `defaults-gesture-alternative`.
-
-## Easing fits the change
-
-System changes such as a toast use easing, not a spring. Entrances and exits ease out, and a change of view eases in and out. Linear is for progress bars and clocks only. A modal entering on `ease-in` is `defaults-ease-by-direction`.
-
-The built-in `ease-out` keyword is too weak. Use `cubic-bezier(0.23, 1, 0.32, 1)` to enter and exit, and `cubic-bezier(0.77, 0, 0.175, 1)` for movement on screen. A bare `ease-out` is `defaults-strong-ease-out`.
-
-## Closes are faster than opens
-
-A close runs shorter than its open. Nothing delays a close or a hover-out. A modal that takes as long to leave as it took to arrive is `defaults-close-faster`.
-
-## Motion stays under 300ms
-
-Hover colour changes are instant, with no transition. A button fading its background over 200ms on hover is `defaults-instant-hover-color`.
-
-Press and hover movement take 120–180ms. Small state changes take 180–260ms. Nothing the user starts runs longer than 300ms, except a full panel or drawer at up to 400ms. A 500ms dropdown is `defaults-under-300ms`.
-
-Under `mode="wait"` the exit and the entrance play in series, so halve each. When motion feels slow, shorten it before changing the curve. Samples are in [recipes.md](recipes.md#curves-and-durations).
-
-## Frequent actions do not animate
-
-Typing, keyboard shortcuts, keyboard navigation and fast toggles do not animate. A command palette opened from the keyboard appears at once. A context menu appears at once and may fade out. A scale pulse on every keystroke is `defaults-no-motion-on-repeat`.
-
-## Hover styles need a hover pointer
-
-Wrap hover-only styles in `@media (hover: hover) and (pointer: fine)`, or a tap leaves them stuck on touch screens. A card that stays lifted after a tap is `defaults-hover-capable-only`.
-
-## Tooltips wait once
-
-The first tooltip in a group opens after a delay. Its neighbours open at once and without animation while one is showing, and every tooltip closes instantly. A toolbar where each tooltip waits the full delay is `defaults-tooltip-delay`.
-
-## Icons cross-fade when they swap
-
-An icon that swaps in place, such as copy to copied, cross-fades. Scale runs `0.25` to `1`, opacity `0` to `1` and blur `4px` to `0`. A hard swap is `defaults-icon-crossfade`. See [recipes.md](recipes.md#icon-swap).
-
-## Blur bridges a cross-fade
-
-When a cross-fade between two states still reads as two objects, add `filter: blur(2px)` while it runs. Keep blur under 20px, which gets expensive in Safari. Two labels visibly overlapping mid-swap is `defaults-blur-the-crossfade`.
-
-## Presses scale lightly
-
-A pressed control scales to `0.98`, and squash or stretch stays within `0.95–1.05`. `whileTap={{ scale: 0.8 }}` is `defaults-press-scale`. List items stagger by less than 50ms each. `staggerChildren: 0.15` on a list is `defaults-short-stagger`. A staged entrance that plays once, such as a title, text and actions, staggers by 100ms. Routine interactions never stagger, and a stagger never blocks input.
-
-## Exits need a presence boundary
-
-A conditional element with an `exit` sits inside `AnimatePresence`, keyed by a stable id, and exits to its `initial` values. An exit that never plays because the wrapper is missing is `defaults-exit-in-presence`. See [recipes.md](recipes.md#exits).
-
-A dialog from a component library stays mounted and toggles its `open` prop. A dialog rendered behind `open &&`, which loses its close animation, is `defaults-dialogs-stay-mounted`.
-
-## Size follows content from a second element
-
-To animate a container's width or height, measure an inner element with a `ResizeObserver` and animate the outer one. Measuring and animating the same node is `defaults-measure-inner`. See [recipes.md](recipes.md#container-bounds).
-
-While a panel collapses, its content keeps its open width, so nothing reflows mid-animation. Sidebar content set to `w-full` as the sidebar closes is `defaults-hold-content-size`.
-
-## Reduced motion removes movement
-
-When `prefers-reduced-motion: reduce` matches, slides, scales and blurs become an opacity cross-fade. A sliding drawer that ignores the setting is `defaults-reduced-motion`.
 
 ## Sound confirms, never alone
 
@@ -328,6 +236,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `defaults-allow-zoom` | `maximum-scale=1, user-scalable=no` | `width=device-width, initial-scale=1` |
 | `defaults-no-tap-highlight` | The browser's grey flash on every tap | `-webkit-tap-highlight-color: transparent` and an `:active` style |
 | `defaults-fast-tap` | A button that responds 300ms after the tap | `touch-action: manipulation` |
+| `defaults-hover-capable-only` | `.card:hover { transform: translateY(-2px) }` | The same rule inside `@media (hover: hover) and (pointer: fine)` |
 | `defaults-dynamic-viewport` | `height: 100vh` on the app shell | `height: 100dvh` |
 | `defaults-safe-areas` | A tab bar under the home indicator | `padding-bottom: env(safe-area-inset-bottom)` with `viewport-fit=cover` |
 | `defaults-controls-not-selectable` | A long press selecting a tab's label | `user-select: none` on the tab |
@@ -349,37 +258,8 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `defaults-omit-empty-fields` | A dash where a missing role would be | The role line left out |
 | `defaults-locale-format` | `{count} members` with `count` at `1` | `Intl.PluralRules` choosing `member` or `members` |
 | `defaults-announce-updates` | A toast mounted with its text and no role | An empty `role="status"` region whose text updates |
-| `defaults-opacity-for-chrome` | `initial={{ x: 20, scale: 0.95 }}` on a page | `initial={{ opacity: 0 }}` |
-| `defaults-changing-axis-only` | `animate={{ width, height }}` when only height changes | `animate={{ height }}` |
-| `defaults-no-replay-on-entry` | `<AnimatePresence>` around routes, entrances replay | `<AnimatePresence initial={false}>` |
-| `defaults-no-flash-on-return` | A skeleton flash on a cached view | The cached view rendered at once |
 | `defaults-instant-feedback` | `if (isLoading) return null` | `if (isLoading) return <Skeleton />` |
 | `defaults-no-flicker-loading` | A spinner shown for a 40ms response | Shown after 200ms, held for at least 400ms |
-| `defaults-name-the-properties` | `transition: all 200ms` | `transition: opacity 200ms, transform 200ms` |
-| `defaults-transitions-for-state` | `.open { animation: slide-in 200ms }` | `transition: transform 200ms` on the toggled property |
-| `defaults-origin-from-trigger` | A dropdown scaling from `center` | `transform-origin: top left` under a left-aligned trigger |
-| `defaults-no-scale-from-zero` | `initial={{ scale: 0 }}` on a popover | `initial={{ scale: 0.95, opacity: 0 }}` |
-| `defaults-spring-for-gestures` | A drag release on `duration: 0.3, ease: "easeOut"` | `type: "spring"` with `velocity: info.velocity.x` |
-| `defaults-flick-dismisses` | Dismiss only past a fixed distance | Dismiss past the distance or above `0.11` px per ms |
-| `defaults-friction-at-edges` | A drawer that stops dead at its top | Movement damped the further it is dragged |
-| `defaults-gesture-alternative` | Rows that reorder only by drag | `Move Up` and `Move Down` in the row menu |
-| `defaults-ease-by-direction` | A modal entering on `ease-in` | Ease-out in and out, the exit shorter |
-| `defaults-strong-ease-out` | `transition: transform 200ms ease-out` | `transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1)` |
-| `defaults-close-faster` | A modal at `200ms` in and `200ms` out | `200ms` in, `150ms` out |
-| `defaults-instant-hover-color` | `transition: background-color 200ms` on a button | The hover colour applied at once |
-| `defaults-under-300ms` | `transition={{ duration: 0.5 }}` on a dropdown | `duration: 0.2` |
-| `defaults-no-motion-on-repeat` | `animate={{ scale: [1, 1.02, 1] }}` on each keystroke | No motion on the input |
-| `defaults-hover-capable-only` | `.card:hover { transform: translateY(-2px) }` | The same rule inside `@media (hover: hover) and (pointer: fine)` |
-| `defaults-tooltip-delay` | Each toolbar tooltip waiting the full delay | The first waits, its neighbours open at once |
-| `defaults-icon-crossfade` | `{copied ? <CheckIcon /> : <CopyIcon />}` | Both icons cross-fading with scale and blur |
-| `defaults-blur-the-crossfade` | Two button labels overlapping mid-swap | `filter: blur(2px)` while the swap runs |
-| `defaults-press-scale` | `whileTap={{ scale: 0.8 }}` | `whileTap={{ scale: 0.98 }}` |
-| `defaults-short-stagger` | `staggerChildren: 0.15` | `staggerChildren: 0.03` |
-| `defaults-exit-in-presence` | `{open && <motion.div exit={{ opacity: 0 }} />}` | The same element inside `<AnimatePresence>` |
-| `defaults-dialogs-stay-mounted` | `{open && <Dialog.Root open>}` | `<Dialog.Root open={open} onOpenChange={setOpen}>` |
-| `defaults-measure-inner` | `ref` and `animate={{ height: bounds.height }}` on one node | The outer node animates, the inner node holds the `ref` |
-| `defaults-hold-content-size` | `w-full` content inside a collapsing sidebar | `w-64` content that keeps its width |
-| `defaults-reduced-motion` | A drawer that slides under reduced motion | An opacity cross-fade |
 | `defaults-sound-has-a-twin` | `playSound("success")` with no status change | `setStatus("success")` beside the sound |
 | `defaults-no-sound-on-repeat` | `playSound("keystroke")` inside `onChange` | No sound on typing |
 | `defaults-sound-optional` | `audio.volume = 1` and no off switch | A sound setting, volume `0.3` by default |
@@ -387,11 +267,11 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` breaks use or access. That is a clipped shadow, a hard scroll cut, hotkeys that fire while typing, a stacked dialog, a target under 24px or a silent wait. It is also an exit that never plays, a container that measures itself, a field that rejects pasted formatting or sound with no visual twin or off switch. It is also an unnamed icon button, status in colour alone, focus that escapes a dialog, blocked zoom, a route with no link or a gesture with no button. It is also a submit disabled until valid, a truncated value with no way back or a destructive action with no undo or confirmation. It is also content pushed off screen by a long value, a `100vh` shell hiding its controls or a bar under the home indicator.
+**Severity.** `HIGH` breaks use or access. That is a clipped shadow, a hard scroll cut, hotkeys that fire while typing, a stacked dialog, a target under 24px or a silent wait. It is also a field that rejects pasted formatting, or sound with no visual twin or off switch. It is also an unnamed icon button, status in colour alone, focus that escapes a dialog, blocked zoom or a route with no link. It is also a submit disabled until valid, a truncated value with no way back or a destructive action with no undo or confirmation. It is also content pushed off screen by a long value, a `100vh` shell hiding its controls or a bar under the home indicator.
 
-`MEDIUM` is a pill button, a click focus ring, a sliding page, a replayed entrance, a gesture on a fixed curve or motion over 300ms. It is also motion on typing, a wrong curve, `transition: all`, keyframes on toggled state, ignored reduced motion or a hover stuck on touch. It is also proportional figures in data, sound on a frequent action, scroll leaking from an overlay, state lost on refresh or a flickering skeleton. It is also a field with the wrong keyboard, a mobile input under 16px, a dead label, Enter that does not submit or a busy button with no indicator. It is also an unannounced update, a conditionally rendered dialog, content reflowing as it collapses, a field hidden under sticky chrome or a card inside a card. It is also a tap flash or tap delay, a selectable control label, a `scale(0)` entrance, a sheet that ignores a flick or an unformatted number or plural.
+`MEDIUM` is a pill button, a click focus ring or a hover stuck on touch. It is also proportional figures in data, sound on a frequent action, scroll leaking from an overlay, state lost on refresh or a flickering skeleton. It is also a field with the wrong keyboard, a mobile input under 16px, a dead label, Enter that does not submit or a busy button with no indicator. It is also an unannounced update, a field hidden under sticky chrome or a card inside a card. It is also a tap flash or tap delay, a selectable control label or an unformatted number or plural.
 
-`LOW` is an opaque border beside a shadow, a faded hover colour, a decorative glow, a single harsh shadow or a transitioned `box-shadow`. It is also unbalanced headings, a heavy press scale or a long stagger. It is also a missing image outline, a borderless sticky header, a light scrollbar on a dark page, a smeared theme switch or missing root font smoothing. It is also full-size inline code, motion from the wrong origin, a close as slow as its open, a slow tooltip or a hard icon swap. It is also a bare `ease-out`, an unblurred cross-fade, a placeholder dash for an empty field or a drawer with no edge friction.
+`LOW` is an opaque border beside a shadow, a decorative glow, a single harsh shadow or a transitioned `box-shadow`. It is also unbalanced headings, a missing image outline, a borderless sticky header, a light scrollbar on a dark page, a smeared theme switch or missing root font smoothing. It is also full-size inline code or a placeholder dash for an empty field.
 
 **Format.** One finding per root cause:
 
