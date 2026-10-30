@@ -8,7 +8,7 @@
     {
       "name": "userinterface",
       "source": "./",
-      "description": "Skills for building interfaces with coding agents: scope, reuse, restraint, copy, defaults, motion, colour, verification, inspiration, references, rules, viewport sweeps, prototypes, labs, motion breakdowns, alignment checks, shipping and audits."
+      "description": "Skills for building interfaces with coding agents: scope, reuse, restraint, copy, defaults, motion, colour, verification, inspiration, references, rules, viewport sweeps, prototypes, labs, motion breakdowns, alignment checks, keyboard walks, shipping and audits."
     }
   ]
 }
