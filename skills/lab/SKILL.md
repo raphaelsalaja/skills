@@ -12,7 +12,7 @@ This skill builds a page for inspecting components. Every variant and every stat
 
 The lab renders the real components, not copies. States that need a click, such as an open menu or a hover, are forced open. The lab is a development page and never ships.
 
-Exploring new options for one idea belongs to `prototype`. The values on the page come from `defaults` and the project's tokens.
+Exploring new options for one idea belongs to `prototype`. The values on the page come from `defaults`, `motion` and the project's tokens.
 
 ## 1. Find the states
 

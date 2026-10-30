@@ -12,7 +12,7 @@ This skill takes an animation or interaction apart. It names every state and eve
 
 Nothing is described by feel. Every state has a name, every transition has an event and every animated property has its from, to, delay, duration and easing. A value that could not be read is marked `Not verified`, never estimated.
 
-Reading computed values and the side-by-side proof belong to `match`. Forcing component states open belongs to `lab`. Opening the result runs in `verify`.
+Reading computed values and the side-by-side proof belong to `match`. Forcing component states open belongs to `lab`. Opening the result runs in `verify`. Whether the motion's values are right belongs to `motion`.
 
 ## 1. Capture the real motion
 
