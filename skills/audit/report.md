@@ -7,14 +7,14 @@ The format every audit returns. Domain skills use the same severity words, so th
 | Severity | Meaning |
 | --- | --- |
 | `HIGH` | Breaks behaviour or loses work: a dropped feature, a control that does nothing, a committed secret or "done" with no look |
-| `MEDIUM` | Visible and inconsistent: a duplicate component, a wrong-case label, a clipped edge or an unrequested addition |
+| `MEDIUM` | Visible and inconsistent: a duplicate component, a wrong-case label, a clipped edge, an unrequested addition or a hand-written report |
 | `LOW` | Polish: a word too many, a narrating comment or a missing screenshot |
 
 When two levels fit, take the higher one and say why in the finding.
 
 ## Shape
 
-Lead with the scope and the verdict, then the coverage, the numbered findings and the summary.
+Lead with the scope and the verdict, then the coverage, the numbered findings and the summary. The same parts fill `report.js` for [report.html](report.html), in the shape its header comment shows.
 
 ```
 Scope: uncommitted diff, 14 files, 3 requests in this thread

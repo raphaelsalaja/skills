@@ -45,9 +45,15 @@ Skipping a skill without saying why is `audit-run-every-skill`.
 
 One cause that breaks rules in two skills is one finding with both ids. Five call sites with the same local fix is one finding with five locations. Listing each symptom on its own line is `audit-one-row-per-cause`.
 
-## 5. Number the fixes
+## 5. Number the fixes and open the report
 
-Rank findings by severity, then by reach. Number them so the user can answer "fix 1, 2 and 5". Then fix only the numbers chosen. Fixing everything before the user picks is `audit-fix-what-was-picked`.
+Rank findings by severity, then by reach. Number them so the user can answer "fix 1, 2 and 5".
+
+Copy [report.html](report.html) to `.audit/<scope>/index.html`, an ignored folder and never the source tree. Write `report.js` beside it in the shape its header comment shows, then open it.
+
+The report's look ships with the skill, so write data only. A page with its own markup or styles is `audit-shipped-report`.
+
+The user marks findings with Pick and pastes them back with Copy Picks. Wait for the pick, then fix only the numbers chosen. Fixing everything before the user picks is `audit-fix-what-was-picked`.
 
 ## The pair
 
@@ -59,6 +65,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `audit-project-rules-first` | A border flagged in a repo whose rules require it | The project rule cited, no finding |
 | `audit-run-every-skill` | `copy` silently skipped | "`copy`: no strings changed" |
 | `audit-one-row-per-cause` | Five rows for one missing primitive fix | One row, five locations |
+| `audit-shipped-report` | A report page written from scratch | `report.html` copied, only `report.js` written |
 | `audit-fix-what-was-picked` | All 18 findings fixed unasked | The numbers the user chose |
 
 ## Reporting
