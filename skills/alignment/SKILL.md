@@ -52,7 +52,9 @@ Circles and triangles need roughly 10% more size than a square to read as equal.
 
 ## 6. Report with proof
 
-Call `window.__alignment.highlight()` to draw numbered outlines that match the report. Attach the annotated screenshot and one zoomed crop per finding. A finding with no measurement and no crop is `alignment-annotated-proof`.
+Copy [report.html](report.html) to `.alignment/<page>/index.html`, an ignored folder and never the source tree. Save the 2x screenshot beside it and write `report.js` in the shape its header comment shows, then open it.
+
+The report draws the numbered outlines and cuts each zoomed crop from that screenshot, so write data only. A report with its own markup or crops cut by hand is `alignment-shipped-report`. A finding with no measurement and no rect is `alignment-annotated-proof`.
 
 ## 7. Fix only when asked
 
@@ -74,10 +76,11 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `alignment-concentric-radius` | 16px panel in a 16px card at 8px inset | 8px panel radius |
 | `alignment-visual-weight` | 2px icon stroke beside 1.5px stems | Stroke matched to the text weight |
 | `alignment-annotated-proof` | "The button looks a bit off" | Finding 3, 1.8px low, with the crop |
+| `alignment-shipped-report` | Crops cut by hand into a page written from scratch | `report.html` copied, only `report.js` written |
 
 ## Reporting
 
-**Severity.** `HIGH` is a miss visible at 1x on a primary surface, such as a heading column or a primary button. `MEDIUM` is a 1–2px miss, uneven gaps, a radius mismatch or a weight imbalance. `LOW` is an off-scale value that still renders aligned.
+**Severity.** `HIGH` is a miss visible at 1x on a primary surface, such as a heading column or a primary button. `MEDIUM` is a 1–2px miss, uneven gaps, a radius mismatch, a weight imbalance or a hand-built report. `LOW` is an off-scale value that still renders aligned.
 
 **Format.** One finding per root cause, numbered to match the overlay:
 
