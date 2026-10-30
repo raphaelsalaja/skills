@@ -34,6 +34,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**lab**](skills/lab/SKILL.md): Builds a temporary page that shows **every variant and state** of real components at once, each linked to its source. User-invoked.
 - [**deconstruct**](skills/deconstruct/SKILL.md): Breaks an animation or interaction into **a state machine and a timeline** of every property, on a page you can scrub through. User-invoked.
 - [**alignment**](skills/alignment/SKILL.md): Measures a running page for edges, gaps, centring and radii that **miss by a pixel or two**, then judges visual weight and returns a numbered report with proof. User-invoked.
+- [**keyboard**](skills/keyboard/SKILL.md): Walks a running page with **the keyboard alone**, records every focus stop and reports controls it cannot reach, see or operate. User-invoked.
 - [**audit**](skills/audit/SKILL.md): Reviews a change, a session or a whole codebase **against every skill** in this collection and returns one ranked, numbered report. User-invoked.
 
 ## Install
@@ -52,6 +53,7 @@ Principle skills and `verify`, `gather`, `match`, `rule` and `viewports` apply o
 /lab the menu components
 /deconstruct the copy button animation
 /alignment the settings page
+/keyboard the settings dialog
 /audit the uncommitted diff
 ```
 
