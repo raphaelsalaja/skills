@@ -11,7 +11,7 @@ This skill holds how things move on every screen. It covers what animates, the c
 
 Use the project's motion tokens wherever they exist. Where none exists, the durations, curves and scales here are exact. Motion the user starts that runs past 300ms is a finding in any style.
 
-Whether an animation should exist at all belongs to `restraint`. Taking an existing animation apart belongs to `deconstruct`. Surfaces, loading, hover styles and sound belong to `defaults`.
+Whether an animation should exist at all belongs to `restraint`. Taking an existing animation apart belongs to `deconstruct`. Whether it holds its frame rate belongs to `frames`. Surfaces, loading, hover styles and sound belong to `defaults`.
 
 ## App chrome fades
 
