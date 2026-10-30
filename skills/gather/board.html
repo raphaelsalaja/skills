@@ -908,6 +908,13 @@
         layout();
       }
 
+      function loaded(image) {
+        return new Promise((resolve, reject) => {
+          image.addEventListener("load", resolve, { once: true });
+          image.addEventListener("error", reject, { once: true });
+        });
+      }
+
       for (const item of items) {
         const image = h("img", { src: item.image, alt: "", decoding: "async" });
         const keep = h("button", {
@@ -925,6 +932,7 @@
         item.keep = keep;
         item.ready = image
           .decode()
+          .catch(() => (image.complete ? (image.naturalWidth ? undefined : Promise.reject()) : loaded(image)))
           .then(() => {
             image.style.aspectRatio = `${image.naturalWidth} / ${image.naturalHeight}`;
           })
