@@ -39,11 +39,15 @@ Each reference gets one line naming the part to take, such as "the top bar" or "
 
 ## 6. Build one board and open it
 
-Put the references on one local HTML page, grouped by idea, with image, note and link. Write it to an ignored folder such as `.gather/`, never into the source tree, and open it. Links pasted in chat instead of a board is `gather-one-board`.
+Copy [board.html](board.html) to `.gather/<brief>/index.html`, an ignored folder and never the source tree. Write `board.js` beside it in the shape its header comment shows, with images in `img/`, then open it. Links pasted in chat instead of a board is `gather-one-board`.
+
+The board's look ships with the skill, so write data only. A page with its own markup or styles is `gather-shipped-board`.
+
+Name each group in two or three words of Title Case, such as "Agent Activity", and put the detail in its note. A group named like a sentence is `gather-short-group-names`.
 
 ## 7. Save what the user keeps
 
-When the user asks to save the picks, send them where they say: their library, a channel or a board. Read the destination's naming first and match it. A new channel named "FW 26 🔥" beside `fashion / inspiration / 2026 / fall winter` is `gather-match-the-naming`.
+The user marks picks with Keep on the board and pastes them back with Copy Picks. When the user asks to save the picks, send them where they say: their library, a channel or a board. Read the destination's naming first and match it. A new channel named "FW 26 🔥" beside `fashion / inspiration / 2026 / fall winter` is `gather-match-the-naming`.
 
 Check for each item before adding it. A second copy of a saved item is `gather-no-duplicates`. When a source needs a login or a CAPTCHA, stop and say which one. Working around a login is `gather-ask-at-login`.
 
@@ -61,14 +65,16 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `gather-enough-to-choose` | "50 more" returns the first 20 again | 50 new references, earlier ids excluded |
 | `gather-name-the-part` | A screenshot with no note | "Take the grouped list, not the colours" |
 | `gather-link-every-reference` | An image with no source | The image linked to its original |
-| `gather-one-board` | Twenty links pasted in chat | `.gather/settings.html` opened, grouped by idea |
+| `gather-one-board` | Twenty links pasted in chat | `.gather/settings/index.html` opened, grouped by idea |
+| `gather-shipped-board` | A board page written from scratch | `board.html` copied, only `board.js` written |
+| `gather-short-group-names` | "Activity: thinking, tool calls and steps" | "Agent Activity" |
 | `gather-match-the-naming` | A new channel named "FW 26 🔥" | `fashion / inspiration / 2026 / fall winter` |
 | `gather-no-duplicates` | The same pin added twice | Existing items checked and skipped |
 | `gather-ask-at-login` | A login worked around | "Pinterest needs you to sign in" |
 
 ## Reporting
 
-**Severity.** `HIGH` is a whole look copied when one part was asked for, or items saved twice or under the wrong name. `MEDIUM` is the wrong platform, one source only or a board with no links. `LOW` is a reference with no note on what to take.
+**Severity.** `HIGH` is a whole look copied when one part was asked for, or items saved twice or under the wrong name. `MEDIUM` is the wrong platform, one source only, a board with no links or a hand-written board. `LOW` is a reference with no note on what to take, or a long group name.
 
 **Format.** One finding per root cause, citing the request when no file applies:
 
