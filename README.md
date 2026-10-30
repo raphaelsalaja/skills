@@ -28,6 +28,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**gather**](skills/gather/SKILL.md): Collects references from **the user's own library**, their boards and pattern sites onto one linked board before a design is built.
 - [**match**](skills/match/SKILL.md): Rebuilds a named reference from its **real source and computed values**, then compares the two side by side.
 - [**rule**](skills/rule/SKILL.md): Turns a **repeated correction** into a short project rule with the broken and fixed line, then applies it to existing code.
+- [**viewports**](skills/viewports/SKILL.md): Renders a page at **every width**, each breakpoint edge, a short landscape phone and 200% text, then reports what overflows, clips or hides.
 - [**ship**](skills/ship/SKILL.md): Commits, pushes, merges and releases a change, **watches the checks** and confirms it is live. User-invoked.
 - [**prototype**](skills/prototype/SKILL.md): Builds several **real, labelled variants** of one idea on a single page so the user can pick, then deletes the rest. User-invoked.
 - [**lab**](skills/lab/SKILL.md): Builds a temporary page that shows **every variant and state** of real components at once, each linked to its source. User-invoked.
@@ -43,7 +44,7 @@ npx skills add raphaelsalaja/skills
 
 ## Use a skill
 
-Principle skills and `verify`, `gather`, `match` and `rule` apply on their own when the work calls for them. Call the user-invoked ones by name:
+Principle skills and `verify`, `gather`, `match`, `rule` and `viewports` apply on their own when the work calls for them. Call the user-invoked ones by name:
 
 ```text
 /ship

@@ -18,7 +18,7 @@ A skill states the rule, the exact value and the detection pattern. It does not 
 
 **Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy`, `defaults`, `motion` and `color`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
 
-**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment` and `audit`. Their steps are numbered `## 1.` onward.
+**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `viewports`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment` and `audit`. Their steps are numbered `## 1.` onward.
 
 ## Invocation
 
@@ -57,6 +57,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `gather` | Finding references across the user's library, boards and pattern sites, the linked board, saving picks |
 | `match` | Inspecting a named reference, computed values, state inventory, side-by-side proof |
 | `rule` | Writing a correction into the agent file, conflicts between rules, sweeping old breaks |
+| `viewports` | The width set, breakpoint edges, sideways scroll, clipped text, hover-only controls, short heights, doubled text |
 | `ship` | Commits and their Conventional Commit messages, changesets, pushes, merges, pull requests per bug, releases, deploy checks |
 | `prototype` | Labelled real-code variants of one idea, pruning after the pick |
 | `lab` | Every state of real components forced open on one development page |

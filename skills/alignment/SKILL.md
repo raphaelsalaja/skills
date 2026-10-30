@@ -12,7 +12,7 @@ This skill checks a running page for things that are out of line or out of balan
 
 Lines, gaps, centres and radii are measured, never estimated. A miss of 1–4px is a finding, because it reads as a mistake while a 16px indent reads as intent. Visual weight has no number, so it is judged from the screenshot and shown as a crop.
 
-Opening the running result belongs to `verify`. Comparing against a named reference belongs to `match`. Forcing hover, open and error states belongs to `lab`. Moving a fix into the shared component belongs to `reuse`.
+Opening the running result belongs to `verify`. Comparing against a named reference belongs to `match`. Forcing hover, open and error states belongs to `lab`. Moving a fix into the shared component belongs to `reuse`. Rendering every width belongs to `viewports`.
 
 ## 1. Open the shipped render
 
