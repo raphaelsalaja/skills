@@ -54,7 +54,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `defaults` | Scroll edges, shadows, surfaces, theme, focus and accessible names, hit areas, hover styles, links and URL state, forms, loading, type rendering, sound cues, hotkeys in inputs, dialogs |
 | `motion` | What animates, easing, durations, springs and gestures, exits and presence, cross-fades, reduced motion |
 | `color` | Text and control contrast, composited measurement, scrims, role tokens, translucent neutrals, dark palettes, accent and status meaning |
-| `gather` | Finding references across the user's library, boards and pattern sites, the linked board, saving picks |
+| `gather` | Finding references across the user's library, boards and pattern sites, judging them against the taste file, the linked board, learning from and saving picks |
 | `match` | Inspecting a named reference, computed values, state inventory, side-by-side proof |
 | `rule` | Writing a correction into the agent file, conflicts between rules, sweeping old breaks |
 | `viewports` | The width set, breakpoint edges, sideways scroll, clipped text, hover-only controls, short heights, doubled text |
