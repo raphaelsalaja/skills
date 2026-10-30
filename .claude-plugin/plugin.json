@@ -1,7 +1,7 @@
 {
   "name": "userinterface",
-  "description": "Skills for building interfaces with coding agents: scope, reuse, restraint, copy, defaults, motion, colour, verification, inspiration, references, rules, prototypes, labs, motion breakdowns, alignment checks, shipping and audits.",
-  "version": "3.1.0",
+  "description": "Skills for building interfaces with coding agents: scope, reuse, restraint, copy, defaults, motion, colour, verification, inspiration, references, rules, viewport sweeps, prototypes, labs, motion breakdowns, alignment checks, shipping and audits.",
+  "version": "3.2.0",
   "author": {
     "name": "Raphael Salaja"
   },
