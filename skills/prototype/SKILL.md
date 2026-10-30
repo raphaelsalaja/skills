@@ -24,7 +24,11 @@ Use the project's components and real or realistic data. A static image or lorem
 
 ## 3. Put them on one page
 
-Show every variant on one route with a switcher or a grid. Give each a short label that says how it differs. "Variant 3" is `prototype-label-variants`. Separate pages per variant is `prototype-one-page`. Use the app's current theme unless the user asked for both. Light and dark side by side by default is `prototype-one-theme`.
+Show every variant on one route. Separate pages per variant is `prototype-one-page`. Copy [switcher.js](switcher.js) into the app beside that route and load it once, as its header comment shows. Wrap the variants in `<prototype-switcher>`, one child each with `data-variant` and an optional `data-note`.
+
+The switcher ships with the skill, so write the variants only. A switcher, tab row or grid written from scratch is `prototype-shipped-switcher`.
+
+Give each a short label that says how it differs. "Variant 3" is `prototype-label-variants`. Use the app's current theme unless the user asked for both. Light and dark side by side by default is `prototype-one-theme`.
 
 ## 4. Open it
 
@@ -32,7 +36,7 @@ Start the dev server, open the page and look at every variant once. A path in th
 
 ## 5. Prune after the pick
 
-When the user picks, move that variant into the product and delete the rest, the route and the switcher. Leftover variants after a pick is `prototype-prune-after-pick`.
+The bar's Pick button copies a line such as "Pick Inline Filters from /prototypes/filters" for the user to paste back. When the user picks, move that variant into the product. Delete the losing variants with the route, `switcher.js` and its type declaration. Leftover variants after a pick is `prototype-prune-after-pick`.
 
 ## The pair
 
@@ -44,13 +48,14 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `prototype-real-data` | Lorem ipsum rows | Real or realistic rows |
 | `prototype-label-variants` | `Variant 3` | `Inline Filters` |
 | `prototype-one-page` | Five routes, one per variant | One route with a switcher |
+| `prototype-shipped-switcher` | A switcher written from scratch | `switcher.js` loaded, only the variants written |
 | `prototype-one-theme` | Light and dark side by side, unasked | The app's current theme |
 | `prototype-open-it` | "Built at `/prototypes/filters`" | The page opened, every variant checked |
 | `prototype-prune-after-pick` | Four losing variants left in `src/` | The pick shipped, the rest deleted |
 
 ## Reporting
 
-**Severity.** `HIGH` is a variant that does not run, or losing variants left after a pick. `MEDIUM` is placeholder data, unlabelled variants or variants that differ only in colour. `LOW` is a page that was not opened for the user.
+**Severity.** `HIGH` is a variant that does not run, or losing variants left after a pick. `MEDIUM` is placeholder data, unlabelled variants, variants that differ only in colour or a hand-built switcher. `LOW` is a page that was not opened for the user.
 
 **Format.** One finding per root cause:
 
