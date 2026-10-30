@@ -33,6 +33,10 @@ Rebuild the part the user named and nothing around it. Asked for the sidebar, co
 
 Put the reference and the rebuild next to each other at the same size and in the same state. Name every difference left. "Looks close" with no comparison is `match-side-by-side`.
 
+Capture both in every state from step 3 at one size and one device scale factor. Copy [compare.html](compare.html) to `.match/<part>/index.html`, an ignored folder and never the source tree. Write `compare.js` beside it in the shape its header comment shows, with captures in `img/`, then open it.
+
+The compare page ships with the skill, so write data only. A page with its own markup or styles is `match-shipped-compare`. Mark each value Match, Differs or Not Verified. The user sends what is left back with Copy Differences.
+
 ## The pair
 
 Every check is a pair. The broken line sits beside the line that replaces it.
@@ -46,10 +50,11 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `match-copy-the-named-part` | The whole layout copied for "the sidebar" | The sidebar only |
 | `match-concept-not-brand` | Their logo and accent colour shipped | The pattern in the project's tokens |
 | `match-side-by-side` | "Looks close" | Both at one size, differences listed |
+| `match-shipped-compare` | A compare page written from scratch | `compare.html` copied, only `compare.js` written |
 
 ## Reporting
 
-**Severity.** `HIGH` is a rebuild made without opening the source, or a missing state the user named. `MEDIUM` is a guessed value under "one to one", or a part copied beyond the ask. `LOW` is a remaining difference that was found and named.
+**Severity.** `HIGH` is a rebuild made without opening the source, or a missing state the user named. `MEDIUM` is a guessed value under "one to one", a part copied beyond the ask or a hand-written compare page. `LOW` is a remaining difference that was found and named.
 
 **Format.** One finding per root cause:
 
