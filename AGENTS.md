@@ -61,7 +61,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `ship` | Commits and their Conventional Commit messages, changesets, pushes, merges, pull requests per bug, releases, deploy checks |
 | `prototype` | Labelled real-code variants of one idea, pruning after the pick |
 | `lab` | Every state of real components forced open on one development page |
-| `deconstruct` | Motion broken into named states, events and per-property tracks, the scrubbable viewer |
+| `deconstruct` | Motion broken into named states, events and per-property tracks, the editable timeline |
 | `alignment` | Measured edges, gaps, ink centring, optical nudges, concentric radii, visual weight, the annotated report |
 | `keyboard` | The keyboard-only walk, focus order, reach, visible stops, composite arrows, Escape, focus after removal |
 | `frames` | The throttled trace, frame and input budgets, layout and paint cost per frame, the before and after recording |
