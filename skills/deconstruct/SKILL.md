@@ -34,15 +34,17 @@ Render the element as a pure function of one time value. Scrubbing, pausing and 
 
 ## 5. Build the viewer
 
-Add one development-only page with the element, the state machine and the tracks. Highlight the active state, show each track's live value and add a scrubber, play, pause and a 0.25× speed. A timeline with no scrubber is `deconstruct-scrub-the-timeline`. Clicking a state seeks to it.
+Copy [viewer.html](viewer.html) beside the rebuild as a development-only page, write `timeline.js` next to it in the shape its header comment shows and open it. It shows the element, the state machine and one lane per track with its live value.
+
+The viewer ships with the skill, so write data only. A page with its own markup or styles is `deconstruct-shipped-viewer`. It highlights the active state, and clicking a state seeks to it. Its scrubber, play, pause and 0.25× stay in. A timeline with no scrubber is `deconstruct-scrub-the-timeline`.
 
 ## 6. Compare at slow speed
 
-Play the original and the rebuild side by side at 0.25×. Name every frame that drifts. A breakdown checked only at full speed is `deconstruct-compare-slowed`.
+Play the original and the rebuild side by side at 0.25×. Set `recording` to a capture of the original, and the viewer plays it beside the preview on the same clock. Name every frame that drifts. A breakdown checked only at full speed is `deconstruct-compare-slowed`.
 
 ## 7. Hand back the data
 
-Return the state table and the tracks as one object in code that the rebuild imports. A timeline that lives only in the reply is `deconstruct-timeline-as-data`. Gate the viewer to development or delete it before release.
+`timeline.js` is the hand-back: the state table and the tracks as one object. The rebuild imports that file rather than a copy, so the viewer and the shipped motion read the same values. A timeline that lives only in the reply is `deconstruct-timeline-as-data`. Gate the viewer to development or delete it before release, and keep `timeline.js`.
 
 ## The pair
 
@@ -56,12 +58,13 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `deconstruct-keep-the-curve` | A spring approximated as `ease-out` | `stiffness: 400, damping: 30` as written |
 | `deconstruct-one-clock` | A CSS replay button | Every frame computed from one `t` |
 | `deconstruct-scrub-the-timeline` | A looping preview only | A scrubber, play, pause and 0.25× |
+| `deconstruct-shipped-viewer` | A viewer page written from scratch | `viewer.html` copied, only `timeline.js` written |
 | `deconstruct-compare-slowed` | Checked once at full speed | Original and rebuild side by side at 0.25× |
-| `deconstruct-timeline-as-data` | A timeline described in the reply | A `timeline` object the rebuild imports |
+| `deconstruct-timeline-as-data` | A timeline described in the reply | `timeline.js`, imported by the rebuild |
 
 ## Reporting
 
-**Severity.** `HIGH` is a breakdown made without opening the source, or a missing state. `MEDIUM` is an estimated timing, a flattened curve or a viewer that cannot scrub. `LOW` is drift found and named at slow speed.
+**Severity.** `HIGH` is a breakdown made without opening the source, or a missing state. `MEDIUM` is an estimated timing, a flattened curve, a viewer that cannot scrub or a hand-written viewer. `LOW` is drift found and named at slow speed.
 
 **Format.** One finding per root cause:
 
