@@ -16,7 +16,7 @@ A skill states the rule, the exact value and the detection pattern. It does not 
 
 ## Two kinds of skill
 
-**Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy`, `defaults` and `motion`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
+**Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy`, `defaults`, `motion` and `color`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
 
 **Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment` and `audit`. Their steps are numbered `## 1.` onward.
 
@@ -53,6 +53,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `copy` | Title Case labels, word count, one-line descriptions, status tense, em dashes and ellipses |
 | `defaults` | Scroll edges, shadows, surfaces, theme, focus and accessible names, hit areas, hover styles, links and URL state, forms, loading, type rendering, sound cues, hotkeys in inputs, dialogs |
 | `motion` | What animates, easing, durations, springs and gestures, exits and presence, cross-fades, reduced motion |
+| `color` | Text and control contrast, composited measurement, scrims, role tokens, translucent neutrals, dark palettes, accent and status meaning |
 | `gather` | Finding references across the user's library, boards and pattern sites, the linked board, saving picks |
 | `match` | Inspecting a named reference, computed values, state inventory, side-by-side proof |
 | `rule` | Writing a correction into the agent file, conflicts between rules, sweeping old breaks |
@@ -63,7 +64,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `alignment` | Measured edges, gaps, ink centring, optical nudges, concentric radii, visual weight, the annotated report |
 | `audit` | Review scope, running every skill, merging by root cause, the numbered report and the verdict |
 
-`reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `copy` owns the words that stay. `defaults` owns how the surfaces that stay behave and `motion` owns how they move. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
+`reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `copy` owns the words that stay. `defaults` owns how the surfaces that stay behave, `motion` owns how they move and `color` owns how they read. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
 
 ## Authoring
 
