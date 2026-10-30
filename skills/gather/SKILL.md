@@ -25,7 +25,7 @@ Open the tabs, screenshots, links and design files already in the thread before 
 
 ## 3. Search the user's own taste first
 
-Search the user's own library and boards before public sources. Their saves already reflect their taste. Starting from a public library when their own library holds matching saves is `gather-own-library-first`. How to reach each source is in [sources.md](sources.md).
+Search the user's own library and boards before public sources. Their saves already reflect their taste. Starting from a public library when their own library holds matching saves is `gather-own-library-first`. If none of the user's sources are connected, stop and name each choice: Are.na, Cosmos, Pinterest, Mobbin and Pond. A prompt that drops one of those names is `gather-list-the-sources`. How to reach each source is in [sources.md](sources.md).
 
 ## 4. Go wide
 
@@ -61,6 +61,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `gather-same-platform` | iOS screens for a desktop app | `platform: "web"` and desktop apps |
 | `gather-start-with-given` | A pattern-library search while the user's tabs are open | The open tabs read first |
 | `gather-own-library-first` | A public library searched first | The user's library searched first, then wider |
+| `gather-list-the-sources` | "Connect your accounts, or download Pond" | Are.na, Cosmos, Pinterest, Mobbin and Pond, each named |
 | `gather-go-wide` | Twenty screens from one app | Saves, boards and a pattern library |
 | `gather-enough-to-choose` | "50 more" returns the first 20 again | 50 new references, earlier ids excluded |
 | `gather-name-the-part` | A screenshot with no note | "Take the grouped list, not the colours" |
@@ -74,7 +75,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a whole look copied when one part was asked for, or items saved twice or under the wrong name. `MEDIUM` is the wrong platform, one source only, a board with no links or a hand-written board. `LOW` is a reference with no note on what to take, or a long group name.
+**Severity.** `HIGH` is a whole look copied when one part was asked for, or items saved twice or under the wrong name. `MEDIUM` is the wrong platform, one source only, a board with no links, a hand-written board or a public search that skipped the ask. `LOW` is a reference with no note on what to take, or a long group name.
 
 **Format.** One finding per root cause, citing the request when no file applies:
 
