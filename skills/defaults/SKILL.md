@@ -11,7 +11,7 @@ This skill holds the interface defaults that apply on every screen. It covers su
 
 Use the project's token wherever one exists for a value below. Where none exists, the values here are exact. A hard scroll cut or a clipped shadow is a finding in any style.
 
-Words and punctuation belong to `copy`. Building any of these with the project's primitive belongs to `reuse`. Whether a sound or an animation should exist at all belongs to `restraint`. How things move belongs to `motion`. Concentric radii, optical nudges and icon alignment belong to `alignment`.
+Words and punctuation belong to `copy`. Building any of these with the project's primitive belongs to `reuse`. Whether a sound or an animation should exist at all belongs to `restraint`. How things move belongs to `motion`, and colour and contrast belong to `color`. Concentric radii, optical nudges and icon alignment belong to `alignment`.
 
 ## Scroll edges fade
 

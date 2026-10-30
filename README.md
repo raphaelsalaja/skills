@@ -20,6 +20,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**copy**](skills/copy/SKILL.md): Writes interface labels in **Title Case**, short and plain, with one-line descriptions and no em dashes.
 - [**defaults**](skills/defaults/SKILL.md): Applies house defaults for **scroll edges**, surfaces, type, sound, focus, forms, loading, hotkeys and dialogs.
 - [**motion**](skills/motion/SKILL.md): Applies house motion for what animates, **easing, durations**, springs, gestures, exits and reduced motion.
+- [**color**](skills/color/SKILL.md): Holds text and control **contrast to exact ratios**, routes colour through role tokens and gives dark mode its own palette.
 
 ### Procedures
 
