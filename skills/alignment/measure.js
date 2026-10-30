@@ -1,7 +1,6 @@
 // Run in the page (DevTools console, Runtime.evaluate or page.evaluate).
 // Returns { findings } measured from the rendered layout and the glyph ink.
 // Options: set window.__alignmentOptions = { root, scale, tolerance } before running.
-// Call window.__alignment.highlight() afterwards to draw numbered overlays.
 ((options = {}) => {
   const root = options.root ?? document.body;
   const scale = options.scale ?? 4;
@@ -65,7 +64,6 @@
         width: round(rect.width),
         height: round(rect.height),
       },
-      element: el,
     });
   };
 
@@ -305,49 +303,7 @@
     }
   }
 
-  window.__alignment = {
-    findings,
-    highlight() {
-      document.querySelectorAll("[data-alignment-overlay]").forEach((node) => node.remove());
-      const groups = new Map();
-      findings.forEach((finding, index) => {
-        if (!groups.has(finding.element)) groups.set(finding.element, { finding, ids: [] });
-        groups.get(finding.element).ids.push(index + 1);
-      });
-      for (const { finding, ids } of groups.values()) {
-        const mark = document.createElement("div");
-        mark.dataset.alignmentOverlay = "";
-        Object.assign(mark.style, {
-          position: "absolute",
-          left: `${finding.rect.x}px`,
-          top: `${finding.rect.y}px`,
-          width: `${finding.rect.width}px`,
-          height: `${finding.rect.height}px`,
-          outline: "1px solid #ff2d55",
-          zIndex: 2147483647,
-          pointerEvents: "none",
-          font: "600 11px/16px system-ui",
-          color: "#fff",
-        });
-        const label = document.createElement("span");
-        label.textContent = ids.join(" ");
-        Object.assign(label.style, {
-          position: "absolute",
-          top: "-16px",
-          left: "-1px",
-          padding: "0 4px",
-          background: "#ff2d55",
-        });
-        mark.append(label);
-        document.body.append(mark);
-      }
-    },
-    clear() {
-      document.querySelectorAll("[data-alignment-overlay]").forEach((node) => node.remove());
-    },
-  };
-
   return {
-    findings: findings.map(({ element, ...finding }, index) => ({ id: index + 1, ...finding })),
+    findings: findings.map((finding, index) => ({ id: index + 1, ...finding })),
   };
 })(window.__alignmentOptions);
