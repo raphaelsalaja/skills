@@ -1,6 +1,6 @@
 # Sources
 
-How to reach each source in `SKILL.md`. Search them in this order and skip any the user has not connected.
+How to reach each source in `SKILL.md`. Search them in this order. When none are connected, name Are.na, Cosmos, Pinterest, Mobbin and Pond, then wait.
 
 ## What the user gave
 
@@ -13,7 +13,7 @@ How to reach each source in `SKILL.md`. Search them in this order and skip any t
 
 ## Pond
 
-The user's own library of saves from Instagram, X, Pinterest, Are.na, Cosmos and the web. Pond runs as a local MCP server over stdio:
+The user's own library of saves from Instagram, X, Pinterest, Are.na, Cosmos and the web. The Pond choice downloads from https://pond.raphaelsalaja.com and connects under Settings, Model Context Protocol. Connecting an account needs the Pond browser extension, from Browser Extension in the library menu. Pond runs as a local MCP server over stdio:
 
 ```json
 {
@@ -51,7 +51,7 @@ A save's files sit in `<Library>.pond/items/<id>.info/`, so a board can show the
 | Cosmos | The user's clusters in the logged-in browser |
 | Pinterest | The user's boards in the logged-in browser or with computer use |
 
-Read the user's existing channel and board names before creating one.
+Read the user's existing channel and board names before creating one. When the browser is signed out, ask the user to sign in, then read their boards.
 
 ## Pattern libraries
 
