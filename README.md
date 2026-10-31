@@ -38,6 +38,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**keyboard**](skills/keyboard/SKILL.md): Walks a running page with **the keyboard alone**, records every focus stop and reports controls it cannot reach, see or operate. User-invoked.
 - [**frames**](skills/frames/SKILL.md): Records **a performance trace** of one interaction on a throttled CPU, names what drops frames or delays input, then proves the fix with a second trace. User-invoked.
 - [**avatar**](skills/avatar/SKILL.md): Draws any object as **a flat character with two capsule eyes**, then animates its whole body so it glances, blinks, breathes, follows the pointer and falls asleep. User-invoked.
+- [**bots**](skills/bots/SKILL.md): Turns chosen Grok Bots into **a shakeable pile**, portfolio cards and an org chart page, each with a link to copy the bot, with private details stripped. User-invoked.
 - [**audit**](skills/audit/SKILL.md): Reviews a change, a session or a whole codebase **against every skill** in this collection and returns one ranked, numbered report. User-invoked.
 
 ## Install
@@ -59,6 +60,7 @@ Principle skills and `verify`, `gather`, `match`, `rule` and `viewports` apply o
 /keyboard the settings dialog
 /frames opening the command palette
 /avatar a coffee cup for the support card
+/bots my whole team
 /audit the uncommitted diff
 ```
 
