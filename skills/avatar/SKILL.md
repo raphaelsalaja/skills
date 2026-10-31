@@ -22,9 +22,25 @@ Keep measured values as measured. Rounding a `15.5°` eye spacing to `15°` or a
 
 ## 2. Draw the silhouette
 
-Reduce the object to one flat, solid shape in one saturated colour. Keep only the part that names it, such as a handle, a lid or a stem. An outline, shading, a mouth or a nose is `avatar-flat-silhouette`.
+Reduce the object to one flat, solid shape in one saturated colour. An outline, shading, a mouth or a nose is `avatar-flat-silhouette`.
 
 It reads at its shipped size, usually 28–40px. Draw it on a small grid, such as a 14 by 17 viewBox, and crop the viewBox tight to the ink. A part that moves on its own, like a lid, gets its own path.
+
+Pick the view whose outline alone names the object: the side for vessels and tools, the front for devices. Given a role or a hobby, draw its single most iconic object. A view that needs its details to be named is `avatar-iconic-view`.
+
+The part that carries the face is the main mass. Grow that part in place until the `head` ellipse, plus one eye width of margin, sits on calm solid fill. Size it for the widest mood, since happy eyes are nearly twice as wide as idle ones. A block added to hold the face, or eyes shrunk to fit, is `avatar-face-part-leads`.
+
+Size every other part by its outline, enclosed space included, not by its fill. It stays clearly smaller than the face part and reaches out only as far as recognition needs. A handle loop as tall as its cup is `avatar-size-by-outline`.
+
+Keep the few steps that name the object, such as a neck, a lid or a lip, and drop every other detail. Build the shape from one to seven soft primitives that overlap into one outline.
+
+Every join is a clear step or a smooth flow. A step is at least half an eye width, and a flow runs one edge straight on with the inner corners buried. A part joined at two points stays joined at both. Edges that nearly line up and leave a sliver or a notch are `avatar-clean-joins`.
+
+Cut a hole only for a real opening, such as a mug handle or a ring, and wind it against its outline so the fill leaves it open. A slot, a button or a decorative cut-out is `avatar-holes-are-openings`.
+
+Keep toy proportions. No part is thinner than an eye is wide, every corner is rounded and every taper ends in a soft tip. An organic part, like a leaf or a flame, keeps its curve and direction. A hairline, a sharp point or a leaf flattened into an oval is `avatar-toy-proportions`.
+
+Centre the mass and sit it on a flat or gently rounded base. Then look at the whole shape at 28px, at rest and mid-lean. If it reads as another object or a broken one, rebalance the parts or change the view, even when every rule above holds.
 
 Colour comes from two variables, `--avatar-body` and `--avatar-eyes`, checked in both themes. A fill written into the path is `avatar-colour-variables`.
 
@@ -92,6 +108,12 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `avatar-measure-the-reference` | Eyes placed from one look at the reference | Size, tilt, spacing and blinks measured off frames at 10fps |
 | `avatar-keep-the-measurements` | `split: 15`, rounded to look tidy | `split: 15.5`, as measured |
 | `avatar-flat-silhouette` | A cup with an outline, shading and a smile | One solid shape and two eyes |
+| `avatar-iconic-view` | A watering can from the front, which reads as a box | The side view, where the spout and handle name it |
+| `avatar-face-part-leads` | A slab stuck on the mug to hold the eyes, or eyes at half size | The cup widened until the head and its margin fit |
+| `avatar-size-by-outline` | A thin handle loop as tall as the cup | A compact handle, clearly smaller than the cup |
+| `avatar-clean-joins` | A lid edge 0.3 units past the cup, leaving a sliver | A step of half an eye width, or edges matched exactly |
+| `avatar-holes-are-openings` | A cut-out slot for a coin or a button | Holes only where the object is open, such as the handle |
+| `avatar-toy-proportions` | A hairline stem and a sharp leaf tip | Parts at least an eye wide, rounded corners, soft tips |
 | `avatar-colour-variables` | `fill="#c27a3e"` in the path | `fill="var(--avatar-body)"`, set per theme |
 | `avatar-eyes-on-a-sphere` | `translate(dx, dy)` on both eyes | `drawEyes(face, gaze, lid, head)` from yaw, pitch and roll |
 | `avatar-clip-to-the-body` | An eye hanging past the outline on a wide glance | Eyes inside a `clipPath` of the body path |
@@ -108,7 +130,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a body that never moves, eyes escaping the silhouette or motion under reduced motion. `MEDIUM` is flat sliding eyes, a fixed blink, swapped mood drawings, an offscreen loop, a missing reaction or proof from one screenshot. `LOW` is a rounded measurement, a fill in the path, a rest pose that pops in or a character with no move of its own.
+**Severity.** `HIGH` is a body that never moves, eyes escaping the silhouette or motion under reduced motion. `MEDIUM` is flat sliding eyes, a fixed blink, swapped mood drawings, an offscreen loop, a missing reaction or proof from one screenshot. A view that does not name the object, a cramped face or an oversized secondary part is also `MEDIUM`. `LOW` is a rounded measurement, a fill in the path, a rest pose that pops in or a character with no move of its own. A sliver at a join, a decorative hole or a hairline part is also `LOW`.
 
 **Format.** One finding per root cause:
 
