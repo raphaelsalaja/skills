@@ -67,7 +67,7 @@ Name each group in two or three words of Title Case, such as "Agent Activity", a
 
 ## 8. Learn from the picks
 
-The user marks picks with Keep on the board and pastes them back with Copy Picks. Add each pick under Yes in `.gather/taste/taste.md`, copying its image into `.gather/taste/img/`. Then ask once what makes the picks right and what the rest got wrong. Write each answer under No beside the references it names. Picks taken with the taste file unchanged is `gather-grow-taste`.
+The user marks picks with Pick on the board and pastes them back with Copy Picks. Add each pick under Yes in `.gather/taste/taste.md`, copying its image into `.gather/taste/img/`. Then ask once what makes the picks right and what the rest got wrong. Write each answer under No beside the references it names. Picks taken with the taste file unchanged is `gather-grow-taste`.
 
 ```md
 ## Yes
