@@ -1,6 +1,6 @@
 # Sources
 
-How to reach each source in `SKILL.md`. Search them in this order. When none are connected, name Pond, marked.dev, Are.na, Cosmos, Pinterest and Mobbin, then wait.
+How to reach each source in `SKILL.md`. Search them in this order. Before searching, ask whether to connect each of Pond, marked.dev, Are.na, Cosmos, Pinterest and Mobbin that is missing. When none are connected, wait for the answer.
 
 ## What the user gave
 

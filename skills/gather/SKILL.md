@@ -25,7 +25,11 @@ Open the tabs, screenshots, links and design files already in the thread before 
 
 ## 3. Search the user's own taste first
 
-Search the user's own library and boards before public sources. Their saves already reflect their taste. Starting from a public library when their own library holds matching saves is `gather-own-library-first`. If none of the user's sources are connected, stop and name each choice: Pond, marked.dev, Are.na, Cosmos, Pinterest and Mobbin. A prompt that drops one of those names is `gather-list-the-sources`. How to reach each source is in [sources.md](sources.md).
+Search the user's own library and boards before public sources. Their saves already reflect their taste. Starting from a public library when their own library holds matching saves is `gather-own-library-first`.
+
+Before searching, check which of Pond, marked.dev, Are.na, Cosmos, Pinterest and Mobbin are connected. Ask once whether to connect the missing ones, with carrying on as one of the answers. Searching past a missing source without asking is `gather-offer-to-connect`.
+
+Use the question tool when there is one, with each missing source as its own option. A question that drops a missing source is `gather-list-the-sources`. When none are connected, wait for the answer. How to connect each source is in [sources.md](sources.md).
 
 ## 4. Go wide
 
@@ -93,7 +97,8 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `gather-same-platform` | iOS screens for a desktop app | `platform: "web"` and desktop apps |
 | `gather-start-with-given` | A pattern-library search while the user's tabs are open | The open tabs read first |
 | `gather-own-library-first` | A public library searched first | The user's library searched first, then wider |
-| `gather-list-the-sources` | "Connect your accounts, or download Pond" | Pond, marked.dev, Are.na, Cosmos, Pinterest and Mobbin, each named |
+| `gather-offer-to-connect` | Pond searched alone while marked.dev and Mobbin sit unconnected | "Connect marked.dev or Mobbin, or carry on with Pond?" |
+| `gather-list-the-sources` | "Connect your accounts, or download Pond" | Each missing source named as its own option |
 | `gather-go-wide` | Twenty screens from one app | Saves, boards and a pattern library |
 | `gather-enough-to-choose` | "50 more" returns the first 20 again | 50 new references, earlier ids excluded |
 | `gather-separate-judge` | The searching agent cutting its own finds | A second agent cuts from the candidates, the brief and `taste.md` |
@@ -116,7 +121,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a whole look copied when one part was asked for, or items saved twice or under the wrong name. `MEDIUM` is the wrong platform, one source only, a board with no links, a hand-written board or a public search that skipped the ask. It is also a reference kept unseen or against the taste file, a score in place of a comparison or a self-judged cut. So is a close call settled by the agent, a concept shown as shipped or picks left out of the taste file. `LOW` is a reference with no note on what to take, a long group name or a taste entry with no reason. So is a short board while the taste file warms up.
+**Severity.** `HIGH` is a whole look copied when one part was asked for, or items saved twice or under the wrong name. `MEDIUM` is the wrong platform, one source only, a board with no links, a hand-written board or a search that skipped the connect question. It is also a reference kept unseen or against the taste file, a score in place of a comparison or a self-judged cut. So is a close call settled by the agent, a concept shown as shipped or picks left out of the taste file. `LOW` is a reference with no note on what to take, a long group name or a taste entry with no reason. So is a short board while the taste file warms up.
 
 **Format.** One finding per root cause, citing the request when no file applies:
 
