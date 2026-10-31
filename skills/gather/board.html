@@ -28,6 +28,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fdfdfc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111110" media="(prefers-color-scheme: dark)" />
     <title>Gather</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -42,10 +44,15 @@
         --gray-3: #f1f0ef;
         --gray-4: #e9e8e6;
         --gray-5: #e2e1de;
-        --gray-10: #82827c;
+        --gray-10: #6b6b65;
         --gray-11: #63635e;
         --gray-12: #21201c;
         --shadow-strength: 1;
+        --accent: #0077b6;
+        --text-on-accent: #fff;
+        --background-raised: #fff;
+        --background-hover: var(--gray-4);
+        --fill-hover: color-mix(in oklab, var(--gray-12) 5%, transparent);
         color-scheme: light dark;
       }
 
@@ -56,15 +63,17 @@
           --gray-3: #222221;
           --gray-4: #2a2a28;
           --gray-5: #31312e;
-          --gray-10: #7c7b74;
+          --gray-10: #8f8e87;
           --gray-11: #b5b3ad;
           --gray-12: #eeeeec;
           --shadow-strength: 3;
+          --accent: #02bbff;
+          --text-on-accent: #111110;
+          --background-raised: var(--gray-2);
         }
       }
 
       :root {
-        --accent: #02bbff;
         --border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
         --border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
         --text-primary: var(--gray-12);
@@ -77,11 +86,17 @@
           0 0 0 1px var(--border-secondary),
           0 1px 2px oklch(0 0 0 / calc(4% * var(--shadow-strength))),
           0 4px 12px oklch(0 0 0 / calc(3% * var(--shadow-strength)));
+        --shadow-floating:
+          0 0 0 1px var(--border-secondary),
+          0 2px 4px oklch(0 0 0 / calc(4% * var(--shadow-strength))),
+          0 12px 32px oklch(0 0 0 / calc(8% * var(--shadow-strength)));
         --font-weight-400: "wght" 400, "opsz" 14;
         --font-weight-500: "wght" 500, "opsz" 14;
         --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
         --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
         --duration-snappy: 220ms;
+        --duration-exit: 160ms;
+        --radius-control: 8px;
         --column: 200px;
         --gap: 24px;
         --inset: 48px;
@@ -115,6 +130,12 @@
         background: none;
       }
 
+      button,
+      a,
+      select {
+        touch-action: manipulation;
+      }
+
       html {
         font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
         font-size: 14px;
@@ -123,8 +144,11 @@
         font-optical-sizing: none;
         font-feature-settings: "calt", "ccmp", "locl", "kern", "cv01", "ss03";
         -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-tap-highlight-color: transparent;
         color: var(--text-primary);
         background: var(--background-primary);
+        scroll-padding-block-start: var(--bar-height, 72px);
       }
 
       * {
@@ -149,6 +173,35 @@
         text-wrap: pretty;
       }
 
+      @property --fade-start {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+
+      @property --fade-end {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+
+      @keyframes scroll-fade {
+        0% {
+          --fade-start: 0px;
+          --fade-end: 24px;
+        }
+        10% {
+          --fade-start: 24px;
+        }
+        90% {
+          --fade-end: 24px;
+        }
+        100% {
+          --fade-start: 24px;
+          --fade-end: 0px;
+        }
+      }
+
       .page {
         width: min(768px, 100% - var(--inset) * 2);
         margin: 0 auto;
@@ -163,7 +216,7 @@
       .head {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
         max-width: 640px;
       }
 
@@ -230,29 +283,31 @@
         color: var(--text-primary);
         white-space: nowrap;
         pointer-events: none;
-        background: var(--gray-2);
+        background: var(--background-raised);
+        border: 1px solid transparent;
         border-radius: 10px;
         box-shadow: var(--shadow-raised);
         opacity: 0;
-        translate: -50% 4px;
+        translate: calc(-50% + var(--shift, 0px)) 4px;
         scale: 0.97;
         transform-origin: bottom center;
         transition:
-          opacity var(--duration-snappy) var(--ease-out-cubic),
-          translate var(--duration-snappy) var(--ease-out-cubic),
-          scale var(--duration-snappy) var(--ease-out-cubic);
+          opacity var(--duration-exit) var(--ease-out-cubic),
+          translate var(--duration-exit) var(--ease-out-cubic),
+          scale var(--duration-exit) var(--ease-out-cubic);
 
         &[data-side="below"] {
           top: calc(100% + 8px);
           bottom: auto;
-          translate: -50% -4px;
+          translate: calc(-50% + var(--shift, 0px)) -4px;
           transform-origin: top center;
         }
 
         &[data-open] {
           opacity: 1;
-          translate: -50% 0;
+          translate: calc(-50% + var(--shift, 0px)) 0;
           scale: 1;
+          transition-duration: var(--duration-snappy);
         }
       }
 
@@ -262,7 +317,7 @@
         align-items: center;
         min-width: 0;
         max-width: 280px;
-        height: 32px;
+        height: 28px;
         padding: 0 28px 0 12px;
         font-size: 13px;
         font-variation-settings: var(--font-weight-500);
@@ -272,12 +327,11 @@
         cursor: pointer;
         appearance: none;
         background: var(--background-tertiary) no-repeat right 11px center / 10px
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%2382827c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
-        border-radius: 999px;
-        transition: background-color var(--duration-snappy) var(--ease-out-cubic);
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%236b6b65' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
+        border-radius: var(--radius-control);
 
-        &:hover {
-          background-color: var(--gray-4);
+        &:active {
+          background-color: var(--background-hover);
         }
       }
 
@@ -314,20 +368,32 @@
             max-height: min(400px, 60dvh);
             scrollbar-width: none;
             padding: 4px;
-            margin-top: 4px;
-            background: var(--gray-2);
-            border: 0;
+            margin-block: 8px;
+            background: var(--background-raised);
+            border: 1px solid transparent;
             border-radius: 12px;
             box-shadow: var(--shadow-raised);
             opacity: 0;
+            mask-image:
+              linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+              linear-gradient(black, black),
+              linear-gradient(black, black);
+            mask-clip: border-box, border-box, no-clip;
+            mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+            mask-position: 0 0, 0 0, -64px -64px;
+            mask-repeat: no-repeat;
+            mask-composite: add, exclude;
+            animation: scroll-fade linear both;
+            animation-timeline: scroll(self);
             transition:
-              opacity var(--duration-snappy) var(--ease-out-cubic),
-              display var(--duration-snappy) allow-discrete,
-              overlay var(--duration-snappy) allow-discrete;
+              opacity var(--duration-exit) var(--ease-out-cubic),
+              display var(--duration-exit) allow-discrete,
+              overlay var(--duration-exit) allow-discrete;
           }
 
           &:open::picker(select) {
             opacity: 1;
+            transition-duration: var(--duration-snappy);
 
             @starting-style {
               opacity: 0;
@@ -348,7 +414,6 @@
           cursor: pointer;
           border-radius: 8px;
 
-          &:hover,
           &:focus-visible {
             color: var(--text-primary);
             background: var(--background-tertiary);
@@ -373,24 +438,21 @@
         display: inline-flex;
         gap: 6px;
         align-items: center;
-        height: 32px;
+        height: 28px;
         padding: 0 12px;
         font-size: 13px;
         font-variation-settings: var(--font-weight-500);
         color: var(--text-tertiary);
         white-space: nowrap;
-        border-radius: 999px;
-        transition:
-          color var(--duration-snappy) var(--ease-out-cubic),
-          background-color var(--duration-snappy) var(--ease-out-cubic);
-
-        &:hover {
-          color: var(--text-primary);
-        }
+        border-radius: var(--radius-control);
 
         &[aria-pressed="true"] {
           color: var(--text-primary);
           background: var(--background-tertiary);
+        }
+
+        &:active:not(:disabled) {
+          color: var(--text-primary);
         }
 
         &:disabled {
@@ -399,18 +461,18 @@
         }
       }
 
-      .count {
-        color: var(--text-quaternary);
-        font-variant-numeric: tabular-nums;
-      }
-
       .action {
         color: var(--text-primary);
         background: var(--background-tertiary);
 
-        &:hover:not(:disabled) {
-          background: var(--gray-4);
+        &:active:not(:disabled) {
+          background: var(--background-hover);
         }
+      }
+
+      .count {
+        color: var(--text-quaternary);
+        font-variant-numeric: tabular-nums;
       }
 
       .groups {
@@ -420,48 +482,53 @@
         margin-top: 32px;
       }
 
-      .group[hidden] {
-        display: none;
-      }
-
       .group-head {
         display: flex;
         flex-wrap: wrap;
         gap: 4px 12px;
         align-items: baseline;
         margin-bottom: 20px;
+
+        .count {
+          margin-left: auto;
+        }
       }
 
       .group-title {
         font-variation-settings: var(--font-weight-500);
+        text-wrap: balance;
       }
 
       .group-description {
         color: var(--text-tertiary);
       }
 
-      .group-count {
-        margin-left: auto;
-        color: var(--text-quaternary);
-        font-variant-numeric: tabular-nums;
-      }
-
-      .columns {
-        display: flex;
-        gap: var(--gap);
-        align-items: flex-start;
-      }
-
-      .column {
-        display: flex;
-        flex: 1;
-        flex-direction: column;
-        gap: var(--gap);
-        min-width: 0;
+      .cards {
+        position: relative;
       }
 
       .ref {
-        position: relative;
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: var(--card-width);
+
+        &::after {
+          position: absolute;
+          inset: 0;
+          content: "";
+          border-radius: 10px;
+          box-shadow:
+            0 0 0 2px var(--background-primary),
+            0 0 0 4px var(--accent);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity var(--duration-snappy) var(--ease-out-cubic);
+        }
+
+        &[data-picked]::after {
+          opacity: 1;
+        }
       }
 
       .shot {
@@ -469,10 +536,10 @@
         display: block;
         width: 100%;
         overflow: hidden;
+        aspect-ratio: 4 / 3;
         cursor: zoom-in;
         background: var(--background-tertiary);
         border-radius: 10px;
-        transition: box-shadow var(--duration-snappy) var(--ease-out-cubic);
 
         &::after {
           position: absolute;
@@ -485,18 +552,9 @@
 
         img {
           width: 100%;
-          height: auto;
+          height: 100%;
+          object-fit: cover;
         }
-      }
-
-      .ref[data-kept] .shot {
-        box-shadow:
-          0 0 0 2px var(--background-primary),
-          0 0 0 4px var(--accent);
-      }
-
-      .ref[data-missing] .shot {
-        aspect-ratio: 4 / 3;
       }
 
       @media (prefers-reduced-motion: no-preference) {
@@ -512,7 +570,7 @@
         }
       }
 
-      .keep {
+      .pick {
         position: absolute;
         top: 8px;
         right: 8px;
@@ -521,44 +579,40 @@
         width: 28px;
         height: 28px;
         color: var(--text-tertiary);
-        background: color-mix(in oklab, var(--gray-1) 82%, transparent);
-        border-radius: 999px;
+        background: color-mix(in oklab, var(--background-primary) 82%, transparent);
+        border-radius: var(--radius-control);
         box-shadow: var(--shadow-raised);
         opacity: 0;
         backdrop-filter: blur(8px);
-        transition:
-          opacity var(--duration-snappy) var(--ease-out-cubic),
-          color var(--duration-snappy) var(--ease-out-cubic),
-          background-color var(--duration-snappy) var(--ease-out-cubic);
+        transition: opacity var(--duration-snappy) var(--ease-out-cubic);
 
         &::before {
           position: absolute;
-          inset: -8px;
+          inset: -6px;
           content: "";
         }
 
-        &:hover {
+        &:active:not([aria-pressed="true"]) {
           color: var(--text-primary);
         }
 
+        &:focus-visible {
+          opacity: 1;
+        }
+
         &[aria-pressed="true"] {
-          color: #fff;
+          color: var(--text-on-accent);
           background: var(--accent);
           opacity: 1;
         }
 
-        @media (hover: none) {
+        @media not ((hover: hover) and (pointer: fine)) {
           opacity: 1;
         }
       }
 
-      .ref:hover .keep,
-      .keep:focus-visible {
-        opacity: 1;
-      }
-
       .empty {
-        padding: 96px 0;
+        padding: 64px 0;
         color: var(--text-tertiary);
         text-align: center;
       }
@@ -574,12 +628,12 @@
         background: transparent;
         backdrop-filter: blur(0);
         transition:
-          background-color var(--duration-snappy) var(--ease-out-cubic),
-          backdrop-filter var(--duration-snappy) var(--ease-out-cubic),
-          display var(--duration-snappy) allow-discrete,
-          overlay var(--duration-snappy) allow-discrete;
+          background-color var(--duration-exit) var(--ease-out-cubic),
+          backdrop-filter var(--duration-exit) var(--ease-out-cubic),
+          display var(--duration-exit) allow-discrete,
+          overlay var(--duration-exit) allow-discrete;
 
-        grid-template-columns: 1fr 320px;
+        grid-template-columns: 1fr 344px;
 
         @media (width <= 900px) {
           grid-template-rows: 1fr auto;
@@ -588,8 +642,9 @@
 
         &[open] {
           display: grid;
-          background: color-mix(in oklab, var(--gray-1) 92%, transparent);
+          background: color-mix(in oklab, var(--background-primary) 92%, transparent);
           backdrop-filter: blur(24px);
+          transition-duration: var(--duration-snappy);
 
           @starting-style {
             background: transparent;
@@ -600,6 +655,7 @@
         &[open][data-closing] {
           background: transparent;
           backdrop-filter: blur(0);
+          transition-duration: var(--duration-exit);
         }
 
         &::backdrop {
@@ -631,38 +687,57 @@
       .panel {
         display: flex;
         flex-direction: column;
-        gap: 24px;
         min-height: 0;
-        padding: 20px;
-        overflow-y: auto;
-        border-left: 1px solid var(--border-primary);
+        margin: 12px 12px 12px 0;
+        overflow: hidden;
+        background: var(--background-raised);
+        border: 1px solid transparent;
+        border-radius: 16px;
+        box-shadow: var(--shadow-floating);
         opacity: 0;
-        translate: 12px 0;
-        transition:
-          opacity var(--duration-snappy) var(--ease-out-cubic),
-          translate 320ms var(--ease-out-quart);
+        transition: opacity var(--duration-exit) var(--ease-out-cubic);
 
         .viewer[open] & {
           opacity: 1;
-          translate: 0;
+          transition-duration: var(--duration-snappy);
           transition-delay: 60ms;
 
           @starting-style {
             opacity: 0;
-            translate: 12px 0;
           }
         }
 
         .viewer[open][data-closing] & {
           opacity: 0;
-          translate: 12px 0;
+          transition-duration: var(--duration-exit);
           transition-delay: 0s;
         }
 
         @media (width <= 900px) {
-          border-top: 1px solid var(--border-primary);
-          border-left: 0;
+          max-height: calc(40dvh - 12px);
+          margin: 0 12px 12px;
         }
+      }
+
+      .panel-scroll {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        min-height: 0;
+        padding: 16px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        mask-image:
+          linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+          linear-gradient(black, black),
+          linear-gradient(black, black);
+        mask-clip: border-box, border-box, no-clip;
+        mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+        mask-position: 0 0, 0 0, -64px -64px;
+        mask-repeat: no-repeat;
+        mask-composite: add, exclude;
+        animation: scroll-fade linear both;
+        animation-timeline: scroll(self);
       }
 
       .panel-top,
@@ -684,15 +759,17 @@
         height: 28px;
         color: var(--text-tertiary);
         background: var(--background-tertiary);
-        border-radius: 999px;
-        transition:
-          color var(--duration-snappy) var(--ease-out-cubic),
-          background-color var(--duration-snappy) var(--ease-out-cubic),
-          opacity var(--duration-snappy) var(--ease-out-cubic);
+        border-radius: var(--radius-control);
 
-        &:hover:not(:disabled) {
+        &::before {
+          position: absolute;
+          inset: -4px;
+          content: "";
+        }
+
+        &:active:not(:disabled, [aria-pressed="true"]) {
           color: var(--text-primary);
-          background: var(--gray-4);
+          background: var(--background-hover);
         }
 
         &:disabled {
@@ -701,13 +778,9 @@
         }
 
         &[aria-pressed="true"] {
-          color: #fff;
+          color: var(--text-on-accent);
           background: var(--accent);
         }
-      }
-
-      [aria-pressed="true"] .bookmark path {
-        fill: currentColor;
       }
 
       .panel-head {
@@ -722,7 +795,7 @@
 
       .panel-title {
         font-variation-settings: var(--font-weight-500);
-        text-wrap: pretty;
+        text-wrap: balance;
       }
 
       .panel-note {
@@ -753,12 +826,13 @@
         }
 
         dd {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
           min-width: 0;
           text-align: right;
           overflow-wrap: anywhere;
+
+          span + span::before {
+            content: ", ";
+          }
         }
 
         a {
@@ -768,19 +842,63 @@
 
           svg {
             color: var(--text-quaternary);
-            transition: color var(--duration-snappy) var(--ease-out-cubic);
           }
 
-          &:hover svg {
+          &:active svg {
             color: var(--text-primary);
           }
+        }
+      }
+
+      @media (width <= 640px) {
+        .select,
+        input:not([type="range"]),
+        textarea {
+          font-size: 16px;
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .select:hover {
+          background-color: var(--background-hover);
+        }
+
+        .chip:hover:not(:disabled) {
+          color: var(--text-primary);
+        }
+
+        .action:hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
+        .icon-button:hover:not(:disabled, [aria-pressed="true"]) {
+          color: var(--text-primary);
+          background: var(--background-hover);
+        }
+
+        .select option:hover {
+          color: var(--text-primary);
+          background: var(--fill-hover);
+        }
+
+        .ref:hover .pick {
+          opacity: 1;
+        }
+
+        .pick:hover:not([aria-pressed="true"]) {
+          color: var(--text-primary);
+        }
+
+        .detail a:hover svg {
+          color: var(--text-primary);
         }
       }
 
       @media (prefers-reduced-motion: reduce) {
         *,
         *::before,
-        *::after {
+        *::after,
+        ::backdrop {
           transition-duration: 0s !important;
         }
       }
@@ -793,13 +911,13 @@
         <p class="brief" id="brief"></p>
       </header>
 
-      <nav class="bar" aria-label="Filters">
+      <nav class="bar" id="bar" aria-label="Filters">
         <div class="filters">
           <select class="select" id="group-filter" aria-label="Group"></select>
           <select class="select" id="source-filter" aria-label="Source"></select>
         </div>
         <div class="picks">
-          <button class="chip" id="kept-only" type="button" aria-pressed="false"></button>
+          <button class="chip" id="picked-only" type="button" aria-pressed="false"></button>
           <span class="copy">
             <button class="action" id="copy" type="button" title="Copy Picks (⇧C)" aria-keyshortcuts="Shift+C" disabled>Copy Picks</button>
             <output class="toast" id="copy-toast"></output>
@@ -813,27 +931,29 @@
     <dialog class="viewer" id="viewer" aria-label="Reference">
       <div class="stage" id="stage"><img id="viewer-image" alt="" /></div>
       <aside class="panel">
-        <div class="panel-top">
-          <button class="icon-button" id="viewer-close" type="button" aria-label="Close" title="Close (Esc)">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
-          </button>
-          <div class="panel-tools">
-            <button class="icon-button" id="viewer-keep" type="button" aria-pressed="false"></button>
-            <button class="icon-button" id="viewer-prev" type="button" aria-label="Previous" title="Previous (←)">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 8h-9M7 4.5L3.5 8 7 11.5" /></svg>
+        <div class="panel-scroll">
+          <div class="panel-top">
+            <button class="icon-button" id="viewer-close" type="button" aria-label="Close" title="Close (Esc)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
             </button>
-            <button class="icon-button" id="viewer-next" type="button" aria-label="Next" title="Next (→)">
-              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8h9M9 4.5L12.5 8 9 11.5" /></svg>
-            </button>
+            <div class="panel-tools">
+              <button class="icon-button" id="viewer-pick" type="button" aria-pressed="false"></button>
+              <button class="icon-button" id="viewer-prev" type="button" aria-label="Previous" title="Previous (K)">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 8h-9M7 4.5L3.5 8 7 11.5" /></svg>
+              </button>
+              <button class="icon-button" id="viewer-next" type="button" aria-label="Next" title="Next (J)">
+                <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8h9M9 4.5L12.5 8 9 11.5" /></svg>
+              </button>
+            </div>
           </div>
+          <header class="panel-head">
+            <span class="panel-group" id="viewer-group"></span>
+            <h2 class="panel-title" id="viewer-title"></h2>
+            <p class="panel-note" id="viewer-note"></p>
+            <span class="panel-count" id="viewer-count"></span>
+          </header>
+          <dl id="viewer-details"></dl>
         </div>
-        <header class="panel-head">
-          <span class="panel-group" id="viewer-group"></span>
-          <h2 class="panel-title" id="viewer-title"></h2>
-          <p class="panel-note" id="viewer-note"></p>
-          <span class="panel-count" id="viewer-count"></span>
-        </header>
-        <dl id="viewer-details"></dl>
       </aside>
     </dialog>
 
@@ -841,11 +961,11 @@
     <script>
       const board = window.board;
       const storageKey = `gather:${location.pathname}`;
-      const kept = new Set(JSON.parse(localStorage.getItem(storageKey) || "[]"));
-      const filters = { group: null, source: null, keptOnly: false };
+      const picked = new Set(JSON.parse(localStorage.getItem(storageKey) || "[]"));
+      const filters = { group: null, source: null, pickedOnly: false };
       const $ = (id) => document.getElementById(id);
 
-      const bookmark = `<svg class="bookmark" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4.5 2.5h7v11L8 11l-3.5 2.5z" /></svg>`;
+      const check = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg>`;
       const external = `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h6v6M11.5 4.5l-7 7" /></svg>`;
       function h(tag, props = {}, ...children) {
         const node = document.createElement(tag);
@@ -870,7 +990,7 @@
         return (
           (filters.group === null || item.group === filters.group) &&
           (filters.source === null || item.source === filters.source) &&
-          (!filters.keptOnly || kept.has(item.url))
+          (!filters.pickedOnly || picked.has(item.url))
         );
       }
 
@@ -896,16 +1016,18 @@
       );
 
       function renderPicks() {
-        const keptOnly = $("kept-only");
-        keptOnly.setAttribute("aria-pressed", String(filters.keptOnly));
-        keptOnly.replaceChildren("Kept", h("span", { class: "count" }, String(kept.size)));
-        $("copy").disabled = kept.size === 0;
+        const count = items.filter((item) => picked.has(item.url)).length;
+        const pickedOnly = $("picked-only");
+        pickedOnly.setAttribute("aria-pressed", String(filters.pickedOnly));
+        pickedOnly.replaceChildren("Picked", h("span", { class: "count" }, String(count)));
+        $("copy").disabled = count === 0;
       }
 
       function setFilter(key, value) {
         filters[key] = value;
         renderPicks();
         layout();
+        writeHash();
       }
 
       function loaded(image) {
@@ -917,32 +1039,36 @@
 
       for (const item of items) {
         const image = h("img", { src: item.image, alt: "", decoding: "async" });
-        const keep = h("button", {
-          class: "keep",
-          type: "button",
-          html: bookmark,
-          onclick: () => toggleKeep(item),
-        });
-        item.node = h(
-          "figure",
-          { class: "ref" },
-          h("button", { class: "shot", type: "button", "aria-label": `View ${item.title}`, onclick: () => openViewer(item) }, image),
-          keep,
+        item.ratio = 4 / 3;
+        item.shot = h(
+          "button",
+          { class: "shot", type: "button", "aria-label": `View ${item.title}`, onclick: () => openViewer(item) },
+          image,
         );
-        item.keep = keep;
-        item.ready = image
+        item.pick = h("button", {
+          class: "pick",
+          type: "button",
+          html: check,
+          onclick: () => togglePick(item),
+        });
+        item.node = h("figure", { class: "ref" }, item.shot, item.pick);
+        image
           .decode()
           .catch(() => (image.complete ? (image.naturalWidth ? undefined : Promise.reject()) : loaded(image)))
           .then(() => {
-            image.style.aspectRatio = `${image.naturalWidth} / ${image.naturalHeight}`;
+            item.ratio = image.naturalWidth / image.naturalHeight;
+            item.shot.style.aspectRatio = `${image.naturalWidth} / ${image.naturalHeight}`;
+            image.setAttribute("data-loaded", "");
+            scheduleLayout();
           })
-          .catch(() => item.node.setAttribute("data-missing", ""));
-        renderKeep(item);
+          .catch(() => {});
+        renderPick(item);
       }
 
-      const sections = board.groups.map((group) => {
-        const count = h("span", { class: "group-count" });
-        const columns = h("div", { class: "columns" });
+      const sections = board.groups.map((group, index) => {
+        const members = items.filter((item) => item.group === index);
+        const count = h("span", { class: "count" });
+        const cards = h("div", { class: "cards" }, ...members.map((item) => item.node));
         const node = h(
           "section",
           { class: "group" },
@@ -953,87 +1079,127 @@
             group.description ? h("p", { class: "group-description" }, group.description) : null,
             count,
           ),
-          columns,
+          cards,
         );
         $("groups").append(node);
-        return { node, count, columns };
+        return { node, count, cards, members };
       });
-      const empty = h("p", { class: "empty", hidden: "" }, "Nothing Kept Yet");
+      const empty = h("p", { class: "empty", hidden: "" });
       $("groups").append(empty);
 
-      function columnCount() {
-        const width = $("groups").clientWidth;
-        const column = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--column"));
-        const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--gap"));
-        return Math.min(3, Math.max(1, Math.floor((width + gap) / (column + gap))));
+      function nearest(item) {
+        const index = items.indexOf(item);
+        return items.slice(index).find(isVisible) ?? items.slice(0, index).findLast(isVisible) ?? null;
       }
 
-      let currentColumns = 0;
+      function focusNear(item, options) {
+        const target = nearest(item);
+        (target ? target.shot : $("group-filter")).focus(options);
+        return target;
+      }
+
+      let width = 0;
 
       function layout() {
-        currentColumns = columnCount();
+        const focused = items.find((item) => item.node.contains(document.activeElement));
+        const root = getComputedStyle(document.documentElement);
+        const column = parseFloat(root.getPropertyValue("--column"));
+        const gap = parseFloat(root.getPropertyValue("--gap"));
+        width = $("groups").clientWidth;
+        const columns = Math.min(3, Math.max(1, Math.floor((width + gap) / (column + gap))));
+        const cardWidth = (width - gap * (columns - 1)) / columns;
         let shown = 0;
-        sections.forEach((section, index) => {
-          const visible = items.filter((item) => item.group === index && isVisible(item));
-          section.node.hidden = visible.length === 0;
-          section.count.textContent = String(visible.length);
-          const columns = Array.from({ length: currentColumns }, () => h("div", { class: "column" }));
-          section.columns.replaceChildren(...columns);
-          for (const item of visible) {
-            const shortest = columns.reduce((a, b) => (b.offsetHeight < a.offsetHeight ? b : a));
-            shortest.append(item.node);
+        for (const section of sections) {
+          const heights = Array(columns).fill(0);
+          let visible = 0;
+          for (const item of section.members) {
+            item.node.hidden = !isVisible(item);
+            if (item.node.hidden) continue;
+            const shortest = heights.indexOf(Math.min(...heights));
+            item.node.style.translate = `${shortest * (cardWidth + gap)}px ${heights[shortest]}px`;
+            heights[shortest] += cardWidth / item.ratio + gap;
+            visible += 1;
           }
-          shown += visible.length;
-        });
+          section.node.hidden = visible === 0;
+          section.count.textContent = String(visible);
+          section.cards.style.setProperty("--card-width", `${cardWidth}px`);
+          section.cards.style.height = `${Math.max(0, Math.max(...heights) - gap)}px`;
+          shown += visible;
+        }
+        const nothingPicked = !items.some((item) => picked.has(item.url));
+        empty.textContent = filters.pickedOnly && nothingPicked ? "Nothing Picked Yet" : "No References Match";
         empty.hidden = shown > 0;
+        if (focused && !isVisible(focused)) focusNear(focused);
+      }
+
+      let pending = 0;
+
+      function scheduleLayout() {
+        if (pending) return;
+        pending = requestAnimationFrame(() => {
+          pending = 0;
+          layout();
+        });
       }
 
       new ResizeObserver(() => {
-        if (columnCount() !== currentColumns) layout();
+        if ($("groups").clientWidth !== width) layout();
       }).observe($("groups"));
 
       function save() {
-        localStorage.setItem(storageKey, JSON.stringify([...kept]));
+        localStorage.setItem(storageKey, JSON.stringify([...picked]));
       }
 
-      function renderKeep(item) {
-        const isKept = kept.has(item.url);
-        item.node.toggleAttribute("data-kept", isKept);
-        item.keep.setAttribute("aria-pressed", String(isKept));
-        item.keep.setAttribute("aria-label", isKept ? `Unkeep ${item.title}` : `Keep ${item.title}`);
+      function renderPick(item) {
+        const isPicked = picked.has(item.url);
+        const label = isPicked ? "Unpick" : "Pick";
+        item.node.toggleAttribute("data-picked", isPicked);
+        item.pick.setAttribute("aria-pressed", String(isPicked));
+        item.pick.setAttribute("aria-label", `${label} ${item.title}`);
+        item.pick.title = `${label} (P)`;
       }
 
-      function toggleKeep(item) {
-        if (kept.has(item.url)) kept.delete(item.url);
-        else kept.add(item.url);
+      function togglePick(item) {
+        if (picked.has(item.url)) picked.delete(item.url);
+        else picked.add(item.url);
         save();
-        renderKeep(item);
+        renderPick(item);
         renderPicks();
         if (viewer.open && current === item) renderViewer();
-        if (filters.keptOnly && !viewer.open) layout();
+        if (filters.pickedOnly && !viewer.open) layout();
       }
 
-      $("kept-only").addEventListener("click", () => setFilter("keptOnly", !filters.keptOnly));
+      $("picked-only").addEventListener("click", () => setFilter("pickedOnly", !filters.pickedOnly));
 
-      const bar = document.querySelector(".bar");
+      const bar = $("bar");
       const markStuck = () => bar.toggleAttribute("data-stuck", bar.getBoundingClientRect().top <= 0);
       addEventListener("scroll", markStuck, { passive: true });
       markStuck();
+      new ResizeObserver(() => {
+        document.documentElement.style.setProperty("--bar-height", `${bar.offsetHeight + 8}px`);
+      }).observe(bar);
 
       async function copyPicks() {
-        const picks = items.filter((item) => kept.has(item.url));
+        const picks = items.filter((item) => picked.has(item.url));
         if (picks.length === 0) return;
         const lines = picks.map((item, index) =>
           [`${index + 1}. ${item.title}, ${item.source}`, `   ${item.note}`, `   ${item.url}`].join("\n"),
         );
-        const text = `Keep these ${picks.length} references from ${board.title}:\n\n${lines.join("\n\n")}\n`;
+        const lead = picks.length === 1 ? "Pick this reference" : `Pick these ${picks.length} references`;
+        const text = `${lead} from ${board.title}:\n\n${lines.join("\n\n")}\n`;
         const tokens = Math.ceil(text.length / 4).toLocaleString();
         const toast = $("copy-toast");
         toast.textContent = await navigator.clipboard.writeText(text).then(
           () => `Copied · ~${tokens} tokens`,
           () => "Copy Failed",
         );
-        toast.dataset.side = $("copy").getBoundingClientRect().top < 48 ? "below" : "above";
+        const button = $("copy").getBoundingClientRect();
+        const center = button.left + button.width / 2;
+        const half = toast.offsetWidth / 2;
+        const edge = document.documentElement.clientWidth - 8;
+        const shift = Math.min(0, edge - center - half) + Math.max(0, 8 - center + half);
+        toast.style.setProperty("--shift", `${shift}px`);
+        toast.dataset.side = button.top < 48 ? "below" : "above";
         toast.dataset.open = "";
         clearTimeout(toast.hide);
         toast.hide = setTimeout(() => delete toast.dataset.open, 1600);
@@ -1041,15 +1207,8 @@
 
       $("copy").addEventListener("click", copyPicks);
 
-      document.addEventListener("keydown", (event) => {
-        if (!event.shiftKey || event.code !== "KeyC" || event.metaKey || event.ctrlKey || event.altKey) return;
-        if (viewer.open || event.target.closest("input, textarea, select, [contenteditable]")) return;
-        event.preventDefault();
-        copyPicks();
-      });
-
       const viewer = $("viewer");
-      $("viewer-keep").innerHTML = bookmark;
+      $("viewer-pick").innerHTML = check;
       let sequence = [];
       let current = null;
 
@@ -1058,7 +1217,7 @@
       let flight = null;
 
       function thumbnail(item) {
-        const rect = item.node.querySelector(".shot").getBoundingClientRect();
+        const rect = item.shot.getBoundingClientRect();
         return rect.bottom > 0 && rect.top < innerHeight ? rect : null;
       }
 
@@ -1080,11 +1239,12 @@
         const rect = motion.matches && thumbnail(item);
         image.style.opacity = rect ? "0" : "";
         viewer.showModal();
+        writeHash();
         if (!rect) return;
         await image.decode().catch(() => {});
         image.style.opacity = "";
         flight = image.animate([thumbnailFrame(image, rect), { transform: "none", borderRadius: "12px" }], {
-          duration: 360,
+          duration: 240,
           easing: easeOutQuart,
         });
       }
@@ -1096,7 +1256,7 @@
         const rect = motion.matches && thumbnail(current);
         if (!rect) return viewer.close();
         viewer.setAttribute("data-closing", "");
-        flight = image.animate([{}, thumbnailFrame(image, rect)], { duration: 260, easing: easeOutQuart, fill: "forwards" });
+        flight = image.animate([{}, thumbnailFrame(image, rect)], { duration: 240, easing: easeOutQuart, fill: "forwards" });
         await flight.finished.catch(() => {});
         viewer.style.transition = "none";
         viewer.close();
@@ -1107,7 +1267,7 @@
 
       function renderViewer() {
         const index = sequence.indexOf(current);
-        const isKept = kept.has(current.url);
+        const isPicked = picked.has(current.url);
         $("viewer-image").src = current.image;
         $("viewer-image").alt = current.title;
         $("viewer-count").textContent = `${index + 1} of ${sequence.length}`;
@@ -1129,12 +1289,12 @@
           ),
         );
 
-        const keep = $("viewer-keep");
-        const label = isKept ? "Unkeep" : "Keep";
-        keep.setAttribute("aria-pressed", String(isKept));
-        keep.setAttribute("aria-label", label);
-        keep.title = `${label} (K)`;
-        $("viewer-prev").disabled = index === 0;
+        const pick = $("viewer-pick");
+        const label = isPicked ? "Unpick" : "Pick";
+        pick.setAttribute("aria-pressed", String(isPicked));
+        pick.setAttribute("aria-label", label);
+        pick.title = `${label} (P)`;
+        $("viewer-prev").disabled = index <= 0;
         $("viewer-next").disabled = index === sequence.length - 1;
       }
 
@@ -1143,11 +1303,12 @@
         if (!next) return;
         current = next;
         renderViewer();
+        writeHash();
       }
 
       $("viewer-prev").addEventListener("click", () => step(-1));
       $("viewer-next").addEventListener("click", () => step(1));
-      $("viewer-keep").addEventListener("click", () => toggleKeep(current));
+      $("viewer-pick").addEventListener("click", () => togglePick(current));
       $("viewer-close").addEventListener("click", closeViewer);
       $("stage").addEventListener("click", (event) => {
         if (event.target === event.currentTarget) closeViewer();
@@ -1157,31 +1318,69 @@
         closeViewer();
       });
 
-      viewer.addEventListener("keydown", (event) => {
+      viewer.addEventListener("close", () => {
+        if (filters.pickedOnly) layout();
+        writeHash();
+        if (!current) return;
+        const target = focusNear(current, { preventScroll: true });
+        target?.shot.scrollIntoView({ block: "nearest", behavior: motion.matches ? "smooth" : "auto" });
+      });
+
+      document.addEventListener("keydown", (event) => {
         if (event.metaKey || event.ctrlKey || event.altKey) return;
-        if (event.key === "Escape") closeViewer();
-        else if (event.key === "ArrowLeft") step(-1);
-        else if (event.key === "ArrowRight") step(1);
-        else if (event.key.toLowerCase() === "k") toggleKeep(current);
-        else if (event.key.toLowerCase() === "o") window.open(current.url, "_blank", "noreferrer");
-        else return;
+        if (event.key === "Escape" && viewer.open) {
+          event.preventDefault();
+          closeViewer();
+          return;
+        }
+        if (event.target.closest("input, textarea, select, [contenteditable]")) return;
+        if (event.shiftKey) {
+          if (event.code !== "KeyC" || viewer.open) return;
+          event.preventDefault();
+          copyPicks();
+          return;
+        }
+        const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+        if (viewer.open) {
+          if (key === "j" || key === "ArrowDown" || key === "ArrowRight") step(1);
+          else if (key === "k" || key === "ArrowUp" || key === "ArrowLeft") step(-1);
+          else if (key === "p") togglePick(current);
+          else if (key === "o") window.open(current.url, "_blank", "noreferrer");
+          else return;
+        } else {
+          const item = items.find((item) => item.node.contains(event.target));
+          if (key !== "p" || !item) return;
+          togglePick(item);
+        }
         event.preventDefault();
       });
 
-      viewer.addEventListener("close", () => {
-        if (filters.keptOnly) layout();
-        const shot = current?.node.querySelector(".shot");
-        shot?.focus({ preventScroll: true });
-        shot?.scrollIntoView({ block: "nearest", behavior: "smooth" });
-      });
+      function writeHash() {
+        const params = new URLSearchParams();
+        if (filters.group !== null) params.set("group", String(filters.group));
+        if (filters.source !== null) params.set("source", filters.source);
+        if (filters.pickedOnly) params.set("picked", "1");
+        if (viewer.open && current) params.set("item", current.url);
+        const hash = params.toString();
+        history.replaceState(null, "", hash ? `#${hash}` : location.pathname + location.search);
+      }
 
+      function readHash() {
+        const params = new URLSearchParams(location.hash.slice(1));
+        const group = Number(params.get("group"));
+        const source = params.get("source");
+        filters.group = params.has("group") && Number.isInteger(group) && board.groups[group] ? group : null;
+        filters.source = sources.includes(source) ? source : null;
+        filters.pickedOnly = params.get("picked") === "1";
+        $("group-filter").value = filters.group ?? "";
+        $("source-filter").value = filters.source ?? "";
+        return items.find((item) => item.url === params.get("item") && isVisible(item));
+      }
+
+      const opened = readHash();
       renderPicks();
-      Promise.all(items.map((item) => item.ready)).then(() => {
-        layout();
-        requestAnimationFrame(() => {
-          for (const image of document.querySelectorAll(".shot img")) image.setAttribute("data-loaded", "");
-        });
-      });
+      layout();
+      if (opened) openViewer(opened);
     </script>
   </body>
 </html>
