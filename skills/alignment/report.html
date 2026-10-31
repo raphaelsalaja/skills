@@ -35,6 +35,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#fdfdfc" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#111110" media="(prefers-color-scheme: dark)" />
     <title>Alignment</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -49,11 +51,16 @@
         --gray-3: #f1f0ef;
         --gray-4: #e9e8e6;
         --gray-5: #e2e1de;
-        --gray-10: #82827c;
+        --gray-10: #6b6b65;
         --gray-11: #63635e;
         --gray-12: #21201c;
-        --red: #dc3e42;
+        --red: #ce2c31;
         --green: #2b9a66;
+        --accent: #0077b6;
+        --text-on-accent: #fff;
+        --background-raised: #fff;
+        --background-hover: var(--gray-4);
+        --fill-hover: color-mix(in oklab, var(--gray-12) 5%, transparent);
         --shadow-strength: 1;
         color-scheme: light dark;
       }
@@ -65,17 +72,19 @@
           --gray-3: #222221;
           --gray-4: #2a2a28;
           --gray-5: #31312e;
-          --gray-10: #7c7b74;
+          --gray-10: #8f8e87;
           --gray-11: #b5b3ad;
           --gray-12: #eeeeec;
           --red: #ec5d5e;
           --green: #3dd68c;
+          --accent: #02bbff;
+          --text-on-accent: #111110;
+          --background-raised: var(--gray-2);
           --shadow-strength: 3;
         }
       }
 
       :root {
-        --accent: #02bbff;
         --border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
         --border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
         --text-primary: var(--gray-12);
@@ -93,6 +102,8 @@
         --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
         --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
         --duration-snappy: 220ms;
+        --duration-exit: 160ms;
+        --radius-control: 8px;
         --inset: 48px;
       }
 
@@ -125,6 +136,12 @@
         background: none;
       }
 
+      button,
+      a,
+      select {
+        touch-action: manipulation;
+      }
+
       ol,
       ul {
         list-style: none;
@@ -142,8 +159,11 @@
         font-optical-sizing: none;
         font-feature-settings: "calt", "ccmp", "locl", "kern", "cv01", "ss03";
         -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-tap-highlight-color: transparent;
         color: var(--text-primary);
         background: var(--background-primary);
+        scroll-padding-block-start: var(--bar-height, 72px);
       }
 
       * {
@@ -168,6 +188,35 @@
         text-wrap: pretty;
       }
 
+      @property --fade-start {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+
+      @property --fade-end {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+
+      @keyframes scroll-fade {
+        0% {
+          --fade-start: 0px;
+          --fade-end: 24px;
+        }
+        10% {
+          --fade-start: 24px;
+        }
+        90% {
+          --fade-end: 24px;
+        }
+        100% {
+          --fade-start: 24px;
+          --fade-end: 0px;
+        }
+      }
+
       .page {
         width: min(768px, 100% - var(--inset) * 2);
         margin: 0 auto;
@@ -182,7 +231,8 @@
       .head {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
+        max-width: 640px;
       }
 
       .head-top {
@@ -222,10 +272,17 @@
         overflow-wrap: anywhere;
 
         a {
+          display: inline-flex;
+          gap: 4px;
+          align-items: center;
           color: var(--text-secondary);
-          transition: color var(--duration-snappy) var(--ease-out-cubic);
 
-          &:hover {
+          svg {
+            color: var(--text-quaternary);
+          }
+
+          &:active,
+          &:active svg {
             color: var(--text-primary);
           }
         }
@@ -280,29 +337,31 @@
         color: var(--text-primary);
         white-space: nowrap;
         pointer-events: none;
-        background: var(--gray-2);
+        background: var(--background-raised);
+        border: 1px solid transparent;
         border-radius: 10px;
         box-shadow: var(--shadow-raised);
         opacity: 0;
-        translate: -50% 4px;
+        translate: calc(-50% + var(--shift, 0px)) 4px;
         scale: 0.97;
         transform-origin: bottom center;
         transition:
-          opacity var(--duration-snappy) var(--ease-out-cubic),
-          translate var(--duration-snappy) var(--ease-out-cubic),
-          scale var(--duration-snappy) var(--ease-out-cubic);
+          opacity var(--duration-exit) var(--ease-out-cubic),
+          translate var(--duration-exit) var(--ease-out-cubic),
+          scale var(--duration-exit) var(--ease-out-cubic);
 
         &[data-side="below"] {
           top: calc(100% + 8px);
           bottom: auto;
-          translate: -50% -4px;
+          translate: calc(-50% + var(--shift, 0px)) -4px;
           transform-origin: top center;
         }
 
         &[data-open] {
           opacity: 1;
-          translate: -50% 0;
+          translate: calc(-50% + var(--shift, 0px)) 0;
           scale: 1;
+          transition-duration: var(--duration-snappy);
         }
       }
 
@@ -312,7 +371,7 @@
         align-items: center;
         min-width: 0;
         max-width: 280px;
-        height: 32px;
+        height: 28px;
         padding: 0 28px 0 12px;
         font-size: 13px;
         font-variation-settings: var(--font-weight-500);
@@ -322,12 +381,11 @@
         cursor: pointer;
         appearance: none;
         background: var(--background-tertiary) no-repeat right 11px center / 10px
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%2382827c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
-        border-radius: 999px;
-        transition: background-color var(--duration-snappy) var(--ease-out-cubic);
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%236b6b65' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
+        border-radius: var(--radius-control);
 
-        &:hover {
-          background-color: var(--gray-4);
+        &:active {
+          background-color: var(--background-hover);
         }
       }
 
@@ -364,20 +422,32 @@
             max-height: min(400px, 60dvh);
             scrollbar-width: none;
             padding: 4px;
-            margin-top: 4px;
-            background: var(--gray-2);
-            border: 0;
+            margin-block: 8px;
+            background: var(--background-raised);
+            border: 1px solid transparent;
             border-radius: 12px;
             box-shadow: var(--shadow-raised);
             opacity: 0;
+            mask-image:
+              linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+              linear-gradient(black, black),
+              linear-gradient(black, black);
+            mask-clip: border-box, border-box, no-clip;
+            mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+            mask-position: 0 0, 0 0, -64px -64px;
+            mask-repeat: no-repeat;
+            mask-composite: add, exclude;
+            animation: scroll-fade linear both;
+            animation-timeline: scroll(self);
             transition:
-              opacity var(--duration-snappy) var(--ease-out-cubic),
-              display var(--duration-snappy) allow-discrete,
-              overlay var(--duration-snappy) allow-discrete;
+              opacity var(--duration-exit) var(--ease-out-cubic),
+              display var(--duration-exit) allow-discrete,
+              overlay var(--duration-exit) allow-discrete;
           }
 
           &:open::picker(select) {
             opacity: 1;
+            transition-duration: var(--duration-snappy);
 
             @starting-style {
               opacity: 0;
@@ -398,7 +468,11 @@
           cursor: pointer;
           border-radius: 8px;
 
-          &:hover,
+          &:active {
+            color: var(--text-primary);
+            background: var(--fill-hover);
+          }
+
           &:focus-visible {
             color: var(--text-primary);
             background: var(--background-tertiary);
@@ -422,23 +496,35 @@
         display: inline-flex;
         gap: 6px;
         align-items: center;
-        height: 32px;
+        height: 28px;
         padding: 0 12px;
         font-size: 13px;
         font-variation-settings: var(--font-weight-500);
-        color: var(--text-primary);
+        color: var(--text-tertiary);
         white-space: nowrap;
-        background: var(--background-tertiary);
-        border-radius: 999px;
-        transition: background-color var(--duration-snappy) var(--ease-out-cubic);
+        border-radius: var(--radius-control);
 
-        &:hover:not(:disabled) {
-          background: var(--gray-4);
+        &[aria-pressed="true"] {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &:active:not(:disabled) {
+          color: var(--text-primary);
         }
 
         &:disabled {
           cursor: default;
           opacity: 0.5;
+        }
+      }
+
+      .action {
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+
+        &:active:not(:disabled) {
+          background: var(--background-hover);
         }
       }
 
@@ -466,6 +552,10 @@
           height: 100%;
           border-radius: inherit;
         }
+
+        &[data-missing] img {
+          visibility: hidden;
+        }
       }
 
       @media (prefers-reduced-motion: no-preference) {
@@ -491,15 +581,9 @@
         position: absolute;
         outline: 1px solid color-mix(in oklab, var(--accent) 70%, transparent);
         border-radius: 1px;
-        transition:
-          outline-color var(--duration-snappy) var(--ease-out-cubic),
-          opacity var(--duration-snappy) var(--ease-out-cubic);
+        transition: opacity var(--duration-snappy) var(--ease-out-cubic);
 
-        &[hidden] {
-          display: none;
-        }
-
-        &:hover {
+        &:active {
           outline-color: var(--accent);
         }
 
@@ -513,7 +597,6 @@
         }
 
         &[data-selected] {
-          z-index: 1;
           outline: 2px solid var(--accent);
         }
       }
@@ -538,24 +621,16 @@
           font-size: 11px;
           line-height: 16px;
           font-variation-settings: var(--font-weight-500);
-          color: #fff;
+          color: var(--text-on-accent);
           text-align: center;
           font-variant-numeric: tabular-nums;
           background: var(--accent);
           border-radius: 4px;
-
-          &[hidden] {
-            display: none;
-          }
         }
       }
 
       .section {
         margin-top: 64px;
-
-        &[hidden] {
-          display: none;
-        }
       }
 
       .section-head {
@@ -564,16 +639,15 @@
         gap: 4px 12px;
         align-items: baseline;
         margin-bottom: 20px;
+
+        .count {
+          margin-left: auto;
+        }
       }
 
       .section-title {
         font-variation-settings: var(--font-weight-500);
-      }
-
-      .section-count {
-        margin-left: auto;
-        color: var(--text-quaternary);
-        font-variant-numeric: tabular-nums;
+        text-wrap: balance;
       }
 
       .layout {
@@ -601,10 +675,6 @@
 
       .finding {
         position: relative;
-
-        &[hidden] {
-          display: none;
-        }
       }
 
       .finding-select {
@@ -615,10 +685,9 @@
         padding: 10px 48px 10px 12px;
         text-align: left;
         border-radius: 10px;
-        transition: background-color var(--duration-snappy) var(--ease-out-cubic);
 
-        &:hover {
-          background: var(--gray-2);
+        &:active {
+          background: var(--fill-hover);
         }
 
         .finding[data-selected] & {
@@ -652,6 +721,37 @@
         }
       }
 
+      .pick {
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        z-index: 1;
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        color: var(--text-quaternary);
+        border-radius: var(--radius-control);
+        box-shadow: inset 0 0 0 1px var(--border-secondary);
+
+        &::before {
+          position: absolute;
+          inset: -6px;
+          content: "";
+        }
+
+        &:active:not([aria-pressed="true"]) {
+          color: var(--text-primary);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-on-accent);
+          background: var(--accent);
+          box-shadow: none;
+        }
+      }
+
       .icon-button {
         position: relative;
         display: grid;
@@ -660,15 +760,12 @@
         height: 28px;
         color: var(--text-tertiary);
         background: var(--background-tertiary);
-        border-radius: 999px;
-        transition:
-          color var(--duration-snappy) var(--ease-out-cubic),
-          background-color var(--duration-snappy) var(--ease-out-cubic),
-          opacity var(--duration-snappy) var(--ease-out-cubic);
+        border-radius: var(--radius-control);
+        transition: opacity var(--duration-snappy) var(--ease-out-cubic);
 
-        &:hover:not(:disabled) {
+        &:active:not(:disabled, [aria-pressed="true"]) {
           color: var(--text-primary);
-          background: var(--gray-4);
+          background: var(--background-hover);
         }
 
         &:disabled {
@@ -677,44 +774,9 @@
         }
 
         &[aria-pressed="true"] {
-          color: #fff;
+          color: var(--text-on-accent);
           background: var(--accent);
         }
-      }
-
-      [aria-pressed="true"] .bookmark path {
-        fill: currentColor;
-      }
-
-      .keep {
-        position: absolute;
-        top: 10px;
-        right: 10px;
-        opacity: 0;
-
-        &::before {
-          position: absolute;
-          inset: -6px;
-          content: "";
-        }
-
-        &[aria-pressed="true"] {
-          opacity: 1;
-        }
-
-        @media (hover: none) {
-          opacity: 1;
-        }
-      }
-
-      .finding:hover .keep,
-      .finding[data-selected] .keep,
-      .keep:focus-visible {
-        opacity: 1;
-      }
-
-      .finding[data-selected] .keep:not([aria-pressed="true"]) {
-        background: var(--gray-4);
       }
 
       .panel {
@@ -728,6 +790,17 @@
         padding-left: 24px;
         overflow-y: auto;
         border-left: 1px solid var(--border-primary);
+        mask-image:
+          linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+          linear-gradient(black, black),
+          linear-gradient(black, black);
+        mask-clip: border-box, border-box, no-clip;
+        mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+        mask-position: 0 0, 0 0, -64px -64px;
+        mask-repeat: no-repeat;
+        mask-composite: add, exclude;
+        animation: scroll-fade linear both;
+        animation-timeline: scroll(self);
 
         &[hidden] {
           display: none;
@@ -767,7 +840,7 @@
 
       .panel-title {
         font-variation-settings: var(--font-weight-500);
-        text-wrap: pretty;
+        text-wrap: balance;
       }
 
       .panel-note {
@@ -824,6 +897,10 @@
           text-align: right;
           overflow-wrap: anywhere;
           font-variant-numeric: tabular-nums;
+
+          span + span::before {
+            content: ", ";
+          }
         }
       }
 
@@ -869,9 +946,54 @@
       }
 
       .empty {
-        padding: 48px 0;
+        padding: 64px 0;
         color: var(--text-tertiary);
         text-align: center;
+      }
+
+      @media (width <= 640px) {
+        .select,
+        input:not([type="range"]),
+        textarea {
+          font-size: 16px;
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .brief a:hover,
+        .brief a:hover svg {
+          color: var(--text-primary);
+        }
+
+        .select:hover {
+          background-color: var(--background-hover);
+        }
+
+        .action:hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
+        .icon-button:hover:not(:disabled, [aria-pressed="true"]) {
+          color: var(--text-primary);
+          background: var(--background-hover);
+        }
+
+        .select option:hover {
+          color: var(--text-primary);
+          background: var(--fill-hover);
+        }
+
+        .mark:hover {
+          outline-color: var(--accent);
+        }
+
+        .finding-select:hover {
+          background: var(--fill-hover);
+        }
+
+        .pick:hover:not([aria-pressed="true"]) {
+          color: var(--text-primary);
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -893,7 +1015,7 @@
         <p class="brief" id="brief"></p>
       </header>
 
-      <nav class="bar" aria-label="Filters">
+      <nav class="bar" id="bar" aria-label="Filters">
         <select class="select" id="severity-filter" aria-label="Severity"></select>
         <div class="picks">
           <span class="copy">
@@ -912,8 +1034,8 @@
 
           <section class="findings" id="findings-section" aria-labelledby="findings-title">
             <header class="section-head">
-              <h2 class="section-title" id="findings-title">Numbered Findings</h2>
-              <span class="section-count" id="findings-count"></span>
+              <h2 class="section-title" id="findings-title">Findings</h2>
+              <span class="count" id="findings-count"></span>
             </header>
             <ol class="list" id="list"></ol>
           </section>
@@ -922,7 +1044,7 @@
         <aside class="panel" id="panel" aria-label="Finding">
           <div class="panel-top">
             <div class="panel-tools">
-              <button class="icon-button" id="panel-keep" type="button" aria-pressed="false"></button>
+              <button class="icon-button" id="panel-pick" type="button" aria-pressed="false"></button>
               <button class="icon-button" id="panel-prev" type="button" aria-label="Previous" title="Previous (K)">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5v-9M4.5 7L8 3.5 11.5 7" /></svg>
               </button>
@@ -968,13 +1090,14 @@
       const findings = report.findings;
       const severities = ["High", "Medium", "Low"];
       const storageKey = `alignment:${location.pathname}`;
-      const kept = new Set(JSON.parse(localStorage.getItem(storageKey) || "[]"));
+      const picked = new Set(JSON.parse(localStorage.getItem(storageKey) || "[]"));
       const keyOf = (finding) => `${finding.rule} ${finding.element} ${finding.note}`;
       const $ = (id) => document.getElementById(id);
       let severity = null;
       let current = findings[0] ?? null;
 
-      const bookmark = `<svg class="bookmark" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4.5 2.5h7v11L8 11l-3.5 2.5z" /></svg>`;
+      const check = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg>`;
+      const external = `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h6v6M11.5 4.5l-7 7" /></svg>`;
 
       function h(tag, props = {}, ...children) {
         const node = document.createElement(tag);
@@ -989,15 +1112,11 @@
 
       const words = (key) => key.replace(/([a-z])([A-Z])/g, "$1 $2").replace(/[_-]+/g, " ");
       const titleCase = (key) => words(key).replace(/\b\w/g, (letter) => letter.toUpperCase());
-      const value = (entry, key) =>
-        Array.isArray(entry)
-          ? `${entry.join(", ")}${typeof entry[0] === "number" ? "px" : ""}`
-          : typeof entry === "number" && key !== "count"
-            ? `${entry}px`
-            : String(entry);
+      const value = (entry, key) => (typeof entry === "number" && key !== "count" ? `${entry}px` : String(entry));
+      const values = (entry, key) => [entry].flat().map((part) => value(part, key));
       const measuredText = (finding) =>
-        Object.entries(finding.measured ?? {})
-          .map(([key, entry]) => `${words(key).toLowerCase()} ${value(entry, key)}`)
+        Object.entries(finding.measured)
+          .map(([key, entry]) => `${words(key).toLowerCase()} ${values(entry, key).join(", ")}`)
           .join(", ");
       const reportLine = (finding) => {
         const measured = measuredText(finding);
@@ -1010,10 +1129,9 @@
       document.title = `${pageUrl.host}${pageUrl.pathname} · Alignment`;
       $("verdict").textContent = report.verdict;
       $("verdict").dataset.verdict = report.verdict;
-      $("brief").append(
-        h("a", { href: report.url, target: "_blank", rel: "noreferrer" }, report.url),
-        ` at ${report.viewport.width} × ${report.viewport.height}, ${report.scale}x`,
-      );
+      const original = h("a", { href: report.url, target: "_blank", rel: "noreferrer", html: external });
+      original.prepend(report.url);
+      $("brief").append(original, ` at ${report.viewport.width} × ${report.viewport.height}, ${report.scale}x`);
 
       function option(value, label, count) {
         return h("option", { value }, label, " ", h("span", { class: "count" }, String(count)));
@@ -1029,6 +1147,7 @@
       $("severity-filter").addEventListener("change", (event) => {
         severity = event.target.value || null;
         applyFilter();
+        writeHash();
       });
 
       const isVisible = (finding) => severity === null || finding.severity === severity;
@@ -1048,8 +1167,10 @@
         if (!groups.has(key)) groups.set(key, []);
         groups.get(key).push(finding);
       }
+      const area = (members) => members[0].rect.width * members[0].rect.height;
+      const bySize = [...groups.values()].sort((a, b) => area(b) - area(a));
       const marks = [...groups.values()]
-        .sort((a, b) => b[0].rect.width * b[0].rect.height - a[0].rect.width * a[0].rect.height)
+        .sort((a, b) => a[0].rect.y - b[0].rect.y || a[0].rect.x - b[0].rect.x)
         .map((members) => {
           const labels = members.map((finding) => {
             const label = h("span", {}, String(finding.n));
@@ -1069,6 +1190,7 @@
             },
             h("span", { class: "mark-label" }, ...labels),
           );
+          node.style.zIndex = String(bySize.indexOf(members) + 1);
           const mark = { node, members };
           for (const finding of members) finding.mark = mark;
           $("marks").append(node);
@@ -1090,12 +1212,11 @@
       }
 
       const rows = findings.map((finding) => {
-        const keep = h("button", {
-          class: "icon-button keep",
+        const pick = h("button", {
+          class: "pick",
           type: "button",
-          title: "Keep (X)",
-          html: bookmark,
-          onclick: () => toggleKeep(finding),
+          html: check,
+          onclick: () => togglePick(finding),
         });
         const meta = [finding.rule, finding.file ?? finding.element];
         if (finding.status !== "Confirmed") meta.push(finding.status);
@@ -1111,10 +1232,10 @@
           ),
           h("span", { class: "finding-severity", "data-severity": finding.severity }, finding.severity),
         );
-        finding.row = h("li", { class: "finding" }, button, keep);
-        finding.keep = keep;
+        finding.row = h("li", { class: "finding" }, button, pick);
+        finding.pick = pick;
         finding.button = button;
-        renderKeep(finding);
+        renderPick(finding);
         return finding.row;
       });
       $("list").append(...rows);
@@ -1140,32 +1261,36 @@
       );
       $("summary-section").hidden = findings.length === 0;
 
-      const unverified = report.notVerified ?? [];
-      $("unverified").append(...unverified.map((item) => h("li", {}, item)));
-      $("unverified-section").hidden = unverified.length === 0;
+      $("unverified").append(...report.notVerified.map((item) => h("li", {}, item)));
+      $("unverified-section").hidden = report.notVerified.length === 0;
 
       function save() {
-        localStorage.setItem(storageKey, JSON.stringify([...kept]));
+        localStorage.setItem(storageKey, JSON.stringify([...picked]));
       }
 
-      function renderKeep(finding) {
-        const isKept = kept.has(keyOf(finding));
-        finding.keep.setAttribute("aria-pressed", String(isKept));
-        finding.keep.setAttribute("aria-label", `${isKept ? "Unkeep" : "Keep"} Finding ${finding.n}`);
+      function renderPick(finding) {
+        const isPicked = picked.has(keyOf(finding));
+        const label = isPicked ? "Unpick" : "Pick";
+        const controls = [[finding.pick, `${label} Finding ${finding.n}`]];
+        if (finding === current) controls.push([$("panel-pick"), label]);
+        for (const [control, name] of controls) {
+          control.setAttribute("aria-pressed", String(isPicked));
+          control.setAttribute("aria-label", name);
+          control.title = `${label} (P)`;
+        }
       }
 
-      function toggleKeep(finding) {
+      function togglePick(finding) {
         if (!finding) return;
-        if (kept.has(keyOf(finding))) kept.delete(keyOf(finding));
-        else kept.add(keyOf(finding));
+        if (picked.has(keyOf(finding))) picked.delete(keyOf(finding));
+        else picked.add(keyOf(finding));
         save();
-        renderKeep(finding);
-        renderPicks();
-        if (finding === current) renderPanel();
+        renderPick(finding);
+        renderCopy();
       }
 
-      function renderPicks() {
-        $("copy").disabled = !findings.some((finding) => kept.has(keyOf(finding)));
+      function renderCopy() {
+        $("copy").disabled = !findings.some((finding) => picked.has(keyOf(finding)));
       }
 
       function applyFilter() {
@@ -1185,21 +1310,22 @@
         drawCrop();
       }
 
-      function select(finding, { focus = false } = {}) {
+      function select(finding, { focus = false, animate = true } = {}) {
         if (!finding) return;
         current = finding;
         render();
-        drawCrop({ animate: true });
+        drawCrop({ animate });
+        writeHash();
         if (!focus) return;
         finding.button.focus({ preventScroll: true });
-        finding.row.scrollIntoView({ block: "nearest", behavior: motion.matches ? "smooth" : "auto" });
+        finding.row.scrollIntoView({ block: "nearest", behavior: animate && motion.matches ? "smooth" : "auto" });
       }
 
-      function step(offset) {
+      function step(offset, { animate = true } = {}) {
         const visible = sequence();
         const next = visible[visible.indexOf(current) + offset];
         if (!next) return;
-        select(next, { focus: $("list").contains(document.activeElement) });
+        select(next, { focus: $("list").contains(document.activeElement), animate });
       }
 
       function render() {
@@ -1217,7 +1343,6 @@
         if (!current) return;
         const visible = sequence();
         const index = visible.indexOf(current);
-        const isKept = kept.has(keyOf(current));
         $("panel-rule").textContent = current.rule;
         $("panel-title").textContent = `Finding ${current.n}`;
         $("panel-note").textContent = current.note;
@@ -1230,18 +1355,16 @@
           ["Status", current.status],
           ["Element", current.element],
           ...(current.file ? [["File", current.file]] : []),
-          ...Object.entries(current.measured ?? {}).map(([key, entry]) => [titleCase(key), value(entry, key)]),
+          ...Object.entries(current.measured).map(([key, entry]) => [titleCase(key), values(entry, key)]),
           ["Rect", `${x}, ${y} · ${width} × ${height}`],
         ];
         $("panel-details").replaceChildren(
-          ...rows.map(([label, entry]) => h("div", { class: "detail" }, h("dt", {}, label), h("dd", {}, entry))),
+          ...rows.map(([label, entry]) =>
+            h("div", { class: "detail" }, h("dt", {}, label), h("dd", {}, ...[entry].flat().map((part) => h("span", {}, part)))),
+          ),
         );
 
-        const keep = $("panel-keep");
-        const label = isKept ? "Unkeep" : "Keep";
-        keep.setAttribute("aria-pressed", String(isKept));
-        keep.setAttribute("aria-label", label);
-        keep.title = `${label} (X)`;
+        renderPick(current);
         $("panel-prev").disabled = index <= 0;
         $("panel-next").disabled = index === visible.length - 1;
       }
@@ -1267,6 +1390,7 @@
         context.setTransform(ratio, 0, 0, ratio, 0, 0);
         const snap = (value) => Math.round(value * ratio) / ratio;
         const accent = color("--accent");
+        const onAccent = color("--text-on-accent");
         const band = 16;
         const areaWidth = W - band;
         const areaHeight = H - band;
@@ -1339,7 +1463,7 @@
             context.beginPath();
             context.roundRect(snap(cx - labelWidth / 2), snap(cy - 8), labelWidth, 16, 4);
             context.fill();
-            context.fillStyle = "#fff";
+            context.fillStyle = onAccent;
             context.fillText(text, cx, cy + 0.5);
           });
         }
@@ -1402,16 +1526,19 @@
 
       $("panel-prev").addEventListener("click", () => step(-1));
       $("panel-next").addEventListener("click", () => step(1));
-      $("panel-keep").innerHTML = bookmark;
-      $("panel-keep").addEventListener("click", () => toggleKeep(current));
+      $("panel-pick").innerHTML = check;
+      $("panel-pick").addEventListener("click", () => togglePick(current));
 
-      const bar = document.querySelector(".bar");
+      const bar = $("bar");
       const markStuck = () => bar.toggleAttribute("data-stuck", bar.getBoundingClientRect().top <= 0);
       addEventListener("scroll", markStuck, { passive: true });
       markStuck();
+      new ResizeObserver(() => {
+        document.documentElement.style.setProperty("--bar-height", `${bar.offsetHeight + 8}px`);
+      }).observe(bar);
 
       async function copyPicks() {
-        const picks = findings.filter((finding) => kept.has(keyOf(finding)));
+        const picks = findings.filter((finding) => picked.has(keyOf(finding)));
         if (picks.length === 0) return;
         const text = `Fix ${listOf(picks.map((finding) => finding.n))}\n\n${picks.map(reportLine).join("\n")}\n`;
         const tokens = Math.ceil(text.length / 4).toLocaleString();
@@ -1420,7 +1547,13 @@
           () => `Copied · ~${tokens} tokens`,
           () => "Copy Failed",
         );
-        toast.dataset.side = $("copy").getBoundingClientRect().top < 48 ? "below" : "above";
+        const button = $("copy").getBoundingClientRect();
+        const center = button.left + button.width / 2;
+        const half = toast.offsetWidth / 2;
+        const edge = document.documentElement.clientWidth - 8;
+        const shift = Math.min(0, edge - center - half) + Math.max(0, 8 - center + half);
+        toast.style.setProperty("--shift", `${shift}px`);
+        toast.dataset.side = button.top < 48 ? "below" : "above";
         toast.dataset.open = "";
         clearTimeout(toast.hide);
         toast.hide = setTimeout(() => delete toast.dataset.open, 1600);
@@ -1435,14 +1568,31 @@
         if (event.shiftKey) {
           if (event.code !== "KeyC") return;
           copyPicks();
-        } else if (key === "j" || key === "ArrowDown" || key === "ArrowRight") step(1);
-        else if (key === "k" || key === "ArrowUp" || key === "ArrowLeft") step(-1);
-        else if (key === "x") toggleKeep(current);
+        } else if (key === "j" || key === "ArrowDown" || key === "ArrowRight") step(1, { animate: false });
+        else if (key === "k" || key === "ArrowUp" || key === "ArrowLeft") step(-1, { animate: false });
+        else if (key === "p" && current) togglePick(current);
         else return;
         event.preventDefault();
       });
 
-      renderPicks();
+      function writeHash() {
+        const params = new URLSearchParams();
+        if (severity) params.set("severity", severity);
+        if (current) params.set("finding", String(current.n));
+        const hash = params.toString();
+        history.replaceState(null, "", hash ? `#${hash}` : location.pathname + location.search);
+      }
+
+      function readHash() {
+        const params = new URLSearchParams(location.hash.slice(1));
+        const level = params.get("severity");
+        severity = present.includes(level) ? level : null;
+        $("severity-filter").value = severity ?? "";
+        return findings.find((finding) => String(finding.n) === params.get("finding") && isVisible(finding));
+      }
+
+      current = readHash() ?? current;
+      renderCopy();
       applyFilter();
       placeMarks();
       image
