@@ -48,12 +48,14 @@
 
   Pinch or Cmd-scroll to zoom, scroll sideways to pan. Drag a slider or a bezier handle to edit a value. Segments snap to events and to the playhead. Hold Alt to drag without snapping. Shift-click segments to move them together.
 
-  Keys: Space plays, ← → step a frame, I and O set a loop range and X clears it. = and − zoom, \ fits, G toggles Onion Skin, S toggles Side by Side, W toggles Wipe, B plays the original, M switches between Timeline and State Machine and Cmd+Z undoes.
+  Keys: Space plays, ← → step a frame or move a focused event mark, I and O set a loop range and X clears it. = and − zoom, \ fits, G toggles Onion Skin, S toggles Side by Side, W toggles Wipe, B plays the original, M switches between Timeline and State Machine and Cmd+Z undoes.
 -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#eeedeb" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0a0a09" media="(prefers-color-scheme: dark)" />
     <title>Deconstruct</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -68,12 +70,17 @@
         --gray-3: #f1f0ef;
         --gray-4: #e9e8e6;
         --gray-5: #e2e1de;
-        --gray-10: #82827c;
+        --gray-10: #6b6b65;
         --gray-11: #63635e;
         --gray-12: #21201c;
         --shell: #eeedeb;
         --pane-edge: color-mix(in oklab, var(--gray-12) 4%, transparent);
         --shadow-strength: 1;
+        --accent: #0077b6;
+        --text-on-accent: #fff;
+        --background-raised: #fff;
+        --background-hover: var(--gray-4);
+        --fill-hover: color-mix(in oklab, var(--gray-12) 5%, transparent);
         color-scheme: light dark;
       }
 
@@ -84,17 +91,19 @@
           --gray-3: #222221;
           --gray-4: #2a2a28;
           --gray-5: #31312e;
-          --gray-10: #7c7b74;
+          --gray-10: #8f8e87;
           --gray-11: #b5b3ad;
           --gray-12: #eeeeec;
           --shell: #0a0a09;
           --pane-edge: transparent;
           --shadow-strength: 3;
+          --accent: #02bbff;
+          --text-on-accent: #111110;
+          --background-raised: var(--gray-3);
         }
       }
 
       :root {
-        --accent: #02bbff;
         --border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
         --border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
         --text-primary: var(--gray-12);
@@ -115,6 +124,17 @@
         --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
         --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
         --duration-snappy: 220ms;
+        --duration-exit: 160ms;
+        --radius-control: 8px;
+        --surface: color-mix(in oklab, var(--gray-12) 5%, transparent);
+        --surface-hover: color-mix(in oklab, var(--gray-12) 8%, transparent);
+        --surface-fill: color-mix(in oklab, var(--gray-12) 10%, transparent);
+        --surface-strong: color-mix(in oklab, var(--gray-12) 15%, transparent);
+        --surface-stronger: color-mix(in oklab, var(--gray-12) 20%, transparent);
+        --segment-hover: color-mix(in oklab, var(--gray-12) 20%, transparent);
+        --segment-handle: color-mix(in oklab, var(--gray-12) 30%, transparent);
+        --wire: color-mix(in oklab, var(--gray-12) 22%, transparent);
+        --wire-past: color-mix(in oklab, var(--gray-12) 36%, transparent);
         --gap: 6px;
         --label: 168px;
         --value: 72px;
@@ -154,6 +174,12 @@
         background: none;
       }
 
+      button,
+      a,
+      select {
+        touch-action: manipulation;
+      }
+
       html {
         font-family: var(--font-sans);
         font-size: 14px;
@@ -162,8 +188,11 @@
         font-optical-sizing: none;
         font-feature-settings: "calt", "ccmp", "locl", "kern", "cv01", "ss03";
         -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-tap-highlight-color: transparent;
         color: var(--text-primary);
         background: var(--shell);
+        scroll-padding-block-start: var(--bar-height, 72px);
       }
 
       * {
@@ -186,6 +215,41 @@
 
       p {
         text-wrap: pretty;
+      }
+
+      @property --fade-start {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+
+      @property --fade-end {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+
+      @keyframes scroll-fade {
+        0% {
+          --fade-start: 0px;
+          --fade-end: 24px;
+        }
+        10% {
+          --fade-start: 24px;
+        }
+        90% {
+          --fade-end: 24px;
+        }
+        100% {
+          --fade-start: 24px;
+          --fade-end: 0px;
+        }
+      }
+
+      @property --bar-line {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: transparent;
       }
 
       .page {
@@ -213,7 +277,13 @@
         min-height: 0;
         background: var(--background-primary);
         border-radius: 12px;
-        box-shadow: 0 0 0 1px var(--pane-edge);
+        outline: 1px solid var(--pane-edge);
+        outline-offset: -1px;
+
+        &:focus-visible {
+          outline: 2px solid var(--accent);
+          outline-offset: -2px;
+        }
       }
 
       .viewport {
@@ -231,6 +301,10 @@
         overflow-y: auto;
         overscroll-behavior: contain;
         padding-bottom: 12px;
+        scroll-padding-block-start: var(--bar-height, 52px);
+        mask-image: linear-gradient(to bottom, black calc(100% - var(--fade-end)), transparent);
+        animation: scroll-fade linear both;
+        animation-timeline: scroll(self);
 
         &:has(> .machine:not([hidden])) {
           padding-bottom: var(--gap);
@@ -242,10 +316,12 @@
 
         @media (width <= 800px) {
           overflow: visible;
+          mask-image: none;
+          animation: none;
         }
       }
 
-      .head {
+      .viewer-head {
         display: flex;
         flex: none;
         gap: 8px;
@@ -256,9 +332,10 @@
         white-space: nowrap;
       }
 
-      .title {
+      .viewer-title {
         flex: none;
         font-variation-settings: var(--font-weight-500);
+        text-wrap: balance;
       }
 
       .source {
@@ -275,10 +352,9 @@
 
           svg {
             color: var(--text-quaternary);
-            transition: color var(--duration-snappy) var(--ease-out-cubic);
           }
 
-          &:hover svg {
+          &:active svg {
             color: var(--text-primary);
           }
         }
@@ -339,7 +415,23 @@
         text-align: center;
       }
 
-      .bar {
+      .pane-status {
+        position: absolute;
+        inset: 0;
+        display: grid;
+        place-items: center;
+        padding: 16px;
+        font-size: 13px;
+        color: var(--text-tertiary);
+        text-align: center;
+        text-wrap: pretty;
+
+        &:empty {
+          display: none;
+        }
+      }
+
+      .playback {
         position: sticky;
         top: 0;
         z-index: 10;
@@ -351,16 +443,106 @@
         padding: 8px;
         background: var(--background-primary);
         border-radius: 12px 12px 0 0;
+        border-image: linear-gradient(to top, var(--bar-line) 1px, transparent 1px) fill 0;
+        transition: --bar-line var(--duration-snappy) var(--ease-out-cubic);
+
+        &[data-stuck] {
+          --bar-line: var(--border-primary);
+        }
       }
 
-      .bar-end {
+      .playback-end {
         display: flex;
         gap: 4px;
         align-items: center;
         margin-left: auto;
       }
 
+      .copy {
+        position: relative;
+        display: flex;
+      }
+
+      .toast {
+        position: absolute;
+        bottom: calc(100% + 8px);
+        left: 50%;
+        z-index: 1;
+        display: inline-flex;
+        align-items: center;
+        height: 32px;
+        padding: 0 12px;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-primary);
+        white-space: nowrap;
+        pointer-events: none;
+        background: var(--background-raised);
+        border: 1px solid transparent;
+        border-radius: 10px;
+        box-shadow: var(--shadow-raised);
+        opacity: 0;
+        translate: calc(-50% + var(--shift, 0px)) 4px;
+        scale: 0.97;
+        transform-origin: bottom center;
+        transition:
+          opacity var(--duration-exit) var(--ease-out-cubic),
+          translate var(--duration-exit) var(--ease-out-cubic),
+          scale var(--duration-exit) var(--ease-out-cubic);
+
+        &[data-side="below"] {
+          top: calc(100% + 8px);
+          bottom: auto;
+          translate: calc(-50% + var(--shift, 0px)) -4px;
+          transform-origin: top center;
+        }
+
+        &[data-open] {
+          opacity: 1;
+          translate: calc(-50% + var(--shift, 0px)) 0;
+          scale: 1;
+          transition-duration: var(--duration-snappy);
+        }
+      }
+
+      .action {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-tertiary);
+        white-space: nowrap;
+        border-radius: var(--radius-control);
+
+        &[aria-pressed="true"] {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &:active:not(:disabled) {
+          color: var(--text-primary);
+        }
+
+        &:disabled {
+          cursor: default;
+          opacity: 0.5;
+        }
+      }
+
+      .action {
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+
+        &:active:not(:disabled) {
+          background: var(--background-hover);
+        }
+      }
+
       .clock {
+        position: relative;
         display: inline-flex;
         gap: 4px;
         align-items: center;
@@ -372,22 +554,33 @@
         white-space: nowrap;
         cursor: text;
         background: var(--background-tertiary);
-        border-radius: 8px;
-        transition:
-          background-color var(--duration-snappy) var(--ease-out-cubic),
-          box-shadow var(--duration-snappy) var(--ease-out-cubic);
+        border-radius: var(--radius-control);
 
-        &:hover {
-          background: var(--gray-4);
+        &::after {
+          position: absolute;
+          inset: 0;
+          content: "";
+          border-radius: inherit;
+          box-shadow: 0 0 0 1px var(--accent);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity var(--duration-snappy) var(--ease-out-cubic);
+        }
+
+        &:active {
+          background: var(--background-hover);
         }
 
         &:focus-within {
           background: var(--background-primary);
-          box-shadow: 0 0 0 1px var(--accent);
+
+          &::after {
+            opacity: 1;
+          }
         }
       }
 
-      .select {
+      .tool-select {
         display: inline-flex;
         gap: 6px;
         align-items: center;
@@ -403,22 +596,21 @@
         cursor: pointer;
         appearance: none;
         background: var(--background-tertiary) no-repeat right 11px center / 10px
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%2382827c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
-        border-radius: 8px;
-        transition: background-color var(--duration-snappy) var(--ease-out-cubic);
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%236b6b65' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
+        border-radius: var(--radius-control);
 
-        &:hover {
-          background-color: var(--gray-4);
+        &:active {
+          background-color: var(--background-hover);
         }
       }
 
       @supports (appearance: base-select) {
-        .select,
-        .select::picker(select) {
+        .tool-select,
+        .tool-select::picker(select) {
           appearance: base-select;
         }
 
-        .select {
+        .tool-select {
           padding-right: 10px;
           background-image: none;
 
@@ -445,20 +637,32 @@
             max-height: min(400px, 60dvh);
             scrollbar-width: none;
             padding: 4px;
-            margin-top: 4px;
-            background: var(--gray-2);
-            border: 0;
+            margin-block: 8px;
+            background: var(--background-raised);
+            border: 1px solid transparent;
             border-radius: 12px;
             box-shadow: var(--shadow-raised);
             opacity: 0;
+            mask-image:
+              linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+              linear-gradient(black, black),
+              linear-gradient(black, black);
+            mask-clip: border-box, border-box, no-clip;
+            mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+            mask-position: 0 0, 0 0, -64px -64px;
+            mask-repeat: no-repeat;
+            mask-composite: add, exclude;
+            animation: scroll-fade linear both;
+            animation-timeline: scroll(self);
             transition:
-              opacity var(--duration-snappy) var(--ease-out-cubic),
-              display var(--duration-snappy) allow-discrete,
-              overlay var(--duration-snappy) allow-discrete;
+              opacity var(--duration-exit) var(--ease-out-cubic),
+              display var(--duration-exit) allow-discrete,
+              overlay var(--duration-exit) allow-discrete;
           }
 
           &:open::picker(select) {
             opacity: 1;
+            transition-duration: var(--duration-snappy);
 
             @starting-style {
               opacity: 0;
@@ -466,7 +670,7 @@
           }
         }
 
-        .select option {
+        .tool-select option {
           display: flex;
           gap: 6px;
           align-items: center;
@@ -479,11 +683,15 @@
           cursor: pointer;
           border-radius: 8px;
 
-          &:hover,
           &:focus-visible {
             color: var(--text-primary);
             background: var(--background-tertiary);
             outline: none;
+          }
+
+          &:active {
+            color: var(--text-primary);
+            background: var(--fill-hover);
           }
 
           &:checked {
@@ -528,7 +736,6 @@
           transition-property: opacity, width, height, background-color;
         }
 
-        &:hover::before,
         &:focus-visible::before,
         &[data-dragging]::before {
           opacity: 1;
@@ -598,7 +805,7 @@
         user-select: none;
         touch-action: none;
         background:
-          radial-gradient(circle, color-mix(in oklab, var(--gray-12) 12%, transparent) 1px, transparent 1.5px) var(--pan-x, 0) var(--pan-y, 0) /
+          radial-gradient(circle, var(--border-secondary) 1px, transparent 1.5px) var(--pan-x, 0) var(--pan-y, 0) /
             calc(16px * var(--zoom, 1)) calc(16px * var(--zoom, 1)),
           var(--background-secondary);
         border-radius: 8px;
@@ -636,7 +843,8 @@
         align-items: center;
         padding: 2px;
         cursor: default;
-        background: var(--background-primary);
+        background: var(--background-raised);
+        border: 1px solid transparent;
         border-radius: 10px;
         box-shadow: var(--shadow-raised);
       }
@@ -649,10 +857,9 @@
         font-size: 12px;
         font-variant-numeric: tabular-nums;
         color: var(--text-secondary);
-        border-radius: 8px;
-        transition: background-color var(--duration-snappy) var(--ease-out-cubic);
+        border-radius: var(--radius-control);
 
-        &:hover {
+        &:active {
           background: var(--background-tertiary);
         }
       }
@@ -660,7 +867,7 @@
       .wire {
         fill: none;
         vector-effect: non-scaling-stroke;
-        stroke: color-mix(in oklab, var(--gray-12) 22%, transparent);
+        stroke: var(--wire);
         stroke-width: 1.5;
         stroke-linecap: round;
         stroke-linejoin: round;
@@ -675,7 +882,7 @@
         }
 
         &[data-past] {
-          stroke: color-mix(in oklab, var(--gray-12) 36%, transparent);
+          stroke: var(--wire-past);
         }
 
         &[data-next] {
@@ -707,14 +914,21 @@
         color: var(--text-tertiary);
         background:
           linear-gradient(to right, color-mix(in oklab, var(--accent) 12%, transparent) var(--progress, 0%), transparent var(--progress, 0%)),
-          var(--background-primary);
+          var(--background-raised);
         border-radius: 8px;
         box-shadow: var(--shadow-raised);
-        transition:
-          color var(--duration-snappy) var(--ease-out-cubic),
-          box-shadow var(--duration-snappy) var(--ease-out-cubic);
-      }
 
+        &::after {
+          position: absolute;
+          inset: 0;
+          content: "";
+          border-radius: inherit;
+          box-shadow: 0 0 0 1px color-mix(in oklab, var(--accent) 50%, transparent);
+          opacity: 0;
+          pointer-events: none;
+          transition: opacity var(--duration-snappy) var(--ease-out-cubic);
+        }
+      }
 
       .entry {
         padding: 0 8px;
@@ -723,17 +937,17 @@
       }
 
       .state {
-        &:hover,
+        &:active,
         &[data-past] {
           color: var(--text-secondary);
         }
 
         &[aria-current="true"] {
           color: var(--text-primary);
-          box-shadow:
-            0 0 0 1px color-mix(in oklab, var(--accent) 50%, transparent),
-            0 1px 2px oklch(0 0 0 / calc(4% * var(--shadow-strength))),
-            0 4px 12px oklch(0 0 0 / calc(3% * var(--shadow-strength)));
+
+          &::after {
+            opacity: 1;
+          }
         }
       }
 
@@ -744,9 +958,18 @@
         color: var(--text-quaternary);
         background: var(--background-secondary);
         border-radius: 6px;
-        transition: color var(--duration-snappy) var(--ease-out-cubic);
 
-        &:hover {
+        &::after {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          width: max(100%, calc(24px / var(--zoom, 1)));
+          height: max(28px, calc(24px / var(--zoom, 1)));
+          content: "";
+          translate: -50% -50%;
+        }
+
+        &:active {
           color: var(--text-secondary);
         }
 
@@ -789,7 +1012,7 @@
         position: relative;
         flex: none;
         padding: 0 var(--pad);
-        overflow: hidden;
+        overflow-x: clip;
       }
 
       .ruler,
@@ -846,11 +1069,8 @@
         text-overflow: ellipsis;
         white-space: nowrap;
         border-radius: 6px;
-        transition:
-          color var(--duration-snappy) var(--ease-out-cubic),
-          background-color var(--duration-snappy) var(--ease-out-cubic);
 
-        &:hover {
+        &:active {
           color: var(--text-primary);
         }
 
@@ -864,7 +1084,7 @@
         position: relative;
         height: 40px;
         overflow: hidden;
-        background: color-mix(in oklab, var(--gray-12) 4%, transparent);
+        background: var(--surface);
         border-radius: 8px;
       }
 
@@ -872,6 +1092,7 @@
         --handle: transparent;
         position: absolute;
         top: 4px;
+        z-index: 3;
         container-type: inline-size;
         display: flex;
         align-items: center;
@@ -881,20 +1102,15 @@
         touch-action: none;
         cursor: grab;
         user-select: none;
-        background: color-mix(in oklab, var(--gray-12) 14%, transparent);
+        background: var(--surface-strong);
         border: 1px solid transparent;
         border-radius: 6px;
-        transition:
-          background-color var(--duration-snappy) var(--ease-out-cubic),
-          border-color var(--duration-snappy) var(--ease-out-cubic);
-
-        &:hover {
-          --handle: color-mix(in oklab, var(--gray-12) 30%, transparent);
-          background: color-mix(in oklab, var(--gray-12) 20%, transparent);
-        }
+        transition: border-color var(--duration-snappy) var(--ease-out-cubic);
 
         &:active {
+          --handle: var(--segment-handle);
           cursor: grabbing;
+          background: var(--segment-hover);
         }
 
         &::after {
@@ -987,6 +1203,7 @@
         width: 12px;
         touch-action: none;
         cursor: ew-resize;
+        pointer-events: auto;
         background: none;
         translate: -50% 0;
 
@@ -999,12 +1216,26 @@
           content: "";
           background: var(--border-primary);
         }
+
+        &::after {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 50%;
+          width: 24px;
+          content: "";
+          translate: -50% 0;
+        }
       }
 
       .scrub {
-        z-index: 1;
+        z-index: 4;
         pointer-events: none;
         border-radius: 6px;
+
+        &:focus-visible {
+          outline-offset: -2px;
+        }
       }
 
       .ticks,
@@ -1067,7 +1298,7 @@
 
         .lane-label {
           position: relative;
-          z-index: 2;
+          z-index: 3;
         }
 
         .marks,
@@ -1084,38 +1315,41 @@
         padding: 8px 16px 24px;
         overflow-y: auto;
         overscroll-behavior: contain;
+        mask-image:
+          linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+          linear-gradient(black, black),
+          linear-gradient(black, black);
+        mask-clip: border-box, border-box, no-clip;
+        mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+        mask-position: 0 0, 0 0, -64px -64px;
+        mask-repeat: no-repeat;
+        mask-composite: add, exclude;
+        animation: scroll-fade linear both;
+        animation-timeline: scroll(self);
+        transition: opacity var(--duration-snappy) var(--ease-out-quart);
 
         @media (width <= 800px) {
           overflow: visible;
-        }
-        transition:
-          opacity var(--duration-snappy) var(--ease-out-quart),
-          translate var(--duration-snappy) var(--ease-out-quart);
-
-        &[hidden] {
-          display: none;
+          mask-image: none;
+          animation: none;
         }
 
         @starting-style {
           opacity: 0;
-          translate: 0 -4px;
         }
       }
 
-      .icon-button {
+      .tool-button {
         position: relative;
         display: grid;
         place-items: center;
         width: 28px;
         height: 28px;
         color: var(--text-tertiary);
-        border-radius: 8px;
-        transition:
-          color var(--duration-snappy) var(--ease-out-cubic),
-          background-color var(--duration-snappy) var(--ease-out-cubic),
-          opacity var(--duration-snappy) var(--ease-out-cubic);
+        border-radius: var(--radius-control);
+        transition: opacity var(--duration-snappy) var(--ease-out-cubic);
 
-        &:hover:not(:disabled) {
+        &:active:not(:disabled) {
           color: var(--text-primary);
           background: var(--background-tertiary);
         }
@@ -1133,33 +1367,29 @@
         &.play {
           color: var(--text-primary);
           background: var(--background-tertiary);
+        }
 
-          &:hover {
-            background: var(--gray-4);
-          }
+        &:is(.play, [aria-pressed="true"]):active:not(:disabled) {
+          background: var(--background-hover);
         }
       }
 
-      .panel-head {
+      .inspector-head {
         margin: -8px -16px 0;
       }
 
-      .panel-note {
+      .inspector-note {
         color: var(--text-secondary);
         text-wrap: pretty;
       }
 
-      .panel-count {
+      .inspector-count {
         padding-right: 4px;
         color: var(--text-quaternary);
         font-variant-numeric: tabular-nums;
       }
 
       .segments {
-        --surface: color-mix(in oklab, var(--gray-12) 5%, transparent);
-        --surface-hover: color-mix(in oklab, var(--gray-12) 8%, transparent);
-        --surface-fill: color-mix(in oklab, var(--gray-12) 10%, transparent);
-        --surface-strong: color-mix(in oklab, var(--gray-12) 15%, transparent);
         display: grid;
         grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
         gap: 0 32px;
@@ -1168,7 +1398,7 @@
         dl {
           display: flex;
           flex-direction: column;
-          gap: 6px;
+          gap: 10px;
           padding: 12px 0;
         }
       }
@@ -1180,7 +1410,7 @@
         color: var(--text-tertiary);
       }
 
-      .detail {
+      .dial-row {
         display: flex;
         flex-direction: column;
         gap: 6px;
@@ -1188,35 +1418,40 @@
 
       .dial,
       .line {
-        position: relative;
-        display: flex;
+        display: grid;
+        grid-template-columns: 72px minmax(0, 1fr) 64px;
         gap: 8px;
         align-items: center;
-        height: 36px;
-        padding: 0 12px 0 10px;
-        overflow: hidden;
-        background: var(--surface);
-        border-radius: 8px;
-        transition: background-color var(--duration-snappy) var(--ease-out-cubic);
+        height: 28px;
       }
 
-      .dial {
-        --from: 0%;
-        --fill: 0%;
-        --at: 5px;
+      .line {
+        grid-template-columns: 72px minmax(0, 1fr);
+
+        &:not(:has(.row-name)) {
+          grid-template-columns: minmax(0, 1fr);
+        }
+      }
+
+      .row-name {
+        display: flex;
+        gap: 4px;
+        align-items: center;
+        min-width: 0;
+      }
+
+      .dial-track {
+        --at: 0;
+        --low: 0;
+        --high: 0;
+        position: relative;
+        height: 28px;
+        overflow: hidden;
         touch-action: none;
         cursor: pointer;
         user-select: none;
-
-        &::before {
-          position: absolute;
-          inset: 0;
-          content: "";
-          pointer-events: none;
-          background: linear-gradient(to right, var(--surface-strong) 1px, transparent 1px) -0.5px 50% / 10% 8px repeat-x;
-          opacity: 0;
-          transition: opacity var(--duration-snappy) var(--ease-out-cubic);
-        }
+        background: var(--surface);
+        border-radius: 6px;
 
         &:focus-visible {
           outline-offset: 0;
@@ -1227,46 +1462,26 @@
         position: absolute;
         top: 0;
         bottom: 0;
-        left: var(--from);
-        width: var(--fill);
+        left: calc(var(--low) * (100% - 10px));
+        width: calc((var(--high) - var(--low)) * (100% - 10px) + 10px);
         pointer-events: none;
-        background: var(--surface-fill);
+        background: var(--surface-strong);
         transition: background-color var(--duration-snappy) var(--ease-out-cubic);
       }
 
       .dial-handle {
         position: absolute;
-        top: 50%;
-        left: calc(var(--at));
-        width: 3px;
-        height: 20px;
+        top: 1px;
+        bottom: 1px;
+        left: calc(1px + var(--at) * (100% - 10px));
+        width: 8px;
         pointer-events: none;
         background: var(--text-primary);
-        border-radius: 999px;
-        opacity: 0;
-        transform: translateY(-50%) scaleX(0.25);
-        transition:
-          opacity var(--duration-snappy) var(--ease-out-cubic),
-          transform var(--duration-snappy) var(--ease-out-cubic);
+        border-radius: 3px;
       }
 
-      .dial:is(:hover, :focus-visible, [data-dragging]) {
-        &::before {
-          opacity: 1;
-        }
-
-        .dial-fill {
-          background: var(--surface-strong);
-        }
-
-        .dial-handle {
-          opacity: 1;
-          transform: translateY(-50%) scaleX(1);
-        }
-
-        .dial-read {
-          color: var(--text-primary);
-        }
+      .dial-track:is(:focus-visible, [data-dragging]) .dial-fill {
+        background: var(--surface-stronger);
       }
 
       .row-label {
@@ -1287,7 +1502,6 @@
         place-items: center;
         width: 16px;
         height: 16px;
-        margin-left: -6px;
         color: var(--accent);
         border-radius: 4px;
 
@@ -1319,8 +1533,7 @@
           scale: 0.5;
         }
 
-        :is(.dial, .line):hover &,
-        .dial:focus-visible &,
+        .dial:has(.dial-track:focus-visible) &,
         &:focus-visible {
           &::before {
             opacity: 0;
@@ -1333,86 +1546,77 @@
           }
         }
 
-        &:hover {
+        &:active {
           background: var(--surface-strong);
         }
       }
 
       .dial-read,
       .line-value {
-        position: relative;
         display: flex;
-        flex: none;
         gap: 2px;
         align-items: center;
-        margin-left: auto;
+        min-width: 48px;
+        height: 28px;
+        padding: 0 8px;
         font-family: var(--font-mono);
         font-size: 12px;
-        color: var(--text-tertiary);
+        color: var(--text-primary);
         white-space: nowrap;
-        transition: color var(--duration-snappy) var(--ease-out-cubic);
+        cursor: text;
+        background: var(--surface);
+        border-radius: 6px;
+
+        &:has(:focus-visible) {
+          box-shadow: inset 0 0 0 1px var(--accent);
+        }
+      }
+
+      .dial-read {
+        justify-content: center;
       }
 
       .line-value {
-        flex: 1;
-        justify-content: flex-end;
         min-width: 0;
         color: var(--text-secondary);
       }
 
       .unit {
-        margin-left: 2px;
         color: var(--text-quaternary);
       }
 
       .dial-value,
       .line-input {
-        min-width: 1ch;
-        height: 24px;
-        padding: 0 4px;
-        margin-right: -4px;
+        height: 100%;
+        padding: 0;
         font: inherit;
         color: inherit;
-        text-align: right;
         cursor: text;
         background: transparent;
-        border-radius: 6px;
-        field-sizing: content;
-        transition:
-          background-color var(--duration-snappy) var(--ease-out-cubic),
-          box-shadow var(--duration-snappy) var(--ease-out-cubic);
+        outline: none;
+      }
 
-        &:focus {
-          color: var(--text-primary);
-          background: var(--background-primary);
-          outline: none;
-          box-shadow: 0 0 0 1px var(--accent);
-        }
+      .dial-value {
+        min-width: 1ch;
+        text-align: center;
+        field-sizing: content;
       }
 
       .line-input {
         flex: 1;
         min-width: 0;
-        margin-left: -4px;
-        text-align: left;
-        field-sizing: fixed;
+        color: var(--text-primary);
       }
 
-      .line-value .line-input {
-        margin-left: 0;
-        text-align: right;
-      }
-
-      .line .select {
+      .line .tool-select {
+        flex: 1;
         height: 28px;
-        margin-right: -8px;
+        margin: 0 -8px;
         font-family: var(--font-sans);
         font-size: 13px;
+        color: var(--text-primary);
         background-color: transparent;
-
-        &:hover {
-          background-color: var(--surface-hover);
-        }
+        outline: none;
       }
 
       .meta {
@@ -1481,6 +1685,7 @@
       }
 
       .field {
+        height: 28px;
         padding: 0;
         font: inherit;
         font-variant-numeric: tabular-nums;
@@ -1516,7 +1721,7 @@
         color: var(--text-tertiary);
         background: none;
 
-        &:hover {
+        &:active {
           color: var(--text-primary);
         }
       }
@@ -1524,15 +1729,15 @@
       .span {
         position: absolute;
         top: 14px;
+        z-index: 3;
         height: 12px;
         touch-action: none;
         cursor: grab;
-        background: color-mix(in oklab, var(--gray-12) 10%, transparent);
+        background: var(--surface-fill);
         border-radius: 999px;
-        transition: background-color var(--duration-snappy) var(--ease-out-cubic);
 
-        &:hover {
-          background: color-mix(in oklab, var(--gray-12) 16%, transparent);
+        &:active {
+          background: var(--surface-strong);
         }
       }
 
@@ -1560,7 +1765,6 @@
       .graph {
         position: relative;
         grid-column: 2;
-        overflow: hidden;
 
         svg {
           width: 100%;
@@ -1644,7 +1848,7 @@
         height: 24px;
         touch-action: none;
         cursor: pointer;
-        background: color-mix(in oklab, var(--gray-12) 5%, transparent);
+        background: var(--surface);
         border-radius: 6px;
       }
 
@@ -1748,7 +1952,7 @@
         color: var(--text-secondary);
         white-space: nowrap;
         pointer-events: none;
-        background: var(--background-primary);
+        background: var(--background-raised);
         border-radius: 999px;
         box-shadow: var(--shadow-raised);
       }
@@ -1757,6 +1961,101 @@
       body[data-comparing] .span,
       body[data-comparing] .mark {
         cursor: default;
+      }
+
+      @media (width <= 640px) {
+        .tool-select,
+        .line .tool-select,
+        input:not([type="range"]),
+        textarea {
+          font-size: 16px;
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .source a:hover svg {
+          color: var(--text-primary);
+        }
+
+        .clock:hover:not(:focus-within) {
+          background: var(--background-hover);
+        }
+
+        .tool-select:hover {
+          background-color: var(--background-hover);
+        }
+
+        .tool-select option:hover {
+          color: var(--text-primary);
+          background: var(--fill-hover);
+        }
+
+        .action:hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
+        .tool-button:hover:not(:disabled) {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        .tool-button:is(.play, [aria-pressed="true"]):hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
+        .splitter:hover::before {
+          opacity: 1;
+        }
+
+        .zoom-level:hover {
+          background: var(--background-tertiary);
+        }
+
+        .state:hover {
+          color: var(--text-secondary);
+        }
+
+        .link:hover:not([data-next]) {
+          color: var(--text-secondary);
+        }
+
+        .lane-label:hover,
+        .layer .lane-label[aria-expanded]:hover {
+          color: var(--text-primary);
+        }
+
+        .segment:hover:not([data-instant]) {
+          --handle: var(--segment-handle);
+          background: var(--segment-hover);
+        }
+
+        .span:hover {
+          background: var(--surface-strong);
+        }
+
+        .dial-track:hover .dial-fill {
+          background: var(--surface-stronger);
+        }
+
+        :is(.dial, .line):hover .revert {
+          &::before {
+            opacity: 0;
+            scale: 0.5;
+          }
+
+          svg {
+            opacity: 1;
+            scale: 1;
+          }
+        }
+
+        .revert:hover {
+          background: var(--surface-strong);
+        }
+
+        .line .tool-select:hover {
+          background-color: var(--surface-hover);
+        }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -1771,23 +2070,23 @@
   <body>
     <div class="page">
       <section class="region viewport">
-        <header class="head">
-          <h1 class="title" id="title"></h1>
+        <header class="viewer-head">
+          <h1 class="viewer-title" id="title"></h1>
           <p class="source" id="source"></p>
           <div class="view-tools" role="group" aria-label="View">
-            <button class="icon-button" id="onion" type="button" aria-label="Onion Skin" aria-keyshortcuts="G" aria-pressed="false">
+            <button class="tool-button" id="onion" type="button" title="Onion Skin (G)" aria-label="Onion Skin" aria-keyshortcuts="G" aria-pressed="false">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="6" cy="8" r="4" opacity="0.45" /><circle cx="10" cy="8" r="4" /></svg>
             </button>
-            <button class="icon-button" id="side-by-side" type="button" aria-label="Side by Side" aria-keyshortcuts="S" aria-pressed="true" hidden>
+            <button class="tool-button" id="side-by-side" type="button" title="Side by Side (S)" aria-label="Side by Side" aria-keyshortcuts="S" aria-pressed="true" hidden>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1.5" y="3" width="5.5" height="10" rx="1.5" /><rect x="9" y="3" width="5.5" height="10" rx="1.5" /></svg>
             </button>
-            <button class="icon-button" id="wipe" type="button" aria-label="Wipe" aria-keyshortcuts="W" aria-pressed="false" hidden>
+            <button class="tool-button" id="wipe" type="button" title="Wipe (W)" aria-label="Wipe" aria-keyshortcuts="W" aria-pressed="false" hidden>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><rect x="2" y="3" width="12" height="10" rx="2" /><path d="M8 1.5v13" /></svg>
             </button>
-            <button class="icon-button" id="original" type="button" aria-label="Original" aria-keyshortcuts="B" aria-pressed="false" hidden>
+            <button class="tool-button" id="original" type="button" title="Original (B)" aria-label="Original" aria-keyshortcuts="B" aria-pressed="false" hidden>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8a5.5 5.5 0 1 0 1.6-3.9" /><path d="M2 2.5V5h2.5" /><path d="M8 5.5V8l1.75 1.25" /></svg>
             </button>
-            <select class="select" id="speed" aria-label="Speed">
+            <select class="tool-select" id="speed" aria-label="Speed">
               <option value="0.25">0.25×</option>
               <option value="0.5">0.5×</option>
               <option value="1" selected>1×</option>
@@ -1804,32 +2103,35 @@
       </section>
 
       <section class="region editor">
-        <nav class="bar" aria-label="Playback">
-          <button class="icon-button play" id="play" type="button" aria-label="Play" aria-keyshortcuts="Space"></button>
-          <button class="icon-button" id="loop" type="button" aria-label="Loop" aria-keyshortcuts="L" aria-pressed="true">
+        <nav class="playback" id="playback" aria-label="Playback">
+          <button class="tool-button play" id="play" type="button" title="Play (Space)" aria-label="Play" aria-keyshortcuts="Space"></button>
+          <button class="tool-button" id="loop" type="button" title="Loop (L)" aria-label="Loop" aria-keyshortcuts="L" aria-pressed="true">
             <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 7.5V7a3 3 0 0 1 3-3h8M11 1.5 13.5 4 11 6.5" /><path d="M13.5 8.5V9a3 3 0 0 1-3 3h-8M5 14.5 2.5 12 5 9.5" /></svg>
           </button>
           <label class="clock"><input class="field" id="time" aria-label="Current Time" inputmode="numeric" autocomplete="off" /><span>/</span><span><span id="total"></span>ms</span></label>
-          <div class="bar-end">
-            <button class="icon-button" id="show-timeline" type="button" aria-label="Timeline" aria-keyshortcuts="M" aria-pressed="true">
+          <div class="playback-end">
+            <button class="tool-button" id="show-timeline" type="button" title="Timeline (M)" aria-label="Timeline" aria-keyshortcuts="M" aria-pressed="true">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M2.5 4.5h6M5.5 8h8M3.5 11.5h5" /></svg>
             </button>
-            <button class="icon-button" id="show-machine" type="button" aria-label="State Machine" aria-keyshortcuts="M" aria-pressed="false">
+            <button class="tool-button" id="show-machine" type="button" title="State Machine (M)" aria-label="State Machine" aria-keyshortcuts="M" aria-pressed="false">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="1.5" y="2.5" width="6" height="4" rx="1.25" /><rect x="8.5" y="9.5" width="6" height="4" rx="1.25" /><path d="M4.5 6.5v3a2 2 0 0 0 2 2h2" /></svg>
             </button>
-            <button class="icon-button" id="clear-range" type="button" aria-label="Clear Range" aria-keyshortcuts="X" hidden>
+            <button class="tool-button" id="clear-range" type="button" title="Clear Range (X)" aria-label="Clear Range" aria-keyshortcuts="X" hidden>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 2.5H3v11h2M11 2.5h2v11h-2M6.5 6.5l3 3M9.5 6.5l-3 3" /></svg>
             </button>
-            <button class="icon-button" id="fit" type="button" aria-label="Fit" aria-keyshortcuts="\" hidden>
+            <button class="tool-button" id="fit" type="button" title="Fit (\)" aria-label="Fit" aria-keyshortcuts="\" hidden>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 8h11M5 5.5 2.5 8 5 10.5M11 5.5 13.5 8 11 10.5" /></svg>
             </button>
-            <button class="icon-button" id="undo" type="button" aria-label="Undo" aria-keyshortcuts="Meta+Z" hidden>
+            <button class="tool-button" id="undo" type="button" title="Undo (⌘Z)" aria-label="Undo" aria-keyshortcuts="Meta+Z" hidden>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3.5 3 6.5l3 3" /><path d="M3 6.5h6.5a3.5 3.5 0 0 1 0 7H8" /></svg>
             </button>
-            <button class="icon-button" id="redo" type="button" aria-label="Redo" aria-keyshortcuts="Shift+Meta+Z" hidden>
+            <button class="tool-button" id="redo" type="button" title="Redo (⇧⌘Z)" aria-label="Redo" aria-keyshortcuts="Shift+Meta+Z" hidden>
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10 3.5l3 3-3 3" /><path d="M13 6.5H6.5a3.5 3.5 0 0 0 0 7H8" /></svg>
             </button>
-            <button class="icon-button" id="copy" type="button" aria-label="Copy Timeline"></button>
+            <span class="copy">
+              <button class="action" id="copy" type="button">Copy Timeline</button>
+              <output class="toast" id="copy-toast"></output>
+            </span>
           </div>
         </nav>
         <section class="machine" id="machine" aria-label="State Machine" hidden></section>
@@ -1856,21 +2158,21 @@
         </section>
       </section>
 
-      <section class="region inspector" id="inspector" aria-label="Track">
-        <header class="head panel-head">
-          <h2 class="title" id="inspector-title"></h2>
+      <section class="region inspector" id="inspector" tabindex="-1" aria-label="Track">
+        <header class="viewer-head inspector-head">
+          <h2 class="viewer-title" id="inspector-title"></h2>
           <span class="source" id="inspector-group"></span>
           <div class="view-tools">
-            <span class="panel-count" id="inspector-count"></span>
-            <button class="icon-button" id="inspector-prev" type="button" aria-label="Previous Track" aria-keyshortcuts="ArrowUp">
+            <span class="inspector-count" id="inspector-count"></span>
+            <button class="tool-button" id="inspector-prev" type="button" title="Previous Track (↑)" aria-label="Previous Track" aria-keyshortcuts="ArrowUp">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5v-9M4.5 7L8 3.5 11.5 7" /></svg>
             </button>
-            <button class="icon-button" id="inspector-next" type="button" aria-label="Next Track" aria-keyshortcuts="ArrowDown">
+            <button class="tool-button" id="inspector-next" type="button" title="Next Track (↓)" aria-label="Next Track" aria-keyshortcuts="ArrowDown">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5v9M4.5 9L8 12.5 11.5 9" /></svg>
             </button>
           </div>
         </header>
-        <p class="panel-note" id="inspector-note"></p>
+        <p class="inspector-note" id="inspector-note"></p>
         <div class="segments" id="inspector-segments"></div>
       </section>
     </div>
@@ -1885,9 +2187,6 @@
       const external = `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h6v6M11.5 4.5l-7 7" /></svg>`;
       const playIcon = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.4v9.2a.6.6 0 0 0 .9.5l7.4-4.6a.6.6 0 0 0 0-1L5.9 2.9a.6.6 0 0 0-.9.5z" /></svg>`;
       const pauseIcon = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><rect x="4" y="3" width="3" height="10" rx="1" /><rect x="9" y="3" width="3" height="10" rx="1" /></svg>`;
-      const copyIcon = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="8" height="8" rx="2" /><path d="M10.5 5.5V4a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 4v5A1.5 1.5 0 0 0 4 10.5h1.5" /></svg>`;
-      const checkIcon = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8.5 6.5 12 13 4.5" /></svg>`;
-      $("copy").innerHTML = copyIcon;
       const zoomOutIcon = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3.5 8h9" /></svg>`;
       const zoomInIcon = `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M3.5 8h9M8 3.5v9" /></svg>`;
       const revertIcon = `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8a4.5 4.5 0 1 0 1.3-3.2L3 6.5" /><path d="M3 3.5v3h3" /></svg>`;
@@ -1901,6 +2200,16 @@
         }
         node.append(...children.filter((child) => child != null));
         return node;
+      }
+
+      function setHidden(node, hidden, fallback) {
+        if (hidden && node.contains(document.activeElement)) fallback().focus({ preventScroll: true });
+        node.hidden = hidden;
+      }
+
+      function keepFocus(active, nodes, fallback) {
+        if (!nodes.includes(active) || !active.disabled) return;
+        (nodes.find((node) => !node.disabled && !node.hidden) ?? fallback).focus({ preventScroll: true });
       }
 
       const keywords = {
@@ -2021,9 +2330,8 @@
         const { easing } = segment;
         if (segment.duration === 0) return { ...segment, start, length: 0, ease: () => 1 };
         if (typeof easing === "string") {
-          const match = easing.match(/^cubic-bezier\(([^)]+)\)$/);
-          const points = match ? match[1].split(",").map(Number) : keywords[easing];
-          if (!points || points.length !== 4 || points.some(Number.isNaN)) throw new Error(`Unknown easing "${easing}"`);
+          const points = bezierPoints(easing);
+          if (!points) throw new Error(`Unknown easing "${easing}"`);
           const curve = cubicBezier(...points);
           return { ...segment, start, length: segment.duration, ease: (ms) => curve(ms / segment.duration) };
         }
@@ -2063,6 +2371,15 @@
         return `${Number(text) === 0 ? (0).toFixed(digits) : text.replace("-", "−")}${unit}`;
       }
 
+      function cleanEntry(text) {
+        return text.trim().replace(/;$/, "").trim();
+      }
+
+      function parseNumber(text) {
+        const clean = cleanEntry(text).replaceAll("−", "-");
+        return clean === "" ? NaN : Number(clean);
+      }
+
       function formatValue(track, value) {
         return [value]
           .flat()
@@ -2098,6 +2415,7 @@
 
       const history = { undo: [], redo: [] };
       let pending = null;
+      let parked = null;
 
       function checkpoint() {
         if (pending === null) pending = editable();
@@ -2137,11 +2455,14 @@
 
       function paintHistory() {
         const changed = editable() !== originalText;
-        $("undo").hidden = history.undo.length === 0 && history.redo.length === 0;
-        $("redo").hidden = $("undo").hidden;
+        const empty = history.undo.length === 0 && history.redo.length === 0;
+        const active = document.activeElement;
         $("undo").disabled = Boolean(comparing) || history.undo.length === 0;
         $("redo").disabled = Boolean(comparing) || history.redo.length === 0;
-        $("original").hidden = !changed && !comparing;
+        keepFocus(active, [$("undo"), $("redo")], $("play"));
+        setHidden($("undo"), empty, () => $("play"));
+        setHidden($("redo"), empty, () => $("play"));
+        setHidden($("original"), !changed && !comparing, () => $("play"));
       }
 
       function setComparing(value) {
@@ -2156,9 +2477,17 @@
         }
         document.body.toggleAttribute("data-comparing", Boolean(comparing));
         $("original").setAttribute("aria-pressed", String(Boolean(comparing)));
+        if (comparing && $("inspector-segments").contains(document.activeElement)) {
+          parked = fieldKey(document.activeElement) ?? "";
+          $("inspector").focus({ preventScroll: true });
+        }
         $("inspector-segments").inert = Boolean(comparing);
         apply();
         renderInspector();
+        if (!comparing) {
+          if (parked !== null && document.activeElement === $("inspector")) focusField(parked);
+          parked = null;
+        }
         paintHistory();
       }
 
@@ -2222,7 +2551,7 @@
           viewStart = Math.max(0, from);
           viewEnd = Math.min(duration, to);
         }
-        $("fit").hidden = viewStart <= 0.5 && viewEnd >= duration - 0.5;
+        setHidden($("fit"), viewStart <= 0.5 && viewEnd >= duration - 0.5, () => $("scrub"));
         layoutAll();
         renderTicks();
         render();
@@ -2271,7 +2600,6 @@
       const { preview } = timeline;
       const stage = $("stage");
       const frame = $("frame");
-      stage.style.setProperty("--aspect", `${preview.width} / ${preview.height}`);
       frame.style.width = `${preview.width}px`;
       frame.style.height = `${preview.height}px`;
       const markup = `<style>*, *::before, *::after { box-sizing: border-box; transition: none !important; animation: none !important; }\n${preview.css}</style>${preview.html}`;
@@ -2304,20 +2632,37 @@
       if (timeline.recording) {
         video = h("video", { class: "recording", preload: "auto", playsinline: "", "aria-label": "Original" });
         video.muted = true;
+        const status = h("p", { class: "pane-status", role: "status" });
+        let shownAt = 0;
+        const loading = setTimeout(() => {
+          status.textContent = "Loading Recording";
+          shownAt = performance.now();
+        }, 200);
+        const settle = (text) => {
+          clearTimeout(loading);
+          const wait = shownAt ? Math.max(0, shownAt + 400 - performance.now()) : 0;
+          setTimeout(() => (status.textContent = text), wait);
+        };
+        video.addEventListener("error", () => settle(`Recording Failed: ${video.error?.message || "the file could not be played"}`));
         // A server without range requests leaves a video unseekable, so over http it loads whole.
         if (location.protocol.startsWith("http")) {
           fetch(timeline.recording.src)
-            .then((response) => response.blob())
-            .then((blob) => (video.src = URL.createObjectURL(blob)));
+            .then((response) => {
+              if (!response.ok) throw new Error(`${response.status} ${response.statusText}`.trim());
+              return response.blob();
+            })
+            .then((blob) => (video.src = URL.createObjectURL(blob)))
+            .catch((error) => settle(`Recording Failed: ${error.message}`));
         } else {
           video.src = timeline.recording.src;
         }
         $("side-by-side").hidden = false;
         $("wipe").hidden = false;
-        videoPane = h("figure", { class: "pane" }, h("div", { class: "screen" }, video), h("figcaption", { class: "pane-label" }, "Original"));
+        videoPane = h("figure", { class: "pane" }, h("div", { class: "screen" }, video, status), h("figcaption", { class: "pane-label" }, "Original"));
         stage.append(videoPane);
         paintPanes();
         video.addEventListener("loadedmetadata", () => {
+          settle("");
           fit();
           syncVideo(true);
         });
@@ -2482,7 +2827,8 @@
           set(size(pane) + sign * nudge * (event.shiftKey ? 64 : 16));
         });
         handle.addEventListener("dblclick", () => page.style.removeProperty(property));
-        page.append(handle);
+        if (sign > 0) pane.after(handle);
+        else pane.before(handle);
         return { property, pane, set, size };
       });
       addEventListener("resize", () => {
@@ -2496,15 +2842,15 @@
       wires.classList.add("wires");
       const entry = h("span", { class: "node entry" }, "Entry");
       canvas.append(wires, entry);
-      const zoomLevel = h("button", { class: "zoom-level", type: "button", "aria-label": "Fit Graph", onclick: () => fitGraph() });
+      const zoomLevel = h("button", { class: "zoom-level", type: "button", title: "Fit Graph (\\)", "aria-label": "Fit Graph", "aria-keyshortcuts": "\\", onclick: () => fitGraph() });
       $("machine").append(
         canvas,
         h(
           "div",
           { class: "graph-tools" },
-          h("button", { class: "icon-button", type: "button", "aria-label": "Zoom Out", html: zoomOutIcon, onclick: () => zoomGraph(1 / 1.25) }),
+          h("button", { class: "tool-button", type: "button", title: "Zoom Out (−)", "aria-label": "Zoom Out", "aria-keyshortcuts": "-", html: zoomOutIcon, onclick: () => zoomGraph(1 / 1.25) }),
           zoomLevel,
-          h("button", { class: "icon-button", type: "button", "aria-label": "Zoom In", html: zoomInIcon, onclick: () => zoomGraph(1.25) }),
+          h("button", { class: "tool-button", type: "button", title: "Zoom In (=)", "aria-label": "Zoom In", "aria-keyshortcuts": "=", html: zoomInIcon, onclick: () => zoomGraph(1.25) }),
         ),
       );
 
@@ -2744,11 +3090,7 @@
       }
 
       function easingValid(value) {
-        if (keywords[value]) return true;
-        const match = value.match(/^cubic-bezier\(([^)]+)\)$/);
-        if (!match) return false;
-        const points = match[1].split(",").map(Number);
-        return points.length === 4 && points.every((point) => Number.isFinite(point));
+        return bezierPoints(value) !== null;
       }
 
       function clearFlag(source, field) {
@@ -2829,7 +3171,11 @@
       }
 
       function placeMarks() {
-        for (const event of timeline.events) markNodes.get(event).style.left = `${percentAt(event.at)}%`;
+        for (const event of timeline.events) {
+          const mark = markNodes.get(event);
+          mark.style.left = `${percentAt(event.at)}%`;
+          mark.setAttribute("aria-label", `${event.label}, ${Math.round(event.at)}ms`);
+        }
       }
 
       function numeric(track) {
@@ -2996,10 +3342,7 @@
         if (event.button !== 0 || event.target.closest(".segment")) return;
         event.preventDefault();
         setPlaying(false);
-        const move = (ev) => {
-          const rect = el.getBoundingClientRect();
-          seek(timeFrom(ev.clientX, el));
-        };
+        const move = (ev) => seek(timeFrom(ev.clientX, el));
         move(event);
         const end = () => {
           el.removeEventListener("pointermove", move);
@@ -3066,43 +3409,66 @@
         });
       }
 
-      function dragEvent(event, item) {
-        const origin = item.at;
-        const linked = states.filter((state) => state.enteredOn === item.id && state.at === origin);
-        const width = $("lanes").querySelector(".bars").getBoundingClientRect().width;
-        beginDrag(event, (dx, ev) => {
-          const next = origin + (dx / width) * viewSpan();
-          const at = ev.altKey ? next : snap(next, null, item.id);
-          item.at = Math.round(Math.min(duration, Math.max(0, at)));
-          for (const state of linked) state.at = item.at;
-        });
+      function linkedStates(item) {
+        return states.filter((state) => state.enteredOn === item.id && state.at === item.at);
       }
 
+      function moveEvent(item, at, linked) {
+        item.at = Math.round(Math.min(duration, Math.max(0, at)));
+        for (const state of linked) state.at = item.at;
+      }
+
+      function dragEvent(event, item) {
+        const origin = item.at;
+        const linked = linkedStates(item);
+        const width = $("lanes").querySelector(".bars").getBoundingClientRect().width;
+        beginDrag(
+          event,
+          (dx, ev) => {
+            const next = origin + (dx / width) * viewSpan();
+            moveEvent(item, ev.altKey ? next : snap(next, null, item.id), linked);
+          },
+          () => seek(item.at),
+        );
+      }
+
+      function nudgeEvent(event, item) {
+        const nudge = { ArrowLeft: -1, ArrowRight: 1 }[event.key];
+        if (!nudge) return;
+        event.preventDefault();
+        event.stopPropagation();
+        if (comparing) return;
+        setPlaying(false);
+        checkpoint();
+        moveEvent(item, item.at + nudge * (event.shiftKey ? 100 : 10), linkedStates(item));
+        apply();
+        commit();
+        renderInspector();
+      }
+
+      const dialBounds = {
+        Delay: [-400, duration, 1],
+        Duration: [0, duration, 1],
+        Stiffness: [1, 800, 1],
+        Damping: [1, 120, 1],
+        Mass: [0.1, 8, 0.1],
+        Bounce: [0, 1, 0.01],
+        "Spring Duration": [0.05, 2, 0.01],
+      };
+
       function bounds(label, value) {
-        const known = {
-          Delay: [-400, duration, 1],
-          Duration: [0, duration, 1],
-          Stiffness: [1, 800, 1],
-          Damping: [1, 120, 1],
-          Mass: [0.1, 8, 0.1],
-          Bounce: [0, 1, 0.01],
-          "Spring Duration": [0.05, 2, 0.01],
-        };
-        if (known[label]) return known[label];
+        if (dialBounds[label]) return dialBounds[label];
         if (value >= 0 && value <= 1.5) return [0, 1.5, 0.01];
-        return [0, Math.max(2, value * 2), value > 10 ? 1 : 0.01];
+        const reach = Math.max(2, Math.abs(value) * 2);
+        return [value < 0 ? -reach : 0, reach, Math.abs(value) > 10 ? 1 : 0.01];
       }
 
       function numberInput(label, read, write, unit) {
-        const input = h("input", { class: "dial-value", "aria-label": `${label} Value`, inputmode: "decimal", autocomplete: "off", tabindex: "-1" });
-        const dial = h(
-          "div",
-          { class: "dial", role: "slider", tabindex: "0", "aria-label": label },
-          h("span", { class: "dial-fill" }),
-          h("span", { class: "dial-handle" }),
-          h("span", { class: "row-label" }, label),
-          h("span", { class: "dial-read" }, input, unit ? h("span", { class: "unit" }, unit) : null),
-        );
+        const signed = (dialBounds[label]?.[0] ?? -1) < 0;
+        const input = h("input", { class: "dial-value", "aria-label": `${label} Value`, inputmode: signed ? "text" : "decimal", autocomplete: "off", tabindex: "-1" });
+        const dial = h("div", { class: "dial-track", role: "slider", tabindex: "0", "aria-label": label }, h("span", { class: "dial-fill" }), h("span", { class: "dial-handle" }));
+        const box = h("span", { class: "dial-read" }, input, unit ? h("span", { class: "unit" }, unit) : null);
+        const field = h("div", { class: "dial" }, h("span", { class: "row-name" }, h("span", { class: "row-label" }, label)), dial, box);
         input.spellcheck = false;
         let frozen = null;
         const limits = () => {
@@ -3116,9 +3482,9 @@
           const at = (number) => Math.min(1, Math.max(0, (number - min) / (max - min || 1))) * 100;
           const fraction = Number.isFinite(value) ? at(value) : 0;
           const zero = min < 0 && max > 0 ? at(0) : 0;
-          dial.style.setProperty("--from", `${Math.min(zero, fraction)}%`);
-          dial.style.setProperty("--fill", `${Math.abs(fraction - zero)}%`);
-          dial.style.setProperty("--at", fraction < zero ? `${fraction}% + 6px` : `max(5px, ${fraction}% - 9px)`);
+          dial.style.setProperty("--at", fraction / 100);
+          dial.style.setProperty("--low", Math.min(zero, fraction) / 100);
+          dial.style.setProperty("--high", Math.max(zero, fraction) / 100);
           dial.setAttribute("aria-valuemin", String(min));
           dial.setAttribute("aria-valuemax", String(max));
           dial.setAttribute("aria-valuenow", String(value));
@@ -3147,7 +3513,7 @@
           const follow = (ev) => {
             const rect = dial.getBoundingClientRect();
             const [min, max] = frozen;
-            set(min + ((ev.clientX - rect.left) / rect.width) * (max - min));
+            set(min + ((ev.clientX - rect.left - 5) / (rect.width - 10)) * (max - min));
           };
           const end = () => {
             dial.removeEventListener("pointermove", follow);
@@ -3185,20 +3551,22 @@
           input.focus();
           input.select();
         };
-        input.addEventListener("mousedown", (event) => {
+        box.addEventListener("mousedown", (event) => {
           if (document.activeElement === input) return;
           event.preventDefault();
           edit();
         });
         input.addEventListener("change", () => {
-          if (!/^-?\d+(\.\d+)?$/.test(input.value)) {
+          const value = parseNumber(input.value);
+          if (!Number.isFinite(value)) {
             input.value = plain(read());
             return;
           }
           checkpoint();
-          write(Number(input.value));
+          write(value);
           apply();
           commit();
+          input.value = plain(read());
         });
         input.addEventListener("keydown", (event) => {
           if (event.key === "Enter" || event.key === "Escape") {
@@ -3209,7 +3577,7 @@
         });
         paints.push(paint);
         paint();
-        return dial;
+        return field;
       }
 
       function textInput(label, read, write, validate) {
@@ -3220,15 +3588,16 @@
           input.value = read();
         };
         input.addEventListener("change", () => {
-          const next = input.value.trim();
+          const next = cleanEntry(input.value);
           if (validate && !validate(next)) {
-            paint();
+            input.value = read();
             return;
           }
           checkpoint();
           write(next);
           apply();
           commit();
+          input.value = read();
         });
         paints.push(paint);
         paint();
@@ -3244,7 +3613,7 @@
           : null;
         const parts = [controls].flat();
         const dials = parts.every((part) => part.classList.contains("dial"));
-        const body = dials ? parts : [h("div", { class: "line" }, h("span", { class: "row-label" }, label), h("span", { class: "line-value" }, ...parts, unitNode))];
+        const body = dials ? parts : [h("div", { class: "line" }, h("span", { class: "row-name" }, h("span", { class: "row-label" }, label)), h("span", { class: "line-value" }, ...parts, unitNode))];
         if (revertNode) {
           body[0].querySelector(".row-label").after(revertNode);
           revertNode.addEventListener("pointerdown", (event) => event.stopPropagation());
@@ -3254,23 +3623,19 @@
           for (const dial of parts) {
             dial.setAttribute("aria-keyshortcuts", "Backspace");
             dial.addEventListener("keydown", (event) => {
-              if (event.key !== "Backspace" || event.target !== dial || revertNode.hidden) return;
+              if (event.key !== "Backspace" || !event.target.matches(".dial-track") || revertNode.hidden) return;
               event.preventDefault();
               event.stopPropagation();
-              const index = [...$("inspector").querySelectorAll(".dial")].indexOf(dial);
               options.revert();
-              $("inspector").querySelectorAll(".dial")[index]?.focus();
             });
           }
         }
-        const node = h("div", { class: "detail" }, ...body, ...(options.below ?? []), h("div", { class: "meta" }, noteNode, flagNode));
+        const node = h("div", { class: "dial-row" }, ...body, ...(options.below ?? []), h("div", { class: "meta" }, noteNode, flagNode));
         const paint = () => {
           flagNode.hidden = !(options.flagged?.() ?? false);
           if (noteNode) noteNode.hidden = !(options.noted?.() ?? true);
           if (!options.edited) return;
-          const changed = options.edited();
-          node.toggleAttribute("data-edited", changed);
-          revertNode.hidden = !changed;
+          setHidden(revertNode, !options.edited(), () => parts.map((part) => (part.matches("input, select") ? part : part.querySelector(".dial-track, input, select"))).find(Boolean) ?? $("inspector"));
         };
         paints.push(paint);
         paint();
@@ -3298,7 +3663,7 @@
           }, unit);
         }
         return textInput(
-          key,
+          label,
           () => String(source[key] ?? ""),
           (next) => {
             source[key] = next;
@@ -3330,9 +3695,9 @@
       function bezierPoints(easing) {
         if (typeof easing !== "string") return null;
         if (keywords[easing]) return [...keywords[easing]];
-        const match = easing.match(/^cubic-bezier\(([^)]+)\)$/);
+        const match = easing.match(/^cubic-bezier\(([^)]*)\)$/);
         if (!match) return null;
-        const points = match[1].split(",").map((part) => Number(part.trim()));
+        const points = match[1].split(",").map(parseNumber);
         return points.length === 4 && points.every((point) => Number.isFinite(point)) ? points : null;
       }
 
@@ -3346,7 +3711,7 @@
       ];
 
       function easingMenu(source) {
-        const menu = h("select", { class: "select", "aria-label": "Easing Preset" }, ...presets.map(([value, label]) => h("option", { value }, label)));
+        const menu = h("select", { class: "tool-select", "aria-label": "Easing Preset" }, ...presets.map(([value, label]) => h("option", { value }, label)));
         const paint = () => {
           menu.value = keywords[source.easing] ? source.easing : "custom";
         };
@@ -3361,7 +3726,6 @@
           clearFlag(source, "easing");
           apply();
           commit();
-          menu.blur();
         });
         paints.push(paint);
         paint();
@@ -3468,7 +3832,7 @@
           const paint = () => (readout.textContent = `~${Math.round(latest(source)?.length ?? 0)}`);
           paints.push(paint);
           paint();
-          return row("Duration", readout, { unit: "ms", note: settles(source) ? "Computed" : "From Spring Duration" });
+          return row("Duration", readout, { unit: "ms", note: settles(source) ? undefined : "From Spring Duration" });
         }
         return row("Duration", numberInput("Duration", () => source.duration ?? latest(source)?.length ?? 0, (next) => setDuration(source, next), "ms"), tracked(source, "duration"));
       }
@@ -3485,12 +3849,12 @@
         if (typeof source.easing === "string" || source.easing == null) {
           if (source.easing != null || (source.duration ?? 0) > 0) {
             const curve = textInput("Easing", () => source.easing ?? "", (next) => {
-              source.easing = next;
+              source.easing = keywords[next] ? next : `cubic-bezier(${bezierPoints(next).join(", ")})`;
               clearFlag(source, "easing");
             }, easingValid);
             fields.push(row("Easing", easingMenu(source), {
               ...tracked(source, "easing"),
-              below: [h("div", { class: "line" }, curve), bezierPad(source)],
+              below: [h("div", { class: "line" }, h("span", { class: "line-value" }, curve)), bezierPad(source)],
             }));
           }
         } else if ("bounce" in source.easing || "duration" in source.easing) {
@@ -3498,13 +3862,27 @@
         } else {
           fields.push(springRow(source, "Stiffness", "stiffness"), springRow(source, "Damping", "damping"), springRow(source, "Mass", "mass"));
         }
-        if (isSpring(source)) fields.push(h("div", { class: "detail" }, springPad(source)));
+        if (isSpring(source)) fields.push(h("div", { class: "dial-row" }, springPad(source)));
         return h("dl", {}, h("p", { class: "segment-title" }, eventLabel(source.on)), ...fields);
+      }
+
+      function fieldKey(node) {
+        return node.closest("[data-field]")?.dataset.field ?? null;
+      }
+
+      function focusField(key) {
+        const fields = [...$("inspector-segments").querySelectorAll("[data-field]")].filter((node) => !node.closest("[hidden]"));
+        const base = key.replace(":Revert ", ":");
+        const target =
+          key &&
+          (fields.find((node) => node.dataset.field === key) ??
+            fields.find((node) => node.dataset.field === base) ??
+            fields.find((node) => node.dataset.field.startsWith(base)));
+        (target ?? $("inspector")).focus({ preventScroll: true });
       }
 
       function renderInspector() {
         paints = [];
-        const inspector = $("inspector");
         for (const [index, track] of tracks.entries()) {
           if (index === selected) track.button.setAttribute("aria-current", "true");
           else track.button.removeAttribute("aria-current");
@@ -3515,16 +3893,27 @@
         $("inspector-note").textContent = track.note ?? "";
         $("inspector-note").hidden = !track.note;
         $("inspector-count").textContent = `${selected + 1} of ${tracks.length}`;
+        const active = document.activeElement;
         $("inspector-prev").disabled = selected === 0;
         $("inspector-next").disabled = selected === tracks.length - 1;
-        $("inspector-segments").replaceChildren(...track.segments.map((segment) => segmentFields(track, segment)));
+        keepFocus(active, [$("inspector-prev"), $("inspector-next")], $("inspector"));
+        const focused = $("inspector-segments").contains(active) ? (fieldKey(active) ?? "") : null;
+        $("inspector-segments").replaceChildren(
+          ...track.segments.map((segment, index) => {
+            const list = segmentFields(track, segment);
+            for (const node of list.querySelectorAll("[aria-label]")) node.dataset.field = `${index}:${node.getAttribute("aria-label")}`;
+            return list;
+          }),
+        );
+        if (focused !== null) focusField(focused);
       }
 
       $("marks").replaceChildren(
         ...timeline.events.map((event) => {
-          const mark = h("button", { class: "mark", type: "button", "aria-label": event.label });
+          const mark = h("button", { class: "mark", type: "button", "aria-keyshortcuts": "ArrowLeft ArrowRight" });
           markNodes.set(event, mark);
           mark.addEventListener("pointerdown", (ev) => dragEvent(ev, event));
+          mark.addEventListener("keydown", (ev) => nudgeEvent(ev, event));
           return mark;
         }),
       );
@@ -3596,6 +3985,7 @@
         renderInspector();
         layoutAll();
         render();
+        writeHash();
       }
 
       $("inspector-prev").addEventListener("click", () => select(Math.max(0, selected - 1)));
@@ -3670,7 +4060,7 @@
 
       function syncVideo(force) {
         if (!video || video.readyState === 0) return;
-        const target = Math.min(video.duration, ((timeline.recording.start ?? 0) + t) / 1000);
+        const target = Math.min(video.duration, (timeline.recording.start + t) / 1000);
         const drift = Math.abs(video.currentTime - target);
         if (playing) {
           video.playbackRate = speed;
@@ -3715,6 +4105,7 @@
         const play = $("play");
         play.innerHTML = playing ? pauseIcon : playIcon;
         play.setAttribute("aria-label", playing ? "Pause" : "Play");
+        play.title = playing ? "Pause (Space)" : "Play (Space)";
         syncVideo(true);
       }
 
@@ -3742,7 +4133,7 @@
       function paintRange() {
         const band = $("band");
         band.hidden = !range;
-        $("clear-range").hidden = !range;
+        setHidden($("clear-range"), !range, () => $("scrub"));
         if (!range) return;
         band.style.left = `${percentAt(range.start)}%`;
         band.style.width = `${((range.end - range.start) / viewSpan()) * 100}%`;
@@ -3773,7 +4164,6 @@
       $("speed").addEventListener("change", (event) => {
         speed = Number(event.target.value);
         syncVideo(true);
-        event.target.blur();
       });
 
       $("total").textContent = String(duration);
@@ -3787,51 +4177,32 @@
         $("time").value = String(Math.round(t));
       });
       $("time").addEventListener("keydown", (event) => {
-        if (event.key === "Enter") $("time").blur();
-        if (event.key === "Escape") {
-          $("time").value = String(Math.round(t));
-          $("time").blur();
-        }
+        if (event.key !== "Enter" && event.key !== "Escape") return;
+        if (event.key === "Escape") $("time").value = String(Math.round(t));
+        ($("tracks").hidden ? $("play") : $("scrub")).focus({ preventScroll: true });
       });
 
-      $("copy").addEventListener("click", () => {
+      $("copy").addEventListener("click", async () => {
         setComparing(false);
         const text = `window.timeline = ${JSON.stringify(timeline, null, 2)};\n`;
-        const button = $("copy");
-        const done = (label) => {
-          button.innerHTML = checkIcon;
-          button.setAttribute("aria-label", label);
-          setTimeout(() => {
-            button.innerHTML = copyIcon;
-            button.setAttribute("aria-label", "Copy Timeline");
-          }, 1200);
-        };
-        const area = document.createElement("textarea");
-        area.value = text;
-        area.setAttribute("readonly", "");
-        area.style.position = "fixed";
-        area.style.opacity = "0";
-        document.body.append(area);
-        area.focus();
-        area.select();
-        const copied = document.execCommand("copy");
-        area.remove();
-        if (copied) {
-          done("Copied");
-          return;
-        }
-        const save = () => {
-          const file = document.createElement("a");
-          file.href = URL.createObjectURL(new Blob([text], { type: "text/javascript" }));
-          file.download = "timeline.js";
-          file.click();
-          done("Downloaded");
-        };
-        if (!navigator.clipboard?.writeText) {
-          save();
-          return;
-        }
-        navigator.clipboard.writeText(text).then(() => done("Copied"), save);
+        const toast = $("copy-toast");
+        toast.textContent = await Promise.resolve()
+          .then(() => navigator.clipboard.writeText(text))
+          .then(
+            () => "Copied",
+            () => "Copy Failed",
+          );
+        const button = $("copy").getBoundingClientRect();
+        const center = button.left + button.width / 2;
+        const half = toast.offsetWidth / 2;
+        const edge = document.documentElement.clientWidth - 8;
+        const shift = Math.min(0, edge - center - half) + Math.max(0, 8 - center + half);
+        toast.style.setProperty("--shift", `${shift}px`);
+        const ceiling = Math.max(0, $("playback").parentElement.getBoundingClientRect().top);
+        toast.dataset.side = button.top - ceiling < 48 ? "below" : "above";
+        toast.dataset.open = "";
+        clearTimeout(toast.hide);
+        toast.hide = setTimeout(() => delete toast.dataset.open, 1600);
       });
 
       document.addEventListener("keydown", (event) => {
@@ -3844,9 +4215,10 @@
           return;
         }
         if (event.metaKey || event.ctrlKey || event.altKey) return;
-        if (origin.closest("input, textarea, select, [contenteditable]")) return;
+        if (typing) return;
         const key = event.key;
         const lower = key.toLowerCase();
+        if (key === " " && origin.closest('button, a[href], [role="button"], [role="slider"], [role="separator"]')) return;
         if (key === " ") setPlaying(!playing);
         else if (key === "ArrowLeft") step(event.shiftKey ? -10 : -1);
         else if (key === "ArrowRight") step(event.shiftKey ? 10 : 1);
@@ -3881,11 +4253,39 @@
       let showingMachine = false;
       function setShowingMachine(value) {
         showingMachine = value;
-        $("machine").hidden = !value;
-        $("tracks").hidden = value;
+        const toggle = value ? $("show-machine") : $("show-timeline");
+        if (value && [$("fit"), $("clear-range")].includes(document.activeElement)) toggle.focus({ preventScroll: true });
+        setHidden($("machine"), !value, () => toggle);
+        setHidden($("tracks"), value, () => toggle);
         $("show-timeline").setAttribute("aria-pressed", String(!value));
         $("show-machine").setAttribute("aria-pressed", String(value));
+        writeHash();
       }
+
+      function writeHash() {
+        const params = new URLSearchParams();
+        if (selected > 0) params.set("track", String(selected + 1));
+        if (showingMachine) params.set("view", "machine");
+        const hash = params.toString();
+        window.history.replaceState(null, "", hash ? `#${hash}` : location.pathname + location.search);
+      }
+
+      function readHash() {
+        const params = new URLSearchParams(location.hash.slice(1));
+        const index = Number(params.get("track")) - 1;
+        if (Number.isInteger(index) && index >= 0 && index < tracks.length) selected = index;
+        setShowingMachine(params.get("view") === "machine");
+      }
+
+      const playback = $("playback");
+      const editor = playback.parentElement;
+      const markStuck = () => playback.toggleAttribute("data-stuck", editor.scrollTop > 0 || editor.getBoundingClientRect().top < 0);
+      editor.addEventListener("scroll", markStuck, { passive: true });
+      addEventListener("scroll", markStuck, { passive: true });
+      markStuck();
+      new ResizeObserver(() => {
+        document.documentElement.style.setProperty("--bar-height", `${playback.offsetHeight + 8}px`);
+      }).observe(playback);
       $("show-timeline").addEventListener("click", () => setShowingMachine(false));
       $("show-machine").addEventListener("click", () => setShowingMachine(true));
       $("tracks").addEventListener(
@@ -3957,6 +4357,7 @@
       $("scrub").setAttribute("aria-valuemax", String(duration));
       paintHistory();
       setPlaying(matchMedia("(prefers-reduced-motion: no-preference)").matches);
+      readHash();
       select(selected);
     </script>
   </body>

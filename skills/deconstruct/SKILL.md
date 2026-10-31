@@ -58,7 +58,7 @@ Press I and O to loop one range, such as press to release. Onion Skin ghosts the
 
 ## 7. Hand back the data
 
-`timeline.js` is the hand-back: the state table and the tracks as one object. The rebuild imports that file rather than a copy, so the viewer and the shipped motion read the same values. A timeline that lives only in the reply is `deconstruct-timeline-as-data`. Copy Timeline writes the open page back into that object. Paste it over `timeline.js`. If the clipboard is blocked, it downloads `timeline.js`. An edit left only in the open page is `deconstruct-copy-the-timeline`. Gate the viewer to development or delete it before release, and keep `timeline.js`.
+`timeline.js` is the hand-back: the state table and the tracks as one object. The rebuild imports that file rather than a copy, so the viewer and the shipped motion read the same values. A timeline that lives only in the reply is `deconstruct-timeline-as-data`. Copy Timeline writes the open page back into that object. Paste it over `timeline.js`. If the clipboard is blocked, the toast says Copy Failed. An edit left only in the open page is `deconstruct-copy-the-timeline`. Gate the viewer to development or delete it before release, and keep `timeline.js`.
 
 ## The pair
 
