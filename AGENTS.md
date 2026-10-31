@@ -16,7 +16,7 @@ A skill states the rule, the exact value and the detection pattern. It does not 
 
 ## Two kinds of skill
 
-**Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy`, `defaults`, `motion` and `color`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
+**Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy`, `prose`, `defaults`, `motion` and `color`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
 
 **Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `viewports`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `avatar` and `audit`. Their steps are numbered `## 1.` onward.
 
@@ -51,6 +51,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `reuse` | Own component, then library, then platform, then custom, one standard, fixes in the primitive and the sibling sweep |
 | `restraint` | Unrequested interface, settings and code, fallbacks, legacy, deleting instead of deferring, narrating comments |
 | `copy` | Title Case labels, word count, one-line descriptions, status tense, em dashes and ellipses |
+| `prose` | Long-form posts and breakdowns: the opening problem, rejected options, exact values, sources and citations, marked guesses, the author's voice |
 | `defaults` | Scroll edges, shadows, surfaces, theme, focus and accessible names, hit areas, hover styles, links and URL state, forms, loading, type rendering, sound cues, hotkeys in inputs, dialogs |
 | `motion` | What animates, easing, durations, springs and gestures, exits and presence, cross-fades, reduced motion |
 | `color` | Text and control contrast, composited measurement, scrims, role tokens, translucent neutrals, dark palettes, accent and status meaning |
@@ -68,7 +69,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `avatar` | Character silhouettes, eyes on a sphere, whole-body idle life, moods as eye shapes, reactions to the page, the contact sheet |
 | `audit` | Review scope, running every skill, merging by root cause, the numbered report and the verdict |
 
-`reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `copy` owns the words that stay. `defaults` owns how the surfaces that stay behave, `motion` owns how they move and `color` owns how they read. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
+`reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `copy` owns the words that stay in the interface and `prose` owns the words around it. `defaults` owns how the surfaces that stay behave, `motion` owns how they move and `color` owns how they read. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
 
 ## Authoring
 

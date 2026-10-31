@@ -18,6 +18,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**reuse**](skills/reuse/SKILL.md): Reaches for the **project's own components**, then a maintained library, then a native feature, before writing new code.
 - [**restraint**](skills/restraint/SKILL.md): Ships the **smallest thing** that does the job and deletes what nobody asked for.
 - [**copy**](skills/copy/SKILL.md): Writes interface labels in **Title Case**, short and plain, with one-line descriptions and no em dashes.
+- [**prose**](skills/prose/SKILL.md): Writes posts and breakdowns that **open on the problem**, show the options that lost, give exact numbers and mark every guess as a guess.
 - [**defaults**](skills/defaults/SKILL.md): Applies house defaults for **scroll edges**, surfaces, type, sound, focus, forms, loading, hotkeys and dialogs.
 - [**motion**](skills/motion/SKILL.md): Applies house motion for what animates, **easing, durations**, springs, gestures, exits and reduced motion.
 - [**color**](skills/color/SKILL.md): Holds text and control **contrast to exact ratios**, routes colour through role tokens and gives dark mode its own palette.

@@ -33,6 +33,7 @@ Check the scope against each skill and record what you inspected.
 | `reuse` | New components, styles and icons against the shared package |
 | `restraint` | Unrequested UI, settings, fallbacks, dead code and narrating comments |
 | `copy` | Every label, description and status string |
+| `prose` | Each changed post, breakdown or design note, when writing is in scope |
 | `defaults` | Surfaces, type, sound, focus, names, forms, loading, hotkeys and dialogs |
 | `motion` | Every transition, animation, gesture and exit |
 | `color` | Text and field contrast in each theme, tokens inside components and the accent |
