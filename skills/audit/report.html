@@ -46,10 +46,15 @@
         --gray-3: #f1f0ef;
         --gray-4: #e9e8e6;
         --gray-5: #e2e1de;
-        --gray-10: #82827c;
+        --gray-10: #6b6b65;
         --gray-11: #63635e;
         --gray-12: #21201c;
         --shadow-strength: 1;
+        --accent: #0077b6;
+        --text-on-accent: #fff;
+        --background-raised: #fff;
+        --background-hover: var(--gray-4);
+        --fill-hover: color-mix(in oklab, var(--gray-12) 5%, transparent);
         color-scheme: light dark;
       }
 
@@ -60,15 +65,17 @@
           --gray-3: #222221;
           --gray-4: #2a2a28;
           --gray-5: #31312e;
-          --gray-10: #7c7b74;
+          --gray-10: #8f8e87;
           --gray-11: #b5b3ad;
           --gray-12: #eeeeec;
           --shadow-strength: 3;
+          --accent: #02bbff;
+          --text-on-accent: #111110;
+          --background-raised: var(--gray-2);
         }
       }
 
       :root {
-        --accent: #02bbff;
         --border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
         --border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
         --text-primary: var(--gray-12);
@@ -81,12 +88,17 @@
           0 0 0 1px var(--border-secondary),
           0 1px 2px oklch(0 0 0 / calc(4% * var(--shadow-strength))),
           0 4px 12px oklch(0 0 0 / calc(3% * var(--shadow-strength)));
+        --shadow-floating:
+          0 0 0 1px var(--border-secondary),
+          0 2px 4px oklch(0 0 0 / calc(4% * var(--shadow-strength))),
+          0 12px 32px oklch(0 0 0 / calc(8% * var(--shadow-strength)));
         --font-weight-400: "wght" 400, "opsz" 14;
         --font-weight-500: "wght" 500, "opsz" 14;
         --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
         --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
         --duration-snappy: 220ms;
         --duration-exit: 160ms;
+        --radius-control: 8px;
         --inset: 48px;
       }
 
@@ -160,6 +172,35 @@
         text-wrap: pretty;
       }
 
+      @property --fade-start {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+
+      @property --fade-end {
+        syntax: "<length>";
+        inherits: false;
+        initial-value: 0px;
+      }
+
+      @keyframes scroll-fade {
+        0% {
+          --fade-start: 0px;
+          --fade-end: 24px;
+        }
+        10% {
+          --fade-start: 24px;
+        }
+        90% {
+          --fade-end: 24px;
+        }
+        100% {
+          --fade-start: 24px;
+          --fade-end: 0px;
+        }
+      }
+
       .page {
         width: min(768px, 100% - var(--inset) * 2);
         margin: 0 auto;
@@ -174,7 +215,7 @@
       .head {
         display: flex;
         flex-direction: column;
-        gap: 12px;
+        gap: 8px;
         max-width: 640px;
       }
 
@@ -241,7 +282,8 @@
         color: var(--text-primary);
         white-space: nowrap;
         pointer-events: none;
-        background: var(--gray-2);
+        background: var(--background-raised);
+        border: 1px solid transparent;
         border-radius: 10px;
         box-shadow: var(--shadow-raised);
         opacity: 0;
@@ -274,7 +316,7 @@
         align-items: center;
         min-width: 0;
         max-width: 280px;
-        height: 32px;
+        height: 28px;
         padding: 0 28px 0 12px;
         font-size: 13px;
         font-variation-settings: var(--font-weight-500);
@@ -284,11 +326,11 @@
         cursor: pointer;
         appearance: none;
         background: var(--background-tertiary) no-repeat right 11px center / 10px
-          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%2382827c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
-        border-radius: 999px;
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%236b6b65' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
+        border-radius: var(--radius-control);
 
         &:active {
-          background-color: var(--gray-4);
+          background-color: var(--background-hover);
         }
       }
 
@@ -325,12 +367,23 @@
             max-height: min(400px, 60dvh);
             scrollbar-width: none;
             padding: 4px;
-            margin-top: 4px;
-            background: var(--gray-2);
-            border: 0;
+            margin-block: 8px;
+            background: var(--background-raised);
+            border: 1px solid transparent;
             border-radius: 12px;
             box-shadow: var(--shadow-raised);
             opacity: 0;
+            mask-image:
+              linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+              linear-gradient(black, black),
+              linear-gradient(black, black);
+            mask-clip: border-box, border-box, no-clip;
+            mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+            mask-position: 0 0, 0 0, -64px -64px;
+            mask-repeat: no-repeat;
+            mask-composite: add, exclude;
+            animation: scroll-fade linear both;
+            animation-timeline: scroll(self);
             transition:
               opacity var(--duration-exit) var(--ease-out-cubic),
               display var(--duration-exit) allow-discrete,
@@ -383,22 +436,35 @@
         display: inline-flex;
         gap: 6px;
         align-items: center;
-        height: 32px;
+        height: 28px;
         padding: 0 12px;
         font-size: 13px;
         font-variation-settings: var(--font-weight-500);
-        color: var(--text-primary);
+        color: var(--text-tertiary);
         white-space: nowrap;
-        background: var(--background-tertiary);
-        border-radius: 999px;
+        border-radius: var(--radius-control);
+
+        &[aria-pressed="true"] {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
 
         &:active:not(:disabled) {
-          background: var(--gray-4);
+          color: var(--text-primary);
         }
 
         &:disabled {
           cursor: default;
           opacity: 0.5;
+        }
+      }
+
+      .action {
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+
+        &:active:not(:disabled) {
+          background: var(--background-hover);
         }
       }
 
@@ -424,11 +490,12 @@
         flex-wrap: wrap;
         gap: 4px 12px;
         align-items: baseline;
-        margin-bottom: 12px;
+        margin-bottom: 20px;
       }
 
       .section-title {
         font-variation-settings: var(--font-weight-500);
+        text-wrap: balance;
       }
 
       .section-description {
@@ -444,7 +511,10 @@
         margin: 0 -12px;
         border-radius: 12px;
 
-        &:active,
+        &:active {
+          background: var(--fill-hover);
+        }
+
         &[data-current] {
           background: var(--background-tertiary);
         }
@@ -502,7 +572,7 @@
         width: 28px;
         height: 28px;
         color: var(--text-quaternary);
-        border-radius: 999px;
+        border-radius: var(--radius-control);
         box-shadow: inset 0 0 0 1px var(--border-secondary);
 
         &::before {
@@ -511,8 +581,12 @@
           content: "";
         }
 
+        &:active:not([aria-pressed="true"]) {
+          color: var(--text-primary);
+        }
+
         &[aria-pressed="true"] {
-          color: #fff;
+          color: var(--text-on-accent);
           background: var(--accent);
           box-shadow: none;
         }
@@ -559,18 +633,18 @@
         position: fixed;
         inset: 0 0 0 auto;
         flex-direction: column;
-        gap: 24px;
-        width: min(400px, 100%);
+        width: min(400px, 100% - 24px);
         max-width: none;
-        height: 100dvh;
+        height: calc(100dvh - 24px);
         max-height: none;
-        padding: 20px;
-        margin: 0;
-        overflow-y: auto;
-        overscroll-behavior: contain;
+        padding: 0;
+        margin: 12px;
+        overflow: hidden;
         color: var(--text-primary);
-        background: var(--background-primary);
-        border-left: 1px solid var(--border-primary);
+        background: var(--background-raised);
+        border: 1px solid transparent;
+        border-radius: 16px;
+        box-shadow: var(--shadow-floating);
         opacity: 0;
         translate: 16px 0;
         transition:
@@ -583,7 +657,7 @@
           display: flex;
           opacity: 1;
           translate: 0;
-          transition-duration: var(--duration-snappy), 320ms, 320ms, 320ms;
+          transition-duration: var(--duration-snappy);
 
           @starting-style {
             opacity: 0;
@@ -600,7 +674,7 @@
         }
 
         &[open]::backdrop {
-          background: color-mix(in oklab, var(--gray-1) 64%, transparent);
+          background: color-mix(in oklab, var(--background-primary) 64%, transparent);
           transition-duration: var(--duration-snappy);
 
           @starting-style {
@@ -610,12 +684,10 @@
 
         @media (width <= 640px) {
           inset: auto 0 0;
-          width: 100%;
+          width: calc(100% - 24px);
           height: auto;
           max-height: 80dvh;
-          padding-bottom: max(20px, env(safe-area-inset-bottom));
-          border-top: 1px solid var(--border-primary);
-          border-left: 0;
+          margin: 0 12px max(12px, env(safe-area-inset-bottom));
           translate: 0 16px;
 
           &[open] {
@@ -624,6 +696,27 @@
             }
           }
         }
+      }
+
+      .panel-scroll {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        min-height: 0;
+        padding: 16px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        mask-image:
+          linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+          linear-gradient(black, black),
+          linear-gradient(black, black);
+        mask-clip: border-box, border-box, no-clip;
+        mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+        mask-position: 0 0, 0 0, -64px -64px;
+        mask-repeat: no-repeat;
+        mask-composite: add, exclude;
+        animation: scroll-fade linear both;
+        animation-timeline: scroll(self);
       }
 
       .panel-top,
@@ -645,7 +738,7 @@
         height: 28px;
         color: var(--text-tertiary);
         background: var(--background-tertiary);
-        border-radius: 999px;
+        border-radius: var(--radius-control);
 
         &::before {
           position: absolute;
@@ -653,9 +746,9 @@
           content: "";
         }
 
-        &:active:not(:disabled) {
+        &:active:not(:disabled, [aria-pressed="true"]) {
           color: var(--text-primary);
-          background: var(--gray-4);
+          background: var(--background-hover);
         }
 
         &:disabled {
@@ -664,7 +757,7 @@
         }
 
         &[aria-pressed="true"] {
-          color: #fff;
+          color: var(--text-on-accent);
           background: var(--accent);
         }
       }
@@ -681,12 +774,13 @@
 
       .panel-title {
         font-variation-settings: var(--font-weight-500);
-        text-wrap: pretty;
+        text-wrap: balance;
       }
 
       .panel-note {
         margin-top: 10px;
         color: var(--text-secondary);
+        text-wrap: pretty;
       }
 
       .panel-count {
@@ -711,12 +805,13 @@
         }
 
         dd {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-end;
           min-width: 0;
           text-align: right;
           overflow-wrap: anywhere;
+
+          span + span::before {
+            content: ", ";
+          }
         }
 
         &[data-stacked] {
@@ -724,27 +819,40 @@
           gap: 2px;
 
           dd {
-            align-items: flex-start;
             text-align: left;
           }
         }
       }
 
+      @media (width <= 640px) {
+        .select,
+        input:not([type="range"]),
+        textarea {
+          font-size: 16px;
+        }
+      }
+
       @media (hover: hover) and (pointer: fine) {
-        .select:hover,
-        .action:hover:not(:disabled),
+        .select:hover {
+          background-color: var(--background-hover);
+        }
+
+        .action:hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
         .icon-button:hover:not(:disabled, [aria-pressed="true"]) {
           color: var(--text-primary);
-          background-color: var(--gray-4);
+          background: var(--background-hover);
         }
 
         .select option:hover {
           color: var(--text-primary);
-          background: var(--background-tertiary);
+          background: var(--fill-hover);
         }
 
         .finding:hover:not([data-current]) {
-          background: var(--gray-2);
+          background: var(--fill-hover);
         }
 
         .pick:hover:not([aria-pressed="true"]) {
@@ -786,27 +894,29 @@
     </div>
 
     <dialog class="panel" id="panel" aria-labelledby="panel-title">
-      <div class="panel-top">
-        <button class="icon-button" id="panel-close" type="button" aria-label="Close" title="Close (Esc)">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
-        </button>
-        <div class="panel-tools">
-          <button class="icon-button" id="panel-pick" type="button" aria-pressed="false"></button>
-          <button class="icon-button" id="panel-prev" type="button" aria-label="Previous" title="Previous (K)">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5v-9M4.5 7L8 3.5 11.5 7" /></svg>
+      <div class="panel-scroll">
+        <div class="panel-top">
+          <button class="icon-button" id="panel-close" type="button" aria-label="Close" title="Close (Esc)">
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
           </button>
-          <button class="icon-button" id="panel-next" type="button" aria-label="Next" title="Next (J)">
-            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5v9M4.5 9L8 12.5 11.5 9" /></svg>
-          </button>
+          <div class="panel-tools">
+            <button class="icon-button" id="panel-pick" type="button" aria-pressed="false"></button>
+            <button class="icon-button" id="panel-prev" type="button" aria-label="Previous" title="Previous (K)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 12.5v-9M4.5 7L8 3.5 11.5 7" /></svg>
+            </button>
+            <button class="icon-button" id="panel-next" type="button" aria-label="Next" title="Next (J)">
+              <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5v9M4.5 9L8 12.5 11.5 9" /></svg>
+            </button>
+          </div>
         </div>
+        <header class="panel-head">
+          <span class="panel-group" id="panel-group"></span>
+          <h2 class="panel-title" id="panel-title"></h2>
+          <p class="panel-note" id="panel-note"></p>
+          <span class="panel-count" id="panel-count"></span>
+        </header>
+        <dl id="panel-details"></dl>
       </div>
-      <header class="panel-head">
-        <span class="panel-group" id="panel-group"></span>
-        <h2 class="panel-title" id="panel-title"></h2>
-        <p class="panel-note" id="panel-note"></p>
-        <span class="panel-count" id="panel-count"></span>
-      </header>
-      <dl id="panel-details"></dl>
     </dialog>
 
     <script src="report.js"></script>
@@ -918,7 +1028,6 @@
           class: "pick",
           type: "button",
           html: check,
-          title: "Pick (P)",
           onclick: () => togglePick(finding),
         });
         finding.open = h(
@@ -1008,8 +1117,10 @@
 
       function renderPick(finding) {
         const isPicked = picked.has(identity(finding));
+        const label = isPicked ? "Unpick" : "Pick";
         finding.pick.setAttribute("aria-pressed", String(isPicked));
-        finding.pick.setAttribute("aria-label", `${isPicked ? "Unpick" : "Pick"} ${finding.n}`);
+        finding.pick.setAttribute("aria-label", `${label} ${finding.n}`);
+        finding.pick.title = `${label} (P)`;
       }
 
       function renderCopy() {
