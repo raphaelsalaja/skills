@@ -51,7 +51,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `reuse` | Own component, then library, then platform, then custom, one standard, fixes in the primitive and the sibling sweep |
 | `restraint` | Unrequested interface, settings and code, fallbacks, legacy, deleting instead of deferring, narrating comments |
 | `copy` | Title Case labels, word count, one-line descriptions, status tense, em dashes and ellipses |
-| `prose` | Long-form posts and breakdowns: the opening problem, rejected options, exact values, sources and citations, marked guesses, the author's voice |
+| `prose` | Long-form posts and breakdowns: the opening context, first person, rejected options, exact values, asides and footnotes, sources and citations, marked guesses, British spelling, the author's voice |
 | `defaults` | Scroll edges, shadows, surfaces, theme, focus and accessible names, hit areas, hover styles, links and URL state, forms, loading, type rendering, sound cues, hotkeys in inputs, dialogs |
 | `motion` | What animates, easing, durations, springs and gestures, exits and presence, cross-fades, reduced motion |
 | `color` | Text and control contrast, composited measurement, scrims, role tokens, translucent neutrals, dark palettes, accent and status meaning |
