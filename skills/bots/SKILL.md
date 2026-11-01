@@ -36,11 +36,13 @@ All Bots live in one typed file, such as `data/bots.ts`, one entry per Bot. Area
 
 Each entry holds a title of 2–3 words, one line of description and 3–5 short items it does. Routines read in plain words with a time, such as "Daily idea drop, 9am", and tools are short names. A paragraph pasted from the Bot's instructions is `bots-entry-shape`.
 
-A `null` shape or colour is asked of the user. The entry marked `lead` is the primary Bot.
+The areas are the user's own sidebar sections in Grok, named and ordered as they are there. The entry marked `lead` is the primary Bot.
+
+Shape and colour come from each Bot's published page, as [grok.md](grok.md) describes. A shape or colour picked by eye from a screenshot is `bots-page-marks`.
 
 ## 4. Draw each Bot in its own mark
 
-Copy [marks.js](marks.js) beside the components. Each Bot is drawn in the shape and colour it has in Grok, from `MARKS[shape].path` and `markEyes(shape)`, with fills from `MARK_COLORS` per theme. A generic avatar or an initial in a circle is `bots-real-marks`.
+Copy [marks.js](marks.js) beside the components. Each Bot is drawn in the shape and colour it has in Grok, from `MARKS[shape].path` and `markEyes(shape)`, with fills from `MARK_COLORS`. A generic avatar or an initial in a circle is `bots-real-marks`.
 
 Black takes the page's text colour for the body and its background for the eyes, so it flips with the theme. Give the eyes life with `avatar`.
 
@@ -78,6 +80,8 @@ Copy This Bot opens the share link in a new tab and says so to screen readers. A
 
 The lead Bot sits alone at the top. A hairline drops to a row of area headings, and each area's Bots stack beneath their heading. Under 560px it becomes one column with the line down the left edge.
 
+When the areas will not fit side by side at the page's width, use that one-column tree at every width. Each area branches off the line with an elbow, and its Bots sit in a grid beneath.
+
 Draw the lines with 1px borders in the border token. Areas as stacked grids with no lead and no lines is `bots-org-chart`.
 
 Register the page wherever the site lists pages, such as the sitemap, the navigation and any markdown mirror.
@@ -100,6 +104,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `bots-one-file` | Bot copy inlined in three components | One entry per Bot in `data/bots.ts` |
 | `bots-entry-shape` | A 90-word description from the Bot's instructions | "Guards a steady bedtime and a calm wind-down." |
 | `bots-real-marks` | An initial in a grey circle | The Bot's own shape and colour from `marks.js` |
+| `bots-page-marks` | `shape: "clover"` guessed from a sidebar icon | `shape: "cloud"` read from the Bot's x.ai page |
 | `bots-hull-bodies` | `Bodies.circle` for every Bot | `Body.create({ vertices })` from `markHull(shape)` |
 | `bots-drag-pushes` | `if (dragging) return` before `Engine.update` | A spring `Constraint` and the world still stepping |
 | `bots-jelly-keeps-area` | `scale(1.4, 0.8)` that grows the Bot | The matrix clamped and divided by its determinant's root |
@@ -115,7 +120,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a private detail on the page, a Bot the user did not pick or a link that was not copied from Grok. `MEDIUM` is a frozen pile while dragging, a shake that loses Bots, a Bot turning inside out, motion under reduced motion or a dead copy button. Circle bodies, a loop that never sleeps, sound before a touch, a flat grid instead of the chart or a missing finish list is also `MEDIUM`. `LOW` is a long description, a lone corner button or a name that opens on a drag.
+**Severity.** `HIGH` is a private detail on the page, a Bot the user did not pick or a link that was not copied from Grok. `MEDIUM` is a frozen pile while dragging, a shake that loses Bots, a Bot turning inside out, motion under reduced motion or a dead copy button. Circle bodies, a loop that never sleeps, sound before a touch, a flat grid instead of the chart or a missing finish list is also `MEDIUM`. `LOW` is a long description, a guessed shape or colour, a lone corner button or a name that opens on a drag.
 
 **Format.** One finding per root cause:
 
