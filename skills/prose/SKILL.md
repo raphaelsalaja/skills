@@ -43,11 +43,11 @@ There is no word limit. Length is judged by ear, and a sentence that needs a sec
 
 A list of two to four items goes inside one sentence, after a colon. A row of fragments standing in for that sentence is `prose-list-in-the-sentence`.
 
-When the items need explaining, each one carries its gloss in brackets: too much (every cell full), too little (a bare wireframe). Glosses split into separate sentences are `prose-gloss-in-brackets`.
+When the items need explaining, each one carries its gloss in brackets: spacing (a scale someone chose and stuck to), type (a size and line height tuned together). Glosses split into separate sentences are `prose-gloss-in-brackets`.
 
 ## Tell what happened
 
-Process is told as what the author did, in the past tense: I'd give it a short prompt and nothing else, then watch what came back. Present-tense advice with no account of doing it is `prose-tell-what-happened`.
+Process is told as what the author did, in the past tense: I'd record the screen, play it back slowly and rebuild it beside the recording. Present-tense advice with no account of doing it is `prose-tell-what-happened`.
 
 ## Talk about the work, not at the reader
 
@@ -55,7 +55,7 @@ Describe what the thing does and what the author did. Address the reader as you 
 
 ## Admit the limits of your own work
 
-Say in passing where the author's own work falls short, without apology: it still may not get there first time. A piece about the author's own work that claims no limits is `prose-admit-the-limits`.
+Say in passing where the author's own work falls short, without apology: the first version is always close and always wrong. A piece about the author's own work that claims no limits is `prose-admit-the-limits`.
 
 Delete throat-clearing such as "It's worth noting", "Let's dive in" and "Not just X, but Y". That is `prose-no-filler`.
 
@@ -97,7 +97,7 @@ A sequence of steps, a comparison or a set of values goes in a list, table or fi
 
 ## Captions say what happens
 
-A caption under a demo or figure describes what happens in it, in order: the menu opens, an item is picked, it all resets. A caption that states the lesson is `prose-caption-the-action`.
+A caption under a demo or figure describes what happens in it, in order: the menu grows out of the button, the shadow arrives on the fourth frame and the content on the sixth. A caption that states the lesson is `prose-caption-the-action`.
 
 ## End modestly
 
@@ -118,10 +118,10 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `prose-link-the-reason` | `Rows have fixed heights. The frame never measures itself.` | `Rows have fixed heights, so the frame never has to measure itself.` |
 | `prose-no-fragment-runs` | `The page works. You don't want to stay.` | `The page works, but nobody wants to stay on it.` |
 | `prose-list-in-the-sentence` | `Spacing that's off. A hover that scales. Copy that says nothing.` | `What it misses is small: spacing that's off, a hover that scales and copy that says nothing.` |
-| `prose-gloss-in-brackets` | `The first failure is too much. Every cell is full.` | `It goes wrong as too much (every cell full) or too little (a bare wireframe).` |
+| `prose-gloss-in-brackets` | `Under the surface there's a spacing scale. Someone chose it and stuck to it.` | `Under the surface sit spacing (a scale someone chose and stuck to) and type (a size and line height tuned together).` |
 | `prose-tell-what-happened` | `Record it, then rebuild it beside the recording.` | `I'd record it, then rebuild it beside the recording until I couldn't tell them apart.` |
 | `prose-fewer-you` | `You open the menu. You watch it grow. You notice the corner.` | `The menu grows from the corner of the button that opened it.` |
-| `prose-admit-the-limits` | A breakdown of your own component that claims it handles everything | `It still drops frames on older phones.` |
+| `prose-admit-the-limits` | A breakdown of your own rebuild that claims it matches the original | `My version only covers part of it, but it was enough to understand how it works.` |
 | `prose-no-filler` | `It's worth noting that rows are 46 tall.` | `Rows are 46 tall.` |
 | `prose-asides` | `Note that this is not a criticism of the team that built it.` | `(Not a knock on the team, who ship careful work.)` |
 | `prose-footnote-the-caveat` | `The list is pinned to the top, though at first it was centred and that moved every card.` | `The list is pinned to the top.[^1]` with the centred version in the footnote |
@@ -134,7 +134,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `prose-british-spelling` | `The color fades from the center.` | `The colour fades from the centre.` |
 | `prose-show-the-shape` | Five shortcuts in one paragraph | A keymap table |
 | `prose-caption-the-action` | `The second version has fewer things in it.` | `The card loses its gradient, its sparkle and its entrance, and the button answers a press.` |
-| `prose-modest-ending` | `The best tool is one you forget is there.` | `It's what I try to build, and I'm still getting there.` |
+| `prose-modest-ending` | `The best compliment a tool can get is that someone forgets it's there.` | `That's why I keep coming back to quiet software, and it's the kind I try to build.` |
 
 ## Reporting
 
