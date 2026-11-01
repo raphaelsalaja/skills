@@ -6,14 +6,14 @@ Publishing stays with the user. A template goes live only when they press Publis
 
 ## The prompt
 
-Fill in the areas line before handing it over. With no areas from the user, leave the example areas in.
+The areas on the site are the sections the user already groups their Bots into in the sidebar, so the prompt names none.
 
 ```text
 I'm putting some of my Bots on my portfolio site. Each one gets a card and a link anyone can use to copy it. Run this in four rounds and stop for my answer after each.
 
-Areas for grouping: Work, Training, Life
+The site groups Bots by the sections I already sort them into in the sidebar. Use those section names exactly as the areas. If you can't see my sections, ask me for them before round 1.
 
-Round 1, pick. List every Bot I have, yourself included, one per line: a number, its name, its label and its job in one line. Then ask which ones to share. Share nothing until I answer. I may answer with numbers, "all" or "all except".
+Round 1, pick. List every Bot I have, yourself included, grouped under its section, one per line: a number, its name, its label and its job in one line. Then ask which ones to share. Share nothing until I answer. I may answer with numbers, "all" or "all except".
 
 Round 2, clean. A public template shows a Bot's identity, description, skills and routines to anyone with the link. Send each Bot I picked this message and collect the replies:
 
@@ -25,13 +25,13 @@ Round 3, describe. Send each picked Bot this message and collect the replies:
 
 "Describe yourself for a portfolio card as one JSON object with these keys, and nothing private:
 - title: your job title in Title Case, 2 or 3 words, such as Sleep Coach
-- area: one of the areas I gave
+- area: the name of the sidebar section you sit in
 - description: one line under 15 words saying what you do
 - does: 3 to 5 short items, each starting with a verb, under 7 words
 - routines: each schedule in plain words with its time, such as Daily idea drop, 9am
 - tools: the apps, plugins and sources you use, as short names
-- shape: your picture's shape, one of blob, star, hex, heart, square, tablet, sparkle, flower, wedge, clover, teardrop, or null if unsure
-- color: your picture's colour, one of black, gray, blue, cyan, green, yellow, orange, magenta, or null if unsure
+- shape: your picture's shape, one of blob, pebble, bean, egg, squircle, tablet, capsule, cylinder, hex, gem, crystal, wedge, shield, dome, arch, cloud, teardrop, leaf, square, sparkle, clover, flower, heart, house, star, or null if unsure
+- color: your picture's colour, one of black, brown, red, orange, yellow, green, cyan, blue, violet, magenta, gray, or null if unsure
 - lead: true only if you are my primary Bot
 No em dashes and no emoji."
 
@@ -61,4 +61,12 @@ One JSON array, one object per picked Bot. The skill reads it in step 2.
 ]
 ```
 
-A `null` shape or colour is asked of the user, never guessed. A Bot the user did not pick is never in the array.
+A Bot the user did not pick is never in the array.
+
+## The published page
+
+Each link opens a public page at `https://x.ai/bot/<id>`. Its server-rendered data holds the template's `botName`, `description`, `shape` and `color`, with the colour as a hex from `MARK_COLORS`.
+
+Fetch every page and take shape and colour from it, over what the Bot said. Use the page's description as the source for the card's line and its `does` items. Ask the user only when a page will not load.
+
+When the primary Bot has run out of usage or lost its round 3 replies, the pages alone fill each entry. Routines and tools then stay empty rather than guessed.
