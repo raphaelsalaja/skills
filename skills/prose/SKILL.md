@@ -33,15 +33,35 @@ The reason is what the choice does for the person using it. "This makes it feel 
 
 Where a value exists, write the value. "A really fast spring" is `prose-specifics`. Words like seamless, robust, powerful, blazing and delightful are `prose-no-hype`.
 
-## Plain declarative sentences
+## Sentences carry their reasons
 
-One idea per sentence, at most 30 words. Split anything longer. That is `prose-short-sentences`.
+A fact travels with its consequence in the same sentence, joined by so, but or because. A reason left for the next sentence, or for the reader to supply, is `prose-link-the-reason`.
+
+There is no word limit. Length is judged by ear, and a sentence that needs a second read is split. A run of short sentences or fragments for emphasis is `prose-no-fragment-runs`.
+
+## Lists live in the sentence
+
+A list of two to four items goes inside one sentence, after a colon. A row of fragments standing in for that sentence is `prose-list-in-the-sentence`.
+
+When the items need explaining, each one carries its gloss in brackets: too much (every cell full), too little (a bare wireframe). Glosses split into separate sentences are `prose-gloss-in-brackets`.
+
+## Tell what happened
+
+Process is told as what the author did, in the past tense: I'd give it a short prompt and nothing else, then watch what came back. Present-tense advice with no account of doing it is `prose-tell-what-happened`.
+
+## Talk about the work, not at the reader
+
+Describe what the thing does and what the author did. Address the reader as you only when they are about to act, such as trying a demo. A run of instructions to the reader is `prose-fewer-you`.
+
+## Admit the limits of your own work
+
+Say in passing where the author's own work falls short, without apology: it still may not get there first time. A piece about the author's own work that claims no limits is `prose-admit-the-limits`.
 
 Delete throat-clearing such as "It's worth noting", "Let's dive in" and "Not just X, but Y". That is `prose-no-filler`.
 
 ## Asides sit in brackets
 
-An aside steps out of the argument for a moment: an admission, a credit or a joke. It sits in brackets, runs under 15 words and appears at most once a section.
+An aside steps out of the argument for a moment: an admission, a credit or a joke. It sits in brackets, runs under 15 words and appears at most once a section. A gloss on a list item is not an aside.
 
 An aside that carries the argument, or a second aside in one section, is `prose-asides`.
 
@@ -61,7 +81,7 @@ An inference reads as one: "I think", "my guess is", "the way I read it". A moti
 
 ## Never invent the author's experience
 
-Writing for someone else, add no anecdote, feeling or attempt they did not describe. That covers asides and footnote stories too. "At first I wondered why" is `prose-no-invented-experience`. Ask for the real moment or leave the line out.
+Writing for someone else, add no anecdote, feeling or attempt they did not describe. That covers asides, footnote stories, accounts of what happened and admitted limits. "At first I wondered why" is `prose-no-invented-experience`. Ask for the real moment or leave the line out.
 
 ## Edit the words, keep the voice
 
@@ -73,11 +93,15 @@ Running text uses British spelling: colour, behaviour, centre, grey, favourite, 
 
 ## Show what has shape
 
-A sequence, a comparison or a set of values goes in a list, table or figure. Five shortcuts strung through one paragraph is `prose-show-the-shape`.
+A sequence of steps, a comparison or a set of values goes in a list, table or figure. Five shortcuts strung through one paragraph is `prose-show-the-shape`.
 
-## End on the principle
+## Captions say what happens
 
-Close each section on the rule its details point to, in one sentence. A closing paragraph that repeats the headings is `prose-end-on-the-principle`.
+A caption under a demo or figure describes what happens in it, in order: the menu opens, an item is picked, it all resets. A caption that states the lesson is `prose-caption-the-action`.
+
+## End modestly
+
+The last line of a piece is plain: what the work does for now, what is next or how the author feels about it. A punchline, an aphorism or a summary of the headings as the ending is `prose-modest-ending`.
 
 ## The pair
 
@@ -91,7 +115,13 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `prose-reason-for-the-person` | `This makes it feel snappy.` | `The height moves on the same keystroke that changed the list.` |
 | `prose-specifics` | `A really fast spring` | `A stiffness of 20000, settled in about a tenth of a second` |
 | `prose-no-hype` | `A seamless, powerful menu` | `A menu that never makes you wait` |
-| `prose-short-sentences` | One 45-word sentence | Two sentences under 30 words |
+| `prose-link-the-reason` | `Rows have fixed heights. The frame never measures itself.` | `Rows have fixed heights, so the frame never has to measure itself.` |
+| `prose-no-fragment-runs` | `The page works. You don't want to stay.` | `The page works, but nobody wants to stay on it.` |
+| `prose-list-in-the-sentence` | `Spacing that's off. A hover that scales. Copy that says nothing.` | `What it misses is small: spacing that's off, a hover that scales and copy that says nothing.` |
+| `prose-gloss-in-brackets` | `The first failure is too much. Every cell is full.` | `It goes wrong as too much (every cell full) or too little (a bare wireframe).` |
+| `prose-tell-what-happened` | `Record it, then rebuild it beside the recording.` | `I'd record it, then rebuild it beside the recording until I couldn't tell them apart.` |
+| `prose-fewer-you` | `You open the menu. You watch it grow. You notice the corner.` | `The menu grows from the corner of the button that opened it.` |
+| `prose-admit-the-limits` | A breakdown of your own component that claims it handles everything | `It still drops frames on older phones.` |
 | `prose-no-filler` | `It's worth noting that rows are 46 tall.` | `Rows are 46 tall.` |
 | `prose-asides` | `Note that this is not a criticism of the team that built it.` | `(Not a knock on the team, who ship careful work.)` |
 | `prose-footnote-the-caveat` | `The list is pinned to the top, though at first it was centred and that moved every card.` | `The list is pinned to the top.[^1]` with the centred version in the footnote |
@@ -103,11 +133,12 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `prose-keep-the-voice` | `I thought I might try my hand` rewritten as `This project explores` | `I thought I'd try my hand` |
 | `prose-british-spelling` | `The color fades from the center.` | `The colour fades from the centre.` |
 | `prose-show-the-shape` | Five shortcuts in one paragraph | A keymap table |
-| `prose-end-on-the-principle` | `In summary, we covered anatomy, motion and keys.` | `Focus never leaves what you're typing.` |
+| `prose-caption-the-action` | `The second version has fewer things in it.` | `The card loses its gradient, its sparkle and its entrance, and the button answers a press.` |
+| `prose-modest-ending` | `The best tool is one you forget is there.` | `It's what I try to build, and I'm still getting there.` |
 
 ## Reporting
 
-**Severity.** `HIGH` is an invented experience, a guess stated as fact or an uncited claim. `MEDIUM` is a decision with no alternative, an adjective where a number exists, hype or filler. It is also an opener with no context, a breakdown with nobody in it or a rewritten voice. `LOW` is a long sentence, an American spelling, an inline caveat, a misused aside, prose that should be a table or a summary ending.
+**Severity.** `HIGH` is an invented experience, a guess stated as fact or an uncited claim. `MEDIUM` is a decision with no alternative, an adjective where a number exists, hype or filler. It is also an opener with no context, a breakdown with nobody in it or a rewritten voice. So is advice with no account of doing it, or own work with no limits. `LOW` is an unlinked reason, a fragment run, a list or gloss split into sentences or too much you. It is also an American spelling, an inline caveat, a misused aside, a lesson caption, prose that should be a table or a punchline ending.
 
 **Format.** One finding per root cause:
 
