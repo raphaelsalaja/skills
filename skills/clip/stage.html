@@ -1,0 +1,195 @@
+<!doctype html>
+<!--
+  Clip stage. Renders the white stage that sits over the recordings: each tile's frame, its label and any chips.
+  Open it in the driver's browser at the output size with deviceScaleFactor 1, render the layout, then screenshot it with a transparent background.
+
+    const stage = await browser.newPage({ viewport: { width: 1920, height: 1080 }, deviceScaleFactor: 1 });
+    await stage.goto(pathToFileURL("<skills>/clip/stage.html").href);
+    const rects = await stage.evaluate((layout) => window.__stage.render(layout), {
+      width: 1920,
+      height: 1080,
+      aspect: 16 / 9,
+      tiles: [{ label: "Before" }, { label: "After" }],
+    });
+    await stage.screenshot({ path: "clips/.work/stage-16x9.png", omitBackground: true });
+
+  render() returns one { x, y, width, height } per tile in output pixels, all even. Scale each recording to its rect,
+  overlay it on a #FFFFFF canvas, then overlay the stage PNG on top. The tiles show through transparent holes.
+
+  Layout fields:
+    width, height   The output size, such as 1080 by 1350.
+    aspect          The recordings' width over height. Every tile keeps it, so nothing is cropped or stretched.
+    tiles           One entry per recording, in reading order: { label, chips }.
+                    `label` sits above the tile. `chips` is [{ text, corner }] drawn inside it, corner one of
+                    "top-left", "top-right", "bottom-left" and "bottom-right".
+    bleed           true for one tile that fills the frame, with no margin, radius or shadow. Only its chips draw.
+                    Use it for a full-frame wipe or theme split.
+    columns         Optional. The grid picks the column count that gives the largest tiles when this is unset.
+    margin          White space around the grid, in pixels at a 1080 short side. 64 by default.
+    radius          Tile corner radius at the same scale. 16 by default.
+    shadow          "soft" by default, "deep" or "none". The hairline always draws.
+    font            Optional CSS font family for labels and chips, such as the app's own. `fontUrl` loads it first.
+
+  The stage is always #FFFFFF. Tiles separate from it with a hairline and a soft shadow, never a tinted backdrop.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Clip Stage</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        background: transparent;
+      }
+      canvas {
+        display: block;
+      }
+    </style>
+  </head>
+  <body>
+    <canvas></canvas>
+    <script>
+      const canvas = document.querySelector("canvas");
+      const even = (value) => Math.round(value / 2) * 2;
+
+      const roundRect = (context, x, y, width, height, radius) => {
+        context.beginPath();
+        context.roundRect(x, y, width, height, radius);
+      };
+
+      const shadows = {
+        none: null,
+        soft: { color: "rgb(0 0 0 / 0.08)", blur: 40, y: 12 },
+        deep: { color: "rgb(0 0 0 / 0.18)", blur: 64, y: 24 },
+      };
+
+      const grid = ({ width, height, aspect, tiles, columns, margin = 64 }, unit) => {
+        const padding = margin * unit;
+        const gap = 40 * unit;
+        const labelBand = tiles.some((tile) => tile.label) ? 50 * unit : 0;
+        const count = tiles.length;
+        let best = null;
+        const options = columns ? [columns] : Array.from({ length: count }, (_, index) => index + 1);
+        for (const cols of options) {
+          const rows = Math.ceil(count / cols);
+          const availableWidth = (width - padding * 2 - gap * (cols - 1)) / cols;
+          const availableHeight = (height - padding * 2 - gap * (rows - 1)) / rows - labelBand;
+          const tileWidth = Math.min(availableWidth, availableHeight * aspect);
+          if (!best || tileWidth > best.tileWidth) best = { cols, rows, tileWidth };
+        }
+        const tileWidth = even(best.tileWidth);
+        const tileHeight = even(best.tileWidth / aspect);
+        const blockWidth = best.cols * tileWidth + (best.cols - 1) * gap;
+        const blockHeight = best.rows * (tileHeight + labelBand) + (best.rows - 1) * gap;
+        const left = (width - blockWidth) / 2;
+        const top = (height - blockHeight) / 2;
+        return tiles.map((_, index) => {
+          const row = Math.floor(index / best.cols);
+          const inRow = Math.min(best.cols, count - row * best.cols);
+          const rowLeft = left + ((best.cols - inRow) * (tileWidth + gap)) / 2;
+          const col = index % best.cols;
+          return {
+            x: even(rowLeft + col * (tileWidth + gap)),
+            y: even(top + row * (tileHeight + labelBand + gap) + labelBand),
+            width: tileWidth,
+            height: tileHeight,
+          };
+        });
+      };
+
+      window.__stage = {
+        async render(layout) {
+          const { width, height, tiles, bleed = false, font = "system-ui, -apple-system, sans-serif", fontUrl } = layout;
+          if (fontUrl) {
+            const face = new FontFace(font, `url(${fontUrl})`);
+            document.fonts.add(await face.load());
+          }
+          await document.fonts.ready;
+
+          const unit = Math.min(width, height) / 1080;
+          canvas.width = width;
+          canvas.height = height;
+          const context = canvas.getContext("2d");
+          context.clearRect(0, 0, width, height);
+
+          const rects = bleed ? [{ x: 0, y: 0, width, height }] : grid(layout, unit);
+          const radius = bleed ? 0 : (layout.radius ?? 16) * unit;
+          const shadow = shadows[layout.shadow ?? "soft"];
+
+          if (!bleed) {
+            context.fillStyle = "#FFFFFF";
+            context.fillRect(0, 0, width, height);
+
+            if (shadow) {
+              context.save();
+              context.shadowColor = shadow.color;
+              context.shadowBlur = shadow.blur * unit;
+              context.shadowOffsetY = shadow.y * unit;
+              for (const rect of rects) {
+                roundRect(context, rect.x, rect.y, rect.width, rect.height, radius);
+                context.fill();
+              }
+              context.restore();
+            }
+
+            context.save();
+            context.globalCompositeOperation = "destination-out";
+            for (const rect of rects) {
+              roundRect(context, rect.x, rect.y, rect.width, rect.height, radius);
+              context.fill();
+            }
+            context.restore();
+
+            context.save();
+            context.strokeStyle = "rgb(0 0 0 / 0.1)";
+            context.lineWidth = Math.max(1, unit);
+            for (const rect of rects) {
+              roundRect(context, rect.x - 0.5, rect.y - 0.5, rect.width + 1, rect.height + 1, radius + 0.5);
+              context.stroke();
+            }
+            context.restore();
+
+            context.fillStyle = "#171717";
+            context.font = `500 ${28 * unit}px ${font}`;
+            context.textBaseline = "alphabetic";
+            tiles.forEach((tile, index) => {
+              if (!tile.label) return;
+              const rect = rects[index];
+              context.fillText(tile.label, rect.x + 2 * unit, rect.y - 18 * unit);
+            });
+          }
+
+          context.font = `500 ${24 * unit}px ${font}`;
+          context.textBaseline = "middle";
+          tiles.forEach((tile, index) => {
+            const rect = rects[index];
+            for (const chip of tile.chips ?? []) {
+              const inset = 20 * unit;
+              const chipHeight = 44 * unit;
+              const chipWidth = context.measureText(chip.text).width + 32 * unit;
+              const x = chip.corner.endsWith("right") ? rect.x + rect.width - inset - chipWidth : rect.x + inset;
+              const y = chip.corner.startsWith("bottom") ? rect.y + rect.height - inset - chipHeight : rect.y + inset;
+              context.save();
+              context.shadowColor = "rgb(0 0 0 / 0.12)";
+              context.shadowBlur = 16 * unit;
+              context.shadowOffsetY = 4 * unit;
+              context.fillStyle = "#FFFFFF";
+              roundRect(context, x, y, chipWidth, chipHeight, chipHeight / 2);
+              context.fill();
+              context.restore();
+              context.strokeStyle = "rgb(0 0 0 / 0.08)";
+              context.lineWidth = Math.max(1, unit);
+              roundRect(context, x + 0.5, y + 0.5, chipWidth - 1, chipHeight - 1, chipHeight / 2);
+              context.stroke();
+              context.fillStyle = "#171717";
+              context.fillText(chip.text, x + 16 * unit, y + chipHeight / 2 + unit);
+            }
+          });
+
+          return rects;
+        },
+      };
+    </script>
+  </body>
+</html>
