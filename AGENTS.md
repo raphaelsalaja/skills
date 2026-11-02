@@ -53,7 +53,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `copy` | Title Case labels, word count, one-line descriptions, status tense, em dashes and ellipses |
 | `prose` | Long-form posts and breakdowns: the opening context, first person, linked reasons, lists in the sentence, what happened, own limits, rejected options, exact values, asides and footnotes, sources and citations, marked guesses, British spelling, captions, the ending, the author's voice |
 | `defaults` | Scroll edges, shadows, surfaces, theme, focus and accessible names, hit areas, hover styles, links and URL state, forms, loading, type rendering, sound cues, hotkeys in inputs, dialogs |
-| `motion` | What animates, easing, durations, springs and gestures, exits and presence, cross-fades, reduced motion |
+| `motion` | What animates, easing, durations, springs and gestures, exits and presence, cross-fades, motion blur through the package, reduced motion |
 | `color` | Text and control contrast, composited measurement, scrims, role tokens, translucent neutrals, dark palettes, accent and status meaning |
 | `gather` | Asking to connect missing sources, finding references across the user's library, boards and pattern sites, judging them against the taste file, the linked board, learning from and saving picks |
 | `match` | Inspecting a named reference, computed values, state inventory, side-by-side proof |

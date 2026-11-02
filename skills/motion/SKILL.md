@@ -1,15 +1,17 @@
 ---
 name: motion
-description: Applies house motion for what animates, easing, durations, springs, gestures, exits and reduced motion.
+description: Applies house motion for what animates, easing, durations, springs, gestures, exits, motion blur and reduced motion.
 ---
 
 # Motion
 
-This skill holds how things move on every screen. It covers what animates, the curve and duration, gestures, exits and reduced motion.
+This skill holds how things move on every screen. It covers what animates, the curve and duration, gestures, exits, motion blur and reduced motion.
 
 ## Durations and curves are exact
 
 Use the project's motion tokens wherever they exist. Where none exists, the durations, curves and scales here are exact. Motion the user starts that runs past 300ms is a finding in any style.
+
+Motion blur draws with `@web-kits/motion-blur`, whose defaults are exact: a 180° shutter, Echo at one copy per 1.5px up to 16 copies and a 1.05 smear limit.
 
 Whether an animation should exist at all belongs to `restraint`. Taking an existing animation apart belongs to `deconstruct`. Whether it holds its frame rate belongs to `frames`. Surfaces, loading, hover styles and sound belong to `defaults`.
 
@@ -85,6 +87,38 @@ An icon that swaps in place, such as copy to copied, cross-fades. Scale runs `0.
 
 When a cross-fade between two states still reads as two objects, add `filter: blur(2px)` while it runs. Keep blur under 20px, which gets expensive in Safari. Two labels visibly overlapping mid-swap is `motion-blur-the-crossfade`.
 
+## Motion blur only where the eye cannot follow
+
+A screen already smears what the eye tracks, so added blur turns text into grey bars while someone reads it. Blur a thrown card, a dismissed sheet, a panel snapping in or a spinner. Blur on scrolling, a carousel page, a list sliding into place or text being read is `motion-blur-untracked-only`.
+
+Draw the streak with `useMotionBlur` in React and `motionBlur(element)` elsewhere. The package sizes it from speed, frame time and shutter, follows curves and clears it at rest. A hand-written `filter: blur()` or copy loop on a moving element is `motion-blur-package`. See [recipes.md](recipes.md#motion-blur).
+
+## The blur sits on what moves
+
+The package watches the host's own transform. A ref on a wrapper while its child animates draws nothing, and is `motion-blur-ref-on-mover`. With the `MotionBlur` component, animate the component itself and style what sits inside it.
+
+The host's first child is the layer, and the streak is drawn into it. Backgrounds, borders and shadows go on the layer or inside it. A background on the host stays sharp under the streak and is `motion-blur-transparent-host`.
+
+The techniques write the layer's transform, so the layer has none of its own. A tilt or scale on the layer is lost while it moves, which is `motion-blur-bare-layer`. Put it on an element inside.
+
+## Echo draws the streak
+
+Keep the default `echo()`. It is the only technique shaped like a camera's blur, and the only one that follows rotation, scale and curves. Reach for `squeeze()`, `svg()` or `smear()` only when a `frames` trace shows the copies cost too much.
+
+Those three blur the whole layer one amount in one direction, but a spinning element's edges move at different speeds. A spinner or orbit on anything but Echo is `motion-blur-echo-for-turns`. A smear limit past 1.05 on anything with text is `motion-blur-smear-limit`.
+
+`squeeze()` and `svg()` turn the layer and its child in opposite directions, so the layer wraps exactly one element. A layer with two children throws, and is `motion-blur-one-child`.
+
+## Curves pass a path
+
+For a position set by hand, such as a physics loop, call `blur.render(previous, current)` once a frame. When the motion bends, pass a path instead so the copies sit along the curve. Two transforms on an orbit is `motion-blur-follow-path`. See [recipes.md](recipes.md#motion-blur-by-hand).
+
+A demo played at a quarter of its speed multiplies the shutter by four, so `shutter: 720` keeps the full-speed streak. A slow-motion control left at 180° is `motion-blur-slowdown-shutter`.
+
+## Custom techniques undo everything
+
+A custom technique returns a painter whose `clear` removes every style `paint` set, and whose `destroy` removes anything it added to the page. A technique built inside a render also sets `key`, so an equal one does not rebuild the painter. A filter left on a still element, or an inline technique with no `key`, is `motion-blur-custom-technique`. See [recipes.md](recipes.md#custom-technique).
+
 ## Presses scale lightly
 
 A pressed control scales to `0.98`, and squash or stretch stays within `0.95–1.05`. `whileTap={{ scale: 0.8 }}` is `motion-press-scale`. List items stagger by less than 50ms each. `staggerChildren: 0.15` on a list is `motion-short-stagger`. A staged entrance that plays once, such as a title, text and actions, staggers by 100ms. Routine interactions never stagger, and a stagger never blocks input.
@@ -104,6 +138,8 @@ While a panel collapses, its content keeps its open width, so nothing reflows mi
 ## Reduced motion removes movement
 
 When `prefers-reduced-motion: reduce` matches, slides, scales and blurs become an opacity cross-fade. A sliding drawer that ignores the setting is `motion-reduced-motion`.
+
+Motion blur drops its streak under the setting while `reducedMotion` stays at `"user"`. `reducedMotion: "never"` is `motion-blur-reduced-motion`.
 
 ## The pair
 
@@ -132,6 +168,17 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `motion-tooltip-delay` | Each toolbar tooltip waiting the full delay | The first waits, its neighbours open at once |
 | `motion-icon-crossfade` | `{copied ? <CheckIcon /> : <CopyIcon />}` | Both icons cross-fading with scale and blur |
 | `motion-blur-the-crossfade` | Two button labels overlapping mid-swap | `filter: blur(2px)` while the swap runs |
+| `motion-blur-untracked-only` | Blur on a carousel page swipe | No blur, or blur only on the flung card |
+| `motion-blur-package` | `filter: blur(8px)` while a card flies | `useMotionBlur()` on the card |
+| `motion-blur-ref-on-mover` | `ref={blur.ref}` on a wrapper around the `motion.div` | `ref={blur.ref}` on the `motion.div` |
+| `motion-blur-transparent-host` | `bg-white rounded-xl` on the host | The same classes on its first child |
+| `motion-blur-bare-layer` | `rotate-3` on the layer | `rotate-3` on an element inside the layer |
+| `motion-blur-echo-for-turns` | `technique: squeeze()` on a spinner | `technique: echo()` |
+| `motion-blur-smear-limit` | `smear({ limit: 1.3 })` on a card with text | `smear()` at its 1.05 default, or `echo()` |
+| `motion-blur-one-child` | `squeeze()` on a layer holding an icon and a label | The icon and label wrapped in one element |
+| `motion-blur-follow-path` | `blur.render(previous, current)` on an orbit | `blur.render((t) => at(angle + t * speed * frameTime))` |
+| `motion-blur-slowdown-shutter` | A ¼× demo at `shutter: 180` | `shutter: 720` |
+| `motion-blur-custom-technique` | `clear() {}`, or `technique: ({ layer }) => …` inside a render | `clear()` removing every style `paint` set, and a `key` |
 | `motion-press-scale` | `whileTap={{ scale: 0.8 }}` | `whileTap={{ scale: 0.98 }}` |
 | `motion-short-stagger` | `staggerChildren: 0.15` | `staggerChildren: 0.03` |
 | `motion-exit-in-presence` | `{open && <motion.div exit={{ opacity: 0 }} />}` | The same element inside `<AnimatePresence>` |
@@ -139,14 +186,15 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `motion-measure-inner` | `ref` and `animate={{ height: bounds.height }}` on one node | The outer node animates, the inner node holds the `ref` |
 | `motion-hold-content-size` | `w-full` content inside a collapsing sidebar | `w-64` content that keeps its width |
 | `motion-reduced-motion` | A drawer that slides under reduced motion | An opacity cross-fade |
+| `motion-blur-reduced-motion` | `reducedMotion: "never"` | The default `"user"` |
 
 ## Reporting
 
-**Severity.** `HIGH` breaks use or access. That is an exit that never plays, a container that measures itself or a gesture with no button.
+**Severity.** `HIGH` breaks use or access. That is an exit that never plays, a container that measures itself or a gesture with no button. It is also motion blur on text being read, or a layer with two children under `squeeze()` or `svg()`.
 
-`MEDIUM` is a sliding page, a replayed entrance, a gesture on a fixed curve or motion over 300ms. It is also motion on typing, a wrong curve, `transition: all`, keyframes on toggled state or ignored reduced motion. It is also a conditionally rendered dialog, content reflowing as it collapses, a `scale(0)` entrance or a sheet that ignores a flick.
+`MEDIUM` is a sliding page, a replayed entrance, a gesture on a fixed curve or motion over 300ms. It is also motion on typing, a wrong curve, `transition: all`, keyframes on toggled state or ignored reduced motion. It is also a conditionally rendered dialog, content reflowing as it collapses, a `scale(0)` entrance or a sheet that ignores a flick. It is also a hand-written blur, a blur ref on a wrapper, an opaque host or a transform on the layer. It is also a spinner on anything but Echo, a smear past 1.05 or `reducedMotion: "never"`.
 
-`LOW` is a faded hover colour, a heavy press scale or a long stagger. It is also motion from the wrong origin, a close as slow as its open, a slow tooltip or a hard icon swap. It is also a bare `ease-out`, an unblurred cross-fade or a drawer with no edge friction.
+`LOW` is a faded hover colour, a heavy press scale or a long stagger. It is also motion from the wrong origin, a close as slow as its open, a slow tooltip or a hard icon swap. It is also a bare `ease-out`, an unblurred cross-fade or a drawer with no edge friction. It is also two transforms on a curve, a slowed demo at the full-speed shutter or a custom technique that leaves styles or rebuilds.
 
 **Format.** One finding per root cause:
 
@@ -154,4 +202,4 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 file:line - [rule-id] what is wrong
 ```
 
-Then a `Rule | Count | Severity` summary. `Block` when any `HIGH` remains, `Approve` otherwise. Never `Approve` a file you did not read. Play the motion when a check depends on timing, and mark every check you could not run as `Not verified`.
+Then a `Rule | Count | Severity` summary. `Block` when any `HIGH` remains, `Approve` otherwise. Never `Approve` a file you did not read. Play the motion when a check depends on timing, and freeze it at its fastest point when a check depends on a streak. Mark every check you could not run as `Not verified`.

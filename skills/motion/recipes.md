@@ -161,3 +161,85 @@ function AnimatedHeight({ children }: { children: React.ReactNode }) {
 ```
 
 The callback ref attaches the observer when the node mounts. The `auto` guard stops the first frame growing from zero. When the outer node collapses to `0`, give the inner node its open size, such as `width: 256px`, so its content does not reflow. Keep this for content that changes size, such as a label swap or an accordion, not for static sections.
+
+## Motion blur
+
+```sh
+npm install @web-kits/motion-blur
+```
+
+The element that moves is the host. Its first child is the layer, which holds everything visible.
+
+```tsx
+import { useMotionBlur } from "@web-kits/motion-blur/react";
+
+const blur = useMotionBlur();
+
+<motion.div ref={blur.ref} animate={{ x: open ? 320 : 0 }}>
+  <div className="card-face">…</div>
+</motion.div>;
+```
+
+Without React it is one call, `motionBlur(element)`. CSS transitions, CSS animations, the Web Animations API and inline transform changes are picked up on their own.
+
+`MotionBlurProvider` sets the technique, shutter and reduced motion for a tree. Options on a blur win, and `shutter={0}` on a provider turns off every blur inside it.
+
+```tsx
+import { echo } from "@web-kits/motion-blur";
+import { MotionBlurProvider } from "@web-kits/motion-blur/react";
+
+<MotionBlurProvider technique={echo({ spacing: 1 })} shutter={270}>
+  <App />
+</MotionBlurProvider>;
+```
+
+| Technique | Options | Draws |
+| --- | --- | --- |
+| `echo()` | `spacing = 1.5`, `copies = 16` | Copies of the layer along the path, added with `plus-lighter` |
+| `squeeze()` | `factor = 16` | One CSS blur stretched along the motion |
+| `svg()` | | `feGaussianBlur` along one axis, turned to the motion |
+| `smear()` | `limit = 1.05` | The layer stretched along the motion, with no blur |
+
+## Motion blur by hand
+
+For a physics loop or any position you work out yourself, call `render` once a frame. The first call stops the automatic watching.
+
+```ts
+blur.render(previous, current);
+```
+
+When the motion bends, pass a path. `t` is in frames, so `path(-0.5)` is half a frame back.
+
+```ts
+element.style.transform = at(angle).toString();
+blur.render((t) => at(angle + t * speed * frameTime));
+```
+
+## Custom technique
+
+```ts
+import { sigmaFor, type Technique } from "@web-kits/motion-blur";
+
+const soft: Technique = ({ layer }) => ({
+  paint({ dx, dy }) {
+    layer.style.filter = `blur(${sigmaFor(Math.hypot(dx, dy))}px)`;
+  },
+  clear() {
+    layer.style.removeProperty("filter");
+  },
+});
+soft.key = "soft";
+```
+
+Each frame carries `path(t)`, `matrix`, `dx` and `dy` in the element's own px, `streak` in screen px, and `origin`, `width` and `height`.
+
+## Checking motion blur
+
+Freeze the motion at its fastest point, with a ¼× control or a paused timeline. At that point:
+
+- Sideways motion keeps its top and bottom edges sharp, and only the leading and trailing edges soften.
+- Echo shows no steps at the streak length you ship.
+- The streak at 60Hz is twice as long as at 120Hz.
+- Nothing stays blurred once the element stops.
+
+`onFrame` reports the streak length in px each frame. A background tab throttles `requestAnimationFrame` and stretches every streak, so check in a focused tab.
