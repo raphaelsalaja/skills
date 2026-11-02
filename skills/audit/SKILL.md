@@ -35,7 +35,7 @@ Check the scope against each skill and record what you inspected.
 | `copy` | Every label, description and status string |
 | `prose` | Each changed post, breakdown or design note, when writing is in scope |
 | `defaults` | Surfaces, type, sound, focus, names, forms, loading, hotkeys and dialogs |
-| `motion` | Every transition, animation, gesture and exit |
+| `motion` | Every transition, animation, gesture, exit and motion blur |
 | `color` | Text and field contrast in each theme, tokens inside components and the accent |
 | `gather` | Each reference board: platform, links and the part to take |
 | `match` | Each named reference, when the work copies one |
