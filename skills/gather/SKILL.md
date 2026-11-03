@@ -5,7 +5,7 @@ description: Collects references from the user's own library, their boards and p
 
 # Gather
 
-This skill collects inspiration before a design is built or reworked. It searches the user's own saves first, then wider sources, and returns one board where every reference links back and names what to take.
+This skill collects inspiration before a design is built or reworked. It searches every source at once, fills one board as results land and links every reference back with the part to take.
 
 ## Evidence for a choice, not a style to copy
 
@@ -17,73 +17,69 @@ Use it when the user asks for inspiration, references or "inspo", or says a scre
 
 Write one line naming the surface, its platform and what to look for: layout, navigation, density, type, colour, motion or overall taste. A search with no target is `gather-name-the-brief`.
 
+Split the brief into its parts, such as "top bar", "empty state" and "row density", and give each part two or three synonyms. Queries come from the parts, two or three words each. One long query carrying the whole brief is `gather-split-the-brief`.
+
 Search on the same platform as the work. A desktop or web app takes web and desktop references. Mobile screens for a desktop app is `gather-same-platform`.
 
 ## 2. Start with what the user gave
 
-Open the tabs, screenshots, links and design files already in the thread before searching anywhere. Searching a pattern library while the user's screenshots sit open in the browser is `gather-start-with-given`.
+Open the tabs, screenshots, links and design files already in the thread before searching anywhere. They seed the image searches in step 4. Searching a pattern library while the user's screenshots sit open in the browser is `gather-start-with-given`.
 
-## 3. Search the user's own taste first
+## 3. Offer to connect what is missing
 
-Search the user's own library and boards before public sources. Their saves already reflect their taste. Starting from a public library when their own library holds matching saves is `gather-own-library-first`.
+Check which of Pond, marked.dev, Are.na, Cosmos, Pinterest and Mobbin are connected. Ask once, with each missing source as its own option and carrying on as another. A question that drops a missing source, or searching past one without asking, is `gather-offer-to-connect`.
 
-Before searching, check which of Pond, marked.dev, Are.na, Cosmos, Pinterest and Mobbin are connected. Ask once whether to connect the missing ones, with carrying on as one of the answers. Searching past a missing source without asking is `gather-offer-to-connect`.
+When none are connected, wait for the answer. How to connect each source is in [sources.md](sources.md).
 
-Use the question tool when there is one, with each missing source as its own option. A question that drops a missing source is `gather-list-the-sources`. When none are connected, wait for the answer. How to connect each source is in [sources.md](sources.md).
+## 4. Search every source at once
 
-## 4. Go wide
+Start one agent per connected source, or run their searches as parallel calls where agents are unavailable. Each writes `candidates/<source>.json` in the shape [sources.md](sources.md#candidates) shows. Searching one source after another is `gather-parallel-sources`.
 
-Pull from at least three sources. Pattern libraries show flows and screens. Curated galleries show finished sites and brand work, picked by hand. Boards and saves show taste: type, colour, photography and mood. A board drawn from one app is `gather-go-wide`.
+The user's own saves lead each group. A board with nothing from Pond or marked.dev while either holds matches is `gather-own-library-first`.
 
-Gather the number asked for. When the user asks for more, return new references and leave out those already shown. Repeats under "50 more" is `gather-enough-to-choose`.
+Pull from at least three sources. Pattern libraries show flows and screens, curated galleries show finished work and boards show taste. A board drawn from one app is `gather-go-wide`.
 
-## 5. Judge every candidate by eye
+Seed image searches from what the user gave and from their closest saves, through Pond `visual` and Cosmos. Text queries alone when the user shared screenshots is `gather-search-by-image`.
 
-A separate agent makes the cut. It gets the candidates, the brief and `.gather/taste/taste.md`, never the queries or sources behind them. The searching agent cutting its own finds is `gather-separate-judge`.
+When the best reference is a shipped product, open its live page and screenshot the part. A gallery thumbnail of a site that is one click away is `gather-capture-live`.
 
-Open each candidate at full resolution, crop to the part the brief names and look at that. A reference kept on its title, metadata or a preview is `gather-look-at-every-image`.
+Pull about twice the number asked, then cut. When the user asks for more, leave out every url already on the board. Repeats under "50 more" is `gather-enough-to-choose`.
 
-Compare each crop side by side with the closest Yes and No entries, and never give it a score. A win counts only when it holds with the two images swapped. A 1–10 rating, or a win taken in one order, is `gather-compare-not-score`.
+## 5. Collect into one board
 
-Pull about three times the number asked, then cut. Cut what shares a reason under No. A candidate kept against a No reason is `gather-judge-against-taste`.
+Run the collector once the first candidates land and open the board straight away. It copies the board page, downloads every image and video and fills the board live as agents finish.
 
-Cut only clear misses. When two references sit close, both stay on the board and the user decides. A close call settled by the agent is `gather-cut-clear-misses`.
-
-While the taste file holds fewer than 40 entries, show twice the number asked so picks fill it faster. Twenty shown against a six-entry file is `gather-warm-up-taste`.
-
-With no taste file yet, judge against the brief and start the file from the first picks.
-
-## 6. Note the part and the link
-
-Each reference gets one line naming the part to take, such as "the top bar" or "the empty state". A reference with no note is `gather-name-the-part`. Each one keeps its source link, so the user can open the original. An image with no link is `gather-link-every-reference`. Mark each reference `Shipped` or `Concept` in its `details`. A concept shot shown as a shipped product is `gather-concept-or-shipped`.
-
-## 7. Build one board and open it
-
-Copy [board.html](board.html) to `.gather/<brief>/index.html`, an ignored folder and never the source tree. Write `board.js` beside it in the shape its header comment shows, with images in `img/`, then open it. Links pasted in chat instead of a board is `gather-one-board`.
-
-The board's look ships with the skill, so write data only. A page with its own markup or styles is `gather-shipped-board`.
-
-Name each group in two or three words of Title Case, such as "Agent Activity", and put the detail in its note. A group named like a sentence is `gather-short-group-names`.
-
-## 8. Learn from the picks
-
-The user marks picks with Pick on the board and pastes them back with Copy Picks. Add each pick under Yes in `.gather/taste/taste.md`, copying its image into `.gather/taste/img/`. Then ask once what makes the picks right and what the rest got wrong. Write each answer under No beside the references it names. Picks taken with the taste file unchanged is `gather-grow-taste`.
-
-```md
-## Yes
-
-- ![](img/4c03063e.jpg) [Linear](https://mobbin.com/screens/4c03063e) - type does the work, no decoration
-
-## No
-
-- ![](img/9f12ab07.jpg) [Acme](https://acme.com) - gradient blob hero, reads as a template
+```sh
+node <skill>/collect.mjs .gather/<brief> --serve
 ```
 
-Every entry holds the image, its link and the reason in the user's words. An entry with no reason, or the board note in place of the user's words, is `gather-taste-reasons`.
+`.gather/` stays out of version control. Write the title, brief and group order to `.gather/<brief>/board.json` as [sources.md](sources.md#board) shows. Links pasted in chat instead of a board is `gather-one-board`.
 
-## 9. Save what the user keeps
+The collector and the board ship with the skill, so a run writes data only. A hand-written board page, or a per-run script that downloads or builds, is `gather-shipped-collector`.
 
-When the user asks to save the picks, send them where they say: their library, a channel or a board. Read the destination's naming first and match it. A new channel named "FW 26 🔥" beside `fashion / inspiration / 2026 / fall winter` is `gather-match-the-naming`.
+## 6. Look at every reference
+
+Open each downloaded file and look at the part the brief names. A reference kept on its title, metadata or a preview is `gather-look-at-every-image`.
+
+Cut only clear misses, by adding their url to `cut` in `board.json`. When two references sit close, both stay and the user decides. A close call settled by the agent is `gather-cut-clear-misses`.
+
+Each reference gets one note naming the part to take, such as "the top bar". A reference with no note is `gather-name-the-part`. Each keeps its source link. An image with no link is `gather-link-every-reference`.
+
+Mark each reference `Shipped` or `Concept` under `Kind` in its `details`. A concept shot shown as a shipped product is `gather-concept-or-shipped`.
+
+Name each group in two or three words of Title Case, such as "Agent Activity", and put the detail in its description. A group named like a sentence is `gather-short-group-names`.
+
+When the cut is done, run the collector once more with `--done` so the board stops reloading.
+
+## 7. Act on what comes back
+
+The board copies three prompts. Copy Picks returns the picks with the user's notes, which become the brief for the next step. More Like This returns one reference. Save Picks returns the picks to save.
+
+For More Like This, seed an image search from that reference and keep to its group, with every url on the board left out. A text search on its title is `gather-more-from-the-pick`.
+
+## 8. Save what the user keeps
+
+Send picks where the user says: their library, a channel or a board. Read the destination's naming first and match it. A new channel named "FW 26 🔥" beside `fashion / inspiration / 2026 / fall winter` is `gather-match-the-naming`.
 
 Check for each item before adding it. A second copy of a saved item is `gather-no-duplicates`. When a source needs a login or a CAPTCHA, stop and say which one. Working around a login is `gather-ask-at-login`.
 
@@ -94,34 +90,36 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | Rule | Broken | Replacement |
 | --- | --- | --- |
 | `gather-name-the-brief` | "Searching settings pages" | "Desktop settings page, looking for grouping and density" |
+| `gather-split-the-brief` | `query: "desktop settings page with grouped dense options"` | `"settings groups"`, `"preferences list"`, `"dense settings"` |
 | `gather-same-platform` | iOS screens for a desktop app | `platform: "web"` and desktop apps |
 | `gather-start-with-given` | A pattern-library search while the user's tabs are open | The open tabs read first |
-| `gather-own-library-first` | A public library searched first | The user's library searched first, then wider |
 | `gather-offer-to-connect` | Pond searched alone while marked.dev and Mobbin sit unconnected | "Connect marked.dev or Mobbin, or carry on with Pond?" |
-| `gather-list-the-sources` | "Connect your accounts, or download Pond" | Each missing source named as its own option |
+| `gather-parallel-sources` | Pond, then Mobbin, then Cosmos, one after another | One agent per source, started together |
+| `gather-own-library-first` | A board of Mobbin screens while Pond holds matches | The user's saves first in each group |
 | `gather-go-wide` | Twenty screens from one app | Saves, boards and a pattern library |
-| `gather-enough-to-choose` | "50 more" returns the first 20 again | 50 new references, earlier ids excluded |
-| `gather-separate-judge` | The searching agent cutting its own finds | A second agent cuts from the candidates, the brief and `taste.md` |
-| `gather-look-at-every-image` | A screen kept on its title or a preview | The top bar cropped at full resolution and looked at |
-| `gather-compare-not-score` | "This one is a 7 out of 10" | Beats the closest Yes entry in both orders |
-| `gather-judge-against-taste` | A gradient blob hero kept while No lists one | Cut, it shares "gradient blob hero, reads as a template" |
+| `gather-search-by-image` | Text queries while the user's screenshot sits in the thread | `search_library` with `visual` seeded from it |
+| `gather-capture-live` | A Land-book thumbnail of linear.app | A screenshot of the live top bar, linked to linear.app |
+| `gather-enough-to-choose` | "50 more" returns the first 20 again | 50 new references, earlier urls left out |
+| `gather-one-board` | Twenty links pasted in chat | `.gather/settings/` served and opened, grouped by idea |
+| `gather-shipped-collector` | A `build.mjs` written for this run | `node collect.mjs .gather/settings --serve` |
+| `gather-look-at-every-image` | A screen kept on its title or a preview | The downloaded file opened and the top bar looked at |
 | `gather-cut-clear-misses` | Two close references, one cut by the agent | Both on the board for the user |
-| `gather-warm-up-taste` | 20 shown against a six-entry taste file | 40 shown until the file holds 40 entries |
 | `gather-name-the-part` | A screenshot with no note | "Take the grouped list, not the colours" |
 | `gather-link-every-reference` | An image with no source | The image linked to its original |
 | `gather-concept-or-shipped` | A Dribbble concept shown as a product | `details: { Kind: "Concept" }` |
-| `gather-one-board` | Twenty links pasted in chat | `.gather/settings/index.html` opened, grouped by idea |
-| `gather-shipped-board` | A board page written from scratch | `board.html` copied, only `board.js` written |
 | `gather-short-group-names` | "Activity: thinking, tool calls and steps" | "Agent Activity" |
-| `gather-grow-taste` | Picks pasted back, `taste.md` unchanged | Picks under Yes, the user's reasons for the rest under No |
-| `gather-taste-reasons` | `- ![](img/4c03063e.jpg)` | `- ![](img/4c03063e.jpg) [Linear](https://mobbin.com/screens/4c03063e) - type does the work` |
+| `gather-more-from-the-pick` | More Like This searched as "Linear settings" | An image search seeded from the picked screen |
 | `gather-match-the-naming` | A new channel named "FW 26 🔥" | `fashion / inspiration / 2026 / fall winter` |
 | `gather-no-duplicates` | The same pin added twice | Existing items checked and skipped |
 | `gather-ask-at-login` | A login worked around | "Pinterest needs you to sign in" |
 
 ## Reporting
 
-**Severity.** `HIGH` is a whole look copied when one part was asked for, or items saved twice or under the wrong name. `MEDIUM` is the wrong platform, one source only, a board with no links, a hand-written board or a search that skipped the connect question. It is also a reference kept unseen or against the taste file, a score in place of a comparison or a self-judged cut. So is a close call settled by the agent, a concept shown as shipped or picks left out of the taste file. `LOW` is a reference with no note on what to take, a long group name or a taste entry with no reason. So is a short board while the taste file warms up.
+**Severity.** `HIGH` is a whole look copied when one part was asked for, or items saved twice or under the wrong name.
+
+`MEDIUM` is the wrong platform, one source only, sources searched in turn, a board with no links or a hand-written board or build script. It is also a search that skipped the connect question or the user's own saves. So is a reference kept unseen, a close call settled by the agent or a concept shown as shipped.
+
+`LOW` is one long query, text search where an image search fits or a gallery thumbnail of a live site. So is a reference with no note, a long group name, repeats under "more" or More Like This searched by title.
 
 **Format.** One finding per root cause, citing the request when no file applies:
 
