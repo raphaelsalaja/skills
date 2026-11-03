@@ -38,6 +38,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**alignment**](skills/alignment/SKILL.md): Measures a running page for edges, gaps, centring and radii that **miss by a pixel or two**, then judges visual weight and returns a numbered report with proof. User-invoked.
 - [**keyboard**](skills/keyboard/SKILL.md): Walks a running page with **the keyboard alone**, records every focus stop and reports controls it cannot reach, see or operate. User-invoked.
 - [**frames**](skills/frames/SKILL.md): Records **a performance trace** of one interaction on a throttled CPU, names what drops frames or delays input, then proves the fix with a second trace. User-invoked.
+- [**bones**](skills/bones/SKILL.md): Gives every async view a **layout-matched skeleton** from its loaded layout, times the cross-fade and proves it with a side-by-side recording.
 - [**avatar**](skills/avatar/SKILL.md): Draws any object as **a flat character with two capsule eyes**, then animates its whole body so it glances, blinks, breathes, follows the pointer and falls asleep. User-invoked.
 - [**bots**](skills/bots/SKILL.md): Turns chosen Grok Bots into **a shakeable pile**, portfolio cards and an org chart page, each with a link to copy the bot, with private details stripped. User-invoked.
 - [**sketchbook**](skills/sketchbook/SKILL.md): Generates a daily batch of interaction experiments in the project's own stack as **live tiles you keep or kill**, learning your taste with every batch. User-invoked.
@@ -51,7 +52,7 @@ npx skills add raphaelsalaja/skills
 
 ## Use a skill
 
-Principle skills and `verify`, `gather`, `match`, `rule`, `viewports` and `icons` apply on their own when the work calls for them. Call the user-invoked ones by name:
+Principle skills and `verify`, `gather`, `match`, `rule`, `viewports`, `icons` and `bones` apply on their own when the work calls for them. Call the user-invoked ones by name:
 
 ```text
 /ship
