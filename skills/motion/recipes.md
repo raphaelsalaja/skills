@@ -105,6 +105,26 @@ Run `dampen` on the distance dragged past a boundary, so the sheet slows rather 
 
 Keep `bounce` at `0`. Without a motion library, keep both icons in the DOM and cross-fade them over `300ms` with `cubic-bezier(0.2, 0, 0, 1)`. An icon that changes on every hover or tab switch swaps instantly instead.
 
+## Icon morph
+
+```tsx
+const reduce = useReducedMotion();
+const paths = copied ? checkPaths : copyPaths;
+
+<svg viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth={1.5} aria-hidden>
+  {paths.map((d, index) => (
+    <motion.path
+      key={index}
+      initial={false}
+      animate={{ d }}
+      transition={reduce ? { duration: 0 } : { duration: 0.24, ease: [0.77, 0, 0.175, 1] }}
+    />
+  ))}
+</svg>
+```
+
+Both icons share one morph form, so path `index` in one meets path `index` in the other. Key the paths by index, never by icon, or they remount instead of morphing. Under reduced motion, wrap the swap in the cross-fade above. Without a motion library, `transition: d 240ms cubic-bezier(0.77, 0, 0.175, 1)` morphs in browsers that animate `d`. Elsewhere it swaps at once.
+
 ## Exits
 
 ```tsx

@@ -83,6 +83,8 @@ The first tooltip in a group opens after a delay. Its neighbours open at once an
 
 An icon that swaps in place, such as copy to copied, cross-fades. Scale runs `0.25` to `1`, opacity `0` to `1` and blur `4px` to `0`. A hard swap is `motion-icon-crossfade`. See [recipes.md](recipes.md#icon-swap).
 
+Two icons in the morph form from `icons` morph instead, animating each path's `d` as a small state change on the movement curve. Under reduced motion they cross-fade. A cross-fade between two morph-form icons is `motion-icon-morph`. See [recipes.md](recipes.md#icon-morph).
+
 ## Blur bridges a cross-fade
 
 When a cross-fade between two states still reads as two objects, add `filter: blur(2px)` while it runs. Keep blur under 20px, which gets expensive in Safari. Two labels visibly overlapping mid-swap is `motion-blur-the-crossfade`.
@@ -167,6 +169,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `motion-no-motion-on-repeat` | `animate={{ scale: [1, 1.02, 1] }}` on each keystroke | No motion on the input |
 | `motion-tooltip-delay` | Each toolbar tooltip waiting the full delay | The first waits, its neighbours open at once |
 | `motion-icon-crossfade` | `{copied ? <CheckIcon /> : <CopyIcon />}` | Both icons cross-fading with scale and blur |
+| `motion-icon-morph` | Two morph-form icons cross-fading | Each `motion.path` animating `d` to its partner |
 | `motion-blur-the-crossfade` | Two button labels overlapping mid-swap | `filter: blur(2px)` while the swap runs |
 | `motion-blur-untracked-only` | Blur on a carousel page swipe | No blur, or blur only on the flung card |
 | `motion-blur-package` | `filter: blur(8px)` while a card flies | `useMotionBlur()` on the card |

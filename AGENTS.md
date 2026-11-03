@@ -53,13 +53,13 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `copy` | Title Case labels, word count, one-line descriptions, status tense, em dashes and ellipses |
 | `prose` | Long-form posts and breakdowns: the opening context, first person, linked reasons, lists in the sentence, what happened, own limits, rejected options, exact values, asides and footnotes, sources and citations, marked guesses, British spelling, captions, the ending, the author's voice |
 | `defaults` | Scroll edges, shadows, surfaces, theme, focus and accessible names, hit areas, hover styles, links and URL state, forms, loading, type rendering, sound cues, hotkeys in inputs, dialogs |
-| `motion` | What animates, easing, durations, springs and gestures, exits and presence, cross-fades, motion blur through the package, reduced motion |
+| `motion` | What animates, easing, durations, springs and gestures, exits and presence, cross-fades and icon morphs, motion blur through the package, reduced motion |
 | `color` | Text and control contrast, composited measurement, scrims, role tokens, translucent neutrals, dark palettes, accent and status meaning |
 | `gather` | Asking to connect missing sources, parallel source agents, stopping at a usage limit, queries and image searches, live captures, the collector, the linked board, More Like This and saving picks |
 | `match` | Inspecting a named reference, computed values, state inventory, side-by-side proof |
 | `rule` | Writing a correction into the agent file, conflicts between rules, sweeping old breaks |
 | `viewports` | The width set, breakpoint edges, sideways scroll, clipped text, hover-only controls, short heights, doubled text |
-| `icons` | Missing glyphs, a measured spec, the grid, one skeleton, the lint, one sheet and the project's icon API |
+| `icons` | Missing glyphs, the spec measured from the whole set, the grid, the morph form, one skeleton, the lint, the shipped sheet and the project's icon API |
 | `ship` | Commits and their Conventional Commit messages, changesets, pushes, merges, pull requests per bug, releases, deploy checks |
 | `prototype` | Labelled real-code variants of one idea, pruning after the pick |
 | `lab` | Every state of real components forced open on one development page |
