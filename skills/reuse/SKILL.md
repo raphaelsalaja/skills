@@ -41,7 +41,7 @@ Read a primitive's documentation before using it, and use its current APIs. A gu
 
 ## Icons from the set, at native size
 
-Use the project's icon set at the size it was drawn for. A generated SVG, or an `18px` icon scaled to `12px`, is `reuse-icon-set-native-size`.
+Use the project's icon set at the size it was drawn for. A generated SVG, or an `18px` icon scaled to `12px`, is `reuse-icon-set-native-size`. A glyph the set lacks, drawn by `icons` and added to the shared icon package or folder, is not a finding.
 
 ## The pair
 
