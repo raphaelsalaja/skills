@@ -1,0 +1,60 @@
+--gray-1: light-dark(#ffffff, #080808);
+--gray-2: light-dark(#fafafa, #111111);
+--gray-3: light-dark(#f2f2f2, #1a1a1a);
+--gray-4: light-dark(#ebebeb, #222222);
+--gray-5: light-dark(#e3e3e3, #2a2a2a);
+--gray-10: light-dark(#6b6b6b, #8f8f8f);
+--gray-11: light-dark(#575757, #b4b4b4);
+--gray-12: light-dark(#080808, #ffffff);
+--blue: #02bbff;
+--red: light-dark(#d93036, #ff6369);
+--green: light-dark(#2b9a66, #3dd68c);
+--accent: var(--blue);
+--danger: var(--red);
+--success: var(--green);
+--text-primary: var(--gray-12);
+--text-secondary: color-mix(in oklab, var(--gray-12) 80%, var(--gray-11));
+--text-tertiary: var(--gray-11);
+--text-quaternary: var(--gray-10);
+--text-on-accent: light-dark(#ffffff, #080808);
+--border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
+--border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
+--background-primary: var(--gray-1);
+--background-secondary: var(--gray-2);
+--background-tertiary: light-dark(rgb(8 8 8 / 5%), rgb(255 255 255 / 8%));
+--background-hover: light-dark(rgb(8 8 8 / 8%), rgb(255 255 255 / 13%));
+--background-raised: light-dark(#ffffff, #1a1a1a);
+--background-control: light-dark(#ffffff, #222222);
+--background-overlay: light-dark(#ffffff, #111111);
+--fill-hover: light-dark(rgb(8 8 8 / 4%), rgb(255 255 255 / 6%));
+--shadow-border: 0 0 0 1px light-dark(rgb(0 0 0 / 7%), rgb(255 255 255 / 7%));
+--shadow-default:
+  inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+  0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+  0 1px 1px -1px light-dark(rgb(0 0 0 / 10%), transparent),
+  0 1px 2px 0 light-dark(rgb(0 0 0 / 5%), transparent);
+--shadow-large:
+  0 0 0 0.5px light-dark(oklab(0.802 0 0 / 0.297), transparent),
+  0 0 0 1px light-dark(transparent, oklab(0.463 0 0 / 0.303)),
+  0 2px 3px -2px light-dark(rgb(0 0 0 / 6.3%), rgb(0 0 0 / 15%)),
+  0 3px 12px -4px light-dark(rgb(0 0 0 / 10%), transparent),
+  0 4px 16px -8px light-dark(rgb(0 0 0 / 5%), transparent),
+  0 3px 8px -2px light-dark(transparent, rgb(0 0 0 / 40%)),
+  0 4px 12px -4px light-dark(transparent, rgb(0 0 0 / 50%));
+--shadow-extra-large:
+  inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+  0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+  0 8px 40px 0 rgb(0 0 0 / 5%),
+  0 12px 32px -16px rgb(0 0 0 / 15%);
+--font-sans: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+--font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+--font-weight-400: "wght" 400, "opsz" 14;
+--font-weight-500: "wght" 500, "opsz" 14;
+--ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+--ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+--ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+--duration-snappy: 220ms;
+--duration-exit: 160ms;
+--radius-control: 8px;
+--radius-menu: 12px;
+--radius-panel: 16px;

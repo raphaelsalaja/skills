@@ -1,0 +1,42 @@
+@property --fade-start {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@property --fade-end {
+  syntax: "<length>";
+  inherits: false;
+  initial-value: 0px;
+}
+
+@keyframes scroll-fade {
+  0% {
+    --fade-start: 0px;
+    --fade-end: 24px;
+  }
+  10% {
+    --fade-start: 24px;
+  }
+  90% {
+    --fade-end: 24px;
+  }
+  100% {
+    --fade-start: 24px;
+    --fade-end: 0px;
+  }
+}
+
+.scroll-fade {
+  mask-image:
+    linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+    linear-gradient(black, black),
+    linear-gradient(black, black);
+  mask-clip: border-box, border-box, no-clip;
+  mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+  mask-position: 0 0, 0 0, -64px -64px;
+  mask-repeat: no-repeat;
+  mask-composite: add, exclude;
+  animation: scroll-fade linear both;
+  animation-timeline: scroll(self);
+}

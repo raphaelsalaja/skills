@@ -4,7 +4,7 @@ This file is the single source of guidance for coding agents working in this rep
 
 ## What this repository is
 
-A collection of agent skills for building interfaces with coding agents. It is distributed two ways: via `npx skills add raphaelsalaja/skills` and as the Claude Code plugin `userinterface` served by the marketplace in this same repository. It is documentation. There is no repository-wide build, lint or test tooling.
+A collection of agent skills for building interfaces with coding agents. It is distributed two ways: via `npx skills add raphaelsalaja/skills` and as the Claude Code plugin `userinterface` served by the marketplace in this same repository. It is documentation. The only tooling is `kit/sync.mjs`, which copies the shared interface kit into the skills.
 
 The house rule is the pair. Every rule shows the broken line and the line that replaces it. `## The pair` in each skill is that rule, and a finding is `file:line - [rule-id]`. When a finding is about the work rather than a file, cite the request or the step instead: `request 2 - [rule-id]`.
 
@@ -37,6 +37,20 @@ Every `SKILL.md` carries:
 - Principle sections or numbered steps, by kind.
 - A `## The pair` table. Each row is a rule id, the broken line and the line that replaces it. That table is the house rule.
 - A `## Reporting` section with the severity ladder and the `file:line - [rule-id]` format.
+
+## The kit
+
+`kit/` holds the interface shipped pages and overlays share: tokens, the page base, the head and bar, controls, the select, inputs, the toast and tip, the side sheet and section heads. Each skill still ships on its own, so the kit is copied into marked regions rather than imported.
+
+A region opens on `/* kit:select */` in CSS or `// kit:h` in JavaScript and closes on the same marker with `end`. Add `prefix=lab` to rename every custom property, so tokens on a shadow host never reach slotted app components.
+
+`kit/index.html` shows every component in both themes and syncs like any page.
+
+Change a component in `kit/`, never inside a region, then run `node kit/sync.mjs`. `node kit/sync.mjs --check` exits 1 when any region has drifted from the kit.
+
+A class the kit owns, such as `.pick` or `.tip`, means the kit component on every page. A page-only variant takes its own name, such as `.tool-pick`, and sits after the regions.
+
+Work an agent builds in the user's project, such as sketchbook tiles or bot cards, uses that project's own stack and takes nothing from the kit.
 
 Every rule id starts with its skill's name, such as `defaults-fade-not-cut`. Each id appears once in the prose and once in the pair.
 

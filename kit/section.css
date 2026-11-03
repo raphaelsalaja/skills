@@ -1,0 +1,29 @@
+.section-head {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 12px;
+  align-items: baseline;
+  margin-bottom: 20px;
+
+  .count {
+    margin-left: auto;
+  }
+}
+
+.section-title {
+  font-variation-settings: var(--font-weight-500);
+}
+
+.section-description {
+  color: var(--text-tertiary);
+}
+
+.rows > * + * {
+  border-top: 1px solid var(--border-primary);
+}
+
+.empty {
+  padding: 64px 0;
+  color: var(--text-tertiary);
+  text-align: center;
+}

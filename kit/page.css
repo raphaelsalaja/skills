@@ -1,0 +1,114 @@
+:root {
+  color-scheme: light dark;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+* {
+  padding: 0;
+  margin: 0;
+  font: inherit;
+  font-variation-settings: inherit;
+  color: inherit;
+  text-decoration: none;
+  border: 0;
+}
+
+ol,
+ul {
+  list-style: none;
+}
+
+img,
+svg,
+canvas,
+video {
+  display: block;
+  max-width: 100%;
+}
+
+[hidden] {
+  display: none !important;
+}
+
+button {
+  cursor: pointer;
+  user-select: none;
+  background: none;
+}
+
+button,
+a,
+select {
+  touch-action: manipulation;
+}
+
+code {
+  font-family: var(--font-mono);
+  font-size: 0.9em;
+}
+
+html {
+  font-family: var(--font-sans);
+  font-size: 14px;
+  line-height: 20px;
+  font-variation-settings: var(--font-weight-400);
+  font-optical-sizing: none;
+  font-feature-settings: "calt", "ccmp", "locl", "kern", "cv01", "ss03";
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  color: var(--text-primary);
+  background: var(--background-primary);
+  scroll-padding-block-start: var(--bar-height, 72px);
+}
+
+* {
+  scrollbar-width: none;
+}
+
+::-webkit-scrollbar {
+  display: none;
+}
+
+::selection {
+  background: color-mix(in oklab, var(--accent) 28%, transparent);
+}
+
+:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
+@media (width <= 640px) {
+  input:not([type="range"]),
+  textarea,
+  select {
+    font-size: 16px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after,
+  ::backdrop {
+    transition-duration: 0s !important;
+    transition-delay: 0s !important;
+  }
+}

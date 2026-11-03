@@ -71,31 +71,70 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
 
     .ui {
       all: initial;
-      --gray-1: light-dark(#fdfdfc, #111110);
-      --gray-2: light-dark(#f9f9f8, #191918);
-      --gray-3: light-dark(#f1f0ef, #222221);
-      --gray-4: light-dark(#e9e8e6, #2a2a28);
-      --gray-10: light-dark(#82827c, #7c7b74);
-      --gray-11: light-dark(#63635e, #b5b3ad);
-      --gray-12: light-dark(#21201c, #eeeeec);
-      --accent: #02bbff;
-      --border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
-      --border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
+      /* kit:tokens */
+      --gray-1: light-dark(#ffffff, #080808);
+      --gray-2: light-dark(#fafafa, #111111);
+      --gray-3: light-dark(#f2f2f2, #1a1a1a);
+      --gray-4: light-dark(#ebebeb, #222222);
+      --gray-5: light-dark(#e3e3e3, #2a2a2a);
+      --gray-10: light-dark(#6b6b6b, #8f8f8f);
+      --gray-11: light-dark(#575757, #b4b4b4);
+      --gray-12: light-dark(#080808, #ffffff);
+      --blue: #02bbff;
+      --red: light-dark(#d93036, #ff6369);
+      --green: light-dark(#2b9a66, #3dd68c);
+      --accent: var(--blue);
+      --danger: var(--red);
+      --success: var(--green);
       --text-primary: var(--gray-12);
+      --text-secondary: color-mix(in oklab, var(--gray-12) 80%, var(--gray-11));
       --text-tertiary: var(--gray-11);
       --text-quaternary: var(--gray-10);
-      --background-tertiary: var(--gray-3);
-      --shadow-raised:
-        0 0 0 1px var(--border-secondary),
-        0 1px 2px light-dark(oklch(0 0 0 / 4%), oklch(0 0 0 / 12%)),
-        0 4px 12px light-dark(oklch(0 0 0 / 3%), oklch(0 0 0 / 9%));
+      --text-on-accent: light-dark(#ffffff, #080808);
+      --border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
+      --border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
+      --background-primary: var(--gray-1);
+      --background-secondary: var(--gray-2);
+      --background-tertiary: light-dark(rgb(8 8 8 / 5%), rgb(255 255 255 / 8%));
+      --background-hover: light-dark(rgb(8 8 8 / 8%), rgb(255 255 255 / 13%));
+      --background-raised: light-dark(#ffffff, #1a1a1a);
+      --background-control: light-dark(#ffffff, #222222);
+      --background-overlay: light-dark(#ffffff, #111111);
+      --fill-hover: light-dark(rgb(8 8 8 / 4%), rgb(255 255 255 / 6%));
+      --shadow-border: 0 0 0 1px light-dark(rgb(0 0 0 / 7%), rgb(255 255 255 / 7%));
+      --shadow-default:
+        inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+        0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+        0 1px 1px -1px light-dark(rgb(0 0 0 / 10%), transparent),
+        0 1px 2px 0 light-dark(rgb(0 0 0 / 5%), transparent);
+      --shadow-large:
+        0 0 0 0.5px light-dark(oklab(0.802 0 0 / 0.297), transparent),
+        0 0 0 1px light-dark(transparent, oklab(0.463 0 0 / 0.303)),
+        0 2px 3px -2px light-dark(rgb(0 0 0 / 6.3%), rgb(0 0 0 / 15%)),
+        0 3px 12px -4px light-dark(rgb(0 0 0 / 10%), transparent),
+        0 4px 16px -8px light-dark(rgb(0 0 0 / 5%), transparent),
+        0 3px 8px -2px light-dark(transparent, rgb(0 0 0 / 40%)),
+        0 4px 12px -4px light-dark(transparent, rgb(0 0 0 / 50%));
+      --shadow-extra-large:
+        inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+        0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+        0 8px 40px 0 rgb(0 0 0 / 5%),
+        0 12px 32px -16px rgb(0 0 0 / 15%);
+      --font-sans: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+      --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
       --font-weight-400: "wght" 400, "opsz" 14;
       --font-weight-500: "wght" 500, "opsz" 14;
-      --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
-      --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+      --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+      --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+      --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
       --duration-snappy: 220ms;
+      --duration-exit: 160ms;
+      --radius-control: 8px;
+      --radius-menu: 12px;
+      --radius-panel: 16px;
+      /* kit:tokens end */
       color-scheme: inherit;
-      font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+      font-family: var(--font-sans);
       font-size: 14px;
       line-height: 20px;
       font-variation-settings: var(--font-weight-400);
@@ -156,8 +195,8 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
         opacity: 0;
         scale: 0.5;
         transition:
-          opacity var(--duration-snappy) var(--ease-out-cubic),
-          scale var(--duration-snappy) var(--ease-out-cubic);
+          opacity var(--duration-snappy) var(--ease-out),
+          scale var(--duration-snappy) var(--ease-out);
       }
 
       .variant[data-current] > &::before {
@@ -174,65 +213,212 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       color: var(--text-tertiary);
     }
 
-    .bar {
-      --spring: linear(0, 0.2414, 0.6338, 0.9173, 1.0476, 1.0726, 1.0514, 1.0231, 1.0041, 0.9959, 0.9948, 0.9966, 0.9986, 0.9998, 1);
-      position: fixed;
-      inset: auto 0 calc(16px + env(safe-area-inset-bottom));
-      display: none;
-      gap: 8px;
-      align-items: center;
-      width: max-content;
-      height: 44px;
-      padding: 6px;
-      margin: 0 auto;
-      overflow: visible;
-      background: color-mix(in oklab, var(--gray-1) 92%, transparent);
-      border-radius: 999px;
-      box-shadow: var(--shadow-raised);
-      opacity: 0;
-      translate: 0 12px;
-      scale: 0.9;
-      transform-origin: bottom center;
-      backdrop-filter: blur(12px);
-      transition:
-        opacity 200ms ease-in,
-        translate 200ms ease-in,
-        scale 200ms ease-in,
-        display 200ms allow-discrete,
-        overlay 200ms allow-discrete;
+    /* kit:fade */
+    @property --fade-start {
+      syntax: "<length>";
+      inherits: false;
+      initial-value: 0px;
+    }
 
-      &:popover-open {
-        display: flex;
-        opacity: 1;
-        translate: 0;
-        scale: 1;
-        transition:
-          opacity var(--duration-snappy) var(--ease-out-cubic),
-          translate 450ms var(--spring),
-          scale 450ms var(--spring);
+    @property --fade-end {
+      syntax: "<length>";
+      inherits: false;
+      initial-value: 0px;
+    }
 
-        @starting-style {
-          opacity: 0;
-          translate: 0 12px;
-          scale: 0.9;
-        }
+    @keyframes scroll-fade {
+      0% {
+        --fade-start: 0px;
+        --fade-end: 24px;
+      }
+      10% {
+        --fade-start: 24px;
+      }
+      90% {
+        --fade-end: 24px;
+      }
+      100% {
+        --fade-start: 24px;
+        --fade-end: 0px;
       }
     }
 
-    .divider {
-      flex: none;
-      width: 1px;
-      height: 12px;
-      background: var(--border-secondary);
+    .scroll-fade {
+      mask-image:
+        linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+        linear-gradient(black, black),
+        linear-gradient(black, black);
+      mask-clip: border-box, border-box, no-clip;
+      mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+      mask-position: 0 0, 0 0, -64px -64px;
+      mask-repeat: no-repeat;
+      mask-composite: add, exclude;
+      animation: scroll-fade linear both;
+      animation-timeline: scroll(self);
+    }
+    /* kit:fade end */
+
+    /* kit:controls */
+    .chip,
+    .action {
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      height: 28px;
+      padding: 0 12px;
+      font-size: 13px;
+      font-variation-settings: var(--font-weight-500);
+      color: var(--text-tertiary);
+      white-space: nowrap;
+      border-radius: var(--radius-control);
+
+      &[aria-pressed="true"] {
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+      }
+
+      &:active:not(:disabled) {
+        color: var(--text-primary);
+      }
+
+      &:disabled {
+        cursor: default;
+        opacity: 0.5;
+      }
     }
 
+    .action {
+      color: var(--text-primary);
+      background: var(--background-tertiary);
+
+      &:active:not(:disabled) {
+        background: var(--background-hover);
+      }
+    }
+
+    .icon-button,
+    .tool-button {
+      position: relative;
+      display: grid;
+      flex: none;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      color: var(--text-tertiary);
+      border-radius: var(--radius-control);
+
+      &::before {
+        position: absolute;
+        inset: -4px;
+        content: "";
+      }
+
+      &:disabled {
+        cursor: default;
+        opacity: 0.4;
+      }
+    }
+
+    .icon-button {
+      background: var(--background-tertiary);
+
+      &:active:not(:disabled, [aria-pressed="true"]) {
+        color: var(--text-primary);
+        background: var(--background-hover);
+      }
+
+      &[aria-pressed="true"] {
+        color: var(--text-on-accent);
+        background: var(--accent);
+      }
+    }
+
+    .tool-button {
+      &:active:not(:disabled) {
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+      }
+
+      &[aria-pressed="true"] {
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+      }
+
+      &[aria-pressed="true"]:active:not(:disabled) {
+        background: var(--background-hover);
+      }
+    }
+
+    .pick {
+      position: relative;
+      display: grid;
+      flex: none;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      color: var(--text-quaternary);
+      border-radius: var(--radius-control);
+      box-shadow: inset 0 0 0 1px var(--border-secondary);
+
+      &::before {
+        position: absolute;
+        inset: -6px;
+        content: "";
+      }
+
+      &:active:not([aria-pressed="true"]) {
+        color: var(--text-primary);
+      }
+
+      &[aria-pressed="true"] {
+        color: var(--text-on-accent);
+        background: var(--accent);
+        box-shadow: none;
+      }
+    }
+
+    .count {
+      color: var(--text-quaternary);
+      font-variant-numeric: tabular-nums;
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .chip:hover:not(:disabled) {
+        color: var(--text-primary);
+      }
+
+      .action:hover:not(:disabled) {
+        background: var(--background-hover);
+      }
+
+      .icon-button:hover:not(:disabled, [aria-pressed="true"]) {
+        color: var(--text-primary);
+        background: var(--background-hover);
+      }
+
+      .tool-button:hover:not(:disabled) {
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+      }
+
+      .tool-button[aria-pressed="true"]:hover:not(:disabled) {
+        background: var(--background-hover);
+      }
+
+      .pick:hover:not([aria-pressed="true"]) {
+        color: var(--text-primary);
+      }
+    }
+    /* kit:controls end */
+
+    /* kit:select */
     .select {
       display: inline-flex;
       gap: 6px;
       align-items: center;
       min-width: 0;
-      max-width: min(280px, 100vw - 176px);
-      height: 32px;
+      max-width: 280px;
+      height: 28px;
       padding: 0 28px 0 12px;
       font-size: 13px;
       font-variation-settings: var(--font-weight-500);
@@ -242,14 +428,11 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       cursor: pointer;
       appearance: none;
       background: var(--background-tertiary) no-repeat right 11px center / 10px
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%2382827c' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
-      border-radius: 999px;
-      transition: background-color var(--duration-snappy) var(--ease-out-cubic);
+        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%236b6b6b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
+      border-radius: var(--radius-control);
 
-      @media (hover: hover) {
-        &:hover {
-          background-color: var(--gray-4);
-        }
+      &:active {
+        background-color: var(--background-hover);
       }
     }
 
@@ -269,11 +452,16 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
           content: "";
           background: var(--text-quaternary);
           mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
-          transition: rotate var(--duration-snappy) var(--ease-out-cubic);
+          transition: rotate var(--duration-snappy) var(--ease-out);
         }
 
         &:open::picker-icon {
           rotate: 180deg;
+        }
+
+        selectedcontent {
+          overflow: hidden;
+          text-overflow: ellipsis;
         }
 
         &::picker(select) {
@@ -281,20 +469,32 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
           max-height: min(400px, 60dvh);
           scrollbar-width: none;
           padding: 4px;
-          margin-block: 14px;
-          background: var(--gray-2);
-          border: 0;
-          border-radius: 12px;
-          box-shadow: var(--shadow-raised);
+          margin-block: 8px;
+          background: var(--background-raised);
+          border: 1px solid transparent;
+          border-radius: var(--radius-menu);
+          box-shadow: var(--shadow-large);
           opacity: 0;
+          mask-image:
+            linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+            linear-gradient(black, black),
+            linear-gradient(black, black);
+          mask-clip: border-box, border-box, no-clip;
+          mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+          mask-position: 0 0, 0 0, -64px -64px;
+          mask-repeat: no-repeat;
+          mask-composite: add, exclude;
+          animation: scroll-fade linear both;
+          animation-timeline: scroll(self);
           transition:
-            opacity var(--duration-snappy) var(--ease-out-cubic),
-            display var(--duration-snappy) allow-discrete,
-            overlay var(--duration-snappy) allow-discrete;
+            opacity var(--duration-exit) var(--ease-out),
+            display var(--duration-exit) allow-discrete,
+            overlay var(--duration-exit) allow-discrete;
         }
 
         &:open::picker(select) {
           opacity: 1;
+          transition-duration: var(--duration-snappy);
 
           @starting-style {
             opacity: 0;
@@ -313,13 +513,13 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
         color: var(--text-tertiary);
         white-space: nowrap;
         cursor: pointer;
-        border-radius: 8px;
+        border-radius: var(--radius-control);
 
-        & + & {
-          margin-top: 1px;
+        &:active {
+          color: var(--text-primary);
+          background: var(--fill-hover);
         }
 
-        &:hover,
         &:focus-visible {
           color: var(--text-primary);
           background: var(--background-tertiary);
@@ -332,43 +532,209 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
 
         &::checkmark {
           order: 1;
-          padding-left: 16px;
           margin-left: auto;
+          padding-left: 16px;
           color: var(--accent);
         }
       }
     }
 
-    .icon {
-      display: grid;
-      flex: none;
-      place-items: center;
-      width: 32px;
-      height: 32px;
-      color: var(--text-tertiary);
-      border-radius: 999px;
-      transition:
-        color var(--duration-snappy) var(--ease-out-cubic),
-        background-color var(--duration-snappy) var(--ease-out-cubic),
-        scale 100ms var(--ease-out-cubic);
+    @media (width <= 640px) {
+      .select {
+        font-size: 16px;
+      }
+    }
 
-      @media (hover: hover) {
-        &:hover {
-          color: var(--text-primary);
-          background: var(--background-tertiary);
+    @media (hover: hover) and (pointer: fine) {
+      .select:hover {
+        background-color: var(--background-hover);
+      }
+
+      .select option:hover {
+        color: var(--text-primary);
+        background: var(--fill-hover);
+      }
+    }
+    /* kit:select end */
+
+    /* kit:overlays */
+    .toast {
+      position: fixed;
+      inset: auto;
+      display: inline-flex;
+      align-items: center;
+      height: 32px;
+      padding: 0 12px;
+      margin: 0;
+      overflow: visible;
+      font-size: 13px;
+      font-variation-settings: var(--font-weight-500);
+      color: var(--text-primary);
+      white-space: nowrap;
+      pointer-events: none;
+      background: var(--background-raised);
+      border: 1px solid transparent;
+      border-radius: 10px;
+      box-shadow: var(--shadow-large);
+      opacity: 0;
+      translate: -50% 4px;
+      scale: 0.97;
+      transform-origin: bottom center;
+      transition:
+        opacity var(--duration-exit) var(--ease-out),
+        translate var(--duration-exit) var(--ease-out),
+        scale var(--duration-exit) var(--ease-out);
+
+      &[data-side="below"] {
+        translate: -50% -4px;
+        transform-origin: top center;
+      }
+
+      &[data-open] {
+        opacity: 1;
+        translate: -50% 0;
+        scale: 1;
+        transition-duration: var(--duration-snappy);
+      }
+
+      &:has(button) {
+        gap: 12px;
+        padding-right: 4px;
+        pointer-events: auto;
+      }
+
+      button {
+        height: 24px;
+        padding: 0 8px;
+        color: var(--accent);
+        border-radius: 6px;
+
+        &:active {
+          background: var(--background-hover);
+        }
+      }
+    }
+
+    .tip {
+      position: fixed;
+      inset: auto;
+      display: inline-flex;
+      gap: 6px;
+      align-items: center;
+      height: 24px;
+      padding: 0 8px;
+      margin: 0;
+      overflow: visible;
+      font-size: 12px;
+      font-variation-settings: var(--font-weight-500);
+      color: var(--text-primary);
+      white-space: nowrap;
+      pointer-events: none;
+      background: var(--background-raised);
+      border: 1px solid transparent;
+      border-radius: var(--radius-control);
+      box-shadow: var(--shadow-large);
+      translate: -50% 0;
+      transition:
+        opacity 125ms var(--ease-out),
+        translate 125ms var(--ease-out);
+
+      @starting-style {
+        opacity: 0;
+        translate: -50% 4px;
+      }
+
+      &[data-side="below"] {
+        @starting-style {
+          translate: -50% -4px;
         }
       }
 
-      &:active {
-        scale: 0.92;
+      &[data-instant] {
+        transition: none;
       }
 
-      &[aria-pressed="true"] {
-        color: var(--accent);
-        background: light-dark(
-          color-mix(in oklab, var(--accent) 14%, transparent),
-          color-mix(in oklab, var(--accent) 24%, transparent)
-        );
+      kbd {
+        font: inherit;
+        color: var(--text-tertiary);
+      }
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .toast button:hover {
+        background: var(--background-hover);
+      }
+    }
+    /* kit:overlays end */
+
+    .bar {
+      --spring: linear(0, 0.2414, 0.6338, 0.9173, 1.0476, 1.0726, 1.0514, 1.0231, 1.0041, 0.9959, 0.9948, 0.9966, 0.9986, 0.9998, 1);
+      position: fixed;
+      inset: auto 0 calc(16px + env(safe-area-inset-bottom));
+      display: none;
+      gap: 6px;
+      align-items: center;
+      width: max-content;
+      height: 40px;
+      padding: 5px;
+      margin: 0 auto;
+      overflow: visible;
+      background: color-mix(in oklab, var(--background-raised) 92%, transparent);
+      border: 1px solid transparent;
+      border-radius: 14px;
+      box-shadow: var(--shadow-extra-large);
+      opacity: 0;
+      translate: 0 12px;
+      scale: 0.9;
+      transform-origin: bottom center;
+      backdrop-filter: blur(12px);
+      transition:
+        opacity var(--duration-exit) var(--ease-out),
+        translate var(--duration-exit) var(--ease-out),
+        scale var(--duration-exit) var(--ease-out),
+        display var(--duration-exit) allow-discrete,
+        overlay var(--duration-exit) allow-discrete;
+
+      &:popover-open {
+        display: flex;
+        opacity: 1;
+        translate: 0;
+        scale: 1;
+        transition:
+          opacity var(--duration-snappy) var(--ease-out),
+          translate 450ms var(--spring),
+          scale 450ms var(--spring);
+
+        @starting-style {
+          opacity: 0;
+          translate: 0 12px;
+          scale: 0.9;
+        }
+      }
+    }
+
+    .divider {
+      flex: none;
+      width: 1px;
+      height: 12px;
+      background: var(--border-secondary);
+    }
+
+    .select {
+      max-width: min(280px, 100vw - 176px);
+    }
+
+    @supports (appearance: base-select) {
+      .select::picker(select) {
+        margin-block: 14px;
+      }
+    }
+
+    .tool-button {
+      transition: scale 100ms var(--ease-out);
+
+      &:active {
+        scale: 0.92;
       }
     }
 
@@ -378,42 +744,39 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       flex: none;
     }
 
-    .tip {
+    .hint {
       position: absolute;
       bottom: calc(100% + 14px);
       left: 50%;
       display: inline-flex;
-      gap: 4px;
+      gap: 6px;
       align-items: center;
-      height: 28px;
-      padding: 0 10px;
+      height: 24px;
+      padding: 0 8px;
       font-size: 12px;
       font-variation-settings: var(--font-weight-500);
       white-space: nowrap;
       pointer-events: none;
-      background: var(--gray-2);
-      border-radius: 8px;
-      box-shadow: var(--shadow-raised);
+      background: var(--background-raised);
+      border: 1px solid transparent;
+      border-radius: var(--radius-control);
+      box-shadow: var(--shadow-large);
       opacity: 0;
       translate: -50% 4px;
-      scale: 0.97;
-      transform-origin: bottom center;
       transition:
-        opacity 135ms var(--ease-out-cubic),
-        translate 135ms var(--ease-out-cubic),
-        scale 135ms var(--ease-out-cubic);
+        opacity 125ms var(--ease-out),
+        translate 125ms var(--ease-out);
 
       kbd {
-        color: var(--text-quaternary);
+        color: var(--text-tertiary);
       }
     }
 
-    @media (hover: hover) {
-      .tipped:hover .tip {
+    @media (hover: hover) and (pointer: fine) {
+      .tipped:hover .hint {
         opacity: 1;
         translate: -50% 0;
-        scale: 1;
-        transition-delay: 850ms;
+        transition-delay: 500ms;
 
         .bar[data-warm] & {
           transition-delay: 0s;
@@ -421,33 +784,20 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       }
     }
 
-    .tipped:has(:focus-visible) .tip {
+    .tipped:has(:focus-visible) .hint {
       opacity: 1;
       translate: -50% 0;
-      scale: 1;
       transition-delay: 0s;
     }
 
-    .tipped:has(:disabled) .tip,
-    .bar:has([data-toasting]) .tip {
+    .tipped:has(:disabled) .hint,
+    .bar:has([data-toasting]) .hint {
       opacity: 0 !important;
     }
 
     .toast {
-      position: absolute;
-      bottom: calc(100% + 14px);
-      left: calc(50% + var(--nudge, 0px));
-      display: inline-flex;
       gap: 8px;
-      align-items: center;
-      height: 32px;
-      padding: 0 12px 0 10px;
-      font-size: 13px;
-      font-variation-settings: var(--font-weight-500);
-      white-space: nowrap;
-      pointer-events: none;
-      background: var(--gray-2);
-      border-radius: 999px;
+      padding-left: 10px;
 
       .tick {
         flex: none;
@@ -456,7 +806,7 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
         path {
           stroke-dasharray: 1;
           stroke-dashoffset: 1;
-          transition: stroke-dashoffset 320ms var(--ease-out-quart) 80ms;
+          transition: stroke-dashoffset 320ms var(--ease-out) 80ms;
         }
       }
 
@@ -477,28 +827,6 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
 
       &[data-open] .tick path {
         stroke-dashoffset: 0;
-      }
-      box-shadow: var(--shadow-raised);
-      opacity: 0;
-      translate: -50% 4px;
-      scale: 0.97;
-      transform-origin: bottom center;
-      transition:
-        opacity var(--duration-snappy) var(--ease-out-cubic),
-        translate var(--duration-snappy) var(--ease-out-cubic),
-        scale var(--duration-snappy) var(--ease-out-cubic);
-
-      &[data-side="below"] {
-        top: calc(100% + 14px);
-        bottom: auto;
-        translate: -50% -4px;
-        transform-origin: top center;
-      }
-
-      &[data-open] {
-        opacity: 1;
-        translate: -50% 0;
-        scale: 1;
       }
     }
 
@@ -526,17 +854,17 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
     <style>${css}</style>
     <div class="variants"></div>
     <div class="end"></div>
-    <nav class="ui bar" popover="manual" aria-label="Variants">
+    <nav class="ui bar" popover="manual" aria-label="Variants" data-frame>
       <select class="select" aria-label="Variant"></select>
       <span class="tipped">
-        <button class="icon all" type="button" aria-pressed="false" aria-label="Show All" aria-keyshortcuts="A">${icons.grid}</button>
-        <span class="tip" aria-hidden="true">Show All<kbd>A</kbd></span>
+        <button class="tool-button all" type="button" aria-pressed="false" aria-label="Show All" aria-keyshortcuts="A">${icons.grid}</button>
+        <span class="hint" aria-hidden="true">Show All<kbd>A</kbd></span>
       </span>
       <span class="divider" aria-hidden="true"></span>
       <span class="tipped copy">
-        <button class="icon pick" type="button" aria-label="Pick" aria-keyshortcuts="P">${icons.check}</button>
-        <span class="tip" aria-hidden="true">Pick<kbd>P</kbd></span>
-        <output class="toast"><svg class="tick" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" pathLength="1" /></svg><span class="label"></span><span class="count"></span></output>
+        <button class="tool-button pick-variant" type="button" aria-label="Pick" aria-keyshortcuts="P">${icons.check}</button>
+        <span class="hint" aria-hidden="true">Pick<kbd>P</kbd></span>
+        <output class="toast" popover="manual"><svg class="tick" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" pathLength="1" /></svg><span class="label"></span><span class="count"></span></output>
       </span>
     </nav>
   `;
@@ -544,7 +872,20 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
   const typing =
     "input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox'], [role='combobox'], [role='listbox'], [role='menu'], [role='radiogroup'], [role='slider'], [role='spinbutton'], [role='tablist']";
   const motion = matchMedia("(prefers-reduced-motion: no-preference)");
-  const easeOutQuart = "cubic-bezier(0.165, 0.84, 0.44, 1)";
+  const easeOut = "cubic-bezier(0.23, 1, 0.32, 1)";
+
+  // kit:anchor
+  function anchorTo(popover, anchor) {
+    const rect = anchor.getBoundingClientRect();
+    const frame = (anchor.closest("[data-frame]") ?? anchor).getBoundingClientRect();
+    const half = popover.offsetWidth / 2;
+    const edge = document.documentElement.clientWidth - 8;
+    const below = frame.top < popover.offsetHeight + 16;
+    popover.style.left = `${Math.min(edge - half, Math.max(8 + half, rect.left + rect.width / 2))}px`;
+    popover.style.top = `${below ? frame.bottom + 8 : frame.top - 8 - popover.offsetHeight}px`;
+    popover.dataset.side = below ? "below" : "above";
+  }
+  // kit:anchor end
 
   function h(tag, className, ...children) {
     const node = document.createElement(tag);
@@ -603,7 +944,7 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       this.#bar = this.#root.querySelector(".bar");
       this.#select = this.#root.querySelector(".select");
       this.#allButton = this.#root.querySelector(".all");
-      this.#pickButton = this.#root.querySelector(".pick");
+      this.#pickButton = this.#root.querySelector(".pick-variant");
       this.#toast = this.#root.querySelector(".toast");
 
       this.#select.addEventListener("change", () => this.#show(Number(this.#select.value)));
@@ -613,7 +954,7 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       for (const tipped of this.#root.querySelectorAll(".tipped")) {
         tipped.addEventListener("pointerenter", () => {
           clearTimeout(this.#warmTimer);
-          this.#warmTimer = setTimeout(() => this.#bar.toggleAttribute("data-warm", true), 850);
+          this.#warmTimer = setTimeout(() => this.#bar.toggleAttribute("data-warm", true), 500);
         });
       }
       this.#bar.addEventListener("pointerleave", () => {
@@ -760,7 +1101,7 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
           { opacity: 0, translate: `${direction * 8}px 0` },
           { opacity: 1, translate: "0 0" },
         ],
-        { duration: 280, easing: easeOutQuart },
+        { duration: 280, easing: easeOut },
       );
     }
 
@@ -777,7 +1118,7 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       if (!all || !motion.matches) return;
       const fade = [{ opacity: 0 }, { opacity: 1 }];
       this.#items.forEach((item, index) => {
-        (index === this.#index ? item.head : item.wrapper).animate(fade, { duration: 260, easing: easeOutQuart });
+        (index === this.#index ? item.head : item.wrapper).animate(fade, { duration: 260, easing: easeOut });
       });
     }
 
@@ -793,19 +1134,19 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
           () => true,
           () => false,
         );
+      clearTimeout(toast.hide);
+      delete toast.dataset.open;
+      if (!toast.matches(":popover-open")) toast.showPopover();
       toast.toggleAttribute("data-failed", !copied);
       toast.querySelector(".label").textContent = copied ? "Copied" : "Copy Failed";
       toast.querySelector(".count").textContent = `~${tokens.toLocaleString()} ${tokens === 1 ? "token" : "tokens"}`;
-      const button = this.#pickButton.getBoundingClientRect();
-      const overflow = button.left + button.width / 2 + toast.offsetWidth / 2 - (innerWidth - 16);
-      toast.style.setProperty("--nudge", `${-Math.max(0, overflow)}px`);
-      toast.dataset.side = button.top < 48 ? "below" : "above";
+      anchorTo(toast, this.#pickButton);
       toast.dataset.open = "";
       toast.parentElement.dataset.toasting = "";
-      clearTimeout(toast.hide);
       toast.hide = setTimeout(() => {
         delete toast.dataset.open;
         delete toast.parentElement.dataset.toasting;
+        toast.hide = setTimeout(() => toast.hidePopover(), 200);
       }, 1600);
     }
 

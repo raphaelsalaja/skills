@@ -1,0 +1,65 @@
+.head {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  max-width: 640px;
+}
+
+.title {
+  font-variation-settings: var(--font-weight-500);
+}
+
+.brief {
+  color: var(--text-tertiary);
+  overflow-wrap: anywhere;
+
+  a {
+    display: inline-flex;
+    gap: 4px;
+    align-items: center;
+    color: var(--text-secondary);
+
+    svg {
+      color: var(--text-quaternary);
+    }
+
+    &:active,
+    &:active svg {
+      color: var(--text-primary);
+    }
+  }
+
+  code {
+    color: var(--text-secondary);
+  }
+}
+
+@property --bar-line {
+  syntax: "<color>";
+  inherits: false;
+  initial-value: transparent;
+}
+
+.bar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  padding: 16px 0;
+  border-image: linear-gradient(to top, var(--bar-line) 1px, var(--background-primary) 1px) fill 0 / / 0 100vw;
+  transition: --bar-line var(--duration-snappy) var(--ease-out);
+
+  &[data-stuck] {
+    --bar-line: var(--border-primary);
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .brief a:hover,
+  .brief a:hover svg {
+    color: var(--text-primary);
+  }
+}

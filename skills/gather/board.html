@@ -31,8 +31,8 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <meta name="theme-color" content="#fdfdfc" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#111110" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#080808" media="(prefers-color-scheme: dark)" />
     <title>Gather</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -42,65 +42,75 @@
     />
     <style>
       :root {
-        --gray-1: #fdfdfc;
-        --gray-2: #f9f9f8;
-        --gray-3: #f1f0ef;
-        --gray-4: #e9e8e6;
-        --gray-5: #e2e1de;
-        --gray-10: #6b6b65;
-        --gray-11: #63635e;
-        --gray-12: #21201c;
-        --shadow-strength: 1;
-        --accent: #0077b6;
-        --text-on-accent: #fff;
-        --background-raised: #fff;
-        --background-hover: var(--gray-4);
-        color-scheme: light dark;
-      }
-
-      @media (prefers-color-scheme: dark) {
-        :root {
-          --gray-1: #111110;
-          --gray-2: #191918;
-          --gray-3: #222221;
-          --gray-4: #2a2a28;
-          --gray-5: #31312e;
-          --gray-10: #8f8e87;
-          --gray-11: #b5b3ad;
-          --gray-12: #eeeeec;
-          --shadow-strength: 3;
-          --accent: #02bbff;
-          --text-on-accent: #111110;
-          --background-raised: var(--gray-2);
-        }
-      }
-
-      :root {
-        --border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
-        --border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
+        /* kit:tokens */
+        --gray-1: light-dark(#ffffff, #080808);
+        --gray-2: light-dark(#fafafa, #111111);
+        --gray-3: light-dark(#f2f2f2, #1a1a1a);
+        --gray-4: light-dark(#ebebeb, #222222);
+        --gray-5: light-dark(#e3e3e3, #2a2a2a);
+        --gray-10: light-dark(#6b6b6b, #8f8f8f);
+        --gray-11: light-dark(#575757, #b4b4b4);
+        --gray-12: light-dark(#080808, #ffffff);
+        --blue: #02bbff;
+        --red: light-dark(#d93036, #ff6369);
+        --green: light-dark(#2b9a66, #3dd68c);
+        --accent: var(--blue);
+        --danger: var(--red);
+        --success: var(--green);
         --text-primary: var(--gray-12);
         --text-secondary: color-mix(in oklab, var(--gray-12) 80%, var(--gray-11));
         --text-tertiary: var(--gray-11);
         --text-quaternary: var(--gray-10);
+        --text-on-accent: light-dark(#ffffff, #080808);
+        --border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
+        --border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
         --background-primary: var(--gray-1);
-        --background-tertiary: var(--gray-3);
-        --shadow-raised:
-          0 0 0 1px var(--border-secondary),
-          0 1px 2px oklch(0 0 0 / calc(4% * var(--shadow-strength))),
-          0 4px 12px oklch(0 0 0 / calc(3% * var(--shadow-strength)));
-        --shadow-floating:
-          0 0 0 1px var(--border-secondary),
-          0 2px 4px oklch(0 0 0 / calc(4% * var(--shadow-strength))),
-          0 12px 32px oklch(0 0 0 / calc(8% * var(--shadow-strength)));
+        --background-secondary: var(--gray-2);
+        --background-tertiary: light-dark(rgb(8 8 8 / 5%), rgb(255 255 255 / 8%));
+        --background-hover: light-dark(rgb(8 8 8 / 8%), rgb(255 255 255 / 13%));
+        --background-raised: light-dark(#ffffff, #1a1a1a);
+        --background-control: light-dark(#ffffff, #222222);
+        --background-overlay: light-dark(#ffffff, #111111);
+        --fill-hover: light-dark(rgb(8 8 8 / 4%), rgb(255 255 255 / 6%));
+        --shadow-border: 0 0 0 1px light-dark(rgb(0 0 0 / 7%), rgb(255 255 255 / 7%));
+        --shadow-default:
+          inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+          0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+          0 1px 1px -1px light-dark(rgb(0 0 0 / 10%), transparent),
+          0 1px 2px 0 light-dark(rgb(0 0 0 / 5%), transparent);
+        --shadow-large:
+          0 0 0 0.5px light-dark(oklab(0.802 0 0 / 0.297), transparent),
+          0 0 0 1px light-dark(transparent, oklab(0.463 0 0 / 0.303)),
+          0 2px 3px -2px light-dark(rgb(0 0 0 / 6.3%), rgb(0 0 0 / 15%)),
+          0 3px 12px -4px light-dark(rgb(0 0 0 / 10%), transparent),
+          0 4px 16px -8px light-dark(rgb(0 0 0 / 5%), transparent),
+          0 3px 8px -2px light-dark(transparent, rgb(0 0 0 / 40%)),
+          0 4px 12px -4px light-dark(transparent, rgb(0 0 0 / 50%));
+        --shadow-extra-large:
+          inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+          0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+          0 8px 40px 0 rgb(0 0 0 / 5%),
+          0 12px 32px -16px rgb(0 0 0 / 15%);
+        --font-sans: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
         --font-weight-400: "wght" 400, "opsz" 14;
         --font-weight-500: "wght" 500, "opsz" 14;
-        --ease-out-cubic: cubic-bezier(0.215, 0.61, 0.355, 1);
-        --ease-out-quart: cubic-bezier(0.165, 0.84, 0.44, 1);
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+        --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
         --duration-snappy: 220ms;
         --duration-exit: 160ms;
         --radius-control: 8px;
+        --radius-menu: 12px;
+        --radius-panel: 16px;
+        /* kit:tokens end */
         --gap: 24px;
         --inset: 48px;
+      }
+
+      /* kit:page */
+      :root {
+        color-scheme: light dark;
       }
 
       *,
@@ -119,8 +129,15 @@
         border: 0;
       }
 
+      ol,
+      ul {
+        list-style: none;
+      }
+
       img,
-      svg {
+      svg,
+      canvas,
+      video {
         display: block;
         max-width: 100%;
       }
@@ -141,8 +158,13 @@
         touch-action: manipulation;
       }
 
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.9em;
+      }
+
       html {
-        font-family: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+        font-family: var(--font-sans);
         font-size: 14px;
         line-height: 20px;
         font-variation-settings: var(--font-weight-400);
@@ -174,10 +196,36 @@
         border-radius: 4px;
       }
 
+      h1,
+      h2,
+      h3 {
+        text-wrap: balance;
+      }
+
       p {
         text-wrap: pretty;
       }
 
+      @media (width <= 640px) {
+        input:not([type="range"]),
+        textarea,
+        select {
+          font-size: 16px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after,
+        ::backdrop {
+          transition-duration: 0s !important;
+          transition-delay: 0s !important;
+        }
+      }
+      /* kit:page end */
+
+      /* kit:fade */
       @property --fade-start {
         syntax: "<length>";
         inherits: false;
@@ -207,6 +255,700 @@
         }
       }
 
+      .scroll-fade {
+        mask-image:
+          linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+          linear-gradient(black, black),
+          linear-gradient(black, black);
+        mask-clip: border-box, border-box, no-clip;
+        mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+        mask-position: 0 0, 0 0, -64px -64px;
+        mask-repeat: no-repeat;
+        mask-composite: add, exclude;
+        animation: scroll-fade linear both;
+        animation-timeline: scroll(self);
+      }
+      /* kit:fade end */
+
+      /* kit:head */
+      .head {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 640px;
+      }
+
+      .title {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .brief {
+        color: var(--text-tertiary);
+        overflow-wrap: anywhere;
+
+        a {
+          display: inline-flex;
+          gap: 4px;
+          align-items: center;
+          color: var(--text-secondary);
+
+          svg {
+            color: var(--text-quaternary);
+          }
+
+          &:active,
+          &:active svg {
+            color: var(--text-primary);
+          }
+        }
+
+        code {
+          color: var(--text-secondary);
+        }
+      }
+
+      @property --bar-line {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: transparent;
+      }
+
+      .bar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        padding: 16px 0;
+        border-image: linear-gradient(to top, var(--bar-line) 1px, var(--background-primary) 1px) fill 0 / / 0 100vw;
+        transition: --bar-line var(--duration-snappy) var(--ease-out);
+
+        &[data-stuck] {
+          --bar-line: var(--border-primary);
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .brief a:hover,
+        .brief a:hover svg {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:head end */
+
+      /* kit:controls */
+      .chip,
+      .action {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-tertiary);
+        white-space: nowrap;
+        border-radius: var(--radius-control);
+
+        &[aria-pressed="true"] {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &:active:not(:disabled) {
+          color: var(--text-primary);
+        }
+
+        &:disabled {
+          cursor: default;
+          opacity: 0.5;
+        }
+      }
+
+      .action {
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+
+        &:active:not(:disabled) {
+          background: var(--background-hover);
+        }
+      }
+
+      .icon-button,
+      .tool-button {
+        position: relative;
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        color: var(--text-tertiary);
+        border-radius: var(--radius-control);
+
+        &::before {
+          position: absolute;
+          inset: -4px;
+          content: "";
+        }
+
+        &:disabled {
+          cursor: default;
+          opacity: 0.4;
+        }
+      }
+
+      .icon-button {
+        background: var(--background-tertiary);
+
+        &:active:not(:disabled, [aria-pressed="true"]) {
+          color: var(--text-primary);
+          background: var(--background-hover);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-on-accent);
+          background: var(--accent);
+        }
+      }
+
+      .tool-button {
+        &:active:not(:disabled) {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &[aria-pressed="true"]:active:not(:disabled) {
+          background: var(--background-hover);
+        }
+      }
+
+      .pick {
+        position: relative;
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        color: var(--text-quaternary);
+        border-radius: var(--radius-control);
+        box-shadow: inset 0 0 0 1px var(--border-secondary);
+
+        &::before {
+          position: absolute;
+          inset: -6px;
+          content: "";
+        }
+
+        &:active:not([aria-pressed="true"]) {
+          color: var(--text-primary);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-on-accent);
+          background: var(--accent);
+          box-shadow: none;
+        }
+      }
+
+      .count {
+        color: var(--text-quaternary);
+        font-variant-numeric: tabular-nums;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .chip:hover:not(:disabled) {
+          color: var(--text-primary);
+        }
+
+        .action:hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
+        .icon-button:hover:not(:disabled, [aria-pressed="true"]) {
+          color: var(--text-primary);
+          background: var(--background-hover);
+        }
+
+        .tool-button:hover:not(:disabled) {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        .tool-button[aria-pressed="true"]:hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
+        .pick:hover:not([aria-pressed="true"]) {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:controls end */
+
+      /* kit:inputs */
+      .input {
+        width: 100%;
+        min-width: 0;
+        height: 28px;
+        padding: 0 10px;
+        font-size: 13px;
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+        border-radius: var(--radius-control);
+
+        &::placeholder {
+          color: var(--text-quaternary);
+        }
+
+        &:focus-visible {
+          outline-offset: 0;
+          border-radius: var(--radius-control);
+        }
+      }
+
+      textarea.input {
+        height: auto;
+        min-height: 72px;
+        padding: 8px 10px;
+        resize: vertical;
+      }
+
+      .search {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        min-width: 0;
+        height: 28px;
+        padding: 0 10px;
+        color: var(--text-quaternary);
+        background: var(--background-tertiary);
+        border-radius: var(--radius-control);
+
+        svg {
+          flex: none;
+        }
+
+        input {
+          flex: 1;
+          min-width: 0;
+          height: 100%;
+          font-size: 13px;
+          color: var(--text-primary);
+          background: none;
+          outline: none;
+
+          &::placeholder {
+            color: var(--text-quaternary);
+          }
+
+          &::-webkit-search-cancel-button {
+            appearance: none;
+          }
+        }
+
+        &:has(input:focus-visible) {
+          outline: 2px solid var(--accent);
+        }
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .field-label {
+        color: var(--text-tertiary);
+      }
+
+      .range {
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-tertiary);
+        white-space: nowrap;
+        background: var(--background-tertiary);
+        border-radius: var(--radius-control);
+
+        output {
+          min-width: 4ch;
+          color: var(--text-primary);
+          font-variant-numeric: tabular-nums;
+          text-align: right;
+        }
+
+        input {
+          --fill: 50%;
+          width: 88px;
+          height: 28px;
+          cursor: pointer;
+          appearance: none;
+          background: none;
+          outline: none;
+
+          &::-webkit-slider-runnable-track {
+            height: 4px;
+            background: linear-gradient(to right, var(--accent) var(--fill), var(--border-secondary) var(--fill));
+            border-radius: 999px;
+          }
+
+          &::-moz-range-track {
+            height: 4px;
+            background: linear-gradient(to right, var(--accent) var(--fill), var(--border-secondary) var(--fill));
+            border-radius: 999px;
+          }
+
+          &::-webkit-slider-thumb {
+            width: 14px;
+            height: 14px;
+            margin-top: -5px;
+            appearance: none;
+            background: var(--background-control);
+            border-radius: 999px;
+            box-shadow: var(--shadow-default);
+          }
+
+          &::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: var(--background-control);
+            border: 0;
+            border-radius: 999px;
+            box-shadow: var(--shadow-default);
+          }
+        }
+
+        &:has(input:focus-visible) {
+          outline: 2px solid var(--accent);
+          outline-offset: 2px;
+        }
+      }
+
+      .segmented {
+        display: inline-flex;
+        padding: 2px;
+        background: var(--background-tertiary);
+        border-radius: 10px;
+
+        button {
+          height: 24px;
+          padding: 0 10px;
+          font-size: 13px;
+          font-variation-settings: var(--font-weight-500);
+          color: var(--text-tertiary);
+          white-space: nowrap;
+          border-radius: 8px;
+
+          &:active {
+            color: var(--text-primary);
+          }
+
+          &[aria-pressed="true"] {
+            color: var(--text-primary);
+            background: var(--background-control);
+            box-shadow: var(--shadow-default);
+          }
+        }
+      }
+
+      @media (width <= 640px) {
+        .input,
+        .search input {
+          font-size: 16px;
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .segmented button:hover {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:inputs end */
+
+      /* kit:overlays */
+      .toast {
+        position: fixed;
+        inset: auto;
+        display: inline-flex;
+        align-items: center;
+        height: 32px;
+        padding: 0 12px;
+        margin: 0;
+        overflow: visible;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-primary);
+        white-space: nowrap;
+        pointer-events: none;
+        background: var(--background-raised);
+        border: 1px solid transparent;
+        border-radius: 10px;
+        box-shadow: var(--shadow-large);
+        opacity: 0;
+        translate: -50% 4px;
+        scale: 0.97;
+        transform-origin: bottom center;
+        transition:
+          opacity var(--duration-exit) var(--ease-out),
+          translate var(--duration-exit) var(--ease-out),
+          scale var(--duration-exit) var(--ease-out);
+
+        &[data-side="below"] {
+          translate: -50% -4px;
+          transform-origin: top center;
+        }
+
+        &[data-open] {
+          opacity: 1;
+          translate: -50% 0;
+          scale: 1;
+          transition-duration: var(--duration-snappy);
+        }
+
+        &:has(button) {
+          gap: 12px;
+          padding-right: 4px;
+          pointer-events: auto;
+        }
+
+        button {
+          height: 24px;
+          padding: 0 8px;
+          color: var(--accent);
+          border-radius: 6px;
+
+          &:active {
+            background: var(--background-hover);
+          }
+        }
+      }
+
+      .tip {
+        position: fixed;
+        inset: auto;
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        height: 24px;
+        padding: 0 8px;
+        margin: 0;
+        overflow: visible;
+        font-size: 12px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-primary);
+        white-space: nowrap;
+        pointer-events: none;
+        background: var(--background-raised);
+        border: 1px solid transparent;
+        border-radius: var(--radius-control);
+        box-shadow: var(--shadow-large);
+        translate: -50% 0;
+        transition:
+          opacity 125ms var(--ease-out),
+          translate 125ms var(--ease-out);
+
+        @starting-style {
+          opacity: 0;
+          translate: -50% 4px;
+        }
+
+        &[data-side="below"] {
+          @starting-style {
+            translate: -50% -4px;
+          }
+        }
+
+        &[data-instant] {
+          transition: none;
+        }
+
+        kbd {
+          font: inherit;
+          color: var(--text-tertiary);
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .toast button:hover {
+          background: var(--background-hover);
+        }
+      }
+      /* kit:overlays end */
+
+      /* kit:panel */
+      .sheet {
+        position: fixed;
+        inset: 0 0 0 auto;
+        flex-direction: column;
+        width: min(400px, 100% - 24px);
+        max-width: none;
+        height: calc(100dvh - 24px);
+        max-height: none;
+        padding: 0;
+        margin: 12px;
+        overflow: hidden;
+        color: var(--text-primary);
+        background: var(--background-raised);
+        border: 1px solid transparent;
+        border-radius: var(--radius-panel);
+        box-shadow: var(--shadow-extra-large);
+        opacity: 0;
+        transition:
+          opacity var(--duration-exit) var(--ease-out),
+          display var(--duration-exit) allow-discrete,
+          overlay var(--duration-exit) allow-discrete;
+
+        &[open] {
+          display: flex;
+          opacity: 1;
+          transition-duration: var(--duration-snappy);
+
+          @starting-style {
+            opacity: 0;
+          }
+        }
+
+        &::backdrop {
+          color-scheme: light dark;
+          background: transparent;
+          transition:
+            background-color var(--duration-exit) var(--ease-out),
+            display var(--duration-exit) allow-discrete,
+            overlay var(--duration-exit) allow-discrete;
+        }
+
+        &[open]::backdrop {
+          background: color-mix(in oklab, var(--background-primary) 64%, transparent);
+          transition-duration: var(--duration-snappy);
+
+          @starting-style {
+            background: transparent;
+          }
+        }
+
+        @media (width <= 640px) {
+          inset: auto 0 0;
+          width: calc(100% - 24px);
+          height: auto;
+          max-height: 80dvh;
+          margin: 0 12px max(12px, env(safe-area-inset-bottom));
+        }
+      }
+
+      .panel-scroll {
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        min-height: 0;
+        padding: 16px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+      }
+
+      .panel-top,
+      .panel-tools {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .panel-top {
+        justify-content: space-between;
+      }
+
+      .panel-head {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .panel-group {
+        color: var(--text-tertiary);
+        overflow-wrap: anywhere;
+      }
+
+      .panel-title {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .panel-note {
+        margin-top: 10px;
+        color: var(--text-secondary);
+      }
+
+      .panel-count {
+        margin-top: 10px;
+        color: var(--text-quaternary);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .detail {
+        display: flex;
+        gap: 16px;
+        justify-content: space-between;
+        padding: 6px 0;
+
+        & + & {
+          border-top: 1px solid var(--border-primary);
+        }
+
+        dt {
+          flex: none;
+          color: var(--text-tertiary);
+        }
+
+        dd {
+          min-width: 0;
+          text-align: right;
+          overflow-wrap: anywhere;
+          font-variant-numeric: tabular-nums;
+
+          span + span::before {
+            content: ", ";
+          }
+        }
+
+        a {
+          display: inline-flex;
+          gap: 4px;
+          align-items: center;
+
+          svg {
+            color: var(--text-quaternary);
+          }
+
+          &:active svg {
+            color: var(--text-primary);
+          }
+        }
+
+        &[data-stacked] {
+          flex-direction: column;
+          gap: 2px;
+
+          dd {
+            text-align: left;
+          }
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .detail a:hover svg {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:panel end */
+
       .page {
         width: min(1600px, 100% - var(--inset) * 2);
         margin: 0 auto;
@@ -218,21 +960,8 @@
       }
 
       .head {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        max-width: 640px;
         padding-top: 40px;
         margin-bottom: 8px;
-      }
-
-      .title {
-        font-variation-settings: var(--font-weight-500);
-        text-wrap: balance;
-      }
-
-      .brief {
-        color: var(--text-tertiary);
       }
 
       .status {
@@ -258,34 +987,17 @@
 
       @media (prefers-reduced-motion: no-preference) {
         .status::before {
-          animation: pulse 1.6s var(--ease-out-cubic) infinite;
-        }
-      }
-
-      @property --bar-line {
-        syntax: "<color>";
-        inherits: false;
-        initial-value: transparent;
-      }
-
-      .bar {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        padding: 16px 0;
-        border-image: linear-gradient(to top, var(--bar-line) 1px, var(--background-primary) 1px) fill 0 / / 0 100vw;
-        transition: --bar-line var(--duration-snappy) var(--ease-out-cubic);
-
-        &[data-stuck] {
-          --bar-line: var(--border-primary);
+          animation: pulse 1.6s var(--ease-in-out) infinite;
         }
       }
 
       .bar-row {
         display: flex;
+        flex: 1;
         flex-wrap: wrap;
         gap: 8px;
         align-items: center;
+        min-width: 0;
 
         @media (width <= 640px) {
           flex-wrap: nowrap;
@@ -310,104 +1022,6 @@
 
       .picks {
         margin-left: auto;
-      }
-
-      .toast {
-        position: fixed;
-        inset: auto;
-        margin: 0;
-        overflow: visible;
-        display: inline-flex;
-        align-items: center;
-        height: 32px;
-        padding: 0 12px;
-        font-size: 13px;
-        font-variation-settings: var(--font-weight-500);
-        color: var(--text-primary);
-        white-space: nowrap;
-        pointer-events: none;
-        background: var(--background-raised);
-        border: 1px solid transparent;
-        border-radius: 10px;
-        box-shadow: var(--shadow-raised);
-        opacity: 0;
-        translate: -50% 4px;
-        scale: 0.97;
-        transform-origin: bottom center;
-        transition:
-          opacity var(--duration-exit) var(--ease-out-cubic),
-          translate var(--duration-exit) var(--ease-out-cubic),
-          scale var(--duration-exit) var(--ease-out-cubic);
-
-        &[data-side="below"] {
-          translate: -50% -4px;
-          transform-origin: top center;
-        }
-
-        &[data-open] {
-          opacity: 1;
-          translate: -50% 0;
-          scale: 1;
-          transition-duration: var(--duration-snappy);
-        }
-
-        &:has(button) {
-          gap: 12px;
-          padding-right: 4px;
-          pointer-events: auto;
-        }
-
-        button {
-          height: 24px;
-          padding: 0 8px;
-          color: var(--accent);
-          border-radius: 6px;
-        }
-      }
-
-      .tip {
-        position: fixed;
-        inset: auto;
-        display: inline-flex;
-        gap: 6px;
-        align-items: center;
-        height: 24px;
-        margin: 0;
-        padding: 0 8px;
-        overflow: visible;
-        font-size: 12px;
-        font-variation-settings: var(--font-weight-500);
-        color: var(--text-primary);
-        white-space: nowrap;
-        pointer-events: none;
-        background: var(--background-raised);
-        border: 0;
-        border-radius: 8px;
-        box-shadow: var(--shadow-floating);
-        translate: -50% 0;
-        transition:
-          opacity 125ms var(--ease-out-cubic),
-          translate 125ms var(--ease-out-cubic);
-
-        @starting-style {
-          opacity: 0;
-          translate: -50% 4px;
-        }
-
-        &[data-side="below"] {
-          @starting-style {
-            translate: -50% -4px;
-          }
-        }
-
-        &[data-instant] {
-          transition: none;
-        }
-
-        kbd {
-          font: inherit;
-          color: var(--text-tertiary);
-        }
       }
 
       .source-icon {
@@ -439,36 +1053,10 @@
 
       .chip {
         --chip-ring: var(--background-primary);
-        display: inline-flex;
-        gap: 6px;
-        align-items: center;
-        height: 28px;
-        padding: 0 12px;
-        font-size: 13px;
-        font-variation-settings: var(--font-weight-500);
-        color: var(--text-tertiary);
-        white-space: nowrap;
-        border-radius: var(--radius-control);
 
         &[aria-pressed="true"] {
           --chip-ring: var(--background-tertiary);
-          color: var(--text-primary);
-          background: var(--background-tertiary);
         }
-
-        &:active:not(:disabled) {
-          color: var(--text-primary);
-        }
-
-        &:disabled {
-          cursor: default;
-          opacity: 0.5;
-        }
-      }
-
-      .count {
-        color: var(--text-quaternary);
-        font-variant-numeric: tabular-nums;
       }
 
       .groups {
@@ -490,11 +1078,11 @@
         padding: 6px;
         background: var(--background-raised);
         border-radius: 14px;
-        box-shadow: var(--shadow-floating);
+        box-shadow: var(--shadow-extra-large);
         translate: -50% 0;
         transition:
-          opacity var(--duration-snappy) var(--ease-out-cubic),
-          translate var(--duration-snappy) var(--ease-out-cubic);
+          opacity var(--duration-snappy) var(--ease-out),
+          translate var(--duration-snappy) var(--ease-out);
 
         &[data-empty] {
           pointer-events: none;
@@ -534,8 +1122,8 @@
           opacity: var(--fanned);
           scale: calc(0.8 + var(--fanned) * 0.2);
           transition:
-            opacity var(--duration-snappy) var(--ease-out-quart),
-            scale var(--duration-snappy) var(--ease-out-quart);
+            opacity var(--duration-snappy) var(--ease-out),
+            scale var(--duration-snappy) var(--ease-out);
         }
 
         &:focus-within {
@@ -570,10 +1158,10 @@
         grid-area: 1 / 1;
         rotate: calc(var(--tilt, 0deg) * (1 - var(--fanned)) + var(--k) * -2deg * var(--fanned));
         transition:
-          rotate var(--duration-snappy) var(--ease-out-quart),
-          translate var(--duration-snappy) var(--ease-out-quart),
-          scale var(--duration-snappy) var(--ease-out-quart),
-          opacity var(--duration-snappy) var(--ease-out-quart);
+          rotate var(--duration-snappy) var(--ease-out),
+          translate var(--duration-snappy) var(--ease-out),
+          scale var(--duration-snappy) var(--ease-out),
+          opacity var(--duration-snappy) var(--ease-out);
         transition-delay: calc(var(--fanned) * var(--k) * 24ms);
       }
 
@@ -598,7 +1186,6 @@
 
         img,
         video {
-          display: block;
           width: 100%;
           height: 100%;
           object-fit: cover;
@@ -645,10 +1232,10 @@
         pointer-events: none;
         background: var(--background-raised);
         border-radius: 10px;
-        box-shadow: var(--shadow-floating);
+        box-shadow: var(--shadow-extra-large);
         opacity: var(--fanned);
         translate: 0 -50%;
-        transition: opacity var(--duration-snappy) var(--ease-out-quart);
+        transition: opacity var(--duration-snappy) var(--ease-out);
       }
 
       .group-head {
@@ -692,7 +1279,7 @@
             0 0 0 4px var(--accent);
           opacity: 0;
           pointer-events: none;
-          transition: opacity var(--duration-snappy) var(--ease-out-cubic);
+          transition: opacity var(--duration-snappy) var(--ease-out);
         }
 
         &[data-picked]::after {
@@ -721,7 +1308,6 @@
 
         img,
         video {
-          display: block;
           width: 100%;
           height: 100%;
           object-fit: cover;
@@ -731,8 +1317,8 @@
       @media (prefers-reduced-motion: no-preference) {
         .shot :is(img, video) {
           transition:
-            opacity 0.6s var(--ease-out-quart),
-            filter 0.7s var(--ease-out-quart);
+            opacity 0.6s var(--ease-out),
+            filter 0.7s var(--ease-out);
 
           &:not([data-loaded]) {
             opacity: 0;
@@ -758,10 +1344,10 @@
         color: var(--text-tertiary);
         background: color-mix(in oklab, var(--background-primary) 82%, transparent);
         border-radius: var(--radius-control);
-        box-shadow: var(--shadow-raised);
+        box-shadow: var(--shadow-large);
         opacity: 0;
         backdrop-filter: blur(8px);
-        transition: opacity var(--duration-snappy) var(--ease-out-cubic);
+        transition: opacity var(--duration-snappy) var(--ease-out);
 
         &::before {
           position: absolute;
@@ -784,11 +1370,11 @@
         }
 
         @media not ((hover: hover) and (pointer: fine)) {
-          &.pick {
+          &.tool-pick {
             opacity: 1;
           }
 
-          &:not(.pick) {
+          &:not(.tool-pick) {
             display: none;
           }
         }
@@ -808,7 +1394,7 @@
         background: linear-gradient(to top, oklch(0 0 0 / 0.72), oklch(0 0 0 / 0.48) 55%, transparent);
         border-radius: 0 0 10px 10px;
         opacity: 0;
-        transition: opacity var(--duration-snappy) var(--ease-out-cubic);
+        transition: opacity var(--duration-snappy) var(--ease-out);
 
         .ref:has(:focus-visible) & {
           opacity: 1;
@@ -863,8 +1449,8 @@
         background: transparent;
         backdrop-filter: blur(0);
         transition:
-          background-color var(--duration-exit) var(--ease-out-cubic),
-          backdrop-filter var(--duration-exit) var(--ease-out-cubic),
+          background-color var(--duration-exit) var(--ease-out),
+          backdrop-filter var(--duration-exit) var(--ease-out),
           display var(--duration-exit) allow-discrete,
           overlay var(--duration-exit) allow-discrete;
 
@@ -913,7 +1499,7 @@
           object-fit: contain;
           cursor: default;
           border-radius: 12px;
-          box-shadow: var(--shadow-raised);
+          box-shadow: var(--shadow-large);
 
           @media (width <= 900px) {
             max-height: calc(60dvh - var(--inset));
@@ -929,10 +1515,10 @@
         overflow: hidden;
         background: var(--background-raised);
         border: 1px solid transparent;
-        border-radius: 16px;
-        box-shadow: var(--shadow-floating);
+        border-radius: var(--radius-panel);
+        box-shadow: var(--shadow-extra-large);
         opacity: 0;
-        transition: opacity var(--duration-exit) var(--ease-out-cubic);
+        transition: opacity var(--duration-exit) var(--ease-out);
 
         .viewer[open] & {
           opacity: 1;
@@ -956,164 +1542,6 @@
         }
       }
 
-      .panel-scroll {
-        display: flex;
-        flex-direction: column;
-        gap: 24px;
-        min-height: 0;
-        padding: 16px;
-        overflow-y: auto;
-        overscroll-behavior: contain;
-        mask-image:
-          linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
-          linear-gradient(black, black),
-          linear-gradient(black, black);
-        mask-clip: border-box, border-box, no-clip;
-        mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
-        mask-position: 0 0, 0 0, -64px -64px;
-        mask-repeat: no-repeat;
-        mask-composite: add, exclude;
-        animation: scroll-fade linear both;
-        animation-timeline: scroll(self);
-      }
-
-      .panel-top,
-      .panel-tools {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-      }
-
-      .panel-top {
-        justify-content: space-between;
-      }
-
-      .icon-button {
-        position: relative;
-        display: grid;
-        place-items: center;
-        width: 28px;
-        height: 28px;
-        color: var(--text-tertiary);
-        background: var(--background-tertiary);
-        border-radius: var(--radius-control);
-
-        &::before {
-          position: absolute;
-          inset: -4px;
-          content: "";
-        }
-
-        &:active:not(:disabled, [aria-pressed="true"]) {
-          color: var(--text-primary);
-          background: var(--background-hover);
-        }
-
-        &:disabled {
-          cursor: default;
-          opacity: 0.4;
-        }
-
-        &[aria-pressed="true"] {
-          color: var(--text-on-accent);
-          background: var(--accent);
-        }
-      }
-
-      .panel-head {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-      }
-
-      .panel-group {
-        color: var(--text-tertiary);
-      }
-
-      .panel-title {
-        font-variation-settings: var(--font-weight-500);
-        text-wrap: balance;
-      }
-
-      .panel-note {
-        margin-top: 10px;
-        color: var(--text-secondary);
-        text-wrap: pretty;
-      }
-
-      .panel-count {
-        margin-top: 10px;
-        color: var(--text-quaternary);
-        font-variant-numeric: tabular-nums;
-      }
-
-      .detail {
-        display: flex;
-        gap: 16px;
-        justify-content: space-between;
-        padding: 6px 0;
-
-        & + & {
-          border-top: 1px solid var(--border-primary);
-        }
-
-        dt {
-          flex: none;
-          color: var(--text-tertiary);
-        }
-
-        dd {
-          min-width: 0;
-          text-align: right;
-          overflow-wrap: anywhere;
-
-          span + span::before {
-            content: ", ";
-          }
-        }
-
-        a {
-          display: inline-flex;
-          gap: 4px;
-          align-items: center;
-
-          svg {
-            color: var(--text-quaternary);
-          }
-
-          &:active svg {
-            color: var(--text-primary);
-          }
-        }
-      }
-
-      .field {
-        display: flex;
-        flex-direction: column;
-        gap: 6px;
-
-        textarea {
-          min-height: 72px;
-          padding: 8px 10px;
-          resize: vertical;
-          background: var(--background-tertiary);
-          border-radius: var(--radius-control);
-
-          &::placeholder {
-            color: var(--text-quaternary);
-          }
-
-          &:focus-visible {
-            outline-offset: 0;
-            border-radius: var(--radius-control);
-          }
-        }
-      }
-
-      .field-label {
-        color: var(--text-tertiary);
-      }
-
       .compare {
         position: fixed;
         inset: 0;
@@ -1126,7 +1554,7 @@
         backdrop-filter: blur(24px);
         opacity: 0;
         transition:
-          opacity var(--duration-exit) var(--ease-out-cubic),
+          opacity var(--duration-exit) var(--ease-out),
           display var(--duration-exit) allow-discrete,
           overlay var(--duration-exit) allow-discrete;
 
@@ -1207,7 +1635,7 @@
           max-height: 100%;
           object-fit: contain;
           border-radius: 12px;
-          box-shadow: var(--shadow-raised);
+          box-shadow: var(--shadow-large);
 
           @media (width <= 640px) {
             max-height: 60dvh;
@@ -1248,13 +1676,6 @@
         box-shadow: inset 2px 0 0 var(--accent);
       }
 
-      @media (width <= 640px) {
-        input:not([type="range"]),
-        textarea {
-          font-size: 16px;
-        }
-      }
-
       @media (hover: hover) and (pointer: fine) {
         .tray-thumbs:hover {
           --fanned: 1;
@@ -1265,19 +1686,6 @@
           scale: 1.1;
         }
 
-        .chip:hover:not(:disabled) {
-          color: var(--text-primary);
-        }
-
-        .toast button:hover {
-          background: var(--background-hover);
-        }
-
-        .icon-button:hover:not(:disabled, [aria-pressed="true"]) {
-          color: var(--text-primary);
-          background: var(--background-hover);
-        }
-
         .ref:hover :is(.tool, .caption) {
           opacity: 1;
         }
@@ -1286,19 +1694,8 @@
           color: var(--text-primary);
         }
 
-        .detail a:hover svg,
         .compare-caption a:hover svg {
           color: var(--text-primary);
-        }
-      }
-
-      @media (prefers-reduced-motion: reduce) {
-        *,
-        *::before,
-        *::after,
-        ::backdrop {
-          transition-duration: 0s !important;
-          transition-delay: 0s !important;
         }
       }
     </style>
@@ -1323,7 +1720,7 @@
       <main class="groups" id="groups"><p class="empty" id="empty" hidden></p></main>
     </div>
 
-    <div class="tray" id="tray" role="region" aria-label="Picks" data-empty inert>
+    <div class="tray" id="tray" role="region" aria-label="Picks" data-frame data-empty inert>
       <div class="tray-thumbs" id="tray-thumbs"></div>
       <span class="tray-divider" aria-hidden="true"></span>
       <button class="icon-button" id="compare" type="button" aria-label="Compare Picks" aria-keyshortcuts="C" data-tip data-key="C" disabled>
@@ -1340,13 +1737,10 @@
       </button>
     </div>
 
-    <output class="toast" id="toast" popover="manual"></output>
-    <div class="tip" id="tip" popover="manual" aria-hidden="true"></div>
-
     <dialog class="viewer" id="viewer" aria-label="Reference">
       <div class="stage" id="stage"></div>
       <aside class="panel">
-        <div class="panel-scroll">
+        <div class="panel-scroll scroll-fade">
           <div class="panel-top">
             <button class="icon-button" id="viewer-close" type="button" aria-label="Close" title="Close (Esc)">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
@@ -1370,7 +1764,7 @@
           </header>
           <label class="field" id="viewer-field" hidden>
             <span class="field-label">Your Note</span>
-            <textarea id="viewer-notes" rows="3" placeholder="What to take from it"></textarea>
+            <textarea class="input" id="viewer-notes" rows="3" placeholder="What to take from it"></textarea>
           </label>
           <dl id="viewer-details"></dl>
         </div>
@@ -1390,7 +1784,117 @@
 
     <script src="board.js"></script>
     <script>
+      // kit:h
       const $ = (id) => document.getElementById(id);
+
+      function h(tag, props = {}, ...children) {
+        const node = document.createElement(tag);
+        for (const [key, value] of Object.entries(props)) {
+          if (key === "html") node.innerHTML = value;
+          else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+          else node.setAttribute(key, value);
+        }
+        node.append(...children.filter((child) => child != null));
+        return node;
+      }
+      // kit:h end
+
+      // kit:anchor
+      function anchorTo(popover, anchor) {
+        const rect = anchor.getBoundingClientRect();
+        const frame = (anchor.closest("[data-frame]") ?? anchor).getBoundingClientRect();
+        const half = popover.offsetWidth / 2;
+        const edge = document.documentElement.clientWidth - 8;
+        const below = frame.top < popover.offsetHeight + 16;
+        popover.style.left = `${Math.min(edge - half, Math.max(8 + half, rect.left + rect.width / 2))}px`;
+        popover.style.top = `${below ? frame.bottom + 8 : frame.top - 8 - popover.offsetHeight}px`;
+        popover.dataset.side = below ? "below" : "above";
+      }
+      // kit:anchor end
+
+      // kit:overlays
+      const toast = h("output", { class: "toast", popover: "manual" });
+      const tip = h("div", { class: "tip", popover: "manual", "aria-hidden": "true" });
+      document.body.append(toast, tip);
+
+      function hideToast() {
+        clearTimeout(toast.hide);
+        delete toast.dataset.open;
+        toast.hide = setTimeout(() => toast.hidePopover(), 200);
+      }
+
+      function showToast(anchor, message, action) {
+        clearTimeout(toast.hide);
+        hideTip();
+        delete toast.dataset.open;
+        if (!toast.matches(":popover-open")) toast.showPopover();
+        toast.replaceChildren(message, ...(action ? [action] : []));
+        anchorTo(toast, anchor);
+        toast.dataset.open = "";
+        toast.hide = setTimeout(hideToast, action ? 5000 : 1600);
+      }
+
+      async function copy(text, anchor) {
+        const tokens = Math.ceil(text.length / 4).toLocaleString();
+        const message = await navigator.clipboard.writeText(text).then(
+          () => `Copied · ~${tokens} tokens`,
+          () => "Copy Failed",
+        );
+        showToast(anchor, message);
+      }
+
+      let tipTimer;
+      let tipClosedAt = 0;
+
+      function showTip(button) {
+        clearTimeout(tipTimer);
+        const warm = tip.matches(":popover-open") || performance.now() - tipClosedAt < 300;
+        const open = () => {
+          const key = button.dataset.key;
+          tip.replaceChildren(button.dataset.tip || button.getAttribute("aria-label"), ...(key ? [h("kbd", {}, key)] : []));
+          tip.toggleAttribute("data-instant", warm);
+          if (!tip.matches(":popover-open")) tip.showPopover();
+          anchorTo(tip, button);
+        };
+        if (warm) open();
+        else tipTimer = setTimeout(open, 500);
+      }
+
+      function hideTip() {
+        clearTimeout(tipTimer);
+        if (!tip.matches(":popover-open")) return;
+        tipClosedAt = performance.now();
+        tip.hidePopover();
+      }
+
+      const tipped = (event) => event.target.closest?.("[data-tip]");
+      document.addEventListener("pointerover", (event) => {
+        const button = tipped(event);
+        if (button && event.pointerType === "mouse" && !button.contains(event.relatedTarget)) showTip(button);
+      });
+      document.addEventListener("pointerout", (event) => {
+        const button = tipped(event);
+        if (button && !button.contains(event.relatedTarget)) hideTip();
+      });
+      document.addEventListener("focusin", (event) => {
+        const button = tipped(event);
+        if (button?.matches(":focus-visible")) showTip(button);
+      });
+      document.addEventListener("focusout", (event) => tipped(event) && hideTip());
+      document.addEventListener("pointerdown", hideTip);
+      // kit:overlays end
+
+      // kit:bar
+      function stick(bar) {
+        const mark = () => bar.toggleAttribute("data-stuck", scrollY > 0 && bar.getBoundingClientRect().top <= 0);
+        addEventListener("scroll", mark, { passive: true });
+        mark();
+        new ResizeObserver(() => {
+          document.documentElement.style.setProperty("--bar-height", `${bar.offsetHeight + 8}px`);
+        }).observe(bar);
+      }
+      // kit:bar end
+
       const storageKey = `gather:${location.pathname}`;
       const picked = new Set(JSON.parse(localStorage.getItem(storageKey) || "[]"));
       const notes = JSON.parse(localStorage.getItem(`${storageKey}:notes`) || "{}");
@@ -1411,17 +1915,6 @@
         pond: `<svg width="10" height="10" viewBox="0 0 207 207" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M120.711 14.6446C140.237 -4.88145 171.895 -4.88142 191.421 14.6446C210.947 34.1707 210.947 65.8283 191.421 85.3545L177.279 99.4967C175.326 101.449 175.326 104.615 177.279 106.568L191.421 120.71C210.947 140.236 210.947 171.895 191.421 191.421C171.895 210.947 140.237 210.947 120.711 191.421L106.568 177.278C104.615 175.325 101.449 175.325 99.4967 177.278L85.3555 191.421C65.8293 210.947 34.1708 210.947 14.6446 191.421C-4.88146 171.895 -4.88159 140.236 14.6446 120.71L28.7868 106.568C30.7394 104.615 30.7394 101.449 28.7868 99.4967L14.6446 85.3545C-4.88125 65.8283 -4.88141 34.1707 14.6446 14.6446C34.1707 -4.88153 65.8293 -4.88151 85.3555 14.6446L99.4969 28.786C101.449 30.7385 104.615 30.7386 106.568 28.7862L120.711 14.6446ZM72.2891 53C61.2434 53.0001 52.2891 61.9544 52.2891 73V133C52.2893 144.046 61.2436 153 72.2891 153H132.289C143.335 153 152.289 144.046 152.289 133V73C152.289 61.9543 143.335 53 132.289 53H72.2891Z" /></svg>`,
         globe: `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.75" /><path d="M2.25 8h11.5M8 2.25c-3 3.5-3 8 0 11.5M8 2.25c3 3.5 3 8 0 11.5" /></svg>`,
       };
-
-      function h(tag, props = {}, ...children) {
-        const node = document.createElement(tag);
-        for (const [key, value] of Object.entries(props)) {
-          if (key === "html") node.innerHTML = value;
-          else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
-          else node.setAttribute(key, value);
-        }
-        node.append(...children.filter((child) => child != null));
-        return node;
-      }
 
       function place(parent, nodes) {
         let cursor = parent.firstChild;
@@ -1495,7 +1988,7 @@
         item.captionNote = h("span", { class: "caption-note" });
         item.more = h("button", { class: "tool", type: "button", html: icons.more, onclick: () => moreLikeThis(item, item.more) });
         item.open = h("a", { class: "tool", target: "_blank", rel: "noreferrer", html: icons.external });
-        item.pick = h("button", { class: "tool pick", type: "button", html: icons.check, onclick: () => togglePick(item) });
+        item.pick = h("button", { class: "tool tool-pick", type: "button", html: icons.check, onclick: () => togglePick(item) });
         item.node = h(
           "figure",
           { class: "ref", "data-kind": item.kind },
@@ -1863,95 +2356,7 @@
 
       $("picked-only").addEventListener("click", () => setFilter("pickedOnly", !filters.pickedOnly));
 
-      const bar = $("bar");
-      const markStuck = () => bar.toggleAttribute("data-stuck", scrollY > 0 && bar.getBoundingClientRect().top <= 0);
-      addEventListener("scroll", markStuck, { passive: true });
-      markStuck();
-      new ResizeObserver(() => {
-        document.documentElement.style.setProperty("--bar-height", `${bar.offsetHeight + 8}px`);
-      }).observe(bar);
-
-      const toast = $("toast");
-
-      function hideToast() {
-        clearTimeout(toast.hide);
-        delete toast.dataset.open;
-        toast.hide = setTimeout(() => toast.hidePopover(), 200);
-      }
-
-      function showToast(anchor, message, action) {
-        clearTimeout(toast.hide);
-        hideTip();
-        toast.replaceChildren(message, ...(action ? [action] : []));
-        delete toast.dataset.open;
-        if (toast.matches(":popover-open")) toast.hidePopover();
-        toast.showPopover();
-        const rect = anchor.getBoundingClientRect();
-        const frame = (anchor.closest(".tray") ?? anchor).getBoundingClientRect();
-        const half = toast.offsetWidth / 2;
-        const edge = document.documentElement.clientWidth - 8;
-        const below = frame.top < toast.offsetHeight + 16;
-        toast.style.left = `${Math.min(edge - half, Math.max(8 + half, rect.left + rect.width / 2))}px`;
-        toast.style.top = `${below ? frame.bottom + 8 : frame.top - 8 - toast.offsetHeight}px`;
-        toast.dataset.side = below ? "below" : "above";
-        toast.dataset.open = "";
-        toast.hide = setTimeout(hideToast, action ? 5000 : 1600);
-      }
-
-      const tip = $("tip");
-      let tipTimer;
-      let tipClosedAt = 0;
-
-      function showTip(button) {
-        clearTimeout(tipTimer);
-        const warm = tip.matches(":popover-open") || performance.now() - tipClosedAt < 300;
-        const open = () => {
-          const key = button.dataset.key;
-          tip.replaceChildren(button.dataset.tip || button.getAttribute("aria-label"), ...(key ? [h("kbd", {}, key)] : []));
-          tip.toggleAttribute("data-instant", warm);
-          if (!tip.matches(":popover-open")) tip.showPopover();
-          const rect = button.getBoundingClientRect();
-          const frame = (button.closest(".tray") ?? button).getBoundingClientRect();
-          const below = frame.top < tip.offsetHeight + 16;
-          tip.dataset.side = below ? "below" : "above";
-          tip.style.left = `${rect.left + rect.width / 2}px`;
-          tip.style.top = `${below ? frame.bottom + 8 : frame.top - 8 - tip.offsetHeight}px`;
-        };
-        if (warm) open();
-        else tipTimer = setTimeout(open, 500);
-      }
-
-      function hideTip() {
-        clearTimeout(tipTimer);
-        if (!tip.matches(":popover-open")) return;
-        tipClosedAt = performance.now();
-        tip.hidePopover();
-      }
-
-      const tipped = (event) => event.target.closest?.("[data-tip]");
-      document.addEventListener("pointerover", (event) => {
-        const button = tipped(event);
-        if (button && event.pointerType === "mouse" && !button.contains(event.relatedTarget)) showTip(button);
-      });
-      document.addEventListener("pointerout", (event) => {
-        const button = tipped(event);
-        if (button && !button.contains(event.relatedTarget)) hideTip();
-      });
-      document.addEventListener("focusin", (event) => {
-        const button = tipped(event);
-        if (button?.matches(":focus-visible")) showTip(button);
-      });
-      document.addEventListener("focusout", (event) => tipped(event) && hideTip());
-      document.addEventListener("pointerdown", hideTip);
-
-      async function copy(text, anchor) {
-        const tokens = Math.ceil(text.length / 4).toLocaleString();
-        const message = await navigator.clipboard.writeText(text).then(
-          () => `Copied · ~${tokens} tokens`,
-          () => "Copy Failed",
-        );
-        showToast(anchor, message);
-      }
+      stick($("bar"));
 
       function describe(item, index) {
         const pad = index === undefined ? "" : "   ";
