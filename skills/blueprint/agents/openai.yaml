@@ -1,0 +1,5 @@
+interface:
+  display_name: "Blueprint"
+  short_description: "Flat measured drawing of a real screen"
+policy:
+  allow_implicit_invocation: false

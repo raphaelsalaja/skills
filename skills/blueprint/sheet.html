@@ -1,0 +1,1369 @@
+<!doctype html>
+<!--
+  Blueprint sheet. Copy this file to .blueprint/<subject>/index.html, save the 2x screenshot of the clip as screen.png and write sheet.js:
+
+  window.sheet = {
+    title: "Billing Card",
+    url: "http://localhost:3000/settings",
+    screenshot: "screen.png",
+    scale: 2,
+    frame: { width: 786, height: 560, margin: { left: 176, top: 72, right: 210, bottom: 56 } },
+    subject: { x: 176, y: 72, width: 400, height: 432 },
+    ink: "dark",
+    outlines: [
+      { rect: { x: 176, y: 72, width: 400, height: 432 }, role: "subject" }
+    ],
+    callouts: [
+      {
+        kind: "padding",
+        label: "Padding 20",
+        rect: { x: 176, y: 72, width: 400, height: 432 },
+        padding: { top: 20, right: 20, bottom: 20, left: 20 }
+      },
+      {
+        kind: "gap",
+        label: "Gap 16",
+        axis: "y",
+        size: 16,
+        a: { x: 196, y: 92, width: 360, height: 20 },
+        b: { x: 196, y: 128, width: 360, height: 48 }
+      },
+      { kind: "radius", label: "Radius 16", rect: { x: 176, y: 72, width: 400, height: 432 }, corner: "top-left", radius: 16 },
+      { kind: "type", label: "Inter 22/28 Semibold", anchor: { x: 196, y: 110 }, rect: { x: 196, y: 96, width: 120, height: 28 } },
+      { kind: "colour", label: "Text Primary", token: "--text-primary", swatch: "rgb(28, 28, 28)", anchor: { x: 196, y: 104 }, rect: { x: 196, y: 96, width: 120, height: 28 } },
+      { kind: "hit", label: "Hit 40", rect: { x: 184, y: 420, width: 40, height: 40 } }
+    ]
+  };
+
+  Take `title`, `url`, `frame`, `subject`, `ink`, `outlines` and `callouts` from measure.js. Set `screenshot` to the file and `scale` to 2. Coordinates are CSS pixels of that screenshot. `ink` is "dark" on a light surface and "light" on a dark one. Delete callouts that crowd the subject. Labels are Title Case.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#080808" media="(prefers-color-scheme: dark)" />
+    <title>Blueprint</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&display=swap"
+    />
+    <style>
+      :root {
+        /* kit:tokens */
+        --gray-1: light-dark(#ffffff, #080808);
+        --gray-2: light-dark(#fafafa, #111111);
+        --gray-3: light-dark(#f2f2f2, #1a1a1a);
+        --gray-4: light-dark(#ebebeb, #222222);
+        --gray-5: light-dark(#e3e3e3, #2a2a2a);
+        --gray-10: light-dark(#6b6b6b, #8f8f8f);
+        --gray-11: light-dark(#575757, #b4b4b4);
+        --gray-12: light-dark(#080808, #ffffff);
+        --blue: #02bbff;
+        --red: light-dark(#d93036, #ff6369);
+        --green: light-dark(#2b9a66, #3dd68c);
+        --accent: var(--blue);
+        --danger: var(--red);
+        --success: var(--green);
+        --text-primary: var(--gray-12);
+        --text-secondary: color-mix(in oklab, var(--gray-12) 80%, var(--gray-11));
+        --text-tertiary: var(--gray-11);
+        --text-quaternary: var(--gray-10);
+        --text-on-accent: light-dark(#ffffff, #080808);
+        --border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
+        --border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
+        --background-primary: var(--gray-1);
+        --background-secondary: var(--gray-2);
+        --background-tertiary: light-dark(rgb(8 8 8 / 5%), rgb(255 255 255 / 8%));
+        --background-hover: light-dark(rgb(8 8 8 / 8%), rgb(255 255 255 / 13%));
+        --background-raised: light-dark(#ffffff, #1a1a1a);
+        --background-control: light-dark(#ffffff, #222222);
+        --background-overlay: light-dark(#ffffff, #111111);
+        --fill-hover: light-dark(rgb(8 8 8 / 4%), rgb(255 255 255 / 6%));
+        --shadow-border: 0 0 0 1px light-dark(rgb(0 0 0 / 7%), rgb(255 255 255 / 7%));
+        --shadow-default:
+          inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+          0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+          0 1px 1px -1px light-dark(rgb(0 0 0 / 10%), transparent),
+          0 1px 2px 0 light-dark(rgb(0 0 0 / 5%), transparent);
+        --shadow-large:
+          0 0 0 0.5px light-dark(oklab(0.802 0 0 / 0.297), transparent),
+          0 0 0 1px light-dark(transparent, oklab(0.463 0 0 / 0.303)),
+          0 2px 3px -2px light-dark(rgb(0 0 0 / 6.3%), rgb(0 0 0 / 15%)),
+          0 3px 12px -4px light-dark(rgb(0 0 0 / 10%), transparent),
+          0 4px 16px -8px light-dark(rgb(0 0 0 / 5%), transparent),
+          0 3px 8px -2px light-dark(transparent, rgb(0 0 0 / 40%)),
+          0 4px 12px -4px light-dark(transparent, rgb(0 0 0 / 50%));
+        --shadow-extra-large:
+          inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+          0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+          0 8px 40px 0 rgb(0 0 0 / 5%),
+          0 12px 32px -16px rgb(0 0 0 / 15%);
+        --font-sans: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+        --font-weight-400: "wght" 400, "opsz" 14;
+        --font-weight-500: "wght" 500, "opsz" 14;
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+        --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+        --duration-snappy: 220ms;
+        --duration-exit: 160ms;
+        --radius-control: 8px;
+        --radius-menu: 12px;
+        --radius-panel: 16px;
+        /* kit:tokens end */
+        --inset: 48px;
+      }
+
+      /* kit:page */
+      :root {
+        color-scheme: light dark;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      * {
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        font-variation-settings: inherit;
+        color: inherit;
+        text-decoration: none;
+        border: 0;
+      }
+
+      ol,
+      ul {
+        list-style: none;
+      }
+
+      img,
+      svg,
+      canvas,
+      video {
+        display: block;
+        max-width: 100%;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      button {
+        cursor: pointer;
+        user-select: none;
+        background: none;
+      }
+
+      button,
+      a,
+      select {
+        touch-action: manipulation;
+      }
+
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.9em;
+      }
+
+      html {
+        font-family: var(--font-sans);
+        font-size: 14px;
+        line-height: 20px;
+        font-variation-settings: var(--font-weight-400);
+        font-optical-sizing: none;
+        font-feature-settings: "calt", "ccmp", "locl", "kern", "cv01", "ss03";
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-tap-highlight-color: transparent;
+        color: var(--text-primary);
+        background: var(--background-primary);
+        scroll-padding-block-start: var(--bar-height, 72px);
+      }
+
+      * {
+        scrollbar-width: none;
+      }
+
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      ::selection {
+        background: color-mix(in oklab, var(--accent) 28%, transparent);
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        text-wrap: balance;
+      }
+
+      p {
+        text-wrap: pretty;
+      }
+
+      @media (width <= 640px) {
+        input:not([type="range"]),
+        textarea,
+        select {
+          font-size: 16px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after,
+        ::backdrop {
+          transition-duration: 0s !important;
+          transition-delay: 0s !important;
+        }
+      }
+      /* kit:page end */
+
+      /* kit:head */
+      .head {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 640px;
+      }
+
+      .title {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .brief {
+        color: var(--text-tertiary);
+        overflow-wrap: anywhere;
+
+        a {
+          display: inline-flex;
+          gap: 4px;
+          align-items: center;
+          color: var(--text-secondary);
+
+          svg {
+            color: var(--text-quaternary);
+          }
+
+          &:active,
+          &:active svg {
+            color: var(--text-primary);
+          }
+        }
+
+        code {
+          color: var(--text-secondary);
+        }
+      }
+
+      @property --bar-line {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: transparent;
+      }
+
+      .bar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        padding: 16px 0;
+        border-image: linear-gradient(to top, var(--bar-line) 1px, var(--background-primary) 1px) fill 0 / / 0 100vw;
+        transition: --bar-line var(--duration-snappy) var(--ease-out);
+
+        &[data-stuck] {
+          --bar-line: var(--border-primary);
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .brief a:hover,
+        .brief a:hover svg {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:head end */
+
+      /* kit:controls */
+      .chip,
+      .action {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-tertiary);
+        white-space: nowrap;
+        border-radius: var(--radius-control);
+
+        &[aria-pressed="true"] {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &:active:not(:disabled) {
+          color: var(--text-primary);
+        }
+
+        &:disabled {
+          cursor: default;
+          opacity: 0.5;
+        }
+      }
+
+      .action {
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+
+        &:active:not(:disabled) {
+          background: var(--background-hover);
+        }
+      }
+
+      .icon-button,
+      .tool-button {
+        position: relative;
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        color: var(--text-tertiary);
+        border-radius: var(--radius-control);
+
+        &::before {
+          position: absolute;
+          inset: -4px;
+          content: "";
+        }
+
+        &:disabled {
+          cursor: default;
+          opacity: 0.4;
+        }
+      }
+
+      .icon-button {
+        background: var(--background-tertiary);
+
+        &:active:not(:disabled, [aria-pressed="true"]) {
+          color: var(--text-primary);
+          background: var(--background-hover);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-on-accent);
+          background: var(--accent);
+        }
+      }
+
+      .tool-button {
+        &:active:not(:disabled) {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &[aria-pressed="true"]:active:not(:disabled) {
+          background: var(--background-hover);
+        }
+      }
+
+      .pick {
+        position: relative;
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        color: var(--text-quaternary);
+        border-radius: var(--radius-control);
+        box-shadow: inset 0 0 0 1px var(--border-secondary);
+
+        &::before {
+          position: absolute;
+          inset: -6px;
+          content: "";
+        }
+
+        &:active:not([aria-pressed="true"]) {
+          color: var(--text-primary);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-on-accent);
+          background: var(--accent);
+          box-shadow: none;
+        }
+      }
+
+      .count {
+        color: var(--text-quaternary);
+        font-variant-numeric: tabular-nums;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .chip:hover:not(:disabled) {
+          color: var(--text-primary);
+        }
+
+        .action:hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
+        .icon-button:hover:not(:disabled, [aria-pressed="true"]) {
+          color: var(--text-primary);
+          background: var(--background-hover);
+        }
+
+        .tool-button:hover:not(:disabled) {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        .tool-button[aria-pressed="true"]:hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
+        .pick:hover:not([aria-pressed="true"]) {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:controls end */
+
+      /* kit:inputs */
+      .input {
+        width: 100%;
+        min-width: 0;
+        height: 28px;
+        padding: 0 10px;
+        font-size: 13px;
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+        border-radius: var(--radius-control);
+
+        &::placeholder {
+          color: var(--text-quaternary);
+        }
+
+        &:focus-visible {
+          outline-offset: 0;
+          border-radius: var(--radius-control);
+        }
+      }
+
+      textarea.input {
+        height: auto;
+        min-height: 72px;
+        padding: 8px 10px;
+        resize: vertical;
+      }
+
+      .search {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        min-width: 0;
+        height: 28px;
+        padding: 0 10px;
+        color: var(--text-quaternary);
+        background: var(--background-tertiary);
+        border-radius: var(--radius-control);
+
+        svg {
+          flex: none;
+        }
+
+        input {
+          flex: 1;
+          min-width: 0;
+          height: 100%;
+          font-size: 13px;
+          color: var(--text-primary);
+          background: none;
+          outline: none;
+
+          &::placeholder {
+            color: var(--text-quaternary);
+          }
+
+          &::-webkit-search-cancel-button {
+            appearance: none;
+          }
+        }
+
+        &:has(input:focus-visible) {
+          outline: 2px solid var(--accent);
+        }
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .field-label {
+        color: var(--text-tertiary);
+      }
+
+      .range {
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-tertiary);
+        white-space: nowrap;
+        background: var(--background-tertiary);
+        border-radius: var(--radius-control);
+
+        output {
+          min-width: 4ch;
+          color: var(--text-primary);
+          font-variant-numeric: tabular-nums;
+          text-align: right;
+        }
+
+        input {
+          --fill: 50%;
+          width: 88px;
+          height: 28px;
+          cursor: pointer;
+          appearance: none;
+          background: none;
+          outline: none;
+
+          &::-webkit-slider-runnable-track {
+            height: 4px;
+            background: linear-gradient(to right, var(--accent) var(--fill), var(--border-secondary) var(--fill));
+            border-radius: 999px;
+          }
+
+          &::-moz-range-track {
+            height: 4px;
+            background: linear-gradient(to right, var(--accent) var(--fill), var(--border-secondary) var(--fill));
+            border-radius: 999px;
+          }
+
+          &::-webkit-slider-thumb {
+            width: 14px;
+            height: 14px;
+            margin-top: -5px;
+            appearance: none;
+            background: var(--background-control);
+            border-radius: 999px;
+            box-shadow: var(--shadow-default);
+          }
+
+          &::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: var(--background-control);
+            border: 0;
+            border-radius: 999px;
+            box-shadow: var(--shadow-default);
+          }
+        }
+
+        &:has(input:focus-visible) {
+          outline: 2px solid var(--accent);
+          outline-offset: 2px;
+        }
+      }
+
+      .segmented {
+        display: inline-flex;
+        padding: 2px;
+        background: var(--background-tertiary);
+        border-radius: 10px;
+
+        button {
+          height: 24px;
+          padding: 0 10px;
+          font-size: 13px;
+          font-variation-settings: var(--font-weight-500);
+          color: var(--text-tertiary);
+          white-space: nowrap;
+          border-radius: 8px;
+
+          &:active {
+            color: var(--text-primary);
+          }
+
+          &[aria-pressed="true"] {
+            color: var(--text-primary);
+            background: var(--background-control);
+            box-shadow: var(--shadow-default);
+          }
+        }
+      }
+
+      @media (width <= 640px) {
+        .input,
+        .search input {
+          font-size: 16px;
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .segmented button:hover {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:inputs end */
+
+      /* kit:overlays */
+      .toast {
+        position: fixed;
+        inset: auto;
+        display: inline-flex;
+        align-items: center;
+        height: 32px;
+        padding: 0 12px;
+        margin: 0;
+        overflow: visible;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-primary);
+        white-space: nowrap;
+        pointer-events: none;
+        background: var(--background-raised);
+        border: 1px solid transparent;
+        border-radius: 10px;
+        box-shadow: var(--shadow-large);
+        opacity: 0;
+        translate: -50% 4px;
+        scale: 0.97;
+        transform-origin: bottom center;
+        transition:
+          opacity var(--duration-exit) var(--ease-out),
+          translate var(--duration-exit) var(--ease-out),
+          scale var(--duration-exit) var(--ease-out);
+
+        &[data-side="below"] {
+          translate: -50% -4px;
+          transform-origin: top center;
+        }
+
+        &[data-open] {
+          opacity: 1;
+          translate: -50% 0;
+          scale: 1;
+          transition-duration: var(--duration-snappy);
+        }
+
+        &:has(button) {
+          gap: 12px;
+          padding-right: 4px;
+          pointer-events: auto;
+        }
+
+        button {
+          height: 24px;
+          padding: 0 8px;
+          color: var(--accent);
+          border-radius: 6px;
+
+          &:active {
+            background: var(--background-hover);
+          }
+        }
+      }
+
+      .tip {
+        position: fixed;
+        inset: auto;
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        height: 24px;
+        padding: 0 8px;
+        margin: 0;
+        overflow: visible;
+        font-size: 12px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-primary);
+        white-space: nowrap;
+        pointer-events: none;
+        background: var(--background-raised);
+        border: 1px solid transparent;
+        border-radius: var(--radius-control);
+        box-shadow: var(--shadow-large);
+        translate: -50% 0;
+        transition:
+          opacity 125ms var(--ease-out),
+          translate 125ms var(--ease-out);
+
+        @starting-style {
+          opacity: 0;
+          translate: -50% 4px;
+        }
+
+        &[data-side="below"] {
+          @starting-style {
+            translate: -50% -4px;
+          }
+        }
+
+        &[data-instant] {
+          transition: none;
+        }
+
+        kbd {
+          font: inherit;
+          color: var(--text-tertiary);
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .toast button:hover {
+          background: var(--background-hover);
+        }
+      }
+      /* kit:overlays end */
+
+      /* kit:section */
+      .section-head {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        align-items: baseline;
+        margin-bottom: 20px;
+
+        .count {
+          margin-left: auto;
+        }
+      }
+
+      .section-title {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .section-description {
+        color: var(--text-tertiary);
+      }
+
+      .rows > * + * {
+        border-top: 1px solid var(--border-primary);
+      }
+
+      .empty {
+        padding: 64px 0;
+        color: var(--text-tertiary);
+        text-align: center;
+      }
+      /* kit:section end */
+
+      .page {
+        width: min(1040px, 100% - var(--inset) * 2);
+        margin: 0 auto;
+        padding: 96px 0 128px;
+
+        @media (width <= 640px) {
+          --inset: 24px;
+          padding-top: 64px;
+        }
+      }
+
+      .bar {
+        margin-top: 48px;
+      }
+
+      .controls,
+      .tools {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        min-width: 0;
+      }
+
+      .tools {
+        margin-left: auto;
+      }
+
+      .reveal input {
+        width: 148px;
+      }
+
+      .stage {
+        position: relative;
+        width: var(--frame-w);
+        height: var(--frame-h);
+        max-width: none;
+        margin: 32px auto 0;
+        overflow: hidden;
+        background: var(--background-secondary);
+        border-radius: 0;
+      }
+
+      .stage img,
+      .ink,
+      .veil,
+      .drawing,
+      .divider {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        max-width: none;
+      }
+
+      .stage img {
+        object-fit: fill;
+        -webkit-user-drag: none;
+      }
+
+      .ink {
+        pointer-events: none;
+      }
+
+      .veil {
+        opacity: 0.74;
+      }
+
+      .drawing {
+        overflow: visible;
+      }
+
+      .drawing line,
+      .drawing path,
+      .drawing rect,
+      .drawing circle {
+        fill: none;
+        stroke: var(--ink);
+        stroke-width: 0.75;
+        shape-rendering: geometricPrecision;
+      }
+
+      .drawing .soft {
+        stroke: var(--ink-soft);
+        stroke-width: 0.6;
+      }
+
+      .drawing .hit {
+        stroke-dasharray: 3 2.5;
+      }
+
+      .drawing rect.swatch {
+        stroke-width: 1;
+      }
+
+      .drawing .dot {
+        fill: var(--ink);
+        stroke: none;
+      }
+
+      .drawing text {
+        font-family: var(--font-sans);
+        font-size: 11px;
+        font-variation-settings: var(--font-weight-500);
+        font-variant-numeric: tabular-nums;
+        fill: var(--ink);
+        stroke: var(--halo);
+        stroke-width: 4px;
+        stroke-linejoin: round;
+        paint-order: stroke;
+      }
+
+      .divider {
+        left: 0;
+        width: 1px;
+        background: var(--ink);
+        box-shadow: 0 0 0 1px color-mix(in srgb, var(--halo) 80%, transparent);
+        opacity: 0;
+        pointer-events: none;
+      }
+
+      .section {
+        margin-top: 48px;
+      }
+
+      .callouts li {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        padding: 6px 0;
+        color: var(--text-secondary);
+      }
+
+      .callouts .chip-swatch {
+        flex: none;
+        width: 10px;
+        height: 10px;
+        border-radius: 2px;
+        box-shadow: inset 0 0 0 1px var(--border-secondary);
+      }
+
+      .callouts code {
+        margin-left: auto;
+        color: var(--text-tertiary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="head">
+        <h1 class="title" id="title">Blueprint</h1>
+        <p class="brief" id="brief"></p>
+      </header>
+
+      <nav class="bar" id="bar" aria-label="Blueprint">
+        <div class="controls">
+          <label class="range reveal" title="Reveal">
+            <input id="reveal" type="range" min="0" max="1000" step="1" value="1000" aria-label="Reveal" />
+            <output id="reveal-value" for="reveal">100</output>
+          </label>
+        </div>
+        <div class="tools">
+          <button class="action" id="play" type="button" aria-pressed="false">Play</button>
+        </div>
+      </nav>
+
+      <main>
+        <div class="stage" id="stage">
+          <img id="screen" alt="" />
+          <div class="ink" id="ink">
+            <div class="veil" id="veil"></div>
+            <svg class="drawing" id="drawing"></svg>
+          </div>
+          <div class="divider" id="divider"></div>
+        </div>
+
+        <section class="section">
+          <header class="section-head">
+            <h2 class="section-title">Callouts</h2>
+            <span class="count" id="count"></span>
+          </header>
+          <ul class="rows callouts" id="callouts"></ul>
+        </section>
+      </main>
+    </div>
+
+    <script src="sheet.js"></script>
+    <script>
+      // kit:h
+      const $ = (id) => document.getElementById(id);
+
+      function h(tag, props = {}, ...children) {
+        const node = document.createElement(tag);
+        for (const [key, value] of Object.entries(props)) {
+          if (key === "html") node.innerHTML = value;
+          else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+          else node.setAttribute(key, value);
+        }
+        node.append(...children.filter((child) => child != null));
+        return node;
+      }
+      // kit:h end
+
+      // kit:overlays
+      const toast = h("output", { class: "toast", popover: "manual" });
+      const tip = h("div", { class: "tip", popover: "manual", "aria-hidden": "true" });
+      document.body.append(toast, tip);
+
+      function hideToast() {
+        clearTimeout(toast.hide);
+        delete toast.dataset.open;
+        toast.hide = setTimeout(() => toast.hidePopover(), 200);
+      }
+
+      function showToast(anchor, message, action) {
+        clearTimeout(toast.hide);
+        hideTip();
+        delete toast.dataset.open;
+        if (!toast.matches(":popover-open")) toast.showPopover();
+        toast.replaceChildren(message, ...(action ? [action] : []));
+        anchorTo(toast, anchor);
+        toast.dataset.open = "";
+        toast.hide = setTimeout(hideToast, action ? 5000 : 1600);
+      }
+
+      async function copy(text, anchor) {
+        const tokens = Math.ceil(text.length / 4).toLocaleString();
+        const message = await navigator.clipboard.writeText(text).then(
+          () => `Copied · ~${tokens} tokens`,
+          () => "Copy Failed",
+        );
+        showToast(anchor, message);
+      }
+
+      let tipTimer;
+      let tipClosedAt = 0;
+
+      function showTip(button) {
+        clearTimeout(tipTimer);
+        const warm = tip.matches(":popover-open") || performance.now() - tipClosedAt < 300;
+        const open = () => {
+          const key = button.dataset.key;
+          tip.replaceChildren(button.dataset.tip || button.getAttribute("aria-label"), ...(key ? [h("kbd", {}, key)] : []));
+          tip.toggleAttribute("data-instant", warm);
+          if (!tip.matches(":popover-open")) tip.showPopover();
+          anchorTo(tip, button);
+        };
+        if (warm) open();
+        else tipTimer = setTimeout(open, 500);
+      }
+
+      function hideTip() {
+        clearTimeout(tipTimer);
+        if (!tip.matches(":popover-open")) return;
+        tipClosedAt = performance.now();
+        tip.hidePopover();
+      }
+
+      const tipped = (event) => event.target.closest?.("[data-tip]");
+      document.addEventListener("pointerover", (event) => {
+        const button = tipped(event);
+        if (button && event.pointerType === "mouse" && !button.contains(event.relatedTarget)) showTip(button);
+      });
+      document.addEventListener("pointerout", (event) => {
+        const button = tipped(event);
+        if (button && !button.contains(event.relatedTarget)) hideTip();
+      });
+      document.addEventListener("focusin", (event) => {
+        const button = tipped(event);
+        if (button?.matches(":focus-visible")) showTip(button);
+      });
+      document.addEventListener("focusout", (event) => tipped(event) && hideTip());
+      document.addEventListener("pointerdown", hideTip);
+      // kit:overlays end
+
+      // kit:bar
+      function stick(bar) {
+        const mark = () => bar.toggleAttribute("data-stuck", scrollY > 0 && bar.getBoundingClientRect().top <= 0);
+        addEventListener("scroll", mark, { passive: true });
+        mark();
+        new ResizeObserver(() => {
+          document.documentElement.style.setProperty("--bar-height", `${bar.offsetHeight + 8}px`);
+        }).observe(bar);
+      }
+      // kit:bar end
+
+      const sheet = window.sheet;
+      const $title = $("title");
+      const $brief = $("brief");
+      const $stage = $("stage");
+      const $screen = $("screen");
+      const $ink = $("ink");
+      const $veil = $("veil");
+      const $drawing = $("drawing");
+      const $divider = $("divider");
+      const $reveal = $("reveal");
+      const $value = $("reveal-value");
+      const $play = $("play");
+
+      if (!sheet) {
+        $brief.textContent = "Missing sheet.js";
+      } else {
+        const NS = "http://www.w3.org/2000/svg";
+        const light = sheet.ink === "light";
+        const ink = light ? "#e7eef6" : "#1c3148";
+        const soft = light ? "rgba(231, 238, 246, 0.55)" : "rgba(28, 49, 72, 0.45)";
+        const halo = light ? "#0c1218" : "#f7f6f3";
+        const veil = light ? "#0c1218" : "#f7f6f3";
+
+        $title.textContent = sheet.title;
+        document.title = sheet.title;
+        $brief.textContent = sheet.url ? `Measured from ${sheet.url}` : "Measured from the open page";
+        $stage.style.setProperty("--frame-w", `${sheet.frame.width}px`);
+        $stage.style.setProperty("--frame-h", `${sheet.frame.height}px`);
+        $stage.style.setProperty("--ink", ink);
+        $stage.style.setProperty("--ink-soft", soft);
+        $stage.style.setProperty("--halo", halo);
+        $veil.style.background = veil;
+        $screen.src = sheet.screenshot;
+        $screen.width = sheet.frame.width;
+        $screen.height = sheet.frame.height;
+        $screen.alt = "";
+        $drawing.setAttribute("viewBox", `0 0 ${sheet.frame.width} ${sheet.frame.height}`);
+
+        const svg = (name, attrs = {}) => {
+          const node = document.createElementNS(NS, name);
+          for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, String(value));
+          return node;
+        };
+        const add = (node) => {
+          $drawing.append(node);
+          return node;
+        };
+        const line = (x1, y1, x2, y2, name) => add(svg("line", { x1, y1, x2, y2, class: name || "" }));
+        const text = (value, x, y, anchor) => {
+          const node = add(svg("text", { x, y, "text-anchor": anchor || "start", "dominant-baseline": "middle" }));
+          node.textContent = value;
+          return node;
+        };
+        const widthOf = (value) => value.length * 6.05;
+
+        const subject = sheet.subject;
+        const near = (rect) =>
+          Math.abs(rect.x - subject.x) < 1.5 &&
+          Math.abs(rect.y - subject.y) < 1.5 &&
+          Math.abs(rect.width - subject.width) < 1.5;
+
+        const left = [];
+        const right = [];
+        const lockedRight = [];
+        for (const callout of sheet.callouts) {
+          if (callout.kind === "padding" && near(callout.rect)) {
+            callout.tag = {
+              x: subject.x + subject.width / 2,
+              y: Math.max(16, subject.y - 28),
+              anchor: "middle",
+            };
+          } else if (callout.kind === "radius" && near(callout.rect)) {
+            callout.tag = { x: subject.x, y: Math.max(16, subject.y - 28), anchor: "start", side: "left" };
+          } else if (callout.kind === "gap" && callout.axis === "y") {
+            const y = (callout.a.y + callout.a.height + callout.b.y) / 2;
+            callout.tag = { x: subject.x + subject.width + 36, y, anchor: "start", side: "right" };
+            lockedRight.push(y);
+          } else if (callout.kind === "padding" || callout.kind === "radius" || callout.kind === "type" || callout.kind === "colour" || callout.kind === "hit") {
+            const x = callout.anchor?.x ?? callout.rect.x + callout.rect.width / 2;
+            const y = callout.anchor?.y ?? callout.rect.y + Math.min(14, callout.rect.height / 2);
+            const lane = x < subject.x + subject.width * 0.5 ? left : right;
+            lane.push({ callout, y });
+          }
+        }
+
+        const pack = (items, locked = []) => {
+          const blocks = locked.map((y) => [y - 9, y + 9]);
+          items.sort((a, b) => a.y - b.y);
+          let cursor = 16;
+          for (const item of items) {
+            let y = Math.max(item.y, cursor);
+            while (blocks.some(([a, b]) => y > a && y < b)) y += 4;
+            item.y = y;
+            cursor = y + 18;
+            blocks.push([y - 9, y + 9]);
+          }
+        };
+        pack(left);
+        pack(right, lockedRight);
+        for (const item of left) {
+          item.callout.tag = { x: subject.x - 16, y: item.y, anchor: "end", side: "left" };
+        }
+        for (const item of right) {
+          item.callout.tag = { x: subject.x + subject.width + 36, y: item.y, anchor: "start", side: "right" };
+        }
+
+        const topPad = sheet.callouts.find((callout) => callout.kind === "padding" && near(callout.rect));
+        const topRadius = sheet.callouts.find((callout) => callout.kind === "radius" && near(callout.rect));
+        if (topPad && topRadius) {
+          const radiusEnd = topRadius.tag.x + widthOf(topRadius.label) + 12;
+          const padStart = topPad.tag.x - widthOf(topPad.label) / 2;
+          if (radiusEnd > padStart) topPad.tag.y = Math.max(14, topRadius.tag.y - 18);
+        }
+
+        const hits = sheet.callouts.filter((callout) => callout.kind === "hit").map((callout) => callout.rect);
+        const sameRect = (a, b) =>
+          Math.abs(a.x - b.x) < 1.5 && Math.abs(a.y - b.y) < 1.5 && Math.abs(a.width - b.width) < 1.5 && Math.abs(a.height - b.height) < 1.5;
+        for (const outline of sheet.outlines ?? []) {
+          const { rect, role } = outline;
+          if (role !== "subject" && hits.some((hit) => sameRect(hit, rect))) continue;
+          add(svg("rect", { x: rect.x, y: rect.y, width: rect.width, height: rect.height, class: role === "subject" ? "" : "soft" }));
+        }
+
+        for (const callout of sheet.callouts) {
+          if (callout.kind === "padding") {
+            const { rect, padding } = callout;
+            const x = rect.x + Math.min(28, rect.width / 3);
+            line(x, rect.y, x, rect.y + padding.top, "soft");
+            line(x - 4, rect.y + padding.top, x + 4, rect.y + padding.top, "soft");
+          }
+
+          if (callout.kind === "radius" && callout.radius >= 2) {
+            const { rect, radius } = callout;
+            const r = Math.min(radius, rect.width / 2, rect.height / 2);
+            const right = callout.tag?.side === "right";
+            const x = right ? rect.x + rect.width : rect.x;
+            const d = right
+              ? `M ${x} ${rect.y + r} A ${r} ${r} 0 0 0 ${x - r} ${rect.y}`
+              : `M ${x} ${rect.y + r} A ${r} ${r} 0 0 1 ${x + r} ${rect.y}`;
+            add(svg("path", { d }));
+          }
+
+          if (callout.kind === "gap" && callout.axis === "y") {
+            const y1 = callout.a.y + callout.a.height;
+            const y2 = callout.b.y;
+            const edge = Math.max(callout.a.x + callout.a.width, callout.b.x + callout.b.width);
+            const dim = subject.x + subject.width + 22;
+            line(edge + 3, y1, dim + 4, y1, "soft");
+            line(edge + 3, y2, dim + 4, y2, "soft");
+            line(dim, y1, dim, y2);
+            line(dim - 4, y1, dim + 4, y1);
+            line(dim - 4, y2, dim + 4, y2);
+          }
+
+          if (callout.kind === "gap" && callout.axis === "x") {
+            const x1 = callout.a.x + callout.a.width;
+            const x2 = callout.b.x;
+            const edge = Math.max(callout.a.y + callout.a.height, callout.b.y + callout.b.height);
+            const dim = edge + 14;
+            line(x1, edge + 3, x1, dim + 4, "soft");
+            line(x2, edge + 3, x2, dim + 4, "soft");
+            line(x1, dim, x2, dim);
+            line(x1, dim - 4, x1, dim + 4);
+            line(x2, dim - 4, x2, dim + 4);
+            text(callout.label, (x1 + x2) / 2, dim + 14, "middle");
+          }
+
+          if (callout.kind === "hit") {
+            const { rect } = callout;
+            add(svg("rect", { x: rect.x, y: rect.y, width: rect.width, height: rect.height, class: "hit" }));
+          }
+        }
+
+        for (const callout of sheet.callouts) {
+          const tag = callout.tag;
+          if (!tag || callout.kind === "gap" && callout.axis === "x") continue;
+          if (callout.kind === "colour" && callout.swatch) {
+            const swatchX = tag.anchor === "end" ? tag.x - widthOf(callout.label) - 16 : tag.x;
+            const node = add(svg("rect", { x: swatchX, y: tag.y - 4, width: 8, height: 8, class: "swatch" }));
+            node.style.fill = callout.swatch;
+            const labelX = tag.anchor === "end" ? tag.x : tag.x + 14;
+            text(callout.label, labelX, tag.y, tag.anchor);
+          } else {
+            text(callout.label, tag.x, tag.y, tag.anchor);
+          }
+
+          const from = tag.anchor === "end" ? tag.x + 8 : tag.x - 8;
+          if (callout.kind === "type" || callout.kind === "colour") {
+            const anchor = callout.anchor;
+            const x = tag.side === "right" ? callout.rect.x + callout.rect.width : anchor.x;
+            line(from, tag.y, x, anchor.y, "soft");
+            add(svg("circle", { cx: x, cy: anchor.y, r: 1.7, class: "dot" }));
+          } else if (callout.kind === "hit") {
+            const rect = callout.rect;
+            const atRight = tag.side === "right";
+            line(from, tag.y, atRight ? rect.x + rect.width : rect.x, rect.y + Math.min(14, rect.height / 2), "soft");
+          } else if (callout.kind === "padding" && near(callout.rect)) {
+            line(tag.x, tag.y + 8, callout.rect.x + 24, callout.rect.y + callout.padding.top / 2, "soft");
+          } else if (callout.kind === "radius") {
+            const rect = callout.rect;
+            const right = tag.side === "right";
+            const pointX = right ? rect.x + rect.width : rect.x;
+            const pointY = rect.y;
+            line(right ? tag.x - 8 : tag.x + 8, tag.y + 8, pointX, pointY, "soft");
+          } else if (callout.kind === "padding") {
+            const rect = callout.rect;
+            const right = tag.side === "right";
+            line(from, tag.y, right ? rect.x + rect.width : rect.x + 24, rect.y + callout.padding.top / 2, "soft");
+          } else if (callout.anchor) {
+            line(from, tag.y, callout.anchor.x, callout.anchor.y, "soft");
+            add(svg("circle", { cx: callout.anchor.x, cy: callout.anchor.y, r: 1.7, class: "dot" }));
+          } else if (callout.rect && callout.kind !== "gap") {
+            line(from, tag.y, callout.rect.x, callout.rect.y, "soft");
+          }
+        }
+
+        const list = $("callouts");
+        for (const callout of sheet.callouts) {
+          const row = h("li", {});
+          if (callout.swatch) {
+            row.append(h("span", { class: "chip-swatch", style: `background:${callout.swatch}` }));
+          }
+          row.append(document.createTextNode(callout.label));
+          if (callout.token) row.append(h("code", {}, callout.token));
+          list.append(row);
+        }
+        $("count").textContent = String(sheet.callouts.length);
+
+        let t = 1;
+        let frame = 0;
+        const reduced = matchMedia("(prefers-reduced-motion: reduce)").matches;
+        const ease = (u) => {
+          const c = 0.77 * 3;
+          const b = 3 * (0.175 - 0.77) - c;
+          const a = 1 - c - b;
+          const cy = 0;
+          const by = 3 * (1 - 0) - cy;
+          const ay = 1 - cy - by;
+          const xAt = (n) => ((a * n + b) * n + c) * n;
+          const yAt = (n) => ((ay * n + by) * n + cy) * n;
+          const dx = (n) => (3 * a * n + 2 * b) * n + c;
+          let n = u;
+          for (let i = 0; i < 8; i += 1) n -= (xAt(n) - u) / (dx(n) || 1);
+          return yAt(Math.min(1, Math.max(0, n)));
+        };
+
+        function seek(next) {
+          t = Math.min(1, Math.max(0, next));
+          $ink.style.clipPath = `inset(0 ${(1 - t) * 100}% 0 0)`;
+          $divider.style.left = `${t * 100}%`;
+          $divider.style.opacity = t > 0.015 && t < 0.985 ? "1" : "0";
+          $reveal.value = String(Math.round(t * 1000));
+          $reveal.style.setProperty("--fill", `${t * 100}%`);
+          $value.textContent = String(Math.round(t * 100));
+        }
+
+        function stop() {
+          cancelAnimationFrame(frame);
+          $play.setAttribute("aria-pressed", "false");
+          $play.textContent = "Play";
+        }
+
+        function play() {
+          if ($play.getAttribute("aria-pressed") === "true") {
+            stop();
+            return;
+          }
+          if (reduced) {
+            seek(1);
+            return;
+          }
+          if (t > 0.985) seek(0);
+          const origin = performance.now();
+          const from = t;
+          $play.setAttribute("aria-pressed", "true");
+          $play.textContent = "Pause";
+          const tick = (now) => {
+            const u = Math.min(1, (now - origin) / 2400);
+            seek(from + (1 - from) * ease(u));
+            if (u < 1 && $play.getAttribute("aria-pressed") === "true") frame = requestAnimationFrame(tick);
+            else stop();
+          };
+          frame = requestAnimationFrame(tick);
+        }
+
+        $reveal.addEventListener("input", () => {
+          stop();
+          seek(Number($reveal.value) / 1000);
+        });
+        $play.addEventListener("click", play);
+        stick($("bar"));
+        seek(1);
+
+        window.__blueprint = {
+          seek,
+          ready: () => ($screen.decode ? $screen.decode() : Promise.resolve()),
+        };
+      }
+    </script>
+  </body>
+</html>
