@@ -12,7 +12,7 @@ This skill explores one idea as several working variants. The user compares them
 
 Each variant is real code with real data in the real app, not a mockup. Build the number asked for. With no number, build five that differ in approach, not only in colour. The page is temporary and goes once a variant is picked.
 
-Every state of an existing component on one page belongs to `lab`. Copying an outside reference belongs to `match`.
+Every state of an existing component on one page belongs to `lab`. Copying an outside reference belongs to `match`. Dragging one component's values on knobs belongs to `tune`.
 
 ## 1. Restate the idea
 

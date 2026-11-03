@@ -35,6 +35,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**prototype**](skills/prototype/SKILL.md): Builds several **real, labelled variants** of one idea on a single page so the user can pick, then deletes the rest. User-invoked.
 - [**lab**](skills/lab/SKILL.md): Builds a temporary page that shows **every variant and state** of real components at once, each linked to its source. User-invoked.
 - [**deconstruct**](skills/deconstruct/SKILL.md): Breaks an animation or interaction into **a state machine and a timeline** of every property, on a page you can scrub and edit. User-invoked.
+- [**tune**](skills/tune/SKILL.md): Wires a **dev-only knobs panel** to a real component, then writes the settled values back into source and removes the panel. User-invoked.
 - [**alignment**](skills/alignment/SKILL.md): Measures a running page for edges, gaps, centring and radii that **miss by a pixel or two**, then judges visual weight and returns a numbered report with proof. User-invoked.
 - [**keyboard**](skills/keyboard/SKILL.md): Walks a running page with **the keyboard alone**, records every focus stop and reports controls it cannot reach, see or operate. User-invoked.
 - [**frames**](skills/frames/SKILL.md): Records **a performance trace** of one interaction on a throttled CPU, names what drops frames or delays input, then proves the fix with a second trace. User-invoked.
@@ -58,6 +59,7 @@ Principle skills and `verify`, `gather`, `match`, `rule`, `viewports` and `icons
 /prototype a denser filter bar
 /lab the menu components
 /deconstruct the copy button animation
+/tune the card hover
 /alignment the settings page
 /keyboard the settings dialog
 /frames opening the command palette

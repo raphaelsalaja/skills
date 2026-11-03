@@ -12,7 +12,7 @@ This skill builds a page for inspecting components. Every variant and every stat
 
 The lab renders the real components, not copies. States that need a click, such as an open menu or a hover, are forced open. The lab is a development page and never ships.
 
-Exploring new options for one idea belongs to `prototype`. The values on the page come from `defaults`, `motion`, `color` and the project's tokens.
+Exploring new options for one idea belongs to `prototype`. The values on the page come from `defaults`, `motion`, `color` and the project's tokens. Writing a slider back into source belongs to `tune`.
 
 ## 1. Find the states
 
@@ -28,7 +28,7 @@ Render menus, popovers, tooltips and submenus open with their controlled props o
 
 ## 4. Link each entry to its source
 
-Wrap each state in a `lab-entry` naming its component, state and source line, as the header comment in `lab.js` shows. An unlabelled grid is `lab-link-the-source`. When the user asked to tune values, add a `lab-tune` for each custom property with its range.
+Wrap each state in a `lab-entry` naming its component, state and source line, as the header comment in `lab.js` shows. An unlabelled grid is `lab-link-the-source`. When the user asked to tune values, add a `lab-tune` for each custom property with its range. Writing that value into the file belongs to `tune`.
 
 The grid, labels, filters and controls ship with the skill, so write entries only. A lab page with its own grid, labels or styles is `lab-shipped-frame`.
 

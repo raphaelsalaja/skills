@@ -13,7 +13,7 @@ Use the project's motion tokens wherever they exist. Where none exists, the dura
 
 Motion blur draws with `@web-kits/motion-blur`, whose defaults are exact: a 180° shutter, Echo at one copy per 1.5px up to 16 copies and a 1.05 smear limit.
 
-Whether an animation should exist at all belongs to `restraint`. Taking an existing animation apart belongs to `deconstruct`. Whether it holds its frame rate belongs to `frames`. Surfaces, loading, hover styles and sound belong to `defaults`.
+Whether an animation should exist at all belongs to `restraint`. Taking an existing animation apart belongs to `deconstruct`. Dialling a value live and writing it back belongs to `tune`. Whether it holds its frame rate belongs to `frames`. Surfaces, loading, hover styles and sound belong to `defaults`.
 
 ## App chrome fades
 
