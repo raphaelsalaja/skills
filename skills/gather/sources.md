@@ -1,6 +1,67 @@
 # Sources
 
-How to reach each source in `SKILL.md`. Search them in this order. Before searching, ask whether to connect each of Pond, marked.dev, Are.na, Cosmos, Pinterest and Mobbin that is missing. When none are connected, wait for the answer.
+How to reach each source in `SKILL.md`, the files each search agent writes and the board settings. Before searching, ask whether to connect each of Pond, marked.dev, Are.na, Cosmos, Pinterest and Mobbin that is missing. When none are connected, wait for the answer.
+
+## Queries
+
+Give each search agent the brief, its parts with their synonyms, the platform and the urls already on the board. Per part, run three to five short queries built from the synonyms, plus one image search. A long query can return nothing while its short parts match.
+
+| Brief part | Queries |
+| --- | --- |
+| Top bar | `"top bar"`, `"app header"`, `"toolbar"`, `"navigation bar"` |
+| Empty state | `"empty state"`, `"blank slate"`, `"zero state"`, `"no results"` |
+| Row density | `"dense table"`, `"compact list"`, `"data grid"` |
+
+## Candidates
+
+Each agent writes one file, `.gather/<brief>/candidates/<source>.json`, holding an array:
+
+```json
+[
+  {
+    "title": "Linear",
+    "source": "Mobbin",
+    "url": "https://mobbin.com/screens/4c03063e",
+    "media": "https://bytescale.mobbin.com/…/4c03063e.webp",
+    "kind": "image",
+    "group": "Grouping",
+    "note": "Take the grouped list, not the colours.",
+    "details": { "Kind": "Shipped" }
+  }
+]
+```
+
+- `url` is the original and identifies the item, so each one is unique.
+- `media` is a full URL, an absolute local path or a path inside `.gather/<brief>/`. The collector downloads or copies it into `img/`.
+- `kind` is `image` or `video`. Without it, the file extension decides.
+- `poster` is optional, a still for a video.
+- `source` puts › between a library and the board inside it, such as `Pond › Are.na`. Items from Pond and marked.dev lead each group, except `marked.dev › Explore`.
+- `details` adds rows to the viewer, such as `{ "Creator": "Kevin", "Style": ["Minimal", "Clean"] }`.
+
+## Board
+
+`.gather/<brief>/board.json` sets what the candidates cannot:
+
+```json
+{
+  "title": "Settings Page",
+  "brief": "Desktop settings page, looking for grouping and density.",
+  "groups": [{ "title": "Grouping", "description": "How long lists of options are split up." }],
+  "cut": ["https://mobbin.com/screens/9f12ab07"]
+}
+```
+
+The board title takes Title Case. Groups appear in this order, and any group named only by a candidate follows them. A url under `cut` stays off the board.
+
+Run the collector from anywhere:
+
+| Command | Does |
+| --- | --- |
+| `node collect.mjs .gather/<brief>` | Builds the board once |
+| `node collect.mjs .gather/<brief> --serve` | Serves it, rebuilds on every change and keeps the board reloading |
+| `node collect.mjs .gather/<brief> --done` | Builds it a last time and stops the reloading |
+
+Downloads run 8 at a time and are cached under a hash of the media url, so a second run fetches only what is new. A download that fails is named in the output and left off the board.
 
 ## What the user gave
 
@@ -10,6 +71,10 @@ How to reach each source in `SKILL.md`. Search them in this order. Before search
 | Screenshots in the thread | Read the images |
 | Design files | The Figma MCP `get_screenshot` on the linked node |
 | Live sites | Open the page. For exact values, hand over to `match` |
+
+## Live capture
+
+When the best reference is a shipped product, open its page in the browser and screenshot the part the brief names. Use the screenshot's path as `media`, the live page as `url` and `Live` as `source`. Stop at a login and say so.
 
 ## Pond
 
@@ -33,15 +98,16 @@ Copy the exact command from Pond, under Settings, Model Context Protocol. The Se
 | `search_library` | Search by meaning, such as `{ "query": "website design" }` |
 | `search_library` with `source` | Only one platform, such as `arena`, `cosmos`, `pinterest` or `savee` |
 | `search_library` with `visual: { "kind": "saveId", "id" }` | Saves that look like one the user likes |
+| `search_library` with `media: ["video"]` | Motion references only |
 | `query_library` | Filter by keywords, source, folder, tag or `savedSince` |
 | `list_folders` | Find the user's own groupings before searching |
 | `read_save` | Caption, text in images, note, link and metadata |
 | `grep_library` | Exact words in `query` inside captions, notes and image text |
 | `open_save`, `apply_filter` | Show a result in the Pond window |
 
-Keep queries to two or three words and run several. A long descriptive query can return nothing while its short parts match.
+For an image search, find the save closest to what the user gave, then pass its id as `visual`. Run it again from the best two or three results.
 
-A save's files sit in `<Library>.pond/items/<id>.info/`, so a board can show the original image. The Local API also saves URLs with `POST /enqueue`, and `created: false` means the URL is already saved. Its token stays in Pond's settings and is never pasted into chat.
+A save's files sit in `<Library>.pond/items/<id>.info/`, so `media` is the absolute path to the original file. The Local API also saves URLs with `POST /enqueue`, and `created: false` means the URL is already saved. Its token stays in Pond's settings and is never pasted into chat.
 
 ## marked.dev
 
@@ -52,18 +118,18 @@ The user's saved interfaces and motion from X, Pinterest and the web, each credi
 | `list_collections`, `get_collection` | The user's own collections, read before searching |
 | `search_refs` | The user's saved refs |
 | `get_ref` | A saved ref's media, source and author |
-| `search_explore`, `get_explore_ref` | Public refs, the first public source once the user's own run short |
+| `search_explore`, `get_explore_ref` | Public refs, with `category: "motion"` for what moves |
 | `save_ref` | Save a pick into a collection, only when the user asks |
 
-Search it by interaction when the brief is about motion, such as "hover card lift" or "scroll reveal".
+Search it by interaction when the brief is about motion, such as "hover card lift" or "scroll reveal". A ref's video is the `media`, with `kind: "video"`.
 
 ## Boards
 
 | Source | Reach it with |
 | --- | --- |
 | Are.na | The user's channels in the logged-in browser, or the v3 API |
-| Cosmos | The user's clusters in the logged-in browser |
-| Pinterest | The user's boards in the logged-in browser or with computer use |
+| Cosmos | The user's clusters in the logged-in browser. Open an element and use its similar results for an image search |
+| Pinterest | The user's boards in the logged-in browser or with computer use. A pin's More Ideas works as an image search |
 
 Read the user's existing channel and board names before creating one. When the browser is signed out, ask the user to sign in, then read their boards.
 
@@ -76,6 +142,8 @@ Read the user's existing channel and board names before creating one. When the b
 | Mobbin `search_sections` | Sections of marketing sites |
 | Mobbin `exclude_screen_ids` | Leave out screens already shown when the user asks for more |
 | Mobbin `list_collections`, `get_collection_contents` | The user's own saved collections, searched first |
+
+A Mobbin result's `image_url` is the `media` and its `mobbin_url` is the `url`. The image link expires after 30 days, which the download covers.
 
 ## Curated galleries
 
