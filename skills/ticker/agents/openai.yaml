@@ -1,0 +1,3 @@
+interface:
+  display_name: "Ticker"
+  short_description: "Rolling digits for changing numbers"
