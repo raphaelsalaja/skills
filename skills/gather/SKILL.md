@@ -35,6 +35,8 @@ When none are connected, wait for the answer. How to connect each source is in [
 
 Start one agent per connected source, or run their searches as parallel calls where agents are unavailable. Each writes `candidates/<source>.json` in the shape [sources.md](sources.md#candidates) shows. Searching one source after another is `gather-parallel-sources`.
 
+When Mobbin answers that monthly usage is high, stop calling it, tell the user and carry on with the other sources. Search Mobbin again only when the user asks for it by name. Another Mobbin call after that warning is `gather-stop-at-usage-limit`.
+
 The user's own saves lead each group. A board with nothing from Pond or marked.dev while either holds matches is `gather-own-library-first`.
 
 Pull from at least three sources. Pattern libraries show flows and screens, curated galleries show finished work and boards show taste. A board drawn from one app is `gather-go-wide`.
@@ -95,6 +97,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `gather-start-with-given` | A pattern-library search while the user's tabs are open | The open tabs read first |
 | `gather-offer-to-connect` | Pond searched alone while marked.dev and Mobbin sit unconnected | "Connect marked.dev or Mobbin, or carry on with Pond?" |
 | `gather-parallel-sources` | Pond, then Mobbin, then Cosmos, one after another | One agent per source, started together |
+| `gather-stop-at-usage-limit` | Mobbin searched again after "your monthly usage is high" | "Mobbin says monthly usage is high, so I've stopped searching it" |
 | `gather-own-library-first` | A board of Mobbin screens while Pond holds matches | The user's saves first in each group |
 | `gather-go-wide` | Twenty screens from one app | Saves, boards and a pattern library |
 | `gather-search-by-image` | Text queries while the user's screenshot sits in the thread | `search_library` with `visual` seeded from it |
@@ -117,7 +120,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 **Severity.** `HIGH` is a whole look copied when one part was asked for, or items saved twice or under the wrong name.
 
-`MEDIUM` is the wrong platform, one source only, sources searched in turn, a board with no links or a hand-written board or build script. It is also a search that skipped the connect question or the user's own saves. So is a reference kept unseen, a close call settled by the agent or a concept shown as shipped.
+`MEDIUM` is the wrong platform, one source only, sources searched in turn, a board with no links or a hand-written board or build script. It is also a search that skipped the connect question or the user's own saves. So is a reference kept unseen, a close call settled by the agent or a concept shown as shipped. So is a Mobbin call after its usage warning.
 
 `LOW` is one long query, text search where an image search fits or a gallery thumbnail of a live site. So is a reference with no note, a long group name, repeats under "more" or More Like This searched by title.
 
