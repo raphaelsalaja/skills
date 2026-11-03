@@ -1,0 +1,5 @@
+interface:
+  display_name: "Tune"
+  short_description: "Live knobs written back to source"
+policy:
+  allow_implicit_invocation: false
