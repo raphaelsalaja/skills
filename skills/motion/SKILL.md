@@ -73,7 +73,7 @@ Under `mode="wait"` the exit and the entrance play in series, so halve each. Whe
 
 ## Frequent actions do not animate
 
-Typing, keyboard shortcuts, keyboard navigation and fast toggles do not animate. A command palette opened from the keyboard appears at once. A context menu appears at once and may fade out. A scale pulse on every keystroke is `motion-no-motion-on-repeat`.
+Typing, keyboard shortcuts, keyboard navigation and fast toggles do not animate. How a command palette opens and reorders belongs to `palette`. A context menu appears at once and may fade out. A scale pulse on every keystroke is `motion-no-motion-on-repeat`.
 
 ## Tooltips wait once
 
