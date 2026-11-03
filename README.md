@@ -40,6 +40,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**frames**](skills/frames/SKILL.md): Records **a performance trace** of one interaction on a throttled CPU, names what drops frames or delays input, then proves the fix with a second trace. User-invoked.
 - [**avatar**](skills/avatar/SKILL.md): Draws any object as **a flat character with two capsule eyes**, then animates its whole body so it glances, blinks, breathes, follows the pointer and falls asleep. User-invoked.
 - [**bots**](skills/bots/SKILL.md): Turns chosen Grok Bots into **a shakeable pile**, portfolio cards and an org chart page, each with a link to copy the bot, with private details stripped. User-invoked.
+- [**sketchbook**](skills/sketchbook/SKILL.md): Generates a daily batch of interaction experiments in the project's own stack as **live tiles you keep or kill**, learning your taste with every batch. User-invoked.
 - [**audit**](skills/audit/SKILL.md): Reviews a change, a session or a whole codebase **against every skill** in this collection and returns one ranked, numbered report. User-invoked.
 
 ## Install
@@ -62,6 +63,7 @@ Principle skills and `verify`, `gather`, `match`, `rule`, `viewports` and `icons
 /frames opening the command palette
 /avatar a coffee cup for the support card
 /bots my whole team
+/sketchbook
 /audit the uncommitted diff
 ```
 
