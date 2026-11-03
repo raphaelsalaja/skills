@@ -1,0 +1,3 @@
+interface:
+  display_name: "Bones"
+  short_description: "Skeletons measured from the loaded view"
