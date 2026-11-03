@@ -41,6 +41,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**avatar**](skills/avatar/SKILL.md): Draws any object as **a flat character with two capsule eyes**, then animates its whole body so it glances, blinks, breathes, follows the pointer and falls asleep. User-invoked.
 - [**bots**](skills/bots/SKILL.md): Turns chosen Grok Bots into **a shakeable pile**, portfolio cards and an org chart page, each with a link to copy the bot, with private details stripped. User-invoked.
 - [**sketchbook**](skills/sketchbook/SKILL.md): Generates a daily batch of interaction experiments in the project's own stack as **live tiles you keep or kill**, learning your taste with every batch. User-invoked.
+- [**cast**](skills/cast/SKILL.md): Adds a **dev-only demo mode** that fills the real app with named people, coherent numbers and a short live script for screenshots and recordings.
 - [**audit**](skills/audit/SKILL.md): Reviews a change, a session or a whole codebase **against every skill** in this collection and returns one ranked, numbered report. User-invoked.
 
 ## Install
@@ -51,7 +52,7 @@ npx skills add raphaelsalaja/skills
 
 ## Use a skill
 
-Principle skills and `verify`, `gather`, `match`, `rule`, `viewports` and `icons` apply on their own when the work calls for them. Call the user-invoked ones by name:
+Principle skills and `verify`, `gather`, `match`, `rule`, `viewports`, `icons` and `cast` apply on their own when the work calls for them. Call the user-invoked ones by name:
 
 ```text
 /ship
