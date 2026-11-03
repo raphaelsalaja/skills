@@ -12,7 +12,7 @@ This skill puts the mouse away and walks a running page with keys alone. It reco
 
 Focus order, reach and operation are judged from keys pressed in the running page. A stop the walk did not press is `Not verified`, never assumed. One unreachable control is a finding however minor the control.
 
-How the focus ring looks, dialog focus traps and accessible names belong to `defaults`, and a failure there cites its id. Opening the running result belongs to `verify`. Forcing hidden states open belongs to `lab`.
+How the focus ring looks, dialog focus traps and accessible names belong to `defaults`, and a failure there cites its id. Opening the running result belongs to `verify`. Forcing hidden states open belongs to `lab`. A command palette as a way across the app belongs to `palette`.
 
 ## 1. Load the recorder
 

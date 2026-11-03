@@ -1,0 +1,3 @@
+interface:
+  display_name: "Palette"
+  short_description: "Index the app into a command palette"
