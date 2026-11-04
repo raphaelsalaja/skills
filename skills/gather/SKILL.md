@@ -59,6 +59,8 @@ node <skill>/collect.mjs .gather/<brief> --serve
 
 `.gather/` stays out of version control. Write the title, brief and group order to `.gather/<brief>/board.json` as [sources.md](sources.md#board) shows. Links pasted in chat instead of a board is `gather-one-board`.
 
+Gathering only reads the user's library. The collector copies each save into `img/` and the originals stay as they are. Compressing or rewriting saves in place is `gather-read-only-library`.
+
 The collector and the board ship with the skill, so a run writes data only. A hand-written board page, or a per-run script that downloads or builds, is `gather-shipped-collector`.
 
 ## 6. Look at every reference
@@ -107,6 +109,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `gather-capture-live` | A Land-book thumbnail of linear.app | A screenshot of the live top bar, linked to linear.app |
 | `gather-enough-to-choose` | "50 more" returns the first 20 again | 50 new references, earlier urls left out |
 | `gather-one-board` | Twenty links pasted in chat | `.gather/settings/` served and opened, grouped by idea |
+| `gather-read-only-library` | Saves compressed in place for the board | Copies in `img/`, originals untouched |
 | `gather-shipped-collector` | A `build.mjs` written for this run | `node collect.mjs .gather/settings --serve` |
 | `gather-look-at-every-image` | A screen kept on its title or a preview | The downloaded file opened and the top bar looked at |
 | `gather-cut-clear-misses` | Two close references, one cut by the agent | Both on the board for the user |
@@ -121,7 +124,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a whole look copied when one part was asked for, or items saved twice or under the wrong name.
+**Severity.** `HIGH` is a whole look copied when one part was asked for, items saved twice or under the wrong name, or saves rewritten in the user's library.
 
 `MEDIUM` is the wrong platform, one source only, sources searched in turn, a board with no links or a hand-written board or build script. It is also a search that skipped the connect question or the user's own saves. So is a reference kept unseen, a close call settled by the agent or a concept shown as shipped. So is a Mobbin call after its usage warning, or a board reached around Pond while Pond holds its saves.
 

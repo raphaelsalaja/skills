@@ -78,7 +78,7 @@ When the best reference is a shipped product, open its page in the browser and s
 
 ## Pond
 
-The user's own library of saves from Instagram, X, Pinterest, Are.na, Cosmos and the web. The Pond choice downloads from https://pond.raphaelsalaja.com and connects under Settings, Model Context Protocol. Connecting an account needs the Pond browser extension, from Browser Extension in the library menu. Pond runs as a local MCP server over stdio:
+The user's own library of saves from X, Instagram, Pinterest, Are.na, Cosmos, Savee, Dribbble, Behance, Threads, Bluesky, Tumblr, Reddit, TikTok, YouTube, Vimeo, Unsplash, GitHub, Substack, the web and local files. The Pond choice downloads from https://pond.raphaelsalaja.com and connects under Settings, Model Context Protocol. Connecting an account needs the Pond browser extension, from Browser Extension in the library menu. Pond runs as a local MCP server over stdio:
 
 ```json
 {
@@ -96,14 +96,17 @@ Copy the exact command from Pond, under Settings, Model Context Protocol. The Se
 | Tool | Use |
 | --- | --- |
 | `search_library` | Search by meaning, such as `{ "query": "website design" }` |
-| `search_library` with `source` | Only one platform, such as `arena`, `cosmos`, `pinterest` or `savee` |
+| `search_library` with `source` | Only one platform: `arena`, `cosmos`, `pinterest`, `savee`, `dribbble`, `behance`, `twitter` and the rest of the list above |
 | `search_library` with `visual: { "kind": "saveId", "id" }` | Saves that look like one the user likes |
 | `search_library` with `media: ["video"]` | Motion references only |
-| `query_library` | Filter by keywords, source, folder, tag or `savedSince` |
+| `search_library` with `folderId` | Inside one of the user's folders, from `list_folders` |
+| `query_library` | Exact filters: `keywords` limited by `keywordScopes`, and `scope` by source, folder, tag or `savedSince`, with a sort and `cursor` paging |
 | `list_folders` | Find the user's own groupings before searching |
-| `read_save` | Caption, text in images, note, link and metadata |
-| `grep_library` | Exact words in `query` inside captions, notes and image text |
+| `read_save` | Caption, text in images, note, link and metadata, or one part with `field`: `caption`, `ocr`, `transcript`, `notes` or `description` |
+| `grep_library` | Exact words in `query` inside captions, transcripts, notes, titles and image text |
 | `open_save`, `apply_filter` | Show a result in the Pond window |
+
+`compress_images` replaces the originals in the library, so gathering never calls it.
 
 For an image search, find the save closest to what the user gave, then pass its id as `visual`. Run it again from the best two or three results.
 
@@ -116,9 +119,10 @@ The user's saved interfaces and motion from X, Pinterest and the web, each credi
 | Tool | Use |
 | --- | --- |
 | `list_collections`, `get_collection` | The user's own collections, read before searching |
-| `search_refs` | The user's saved refs |
+| `search_refs` | The user's saved refs, with `unsorted: true` for refs in no collection |
 | `get_ref` | A saved ref's media, source and author |
 | `search_explore`, `get_explore_ref` | Public refs, with `category: "motion"` for what moves |
+| `search_refs` or `search_explore` with filters | `categories` (`app`, `saas`, `software`, `motion`), `platforms` (`x`, `pinterest`, `other`), `tags` and `authors` |
 | `save_ref` | Save a pick into a collection, only when the user asks |
 
 Search it by interaction when the brief is about motion, such as "hover card lift" or "scroll reveal". A ref's video is the `media`, with `kind: "video"`.
@@ -143,7 +147,9 @@ Read the user's existing channel and board names before creating one. When the b
 | Mobbin `search_flows` | Multi-step flows, such as onboarding or checkout |
 | Mobbin `search_sections` | Sections of marketing sites |
 | Mobbin `exclude_screen_ids` | Leave out screens already shown when the user asks for more |
-| Mobbin `list_collections`, `get_collection_contents` | The user's own saved collections, searched first |
+| Mobbin `list_collections`, `get_collection_contents` | The user's own saved collections, searched first. `id: "all-saved"` reads everything saved, one `content_type` and `platform` per call |
+| Mobbin `create_collection`, `save_content` | Save picks into a new or existing collection, only when the user asks |
+| Mobbin `add_comment` | Note on a saved item why it was picked, only when the user asks |
 
 A Mobbin result's `image_url` is the `media` and its `mobbin_url` is the `url`. The image link expires after 30 days, which the download covers.
 
