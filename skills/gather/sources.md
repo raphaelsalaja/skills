@@ -127,9 +127,11 @@ Search it by interaction when the brief is about motion, such as "hover card lif
 
 | Source | Reach it with |
 | --- | --- |
-| Are.na | The user's channels in the logged-in browser, or the v3 API |
+| Are.na | The user's channels in the logged-in browser |
 | Cosmos | The user's clusters in the logged-in browser. Open an element and use its similar results for an image search |
 | Pinterest | The user's boards in the logged-in browser or with computer use. A pin's More Ideas works as an image search |
+
+With Pond connected, search these through Pond with `source` set to `arena`, `cosmos` or `pinterest`. Open the browser only for a channel Pond hasn't imported or for Cosmos's similar results.
 
 Read the user's existing channel and board names before creating one. When the browser is signed out, ask the user to sign in, then read their boards.
 
