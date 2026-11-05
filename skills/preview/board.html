@@ -1,0 +1,944 @@
+<!doctype html>
+<!--
+  Link preview board. Copy this file to .preview/<page>/index.html and write board.js.
+  node check.mjs <url> --board .preview/<page>/board.js writes that file:
+
+  window.preview = {
+    url: "https://example.com/tides",
+    host: "example.com",
+    title: "Evening Tide",
+    description: "High water at 18:40.",
+    site: "Harbor",
+    image: "og.png",
+    video: "og.mp4",
+    alt: "Evening tide chart",
+    accent: "#7eb8c9",
+    verdict: "Approve",
+    findings: [
+      {
+        rule: "preview-title-fits",
+        severity: "MEDIUM",
+        file: "index.html:12",
+        note: "90 characters, the limit is 70"
+      }
+    ],
+    notVerified: ["public https URL, the page is on localhost"]
+  };
+
+  `image` and `video` are files beside this page. Leave `video` as "" when the page does not loop.
+  `severity` is "HIGH", "MEDIUM" or "LOW". `verdict` is "Block" or "Approve".
+  `note` is one short clause with no full stop.
+
+  X shows the still at 504×252, centre-cropped to 2:1. iMessage shows the full frame at 320×168 and plays the loop.
+  Slack shows a centre square at 80×80, 285px in from each side of the 1200×630 frame, with the description at 3 lines.
+  Discord scales the full frame to 400×210 and plays the loop. Titles cut at 70 characters on X, 2 lines on iMessage and 70 bytes on Discord.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#080808" media="(prefers-color-scheme: dark)" />
+    <title>Preview</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&display=swap" />
+    <style>
+      :root {
+        /* kit:tokens */
+        --gray-1: light-dark(#ffffff, #080808);
+        --gray-2: light-dark(#fafafa, #111111);
+        --gray-3: light-dark(#f2f2f2, #1a1a1a);
+        --gray-4: light-dark(#ebebeb, #222222);
+        --gray-5: light-dark(#e3e3e3, #2a2a2a);
+        --gray-10: light-dark(#6b6b6b, #8f8f8f);
+        --gray-11: light-dark(#575757, #b4b4b4);
+        --gray-12: light-dark(#080808, #ffffff);
+        --blue: #02bbff;
+        --red: light-dark(#d93036, #ff6369);
+        --green: light-dark(#2b9a66, #3dd68c);
+        --accent: var(--blue);
+        --danger: var(--red);
+        --success: var(--green);
+        --text-primary: var(--gray-12);
+        --text-secondary: color-mix(in oklab, var(--gray-12) 80%, var(--gray-11));
+        --text-tertiary: var(--gray-11);
+        --text-quaternary: var(--gray-10);
+        --text-on-accent: light-dark(#ffffff, #080808);
+        --border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
+        --border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
+        --background-primary: var(--gray-1);
+        --background-secondary: var(--gray-2);
+        --background-tertiary: light-dark(rgb(8 8 8 / 5%), rgb(255 255 255 / 8%));
+        --background-hover: light-dark(rgb(8 8 8 / 8%), rgb(255 255 255 / 13%));
+        --background-raised: light-dark(#ffffff, #1a1a1a);
+        --background-control: light-dark(#ffffff, #222222);
+        --background-overlay: light-dark(#ffffff, #111111);
+        --fill-hover: light-dark(rgb(8 8 8 / 4%), rgb(255 255 255 / 6%));
+        --shadow-border: 0 0 0 1px light-dark(rgb(0 0 0 / 7%), rgb(255 255 255 / 7%));
+        --shadow-default:
+          inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+          0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+          0 1px 1px -1px light-dark(rgb(0 0 0 / 10%), transparent),
+          0 1px 2px 0 light-dark(rgb(0 0 0 / 5%), transparent);
+        --shadow-large:
+          0 0 0 0.5px light-dark(oklab(0.802 0 0 / 0.297), transparent),
+          0 0 0 1px light-dark(transparent, oklab(0.463 0 0 / 0.303)),
+          0 2px 3px -2px light-dark(rgb(0 0 0 / 6.3%), rgb(0 0 0 / 15%)),
+          0 3px 12px -4px light-dark(rgb(0 0 0 / 10%), transparent),
+          0 4px 16px -8px light-dark(rgb(0 0 0 / 5%), transparent),
+          0 3px 8px -2px light-dark(transparent, rgb(0 0 0 / 40%)),
+          0 4px 12px -4px light-dark(transparent, rgb(0 0 0 / 50%));
+        --shadow-extra-large:
+          inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+          0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+          0 8px 40px 0 rgb(0 0 0 / 5%),
+          0 12px 32px -16px rgb(0 0 0 / 15%);
+        --font-sans: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+        --font-weight-400: "wght" 400, "opsz" 14;
+        --font-weight-500: "wght" 500, "opsz" 14;
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+        --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+        --duration-snappy: 220ms;
+        --duration-exit: 160ms;
+        --radius-control: 8px;
+        --radius-menu: 12px;
+        --radius-panel: 16px;
+        /* kit:tokens end */
+      }
+
+      /* kit:page */
+      :root {
+        color-scheme: light dark;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      * {
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        font-variation-settings: inherit;
+        color: inherit;
+        text-decoration: none;
+        border: 0;
+      }
+
+      ol,
+      ul {
+        list-style: none;
+      }
+
+      img,
+      svg,
+      canvas,
+      video {
+        display: block;
+        max-width: 100%;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      button {
+        cursor: pointer;
+        user-select: none;
+        background: none;
+      }
+
+      button,
+      a,
+      select {
+        touch-action: manipulation;
+      }
+
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.9em;
+      }
+
+      html {
+        font-family: var(--font-sans);
+        font-size: 14px;
+        line-height: 20px;
+        font-variation-settings: var(--font-weight-400);
+        font-optical-sizing: none;
+        font-feature-settings: "calt", "ccmp", "locl", "kern", "cv01", "ss03";
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-tap-highlight-color: transparent;
+        color: var(--text-primary);
+        background: var(--background-primary);
+        scroll-padding-block-start: var(--bar-height, 72px);
+      }
+
+      * {
+        scrollbar-width: none;
+      }
+
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      ::selection {
+        background: color-mix(in oklab, var(--accent) 28%, transparent);
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        text-wrap: balance;
+      }
+
+      p {
+        text-wrap: pretty;
+      }
+
+      @media (width <= 640px) {
+        input:not([type="range"]),
+        textarea,
+        select {
+          font-size: 16px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after,
+        ::backdrop {
+          transition-duration: 0s !important;
+          transition-delay: 0s !important;
+        }
+      }
+      /* kit:page end */
+
+      /* kit:head */
+      .head {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 640px;
+      }
+
+      .title {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .brief {
+        color: var(--text-tertiary);
+        overflow-wrap: anywhere;
+
+        a {
+          display: inline-flex;
+          gap: 4px;
+          align-items: center;
+          color: var(--text-secondary);
+
+          svg {
+            color: var(--text-quaternary);
+          }
+
+          &:active,
+          &:active svg {
+            color: var(--text-primary);
+          }
+        }
+
+        code {
+          color: var(--text-secondary);
+        }
+      }
+
+      @property --bar-line {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: transparent;
+      }
+
+      .bar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        padding: 16px 0;
+        border-image: linear-gradient(to top, var(--bar-line) 1px, var(--background-primary) 1px) fill 0 / / 0 100vw;
+        transition: --bar-line var(--duration-snappy) var(--ease-out);
+
+        &[data-stuck] {
+          --bar-line: var(--border-primary);
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .brief a:hover,
+        .brief a:hover svg {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:head end */
+
+      /* kit:controls */
+      .chip,
+      .action {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-tertiary);
+        white-space: nowrap;
+        border-radius: var(--radius-control);
+
+        &[aria-pressed="true"] {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &:active:not(:disabled) {
+          color: var(--text-primary);
+        }
+
+        &:disabled {
+          cursor: default;
+          opacity: 0.5;
+        }
+      }
+
+      .action {
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+
+        &:active:not(:disabled) {
+          background: var(--background-hover);
+        }
+      }
+
+      .icon-button,
+      .tool-button {
+        position: relative;
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        color: var(--text-tertiary);
+        border-radius: var(--radius-control);
+
+        &::before {
+          position: absolute;
+          inset: -4px;
+          content: "";
+        }
+
+        &:disabled {
+          cursor: default;
+          opacity: 0.4;
+        }
+      }
+
+      .icon-button {
+        background: var(--background-tertiary);
+
+        &:active:not(:disabled, [aria-pressed="true"]) {
+          color: var(--text-primary);
+          background: var(--background-hover);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-on-accent);
+          background: var(--accent);
+        }
+      }
+
+      .tool-button {
+        &:active:not(:disabled) {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &[aria-pressed="true"]:active:not(:disabled) {
+          background: var(--background-hover);
+        }
+      }
+
+      .pick {
+        position: relative;
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        color: var(--text-quaternary);
+        border-radius: var(--radius-control);
+        box-shadow: inset 0 0 0 1px var(--border-secondary);
+
+        &::before {
+          position: absolute;
+          inset: -6px;
+          content: "";
+        }
+
+        &:active:not([aria-pressed="true"]) {
+          color: var(--text-primary);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-on-accent);
+          background: var(--accent);
+          box-shadow: none;
+        }
+      }
+
+      .count {
+        color: var(--text-quaternary);
+        font-variant-numeric: tabular-nums;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .chip:hover:not(:disabled) {
+          color: var(--text-primary);
+        }
+
+        .action:hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
+        .icon-button:hover:not(:disabled, [aria-pressed="true"]) {
+          color: var(--text-primary);
+          background: var(--background-hover);
+        }
+
+        .tool-button:hover:not(:disabled) {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        .tool-button[aria-pressed="true"]:hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
+        .pick:hover:not([aria-pressed="true"]) {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:controls end */
+
+      /* kit:section */
+      .section-head {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        align-items: baseline;
+        margin-bottom: 20px;
+
+        .count {
+          margin-left: auto;
+        }
+      }
+
+      .section-title {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .section-description {
+        color: var(--text-tertiary);
+      }
+
+      .rows > * + * {
+        border-top: 1px solid var(--border-primary);
+      }
+
+      .empty {
+        padding: 64px 0;
+        color: var(--text-tertiary);
+        text-align: center;
+      }
+      /* kit:section end */
+
+      .page {
+        width: max-content;
+        max-width: calc(100% - 48px);
+        padding: 48px 0 96px;
+        margin: 0 auto;
+      }
+
+      .head-top {
+        display: flex;
+        gap: 16px;
+        align-items: baseline;
+        justify-content: space-between;
+      }
+
+      .verdict {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .verdict[data-verdict="Block"] {
+        color: var(--danger);
+      }
+
+      .verdict[data-verdict="Approve"] {
+        color: var(--success);
+      }
+
+      .modes {
+        display: flex;
+        gap: 4px;
+        margin-top: 16px;
+      }
+
+      .row {
+        display: flex;
+        gap: 28px;
+        align-items: flex-start;
+        margin-top: 28px;
+      }
+
+      .mock {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+      }
+
+      .mock-head {
+        display: flex;
+        gap: 8px;
+        align-items: baseline;
+      }
+
+      .mock h2 {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .spec,
+      .only,
+      .host,
+      .card-site,
+      .none {
+        color: var(--text-tertiary);
+      }
+
+      .spec {
+        font-variant-numeric: tabular-nums;
+      }
+
+      .cut {
+        padding: 0 6px;
+        font-size: 12px;
+        line-height: 18px;
+        color: var(--text-on-accent);
+        background: var(--danger);
+        border-radius: 4px;
+      }
+
+      .shell {
+        margin-top: 8px;
+        overflow: hidden;
+        background: var(--background-raised);
+        border-radius: 12px;
+        box-shadow: var(--shadow-border);
+      }
+
+      .media {
+        display: grid;
+        place-items: center;
+        overflow: hidden;
+        color: var(--text-quaternary);
+        background: var(--background-tertiary);
+      }
+
+      .media img,
+      .media video {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+
+      .copy {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+        padding: 12px 14px 14px;
+      }
+
+      .card-title,
+      .card-desc {
+        overflow: hidden;
+      }
+
+      .card-title[data-empty],
+      .card-desc[data-empty],
+      .card-site[data-empty] {
+        color: var(--text-quaternary);
+      }
+
+      .x {
+        width: 504px;
+      }
+
+      .x .media {
+        width: 504px;
+        height: 252px;
+      }
+
+      .imessage {
+        width: 320px;
+      }
+
+      .imessage .media {
+        width: 320px;
+        height: 168px;
+      }
+
+      .imessage .card-title {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+      }
+
+      .slack {
+        display: flex;
+        gap: 12px;
+        align-items: flex-start;
+        width: 360px;
+        padding: 12px;
+        border-left: 4px solid var(--border-secondary);
+      }
+
+      .slack .copy {
+        flex: 1;
+        padding: 0;
+      }
+
+      .slack .thumb {
+        width: 80px;
+        height: 80px;
+        border-radius: 8px;
+      }
+
+      .slack .card-desc {
+        display: -webkit-box;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 3;
+      }
+
+      .discord {
+        position: relative;
+        width: 400px;
+      }
+
+      .discord::before {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: 0;
+        width: 4px;
+        content: "";
+        background: var(--discord-accent, var(--border-secondary));
+      }
+
+      .discord .media {
+        width: 400px;
+        height: 210px;
+      }
+
+      .findings,
+      .unverified {
+        margin-top: 48px;
+      }
+
+      .list li {
+        padding: 8px 0;
+        overflow-wrap: anywhere;
+      }
+
+      .list li + li,
+      .unverified li + li {
+        border-top: 1px solid var(--border-primary);
+      }
+
+      .unverified li {
+        padding: 6px 0;
+        color: var(--text-secondary);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="head">
+        <div class="head-top">
+          <h1 class="title">Preview</h1>
+          <span class="verdict" id="verdict"></span>
+        </div>
+        <p class="brief" id="brief"></p>
+        <div class="modes" role="group" aria-label="Card">
+          <button class="chip" id="still" type="button" aria-pressed="true">Still</button>
+          <button class="chip" id="video" type="button" aria-pressed="false">Video</button>
+        </div>
+      </header>
+
+      <div class="row">
+        <article class="mock" data-platform="x" data-plays="false">
+          <div class="mock-head"><h2>X</h2><span class="cut" hidden>Cut</span></div>
+          <p class="spec">504×252</p>
+          <p class="spec">Centre Crop</p>
+          <div class="shell x">
+            <div class="media"></div>
+            <div class="copy">
+              <p class="card-title"></p>
+              <p class="host"></p>
+            </div>
+          </div>
+          <p class="only" hidden>Image Only</p>
+        </article>
+
+        <article class="mock" data-platform="imessage" data-plays="true">
+          <div class="mock-head"><h2>iMessage</h2><span class="cut" hidden>Cut</span></div>
+          <p class="spec">320×168</p>
+          <p class="spec">Full Frame</p>
+          <div class="shell imessage">
+            <div class="media"></div>
+            <div class="copy">
+              <p class="card-title"></p>
+              <p class="host"></p>
+            </div>
+          </div>
+          <p class="only" hidden>Image Only</p>
+        </article>
+
+        <article class="mock" data-platform="slack" data-plays="false">
+          <div class="mock-head"><h2>Slack</h2><span class="cut" hidden>Cut</span></div>
+          <p class="spec">80×80</p>
+          <p class="spec">Centre Square</p>
+          <div class="shell slack">
+            <div class="copy">
+              <p class="card-site"></p>
+              <p class="card-title"></p>
+              <p class="card-desc"></p>
+              <p class="host"></p>
+            </div>
+            <div class="media thumb"></div>
+          </div>
+          <p class="only" hidden>Image Only</p>
+        </article>
+
+        <article class="mock" data-platform="discord" data-plays="true">
+          <div class="mock-head"><h2>Discord</h2><span class="cut" hidden>Cut</span></div>
+          <p class="spec">400×210</p>
+          <p class="spec">Scaled</p>
+          <div class="shell discord">
+            <div class="copy">
+              <p class="card-site"></p>
+              <p class="card-title"></p>
+              <p class="card-desc"></p>
+            </div>
+            <div class="media"></div>
+          </div>
+          <p class="only" hidden>Image Only</p>
+        </article>
+      </div>
+
+      <section class="findings" aria-labelledby="findings-title">
+        <header class="section-head">
+          <h2 class="section-title" id="findings-title">Findings</h2>
+        </header>
+        <ol class="list" id="list"></ol>
+      </section>
+
+      <section class="unverified" id="unverified-section" hidden aria-labelledby="unverified-title">
+        <header class="section-head">
+          <h2 class="section-title" id="unverified-title">Not Verified</h2>
+        </header>
+        <ul id="unverified"></ul>
+      </section>
+    </div>
+
+    <script src="board.js"></script>
+    <script>
+      const $ = (id) => document.getElementById(id);
+      const data = window.preview ?? {
+        url: "",
+        host: "",
+        title: "",
+        description: "",
+        site: "",
+        image: "",
+        video: "",
+        alt: "",
+        accent: "",
+        verdict: "Block",
+        findings: [],
+        notVerified: ["board.js is missing"],
+      };
+
+      let mode = "still";
+
+      function bytes(value) {
+        return new TextEncoder().encode(value).length;
+      }
+
+      function trimBytes(value, max) {
+        if (bytes(value) <= max) return value;
+        let end = value.length;
+        while (end > 0 && bytes(value.slice(0, end)) > max) end -= 1;
+        return value.slice(0, end);
+      }
+
+      function place(node, text, empty) {
+        const blank = !text;
+        node.textContent = blank ? empty : text;
+        node.dataset.empty = blank ? "true" : "false";
+        if (blank) node.dataset.empty = "true";
+        else delete node.dataset.empty;
+      }
+
+      function fillMedia(node) {
+        node.replaceChildren();
+        const plays = node.closest(".mock").dataset.plays === "true";
+        if (mode === "video" && plays && data.video) {
+          const video = document.createElement("video");
+          video.src = data.video;
+          video.muted = true;
+          video.loop = true;
+          video.autoplay = true;
+          video.playsInline = true;
+          video.setAttribute("muted", "");
+          node.append(video);
+          video.play().catch(() => {});
+          return;
+        }
+        if (data.image) {
+          const img = document.createElement("img");
+          img.src = data.image;
+          img.alt = data.alt || "";
+          img.addEventListener("error", () => {
+            node.replaceChildren("No Image");
+          });
+          node.append(img);
+          return;
+        }
+        node.textContent = "No Image";
+      }
+
+      function paint() {
+        const title = data.title || "";
+        const description = data.description || "";
+        const host = data.host || "No Host";
+        for (const mock of document.querySelectorAll(".mock")) {
+          const platform = mock.dataset.platform;
+          const titleNode = mock.querySelector(".card-title");
+          const siteNode = mock.querySelector(".card-site");
+          const descNode = mock.querySelector(".card-desc");
+          const hostNode = mock.querySelector(".host");
+          let cut = false;
+          if (platform === "x") {
+            cut = title.length > 70;
+            place(titleNode, title ? title.slice(0, 70) : "", "No Title");
+          } else if (platform === "discord") {
+            cut = bytes(title) > 70 || bytes(description) > 350;
+            place(titleNode, title ? trimBytes(title, 70) : "", "No Title");
+            if (descNode) place(descNode, description ? trimBytes(description, 350) : "", "No Description");
+          } else {
+            place(titleNode, title, "No Title");
+            if (descNode) place(descNode, description, "No Description");
+          }
+          if (siteNode) place(siteNode, data.site, "No Site");
+          if (hostNode) hostNode.textContent = host;
+          fillMedia(mock.querySelector(".media"));
+          const badge = mock.querySelector(".cut");
+          const only = mock.querySelector(".only");
+          only.hidden = !(mode === "video" && mock.dataset.plays === "false");
+          const overflow = (node) => {
+            if (!node || node.clientWidth < 8) return false;
+            const probe = node.cloneNode(true);
+            probe.style.display = "block";
+            probe.style.webkitLineClamp = "unset";
+            probe.style.visibility = "hidden";
+            probe.style.position = "absolute";
+            probe.style.width = `${node.clientWidth}px`;
+            node.parentElement.append(probe);
+            const clipped = probe.scrollHeight > node.clientHeight + 1;
+            probe.remove();
+            return clipped;
+          };
+          if (platform === "imessage" && title && overflow(titleNode)) cut = true;
+          if (platform === "slack" && description && overflow(descNode)) cut = true;
+          badge.hidden = !cut;
+        }
+      }
+
+      function showFindings() {
+        const list = $("list");
+        list.replaceChildren();
+        const findings = data.findings ?? [];
+        if (!findings.length) {
+          const item = document.createElement("li");
+          item.className = "none";
+          item.textContent = "No Findings";
+          list.append(item);
+        } else {
+          findings.forEach((finding, index) => {
+            const item = document.createElement("li");
+            item.textContent = `${index + 1}. ${finding.severity}  ${finding.file} - [${finding.rule}] ${finding.note}`;
+            list.append(item);
+          });
+        }
+        const pending = data.notVerified ?? [];
+        const section = $("unverified-section");
+        section.hidden = pending.length === 0;
+        const unverified = $("unverified");
+        unverified.replaceChildren();
+        for (const note of pending) {
+          const item = document.createElement("li");
+          item.textContent = note;
+          unverified.append(item);
+        }
+      }
+
+      $("verdict").textContent = data.verdict || "Block";
+      $("verdict").dataset.verdict = data.verdict || "Block";
+      $("brief").textContent = data.url || "No Page";
+      if (data.accent) document.querySelector(".discord").style.setProperty("--discord-accent", data.accent);
+      if (!data.video) $("video").disabled = true;
+
+      const choose = (next) => {
+        mode = next;
+        $("still").setAttribute("aria-pressed", next === "still" ? "true" : "false");
+        $("video").setAttribute("aria-pressed", next === "video" ? "true" : "false");
+        paint();
+      };
+      $("still").addEventListener("click", () => choose("still"));
+      $("video").addEventListener("click", () => choose("video"));
+      showFindings();
+      paint();
+      document.fonts?.ready.then(() => paint());
+    </script>
+  </body>
+</html>

@@ -12,7 +12,7 @@ This skill takes finished work from the working tree to production. It commits i
 
 When the user says push, ship or merge, do every step to the end. Handing a command back to the user is a finding unless it needs their credentials or their approval. A secret in a commit is always `HIGH`.
 
-Checking the change itself runs in `verify` before this skill starts.
+Checking the change itself runs in `verify` before this skill starts. A public page's share card runs in `preview` before this skill starts.
 
 ## 1. Check the tree
 
