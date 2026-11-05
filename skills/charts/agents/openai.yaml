@@ -1,0 +1,3 @@
+interface:
+  display_name: "Charts"
+  short_description: "Scrub, morph and draw in the series"
