@@ -8,13 +8,13 @@ disable-model-invocation: true
 
 This skill generates a fresh batch of small interaction experiments in the project's own stack. The user keeps or kills each live tile, so the next batch leans further toward what they kept.
 
-## Counts and the stack are exact
+## The batch is one instrument
 
-Each run is a new batch of 6–9 live experiments. Of those, 1 or 2 sit outside the current taste. The gallery is temporary and uses the project's own framework, styling, animation library, tokens and fonts.
+Each run is a new batch of 6–9 live experiments. Of those, 1 or 2 sit outside the current taste. The experiments use the project's own framework, styling, animation library, tokens and fonts. The page around them is one temporary instrument, and the measurements below are exact.
 
 Use it when the user says "sketchbook", "inspire me", "give me interaction ideas" or "daily interactions". Also use it for "surprise me with some micro-interactions", "new experiments for today" or "keep this one, kill that one".
 
-Easing, durations, springs and reduced motion belong to `motion`. Tile names and the one-line note belong to `copy`. Surfaces belong to `defaults`, and contrast belongs to `color`. Reaching for an existing component before a new one belongs to `reuse`. Collecting outside references belongs to `gather`. Variants of one idea belong to `prototype`. Forcing every state of a component open belongs to `lab`.
+Easing, durations, springs and reduced motion belong to `motion`. The name, the gesture and Keep and Kill belong to `copy`. Hit areas, focus and accessible names belong to `defaults`. Contrast inside an experiment belongs to `color`. Reaching for an existing component before a new one belongs to `reuse`. Collecting outside references belongs to `gather`. Variants of one idea belong to `prototype`. Forcing every state of a component open belongs to `lab`.
 
 ## 1. Read the project
 
@@ -34,17 +34,31 @@ Build each one with the framework, styling, animation library, tokens and fonts 
 
 Include 1 or 2 experiments that sit outside the taste summary. Those 1 or 2 keep the batch from settling on one style. On an empty summary, those 1 or 2 differ in kind from the rest. A count other than 1 or 2 is `sketchbook-wildcards`.
 
-## 4. Show one gallery
+## 4. Build one instrument page
 
-Put this batch alone on `/sketchbook` as a grid of live playable tiles. A static sheet, a route per experiment or a second batch on the page is `sketchbook-one-gallery`.
+Put this batch alone on `/sketchbook`. Nothing else sits on that route. A static sheet, a route per experiment, a filter, a detail view, a source view or a second batch is `sketchbook-one-gallery`.
 
-Give each tile a Title Case name, a one-line note and Keep and Kill controls. Names and the note follow `copy`. A tile with no choice is `sketchbook-keep-or-kill`.
+The page ground is `#10100E`. The column is at most 1280px wide and centred. Side padding is 16px, and 24px from 640px. The grid starts 64px down and the page ends with 128px of padding. The grid is one column, and two columns from 768px, with a 40px gap. There is no visible page heading.
 
-## 5. Open it
+Each tile is a square, with no radius, and an inset line of 1px in `#161613`. On a coarse pointer, one line above the grid reads "Tap an interaction to try it". That line is 12px mono, uppercase, tracking `0.14em`, colour `#6B6960`, and centred. A rounded card, a third column or a light page is `sketchbook-instrument-page`.
+
+## 5. Frame every tile
+
+Draw the chrome in a 600 unit square that scales with the tile. Use the project's mono face when it has one, and the system mono otherwise. The chrome ignores the pointer, except Keep and Kill.
+
+The name is a short Title Case name, drawn in uppercase inside brackets, 40 units from the top and the left. It is 13px, tracking `0.14em`, colour `#2B8CFF`, as in `[ Soft Press ]`. The gesture sits on that same line, 40 units from the right, in lowercase. It is 11px, tracking `0.06em`, colour `#6B6960`.
+
+A dashed rule in `#34342F` runs from x 40 to x 560 at y 524, 2 units on and 4 off. The model sits under the rule at y 548, 11px, colour `#B9B4A8`, tabular. The constants sit at y 568, 11px, colour `#6B6960`, tabular. The model is one honest line, a mapping, a duration or a count. A title under a picture, an index, a date or a fake equation is `sketchbook-tile-frame`.
+
+The stage fills the square and plays under the pointer. Give the stage an accessible name that says what moves. The experiment inside it uses the project's tokens. The readout shares the constants line, at the right, in that same 11px dim tabular face, and its figures change while the tile is played. A caption that never changes is `sketchbook-live-readout`.
+
+Keep and Kill are real buttons on that readout line, always visible, in Title Case. They are `#B9B4A8`, and `#2B8CFF` on hover, focus and when kept. Their hit area comes from `defaults`. A tile with no choice is `sketchbook-keep-or-kill`.
+
+## 6. Open it
 
 Start the dev server, open `/sketchbook` and play every tile once. A path in the reply with nothing opened is `sketchbook-open-it`.
 
-## 6. Save the choice
+## 7. Save the choice
 
 When the user keeps or kills a tile, update `sketchbook/taste.md` in the same turn. The file has three headings: Kept, Killed and Summary. Killed lines include a reason. The summary covers easing, speed, density, playfulness and colour use. Rewrite it so the next batch leans further toward the kept tiles. A missing update, a killed line with no reason or any other shape is `sketchbook-save-the-taste`.
 
@@ -54,7 +68,7 @@ Delete a killed experiment. Only its name and reason stay in the taste file. Cod
 
 When every tile has a choice, delete the `/sketchbook` route. A gallery left after the batch is sorted, or one reachable in production, is `sketchbook-remove-the-gallery`.
 
-## 7. Suggest a clip
+## 8. Suggest a clip
 
 Name which kept tiles are worth a clip and give one line on why. When none were kept, say so. Ending the review with no suggestion is `sketchbook-suggest-a-clip`.
 
@@ -70,8 +84,11 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `sketchbook-batch-size` | 4 tiles | 6–9 tiles |
 | `sketchbook-real-stack` | A PNG standing in for a hover | The hover built in the project's stack |
 | `sketchbook-wildcards` | 9 tiles, all inside the current taste | 7 in taste and 2 outside it |
-| `sketchbook-one-gallery` | 8 routes, one per experiment | One `/sketchbook` grid of live tiles |
-| `sketchbook-keep-or-kill` | A tile with no choice | `Soft Press`, one note, Keep and Kill |
+| `sketchbook-one-gallery` | A route per experiment, plus a detail view | One `/sketchbook` page of live squares |
+| `sketchbook-instrument-page` | Rounded cards on a white page | `#10100E` ground, 1280px column, 40px gap, square tiles |
+| `sketchbook-tile-frame` | "Soft Press" and a date under a picture | `[ Soft Press ]`, the gesture, the rule and the model |
+| `sketchbook-live-readout` | A note that never changes | `scale 1.00` moving while you press |
+| `sketchbook-keep-or-kill` | A tile with no choice | Keep and Kill on the readout line |
 | `sketchbook-open-it` | "Built at `/sketchbook`" | The gallery opened, every tile played |
 | `sketchbook-save-the-taste` | "You kept Soft Press" only in the reply | Soft Press under Kept, with the summary updated |
 | `sketchbook-keep-the-component` | Soft Press left inline on the gallery route | `sketchbook/kept/SoftPress`, gallery chrome removed |
@@ -81,7 +98,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a mock-up batch, a kept component deleted or a gallery reachable in production. `MEDIUM` is a count outside 6–9, a missing wildcard, an unread taste file or a repeated experiment. It is also a choice left in the reply, a kept tile left on the route, killed code left behind or a gallery left after sorting. `LOW` is a gallery that was not opened, or a review with no clip suggestion.
+**Severity.** `HIGH` is a mock-up batch, a kept component deleted or a gallery reachable in production. `MEDIUM` is a count outside 6–9, a missing wildcard, an unread taste file or a repeated experiment. It is also a page that is not the instrument, or a readout that never changes. It is also a choice left in the reply, a kept tile left on the route, killed code left behind or a gallery left after sorting. `LOW` is a gallery that was not opened, or a review with no clip suggestion.
 
 **Format.** One finding per root cause:
 
