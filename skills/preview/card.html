@@ -1,0 +1,59 @@
+<!doctype html>
+<!--
+  Share card frame. Copy this file beside the page and write card.js:
+
+  window.card = {
+    live: "http://127.0.0.1:8765/",
+    capture: "page.png",
+    title: "Evening Tide",
+    site: "Harbor"
+  };
+
+  The document is 1200 by 630. `live` fills the frame with the running page, so a loop records that page. `capture` is a still of the page, used when `live` is empty. Screenshot this document for og:image. Record one cycle of it for og:video.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Share Card</title>
+    <style>
+      html,
+      body {
+        width: 1200px;
+        height: 630px;
+        margin: 0;
+        overflow: hidden;
+        background: #0c1b22;
+      }
+
+      iframe,
+      img {
+        display: block;
+        width: 1200px;
+        height: 630px;
+        border: 0;
+      }
+    </style>
+  </head>
+  <body>
+    <iframe id="live" hidden title="Running page"></iframe>
+    <img id="still" alt="" />
+    <script src="card.js"></script>
+    <script>
+      const card = window.card ?? {};
+      const live = document.getElementById("live");
+      const still = document.getElementById("still");
+      if (card.live) {
+        live.hidden = false;
+        live.src = card.live;
+        still.remove();
+      } else if (card.capture) {
+        still.src = card.capture;
+        still.alt = card.title || "";
+        live.remove();
+      } else {
+        still.remove();
+        live.remove();
+      }
+    </script>
+  </body>
+</html>
