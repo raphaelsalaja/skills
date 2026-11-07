@@ -1,0 +1,5 @@
+interface:
+  display_name: "Wireframe"
+  short_description: "Turn the page into a structural view"
+policy:
+  allow_implicit_invocation: false
