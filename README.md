@@ -36,6 +36,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**lab**](skills/lab/SKILL.md): Builds a temporary page that shows **every variant and state** of real components at once, each linked to its source. User-invoked.
 - [**deconstruct**](skills/deconstruct/SKILL.md): Breaks an animation or interaction into **a state machine and a timeline** of every property, on a page you can scrub and edit. User-invoked.
 - [**alignment**](skills/alignment/SKILL.md): Measures a running page for edges, gaps, centring and radii that **miss by a pixel or two**, then judges visual weight and returns a numbered report with proof. User-invoked.
+- [**consistency**](skills/consistency/SKILL.md): Compares **peer controls** within a screen and across related screens, then flags a size, radius, spacing or placement that left its family. User-invoked.
 - [**keyboard**](skills/keyboard/SKILL.md): Walks a running page with **the keyboard alone**, records every focus stop and reports controls it cannot reach, see or operate. User-invoked.
 - [**frames**](skills/frames/SKILL.md): Records **a performance trace** of one interaction on a throttled CPU, names what drops frames or delays input, then proves the fix with a second trace. User-invoked.
 - [**avatar**](skills/avatar/SKILL.md): Draws any object as **a flat character with two capsule eyes**, then animates its whole body so it glances, blinks, breathes, follows the pointer and falls asleep. User-invoked.
@@ -59,6 +60,7 @@ Principle skills and `verify`, `gather`, `match`, `rule`, `viewports` and `icons
 /lab the menu components
 /deconstruct the copy button animation
 /alignment the settings page
+/consistency the library screen
 /keyboard the settings dialog
 /frames opening the command palette
 /avatar a coffee cup for the support card

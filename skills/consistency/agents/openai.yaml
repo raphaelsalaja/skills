@@ -1,0 +1,5 @@
+interface:
+  display_name: "Consistency"
+  short_description: "Peer controls that left their family"
+policy:
+  allow_implicit_invocation: false
