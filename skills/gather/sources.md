@@ -1,6 +1,43 @@
 # Sources
 
-How to reach each source in `SKILL.md`, the files each search agent writes and the board settings. Before searching, ask whether to connect each of Pond, marked.dev, Are.na, Cosmos, Pinterest and Mobbin that is missing. When none are connected, wait for the answer.
+How to reach each source in `SKILL.md`, the files each search agent writes and the board settings.
+
+## Which sources
+
+Before searching, ask which sources to use, with each name below as its own option, in this order. Connect any picked source that is missing, then search only the picked ones.
+
+| Source | The user's saves | The site |
+| --- | --- | --- |
+| Pond | Saves from every platform it imports | None, it is a local library |
+| marked.dev | Saved refs and collections | Explore, browsed by what moves |
+| [Are.na](https://www.are.na) | Channels, through Pond when connected | Search across public channels |
+| [Cosmos](https://www.cosmos.so) | Clusters, through Pond when connected | Visual similarity, colour and motion search |
+| [Pinterest](https://www.pinterest.com) | Boards, through Pond when connected | Search, and a pin's More Ideas |
+| [Savee](https://savee.com) | Saves, through Pond when connected | Graphic, brand, editorial and web work, searched by colour and image |
+| [Dribbble](https://dribbble.com) | Likes and collections, through Pond when connected | Shots posted by designers, mostly concepts |
+| [Behance](https://www.behance.net) | Appreciations and moodboards, through Pond when connected | Case studies posted by designers, mostly concepts |
+| [Layers](https://layers.to) | Checked when signed in | Work posted by designers, mostly concepts |
+| Mobbin | Saved collections | Screens, flows and marketing sections |
+| [Recent](https://recent.design) | Checked when signed in | High-end sites, branding, motion and type, picked daily. The Web filter shows sites only |
+| [Refero](https://refero.design) | Checked when signed in | Real product screens, flows, patterns and elements, mostly web |
+| [Siteinspire](https://www.siteinspire.com) | Checked when signed in | Editorial, typographic sites, filtered by style, type and subject |
+| [Minimal Gallery](https://minimal.gallery) | Checked when signed in | Restrained, functional sites |
+| [Land-book](https://land-book.com) | Checked when signed in | Landing pages, filtered by page type and style |
+| [Saaspo](https://saaspo.com) | Checked when signed in | Software landing, pricing and product pages |
+| [Page Flows](https://pageflows.com) | Checked when signed in | Recorded flows from live web and mobile apps |
+| [Nicely Done](https://nicelydone.club) | Favourites and collections | Screens, components and flows from SaaS apps, searchable by the text inside them |
+| [Design Spells](https://www.designspells.com) | Checked when signed in | Micro-interactions, easter eggs and small details from shipped products |
+| [60fps](https://60fps.design) | Checked when signed in | Recorded motion from mobile apps, tagged by gesture, pattern and effect |
+| [Awwwards](https://www.awwwards.com) | Checked when signed in | Award-winning sites, judged from paid submissions |
+| [One Page Love](https://onepagelove.com) | Checked when signed in | Single-page sites and page sections, picked by hand |
+| [Lapa Ninja](https://www.lapa.ninja) | Checked when signed in | Landing pages with full-page screenshots and recordings |
+| [Fonts In Use](https://fontsinuse.com) | Checked when signed in | Type in real work, indexed by typeface |
+| [Typewolf](https://www.typewolf.com) | Checked when signed in | Type on current sites, named by typeface |
+| [CodePen](https://codepen.io) | Likes and collections | Live front-end experiments, mostly concepts |
+
+One option covers both columns. A picked source gets a search of the user's saves there and a search of the site itself. Mark Are.na, Cosmos, Pinterest, Savee, Dribbble and Behance "through Pond" when Pond is connected.
+
+For a site with accounts, open it in the browser and look for the user's likes, boards, collections or bookmarks before searching. When it shows signed out, ask once whether to sign in or search it signed out. A site with no account, or none signed in, gets the site search only.
 
 ## Queries
 
@@ -35,7 +72,8 @@ Each agent writes one file, `.gather/<brief>/candidates/<source>.json`, holding 
 - `media` is a full URL, an absolute local path or a path inside `.gather/<brief>/`. The collector downloads or copies it into `img/`.
 - `kind` is `image` or `video`. Without it, the file extension decides.
 - `poster` is optional, a still for a video.
-- `source` puts › between a library and the board inside it, such as `Pond › Are.na`. Items from Pond and marked.dev lead each group, except `marked.dev › Explore`.
+- `source` puts › between a library and the board inside it, such as `Pond › Are.na`.
+- `saved` is `true` for an item from the user's own saves on any source. Saved items lead each group.
 - `details` adds rows to the viewer, such as `{ "Creator": "Kevin", "Style": ["Minimal", "Clean"] }`.
 
 ## Board
@@ -127,19 +165,21 @@ The user's saved interfaces and motion from X, Pinterest and the web, each credi
 
 Search it by interaction when the brief is about motion, such as "hover card lift" or "scroll reveal". A ref's video is the `media`, with `kind: "video"`.
 
-## Boards
+## Sites in the browser
 
-| Source | Reach it with |
+Every source but Pond, marked.dev and Mobbin opens in the browser, or with computer use where the browser cannot reach it. Open only the sites the user picked.
+
+With Pond connected, read the user's saves on Are.na, Cosmos, Pinterest, Savee, Dribbble and Behance through Pond. Set `source` to `arena`, `cosmos`, `pinterest`, `savee`, `dribbble` or `behance`. Open their own pages for a channel Pond hasn't imported and for each site's search.
+
+| Site | Image search |
 | --- | --- |
-| Are.na | The user's channels in the logged-in browser |
-| Cosmos | The user's clusters in the logged-in browser. Open an element and use its similar results for an image search |
-| Pinterest | The user's boards in the logged-in browser or with computer use. A pin's More Ideas works as an image search |
+| Cosmos | Open an element and use its similar results. AI images hide on request |
+| Pinterest | A pin's More Ideas |
+| Savee | Search by colour or by an image |
 
-With Pond connected, search these through Pond with `source` set to `arena`, `cosmos` or `pinterest`. Open the browser only for a channel Pond hasn't imported or for Cosmos's similar results.
+Read the user's existing channel and board names before creating one. Prefer sites picked by hand to ones that take paid submissions. Dribbble, Behance, Layers and CodePen are mostly concepts, so mark what comes from them.
 
-Read the user's existing channel and board names before creating one. When the browser is signed out, ask the user to sign in, then read their boards.
-
-## Pattern libraries
+## Mobbin
 
 | Tool | Use |
 | --- | --- |
@@ -152,19 +192,3 @@ Read the user's existing channel and board names before creating one. When the b
 | Mobbin `add_comment` | Note on a saved item why it was picked, only when the user asks |
 
 A Mobbin result's `image_url` is the `media` and its `mobbin_url` is the `url`. The image link expires after 30 days, which the download covers.
-
-## Curated galleries
-
-Open them in the browser. Prefer galleries picked by hand to ones that take paid submissions. Dribbble and Behance are mostly concepts, so mark what comes from them.
-
-| Gallery | What it holds |
-| --- | --- |
-| [Recent](https://recent.design) | High-end sites, branding, motion and type, picked daily. The Web filter shows sites only |
-| [Refero](https://refero.design) | Real product screens, flows, patterns and elements, mostly web |
-| [Savee](https://savee.com) | Graphic, brand, editorial and web work saved by designers. Searches by colour and image. Pond reads it as `savee` |
-| [Cosmos](https://www.cosmos.so) | Visual similarity, colour and motion search, with AI images hidden on request |
-| [Siteinspire](https://www.siteinspire.com) | Editorial, typographic sites, filtered by style, type and subject |
-| [Minimal Gallery](https://minimal.gallery) | Restrained, functional sites |
-| [Land-book](https://land-book.com) | Landing pages, filtered by page type and style |
-| [Saaspo](https://saaspo.com) | Software landing, pricing and product pages |
-| [Page Flows](https://pageflows.com) | Recorded flows from live web and mobile apps |

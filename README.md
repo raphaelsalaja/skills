@@ -26,7 +26,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 ### Procedures
 
 - [**verify**](skills/verify/SKILL.md): Checks a change **in the running app** before calling it done, then says where to see it.
-- [**gather**](skills/gather/SKILL.md): Collects references from **the user's own library**, their boards and pattern sites onto one linked board before a design is built.
+- [**gather**](skills/gather/SKILL.md): Collects references from **the user's own saves** and every site they pick onto one linked board before a design is built.
 - [**match**](skills/match/SKILL.md): Rebuilds a named reference from its **real source and computed values**, then compares the two side by side.
 - [**rule**](skills/rule/SKILL.md): Turns a **repeated correction** into a short project rule with the broken and fixed line, then applies it to existing code.
 - [**viewports**](skills/viewports/SKILL.md): Renders a page at **every width**, each breakpoint edge, a short landscape phone and 200% text, then reports what overflows, clips or hides.

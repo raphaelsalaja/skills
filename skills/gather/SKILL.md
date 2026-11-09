@@ -1,6 +1,6 @@
 ---
 name: gather
-description: Collects references from the user's own library, their boards and pattern sites onto one linked board before a design is built.
+description: Collects references from the user's own saves and every site they pick onto one linked board before a design is built.
 ---
 
 # Gather
@@ -23,25 +23,31 @@ Search on the same platform as the work. A desktop or web app takes web and desk
 
 ## 2. Start with what the user gave
 
-Open the tabs, screenshots, links and design files already in the thread before searching anywhere. They seed the image searches in step 4. Searching a pattern library while the user's screenshots sit open in the browser is `gather-start-with-given`.
+Open the tabs, screenshots, links and design files already in the thread before searching anywhere. They seed the image searches in step 4. Searching Mobbin while the user's screenshots sit open in the browser is `gather-start-with-given`.
 
-## 3. Offer to connect what is missing
+## 3. Ask which sources to use
 
-Check which of Pond, marked.dev, Are.na, Cosmos, Pinterest and Mobbin are connected. Ask once, with each missing source as its own option and carrying on as another. A question that drops a missing source, or searching past one without asking, is `gather-offer-to-connect`.
+Ask one multi-select question with every source in [sources.md](sources.md#which-sources) as its own option, marking each one connected or not. Search only the sources picked.
 
-Pond imports the user's saves from Are.na, Cosmos, Pinterest and Savee, so with Pond connected those boards are not missing. Search them through Pond's `source` filter. Open a board in the browser only for what Pond lacks, such as an unimported channel or Cosmos's similar results. Calling a board's API, or asking to sign in to it, while Pond holds its saves is `gather-boards-through-pond`.
+Where the question tool caps its options, split the list across questions in the order `sources.md` gives. A source missing from the question, a searched source left out or no question at all is `gather-ask-which-sources`.
 
-When none are connected, wait for the answer. How to connect each source is in [sources.md](sources.md).
+Connect a picked source that is missing before searching it. How to connect each one is in [sources.md](sources.md). Wait for the answer before searching anywhere. Ask once per brief, so More Like This and "more" keep the same picks.
 
-## 4. Search every source at once
+Pond imports the user's saves from Are.na, Cosmos, Pinterest, Savee, Dribbble and Behance, so with Pond connected read those saves through Pond's `source` filter. Calling a board's API, or asking to sign in only to read saves Pond holds, is `gather-boards-through-pond`.
 
-Start one agent per connected source, or run their searches as parallel calls where agents are unavailable. Each writes `candidates/<source>.json` in the shape [sources.md](sources.md#candidates) shows. Searching one source after another is `gather-parallel-sources`.
+A source the user left out stays out of Pond too. Pond's `source` filter cannot exclude, so drop every Pond result whose source was left out.
+
+## 4. Search every picked source at once
+
+Start one agent per picked source, or run their searches as parallel calls where agents are unavailable. Each writes `candidates/<source>.json` in the shape [sources.md](sources.md#candidates) shows. Searching one source after another is `gather-parallel-sources`.
 
 When Mobbin answers that monthly usage is high, stop calling it, tell the user and carry on with the other sources. Search Mobbin again only when the user asks for it by name. Another Mobbin call after that warning is `gather-stop-at-usage-limit`.
 
-The user's own saves lead each group. A board with nothing from Pond or marked.dev while either holds matches is `gather-own-library-first`.
+Every picked site the user can sign into gets two searches: their saves there and the site's own catalogue. Searching only one side while the other holds matches is `gather-saves-and-site`.
 
-Pull from at least three sources. Pattern libraries show flows and screens, curated galleries show finished work and boards show taste. A board drawn from one app is `gather-go-wide`.
+The user's own saves lead each group, from any source, each marked `saved: true`. A board with none of the user's saves while a picked source holds matches is `gather-own-library-first`.
+
+Pull from at least three of the picked sources, or from every one when fewer are picked. A board drawn from one app is `gather-go-wide`.
 
 Seed image searches from what the user gave and from their closest saves, through Pond `visual` and Cosmos. Text queries alone when the user shared screenshots is `gather-search-by-image`.
 
@@ -98,13 +104,14 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `gather-name-the-brief` | "Searching settings pages" | "Desktop settings page, looking for grouping and density" |
 | `gather-split-the-brief` | `query: "desktop settings page with grouped dense options"` | `"settings groups"`, `"preferences list"`, `"dense settings"` |
 | `gather-same-platform` | iOS screens for a desktop app | `platform: "web"` and desktop apps |
-| `gather-start-with-given` | A pattern-library search while the user's tabs are open | The open tabs read first |
-| `gather-offer-to-connect` | Pond searched alone while marked.dev and Mobbin sit unconnected | "Connect marked.dev or Mobbin, or carry on with Pond?" |
+| `gather-start-with-given` | A Mobbin search while the user's tabs are open | The open tabs read first |
+| `gather-ask-which-sources` | Six sources offered while Savee and Refero go unlisted | Every source in `sources.md` as its own option, marked connected or not |
 | `gather-boards-through-pond` | "Are.na's API blocks scripted requests, so I'll search it in the browser" while Pond is connected | Pond searched with `source: "arena"`, `"cosmos"` and `"pinterest"` |
 | `gather-parallel-sources` | Pond, then Mobbin, then Cosmos, one after another | One agent per source, started together |
 | `gather-stop-at-usage-limit` | Mobbin searched again after "your monthly usage is high" | "Mobbin says monthly usage is high, so I've stopped searching it" |
+| `gather-saves-and-site` | Mobbin searched while the user's Mobbin collections go unread | `get_collection_contents` with `id: "all-saved"`, then `search_screens` |
 | `gather-own-library-first` | A board of Mobbin screens while Pond holds matches | The user's saves first in each group |
-| `gather-go-wide` | Twenty screens from one app | Saves, boards and a pattern library |
+| `gather-go-wide` | Twenty screens from one app | The user's saves and three sites |
 | `gather-search-by-image` | Text queries while the user's screenshot sits in the thread | `search_library` with `visual` seeded from it |
 | `gather-capture-live` | A Land-book thumbnail of linear.app | A screenshot of the live top bar, linked to linear.app |
 | `gather-enough-to-choose` | "50 more" returns the first 20 again | 50 new references, earlier urls left out |
@@ -126,7 +133,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 **Severity.** `HIGH` is a whole look copied when one part was asked for, items saved twice or under the wrong name, or saves rewritten in the user's library.
 
-`MEDIUM` is the wrong platform, one source only, sources searched in turn, a board with no links or a hand-written board or build script. It is also a search that skipped the connect question or the user's own saves. So is a reference kept unseen, a close call settled by the agent or a concept shown as shipped. So is a Mobbin call after its usage warning, or a board reached around Pond while Pond holds its saves.
+`MEDIUM` is the wrong platform, one source only, sources searched in turn, a board with no links or a hand-written board or build script. It is also a search that skipped the source question or the user's own saves, or searched a source the user left out. So is a site searched without the user's saves there, or the reverse. So is a reference kept unseen, a close call settled by the agent or a concept shown as shipped. So is a Mobbin call after its usage warning, or a board reached around Pond while Pond holds its saves.
 
 `LOW` is one long query, text search where an image search fits or a gallery thumbnail of a live site. So is a reference with no note, a long group name, repeats under "more" or More Like This searched by title.
 

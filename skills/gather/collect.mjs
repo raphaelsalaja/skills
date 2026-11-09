@@ -173,8 +173,7 @@ async function build(live) {
       items.push(item);
     }
   }
-  const own = (item) => (/^(Pond|marked\.dev)(?! › Explore)/.test(item.source) ? 0 : 1);
-  items.sort((a, b) => own(a) - own(b));
+  items.sort((a, b) => Number(b.saved === true) - Number(a.saved === true));
 
   const cache = new Map();
   for (const file of await readdir(imgDir)) cache.set(file.split(".")[0], file);
