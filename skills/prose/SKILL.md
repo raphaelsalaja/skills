@@ -99,6 +99,8 @@ A sequence of steps, a comparison or a set of values goes in a list, table or fi
 
 A caption under a demo or figure describes what happens in it, in order: the menu grows out of the button, the shadow arrives on the fourth frame and the content on the sixth. A caption that states the lesson is `prose-caption-the-action`.
 
+A caption is two sentences at most. Anything else it needs to say goes in the paragraph next to it. A caption of three or more sentences is `prose-caption-two-sentences`.
+
 ## End modestly
 
 The last line of a piece is plain: what the work does for now, what is next or how the author feels about it. A punchline, an aphorism or a summary of the headings as the ending is `prose-modest-ending`.
@@ -134,6 +136,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `prose-british-spelling` | `The color fades from the center.` | `The colour fades from the centre.` |
 | `prose-show-the-shape` | Five shortcuts in one paragraph | A keymap table |
 | `prose-caption-the-action` | `The second version has fewer things in it.` | `The card loses its gradient, its sparkle and its entrance, and the button answers a press.` |
+| `prose-caption-two-sentences` | `Pick an effect and tap the button. Tap outside to close it. The corner reads out each event. Home shrinks the notes to 0.88.` | `Pick an effect, change its options and tap the button. The top corner reads out each event as it fires.` |
 | `prose-modest-ending` | `The best compliment a tool can get is that someone forgets it's there.` | `That's why I keep coming back to quiet software, and it's the kind I try to build.` |
 
 ## Reporting
