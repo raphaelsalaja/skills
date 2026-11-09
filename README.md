@@ -38,6 +38,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**alignment**](skills/alignment/SKILL.md): Measures a running page for edges, gaps, centring and radii that **miss by a pixel or two**, then judges visual weight and returns a numbered report with proof. User-invoked.
 - [**keyboard**](skills/keyboard/SKILL.md): Walks a running page with **the keyboard alone**, records every focus stop and reports controls it cannot reach, see or operate. User-invoked.
 - [**frames**](skills/frames/SKILL.md): Records **a performance trace** of one interaction on a throttled CPU, names what drops frames or delays input, then proves the fix with a second trace. User-invoked.
+- [**invariants**](skills/invariants/SKILL.md): Finds the **state machines and rules** an app relies on but never enforces, then returns a numbered report of where to enforce each one. User-invoked.
 - [**avatar**](skills/avatar/SKILL.md): Draws any object as **a flat character with two capsule eyes**, then animates its whole body so it glances, blinks, breathes, follows the pointer and falls asleep. User-invoked.
 - [**bots**](skills/bots/SKILL.md): Turns chosen Grok Bots into **a shakeable pile**, portfolio cards and an org chart page, each with a link to copy the bot, with private details stripped. User-invoked.
 - [**sketchbook**](skills/sketchbook/SKILL.md): Generates a daily batch of interaction experiments in the project's own stack as **live tiles you keep or kill**, learning your taste with every batch. User-invoked.
@@ -61,6 +62,7 @@ Principle skills and `verify`, `gather`, `match`, `rule`, `viewports` and `icons
 /alignment the settings page
 /keyboard the settings dialog
 /frames opening the command palette
+/invariants the editor store
 /avatar a coffee cup for the support card
 /bots my whole team
 /sketchbook

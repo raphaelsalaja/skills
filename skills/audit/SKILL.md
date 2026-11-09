@@ -41,6 +41,7 @@ Check the scope against each skill and record what you inspected.
 | `match` | Each named reference, when the work copies one |
 | `rule` | Repeated corrections with no written rule, and edits that break one |
 | `viewports` | Each changed layout at every width, when layout is in scope |
+| `invariants` | Flags read together and unchecked assumptions, when state is in scope |
 | `ship` | Stray files, secrets, commits and checks, when git is in scope |
 
 Skipping a skill without saying why is `audit-run-every-skill`.
