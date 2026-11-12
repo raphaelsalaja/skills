@@ -18,7 +18,7 @@ A skill states the rule, the exact value and the detection pattern. It does not 
 
 **Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy`, `prose`, `defaults`, `motion` and `color`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
 
-**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `viewports`, `icons`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `invariants`, `avatar`, `bots`, `sketchbook` and `audit`. Their steps are numbered `## 1.` onward.
+**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `viewports`, `throttle`, `icons`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `invariants`, `avatar`, `bots`, `sketchbook` and `audit`. Their steps are numbered `## 1.` onward.
 
 ## Invocation
 
@@ -74,6 +74,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `rule` | Writing a correction into the agent file, conflicts between rules, sweeping old breaks |
 | `viewports` | The width set, breakpoint edges, sideways scroll, clipped text, hover-only controls, short heights, doubled text |
 | `icons` | Missing glyphs, the spec measured from the whole set, the grid, the morph form, one skeleton, the lint, the shipped sheet and the project's icon API |
+| `throttle` | Slow 3G, flaky and offline profiles, press feedback, one request per action, layout shift as content loads, invisible and swapping fonts, named failures with a way out, kept input, the before and after pair |
 | `ship` | Commits and their Conventional Commit messages, changesets, pushes, merges, pull requests per bug, releases, deploy checks |
 | `prototype` | Labelled real-code variants of one idea, pruning after the pick |
 | `lab` | Every state of real components forced open on one development page |

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Throttle"
+  short_description: "Bad network states, found and fixed"
