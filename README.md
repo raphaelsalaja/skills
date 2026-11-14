@@ -30,6 +30,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**match**](skills/match/SKILL.md): Rebuilds a named reference from its **real source and computed values**, then compares the two side by side.
 - [**rule**](skills/rule/SKILL.md): Turns a **repeated correction** into a short project rule with the broken and fixed line, then applies it to existing code.
 - [**viewports**](skills/viewports/SKILL.md): Renders a page at **every width**, each breakpoint edge, a short landscape phone and 200% text, then reports what overflows, clips or hides.
+- [**babel**](skills/babel/SKILL.md): Renders the running app in a **pseudo-locale, German, Arabic and Japanese**, then fixes clipped text, unmirrored icons, physical CSS properties and broken line breaks.
 - [**icons**](skills/icons/SKILL.md): Draws missing icons in the **project's own style**, measured from every icon the set already has and built to morph, then shows the set on one sheet.
 - [**ship**](skills/ship/SKILL.md): Commits, pushes, merges and releases a change, **watches the checks** and confirms it is live. User-invoked.
 - [**prototype**](skills/prototype/SKILL.md): Builds several **real, labelled variants** of one idea on a single page so the user can pick, then deletes the rest. User-invoked.
@@ -52,7 +53,7 @@ npx skills add raphaelsalaja/skills
 
 ## Use a skill
 
-Principle skills and `verify`, `gather`, `match`, `rule`, `viewports` and `icons` apply on their own when the work calls for them. Call the user-invoked ones by name:
+Principle skills and `verify`, `gather`, `match`, `rule`, `viewports`, `icons` and `babel` apply on their own when the work calls for them. Call the user-invoked ones by name:
 
 ```text
 /ship
