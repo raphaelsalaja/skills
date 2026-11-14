@@ -8,6 +8,7 @@
   const opts = Object.assign({ root: document.body, icons: "svg, [data-icon], img", directional: /(arrow|chevron|caret|back|forward|next|prev|previous|undo|redo|reply|external|login|logout|indent|outdent)/i }, window.__babelOptions);
   const root = opts.root;
   const round = (n) => Math.round(n * 10) / 10;
+  const at = (f, el) => Object.defineProperty(f, "node", { value: el });
   const sel = (n) => {
     if (!n || n.nodeType !== 1) return n && n.parentElement ? sel(n.parentElement) : "";
     const id = n.id ? "#" + n.id : "";
@@ -32,13 +33,13 @@
       const cs = getComputedStyle(el), text = nodes.map((n) => n.textContent.trim()).join(" ").slice(0, 40);
       const hidesX = cs.overflowX !== "visible", hidesY = cs.overflowY !== "visible";
       const dx = el.scrollWidth - el.clientWidth, dy = el.scrollHeight - el.clientHeight;
-      if (hidesX && dx > 1) { out.push({ kind: cs.textOverflow === "ellipsis" ? "truncated" : "clipped", el: sel(el), by: dx, text }); continue; }
-      if (hidesY && dy > 1) { out.push({ kind: "clipped", el: sel(el), by: dy, text }); continue; }
+      if (hidesX && dx > 1) { out.push(at({ kind: cs.textOverflow === "ellipsis" ? "truncated" : "clipped", el: sel(el), by: dx, text }, el)); continue; }
+      if (hidesY && dy > 1) { out.push(at({ kind: "clipped", el: sel(el), by: dy, text }, el)); continue; }
       const t = nodes.length ? textRect(nodes) : null; if (!t) continue;
       const b = el.getBoundingClientRect(), px = (v) => parseFloat(v) || 0;
       const lo = b.left + px(cs.borderLeftWidth) + px(cs.paddingLeft), hi = b.right - px(cs.borderRightWidth) - px(cs.paddingRight);
       const side = Math.max(t.right - hi, lo - t.left);
-      if (side > 1 && cs.display !== "inline") out.push({ kind: "spill", el: sel(el), by: round(side), text });
+      if (side > 1 && cs.display !== "inline") out.push(at({ kind: "spill", el: sel(el), by: round(side), text }, el));
     }
     return out;
   };
@@ -76,7 +77,7 @@
       const name = el.getAttribute("data-icon") || el.getAttribute("aria-label") || el.getAttribute("title") || (typeof el.className === "string" ? el.className : "") || el.getAttribute("src") || "";
       const directional = opts.directional.test(name), mirrored = flipOf(el);
       const want = dir === "rtl" && directional;
-      out.push({ el: sel(el), name: name.trim().split(/\s+/)[0], directional, mirrored, ok: mirrored === want });
+      out.push(at({ el: sel(el), name: name.trim().split(/\s+/)[0], directional, mirrored, ok: mirrored === want }, el));
     }
     return out;
   };
@@ -95,8 +96,8 @@
         r.setStart(n, i); r.setEnd(n, i + 1);
         const c = r.getClientRects()[0]; if (!c || /\s/.test(t[i])) continue;
         if (top !== null && c.top > top + c.height / 2) {
-          if (cjk && NO_START.test(t[i])) out.push({ kind: "line-start", el: sel(n.parentElement), char: t[i], text: t.slice(Math.max(0, i - 6), i + 6) });
-          if (i > 0 && WORD.test(t[i]) && WORD.test(t[i - 1])) { let a = i, b = i; while (a > 0 && WORD.test(t[a - 1])) a--; while (b < t.length && WORD.test(t[b])) b++; out.push({ kind: "split-word", el: sel(n.parentElement), word: t.slice(a, b), text: t.slice(Math.max(0, i - 6), i + 6) }); }
+          if (cjk && NO_START.test(t[i])) out.push(at({ kind: "line-start", el: sel(n.parentElement), char: t[i], text: t.slice(Math.max(0, i - 6), i + 6) }, n.parentElement));
+          if (i > 0 && WORD.test(t[i]) && WORD.test(t[i - 1])) { let a = i, b = i; while (a > 0 && WORD.test(t[a - 1])) a--; while (b < t.length && WORD.test(t[b])) b++; out.push(at({ kind: "split-word", el: sel(n.parentElement), word: t.slice(a, b), text: t.slice(Math.max(0, i - 6), i + 6) }, n.parentElement)); }
         }
         top = c.top;
       }
@@ -131,10 +132,9 @@
     highlight() {
       if (!last) this.scan();
       const mark = (el, color) => { el.style.outline = "2px dashed " + color; el.style.outlineOffset = "1px"; };
-      const find = (s) => { try { return [...document.querySelectorAll(s.replace(/\.[^.#\s]+$/, (m) => m))]; } catch (e) { return []; } };
-      for (const f of last.o) for (const el of find(f.el)) if (f.kind === "page" || ownText(el).some((n) => n.textContent.trim().startsWith(f.text.slice(0, 10)))) mark(el, "#ff3b30");
-      for (const f of last.ic.filter((i) => !i.ok)) for (const el of find(f.el)) mark(el, "#ff9500");
-      for (const f of last.l) for (const el of find(f.el)) mark(el, "#af52de");
+      for (const f of last.o) if (f.node) mark(f.node, "#ff3b30");
+      for (const f of last.ic) if (!f.ok) mark(f.node, "#ff9500");
+      for (const f of last.l) mark(f.node, "#af52de");
       return last.o.length + last.ic.filter((i) => !i.ok).length + last.l.length;
     },
     clear() { document.querySelectorAll("[style*=outline]").forEach((e) => { e.style.outline = ""; e.style.outlineOffset = ""; }); },
