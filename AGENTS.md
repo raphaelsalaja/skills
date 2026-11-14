@@ -18,7 +18,7 @@ A skill states the rule, the exact value and the detection pattern. It does not 
 
 **Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy`, `prose`, `defaults`, `motion` and `color`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
 
-**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `viewports`, `icons`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `invariants`, `avatar`, `bots`, `sketchbook` and `audit`. Their steps are numbered `## 1.` onward.
+**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `viewports`, `icons`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `contract`, `frames`, `invariants`, `avatar`, `bots`, `sketchbook` and `audit`. Their steps are numbered `## 1.` onward.
 
 ## Invocation
 
@@ -80,6 +80,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `deconstruct` | Motion broken into named states, events and per-property tracks, the editable timeline |
 | `alignment` | Measured edges, gaps, ink centring, optical nudges, concentric radii, visual weight, the annotated report |
 | `keyboard` | The keyboard-only walk, focus order, reach, visible stops, composite arrows, Escape, focus after removal |
+| `contract` | The widget contracts for dialog, menu, combobox, tabs and sortable list, real key and pointer events, the board before and after |
 | `frames` | The throttled trace, frame and input budgets, layout and paint cost per frame, the before and after recording |
 | `invariants` | Flags that move together, implied state machines and impossible states, one status and one writer, unchecked assumptions, where each rule is enforced |
 | `avatar` | Character silhouettes, eyes on a sphere, whole-body idle life, moods as eye shapes, reactions to the page, the contact sheet |
