@@ -1,0 +1,613 @@
+<!doctype html>
+<!--
+  Gauntlet ledger. Copy this file to .gauntlet/<scope>/index.html and write ledger.js beside it:
+
+  window.gauntlet = {
+    scope: "Harbourline overview, /",
+    target: 9,
+    stopped: "target",
+    rounds: [
+      {
+        n: 0,
+        scores: { hierarchy: 5, spacing: 4, type: 4, colour: 3, content: 4, views: 2 },
+        overall: 3.7,
+        shots: { desktop: "round-0/desktop.png", mobile: "round-0/mobile.png", dark: "round-0/dark.png" },
+        fixes: [
+          { n: 1, shot: "dark", region: "cards", what: "Cards stay white on a dark page", why: "Text vanishes", applied: true }
+        ]
+      }
+    ]
+  };
+
+  `overall` is the mean of the six scores to one decimal. `stopped` is "target", "cap" or "stuck". `applied` is false for a fix the loop did not make, such as the last round's. Screenshots sit beside this file in one folder per round. Write every score exactly as the critic returned it.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#080808" media="(prefers-color-scheme: dark)" />
+    <title>Gauntlet</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&display=swap"
+    />
+    <style>
+      :root {
+        /* kit:tokens */
+        --gray-1: light-dark(#ffffff, #080808);
+        --gray-2: light-dark(#fafafa, #111111);
+        --gray-3: light-dark(#f2f2f2, #1a1a1a);
+        --gray-4: light-dark(#ebebeb, #222222);
+        --gray-5: light-dark(#e3e3e3, #2a2a2a);
+        --gray-10: light-dark(#6b6b6b, #8f8f8f);
+        --gray-11: light-dark(#575757, #b4b4b4);
+        --gray-12: light-dark(#080808, #ffffff);
+        --blue: #02bbff;
+        --red: light-dark(#d93036, #ff6369);
+        --green: light-dark(#2b9a66, #3dd68c);
+        --accent: var(--blue);
+        --danger: var(--red);
+        --success: var(--green);
+        --text-primary: var(--gray-12);
+        --text-secondary: color-mix(in oklab, var(--gray-12) 80%, var(--gray-11));
+        --text-tertiary: var(--gray-11);
+        --text-quaternary: var(--gray-10);
+        --text-on-accent: light-dark(#ffffff, #080808);
+        --border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
+        --border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
+        --background-primary: var(--gray-1);
+        --background-secondary: var(--gray-2);
+        --background-tertiary: light-dark(rgb(8 8 8 / 5%), rgb(255 255 255 / 8%));
+        --background-hover: light-dark(rgb(8 8 8 / 8%), rgb(255 255 255 / 13%));
+        --background-raised: light-dark(#ffffff, #1a1a1a);
+        --background-control: light-dark(#ffffff, #222222);
+        --background-overlay: light-dark(#ffffff, #111111);
+        --fill-hover: light-dark(rgb(8 8 8 / 4%), rgb(255 255 255 / 6%));
+        --shadow-border: 0 0 0 1px light-dark(rgb(0 0 0 / 7%), rgb(255 255 255 / 7%));
+        --shadow-default:
+          inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+          0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+          0 1px 1px -1px light-dark(rgb(0 0 0 / 10%), transparent),
+          0 1px 2px 0 light-dark(rgb(0 0 0 / 5%), transparent);
+        --shadow-large:
+          0 0 0 0.5px light-dark(oklab(0.802 0 0 / 0.297), transparent),
+          0 0 0 1px light-dark(transparent, oklab(0.463 0 0 / 0.303)),
+          0 2px 3px -2px light-dark(rgb(0 0 0 / 6.3%), rgb(0 0 0 / 15%)),
+          0 3px 12px -4px light-dark(rgb(0 0 0 / 10%), transparent),
+          0 4px 16px -8px light-dark(rgb(0 0 0 / 5%), transparent),
+          0 3px 8px -2px light-dark(transparent, rgb(0 0 0 / 40%)),
+          0 4px 12px -4px light-dark(transparent, rgb(0 0 0 / 50%));
+        --shadow-extra-large:
+          inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+          0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+          0 8px 40px 0 rgb(0 0 0 / 5%),
+          0 12px 32px -16px rgb(0 0 0 / 15%);
+        --font-sans: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+        --font-weight-400: "wght" 400, "opsz" 14;
+        --font-weight-500: "wght" 500, "opsz" 14;
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+        --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+        --duration-snappy: 220ms;
+        --duration-exit: 160ms;
+        --radius-control: 8px;
+        --radius-menu: 12px;
+        --radius-panel: 16px;
+        /* kit:tokens end */
+        --inset: 48px;
+      }
+
+      /* kit:page */
+      :root {
+        color-scheme: light dark;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      * {
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        font-variation-settings: inherit;
+        color: inherit;
+        text-decoration: none;
+        border: 0;
+      }
+
+      ol,
+      ul {
+        list-style: none;
+      }
+
+      img,
+      svg,
+      canvas,
+      video {
+        display: block;
+        max-width: 100%;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      button {
+        cursor: pointer;
+        user-select: none;
+        background: none;
+      }
+
+      button,
+      a,
+      select {
+        touch-action: manipulation;
+      }
+
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.9em;
+      }
+
+      html {
+        font-family: var(--font-sans);
+        font-size: 14px;
+        line-height: 20px;
+        font-variation-settings: var(--font-weight-400);
+        font-optical-sizing: none;
+        font-feature-settings: "calt", "ccmp", "locl", "kern", "cv01", "ss03";
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-tap-highlight-color: transparent;
+        color: var(--text-primary);
+        background: var(--background-primary);
+        scroll-padding-block-start: var(--bar-height, 72px);
+      }
+
+      * {
+        scrollbar-width: none;
+      }
+
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      ::selection {
+        background: color-mix(in oklab, var(--accent) 28%, transparent);
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        text-wrap: balance;
+      }
+
+      p {
+        text-wrap: pretty;
+      }
+
+      @media (width <= 640px) {
+        input:not([type="range"]),
+        textarea,
+        select {
+          font-size: 16px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after,
+        ::backdrop {
+          transition-duration: 0s !important;
+          transition-delay: 0s !important;
+        }
+      }
+      /* kit:page end */
+
+      /* kit:head */
+      .head {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 640px;
+      }
+
+      .title {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .brief {
+        color: var(--text-tertiary);
+        overflow-wrap: anywhere;
+
+        a {
+          display: inline-flex;
+          gap: 4px;
+          align-items: center;
+          color: var(--text-secondary);
+
+          svg {
+            color: var(--text-quaternary);
+          }
+
+          &:active,
+          &:active svg {
+            color: var(--text-primary);
+          }
+        }
+
+        code {
+          color: var(--text-secondary);
+        }
+      }
+
+      @property --bar-line {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: transparent;
+      }
+
+      .bar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        padding: 16px 0;
+        border-image: linear-gradient(to top, var(--bar-line) 1px, var(--background-primary) 1px) fill 0 / / 0 100vw;
+        transition: --bar-line var(--duration-snappy) var(--ease-out);
+
+        &[data-stuck] {
+          --bar-line: var(--border-primary);
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .brief a:hover,
+        .brief a:hover svg {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:head end */
+
+      /* kit:section */
+      .section-head {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        align-items: baseline;
+        margin-bottom: 20px;
+
+        .count {
+          margin-left: auto;
+        }
+      }
+
+      .section-title {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .section-description {
+        color: var(--text-tertiary);
+      }
+
+      .rows > * + * {
+        border-top: 1px solid var(--border-primary);
+      }
+
+      .empty {
+        padding: 64px 0;
+        color: var(--text-tertiary);
+        text-align: center;
+      }
+      /* kit:section end */
+
+      .page {
+        display: flex;
+        flex-direction: column;
+        gap: 40px;
+        width: min(960px, 100% - var(--inset) * 2);
+        padding: 64px 0 96px;
+        margin: 0 auto;
+      }
+
+      .summary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+        align-items: baseline;
+      }
+
+      .big {
+        font-size: 32px;
+        line-height: 40px;
+        font-variation-settings: var(--font-weight-500);
+        font-variant-numeric: tabular-nums;
+      }
+
+      .outcome {
+        color: var(--text-tertiary);
+      }
+
+      .chart {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        color: var(--text-quaternary);
+      }
+
+      .chart .grid {
+        stroke: var(--border-primary);
+      }
+
+      .chart .target {
+        stroke: var(--success);
+        stroke-dasharray: 4 4;
+      }
+
+      .chart .line {
+        fill: none;
+        stroke: var(--text-primary);
+        stroke-width: 2;
+        stroke-linejoin: round;
+        stroke-linecap: round;
+      }
+
+      .chart .dot {
+        fill: var(--background-primary);
+        stroke: var(--text-primary);
+        stroke-width: 2;
+      }
+
+      .chart text {
+        font-size: 11px;
+        fill: currentColor;
+        font-variant-numeric: tabular-nums;
+      }
+
+      .chart .score {
+        fill: var(--text-primary);
+      }
+
+      .round {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+        padding-top: 32px;
+        border-top: 1px solid var(--border-primary);
+      }
+
+      .scores {
+        display: grid;
+        grid-template-columns: repeat(6, 1fr);
+        gap: 8px;
+      }
+
+      .score-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 10px 12px;
+        background: var(--background-secondary);
+        border-radius: var(--radius-control);
+        box-shadow: var(--shadow-border);
+
+        span {
+          color: var(--text-tertiary);
+        }
+
+        strong {
+          font-variation-settings: var(--font-weight-500);
+          font-variant-numeric: tabular-nums;
+        }
+      }
+
+      .fixes {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        counter-reset: fix;
+      }
+
+      .fix {
+        display: grid;
+        grid-template-columns: 20px 1fr;
+        gap: 4px 8px;
+
+        &::before {
+          counter-increment: fix;
+          content: counter(fix);
+          color: var(--text-quaternary);
+          font-variant-numeric: tabular-nums;
+        }
+
+        > * {
+          grid-column: 2;
+        }
+
+        .where {
+          color: var(--text-tertiary);
+        }
+
+        .why {
+          color: var(--text-tertiary);
+        }
+
+        &[data-applied="false"] {
+          opacity: 0.6;
+        }
+      }
+
+      .strip {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+
+      .thumbs {
+        display: grid;
+        grid-template-columns: 2fr 1fr 2fr;
+        gap: 12px;
+        align-items: start;
+      }
+
+      .shot {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        min-width: 0;
+
+        figcaption {
+          color: var(--text-tertiary);
+        }
+
+        a {
+          display: block;
+          overflow: hidden;
+          border-radius: var(--radius-control);
+          box-shadow: var(--shadow-border);
+        }
+
+        img {
+          width: 100%;
+          height: auto;
+        }
+      }
+
+      .crop a {
+        max-height: 280px;
+      }
+
+      @media (width <= 640px) {
+        :root {
+          --inset: 24px;
+        }
+
+        .scores {
+          grid-template-columns: repeat(3, 1fr);
+        }
+
+        .strip,
+        .thumbs {
+          grid-template-columns: 1fr;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="page">
+      <header class="head">
+        <h1 class="title">Gauntlet</h1>
+        <p class="brief" id="scope"></p>
+      </header>
+
+      <section>
+        <div class="summary">
+          <span class="big" id="big"></span>
+          <span class="outcome" id="outcome"></span>
+        </div>
+        <svg class="chart" id="chart" role="img" aria-label="Overall score by round"></svg>
+      </section>
+
+      <main id="rounds"></main>
+    </div>
+
+    <script src="ledger.js"></script>
+    <script>
+      // kit:h
+      const $ = (id) => document.getElementById(id);
+
+      function h(tag, props = {}, ...children) {
+        const node = document.createElement(tag);
+        for (const [key, value] of Object.entries(props)) {
+          if (key === "html") node.innerHTML = value;
+          else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+          else node.setAttribute(key, value);
+        }
+        node.append(...children.filter((child) => child != null));
+        return node;
+      }
+      // kit:h end
+
+      const data = window.gauntlet;
+      const names = { hierarchy: "Hierarchy", spacing: "Spacing", type: "Type", colour: "Colour", content: "Content", views: "Every view" };
+      const shotNames = { desktop: "Desktop", mobile: "Mobile", dark: "Dark" };
+      const rounds = data.rounds;
+      const last = rounds[rounds.length - 1];
+
+      $("scope").textContent = data.scope;
+      $("big").textContent = `${rounds[0].overall.toFixed(1)} to ${last.overall.toFixed(1)}`;
+      const stopped = { target: `Reached ${data.target.toFixed(1)} after ${rounds.length - 1} fix rounds.`, cap: `Stopped at the round cap, below ${data.target.toFixed(1)}.`, stuck: "Stopped because a fix did not land." };
+      $("outcome").textContent = stopped[data.stopped] ?? "";
+
+      const w = 960;
+      const hgt = 220;
+      const left = 28;
+      const padTop = 16;
+      const bottom = 28;
+      const x = (i) => left + (rounds.length === 1 ? 0 : (i / (rounds.length - 1)) * (w - left - 24));
+      const y = (v) => padTop + (1 - v / 10) * (hgt - padTop - bottom);
+      const svg = $("chart");
+      svg.setAttribute("viewBox", `0 0 ${w} ${hgt}`);
+      const ns = "http://www.w3.org/2000/svg";
+      const el = (tag, attrs, text) => {
+        const node = document.createElementNS(ns, tag);
+        for (const [key, value] of Object.entries(attrs)) node.setAttribute(key, value);
+        if (text != null) node.textContent = text;
+        svg.append(node);
+        return node;
+      };
+      for (const v of [0, 5, 10]) {
+        el("line", { class: "grid", x1: left, x2: w - 8, y1: y(v), y2: y(v) });
+        el("text", { x: 0, y: y(v) + 4 }, v);
+      }
+      el("line", { class: "target", x1: left, x2: w - 8, y1: y(data.target), y2: y(data.target) });
+      el("polyline", { class: "line", points: rounds.map((r, i) => `${x(i)},${y(r.overall)}`).join(" ") });
+      rounds.forEach((r, i) => {
+        el("circle", { class: "dot", cx: x(i), cy: y(r.overall), r: 4 });
+        el("text", { class: "score", x: x(i), y: y(r.overall) - 12, "text-anchor": "middle" }, r.overall.toFixed(1));
+        el("text", { x: x(i), y: hgt - 8, "text-anchor": "middle" }, `Round ${r.n}`);
+      });
+
+      const shot = (src, caption, crop) =>
+        h("figure", { class: crop ? "shot crop" : "shot" }, h("a", { href: src, target: "_blank", rel: "noreferrer" }, h("img", { src, alt: caption, loading: "lazy" })), h("figcaption", {}, caption));
+
+      for (const [i, r] of rounds.entries()) {
+        const before = rounds[i - 1];
+        $("rounds").append(
+          h(
+            "section",
+            { class: "round", id: `r${r.n}` },
+            h("div", { class: "section-head" }, h("h2", { class: "section-title" }, `Round ${r.n}`), h("span", { class: "section-description" }, `${r.overall.toFixed(1)} out of 10`)),
+            h("div", { class: "scores" }, ...Object.keys(names).map((key) => h("div", { class: "score-cell" }, h("span", {}, names[key]), h("strong", {}, r.scores[key])))),
+            h(
+              "ol",
+              { class: "fixes" },
+              ...r.fixes.map((f) =>
+                h("li", { class: "fix", "data-applied": f.applied === false ? "false" : "true" }, h("strong", {}, f.what), h("span", { class: "where" }, `${shotNames[f.shot]}, ${f.region}${f.applied === false ? ". Not applied." : ""}`), h("span", { class: "why" }, f.why)),
+              ),
+            ),
+            before ? h("div", { class: "strip" }, shot(before.shots.desktop, `Round ${before.n}, desktop`, true), shot(r.shots.desktop, `Round ${r.n}, desktop`, true)) : null,
+            h("div", { class: "thumbs" }, shot(r.shots.desktop, "Desktop", true), shot(r.shots.mobile, "Mobile", true), shot(r.shots.dark, "Dark", true)),
+          ),
+        );
+      }
+    </script>
+  </body>
+</html>
