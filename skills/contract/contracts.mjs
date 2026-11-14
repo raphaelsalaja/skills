@@ -145,7 +145,7 @@ export async function run(page, widgets, opts = {}) {
       });
       await add(name, "contract-menu-outside-press", "A press outside closes it", async () => {
         await startOpen();
-        await page.mouse.move(8, 700); await page.mouse.click(8, 700); await sleep(settle);
+        const y = await ev(() => innerHeight - 8); await page.mouse.move(8, y); await page.mouse.click(8, y); await sleep(settle);
         return !(await visible(w.menu)) || fail("still open after a press outside");
       });
       await add(name, "contract-menu-enter-activates", "Enter on an item runs it and closes the menu", async () => {
