@@ -1,0 +1,3 @@
+interface:
+  display_name: "Contract"
+  short_description: "Real keys against each widget's contract"

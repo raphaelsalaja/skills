@@ -37,6 +37,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**deconstruct**](skills/deconstruct/SKILL.md): Breaks an animation or interaction into **a state machine and a timeline** of every property, on a page you can scrub and edit. User-invoked.
 - [**alignment**](skills/alignment/SKILL.md): Measures a running page for edges, gaps, centring and radii that **miss by a pixel or two**, then judges visual weight and returns a numbered report with proof. User-invoked.
 - [**keyboard**](skills/keyboard/SKILL.md): Walks a running page with **the keyboard alone**, records every focus stop and reports controls it cannot reach, see or operate. User-invoked.
+- [**contract**](skills/contract/SKILL.md): Drives hand-built widgets with **real keys and pointer events** against a behaviour contract for each pattern, then fixes every check that fails.
 - [**frames**](skills/frames/SKILL.md): Records **a performance trace** of one interaction on a throttled CPU, names what drops frames or delays input, then proves the fix with a second trace. User-invoked.
 - [**invariants**](skills/invariants/SKILL.md): Finds the **state machines and rules** an app relies on but never enforces, then returns a numbered report of where to enforce each one. User-invoked.
 - [**avatar**](skills/avatar/SKILL.md): Draws any object as **a flat character with two capsule eyes**, then animates its whole body so it glances, blinks, breathes, follows the pointer and falls asleep. User-invoked.
@@ -52,7 +53,7 @@ npx skills add raphaelsalaja/skills
 
 ## Use a skill
 
-Principle skills and `verify`, `gather`, `match`, `rule`, `viewports` and `icons` apply on their own when the work calls for them. Call the user-invoked ones by name:
+Principle skills and `verify`, `gather`, `match`, `rule`, `viewports`, `icons` and `contract` apply on their own when the work calls for them. Call the user-invoked ones by name:
 
 ```text
 /ship
