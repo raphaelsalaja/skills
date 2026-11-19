@@ -4,7 +4,7 @@ This file is the single source of guidance for coding agents working in this rep
 
 ## What this repository is
 
-A collection of agent skills for building interfaces with coding agents. It is distributed two ways: via `npx skills add raphaelsalaja/skills` and as the Claude Code plugin `userinterface` served by the marketplace in this same repository. It is documentation. The only tooling is `kit/sync.mjs`, which copies the shared interface kit into the skills.
+A collection of agent skills for building interfaces with coding agents. It is distributed two ways: via `npx skills add raphaelsalaja/skills` and as the Claude Code plugin `userinterface` served by the marketplace in this same repository. It is documentation. The only tooling is `kit/sync.mjs`, which copies the shared interface kit into the skills, and `scripts/check.mjs`, which checks the skills against this file.
 
 The house rule is the pair. Every rule shows the broken line and the line that replaces it. `## The pair` in each skill is that rule, and a finding is `file:line - [rule-id]`. When a finding is about the work rather than a file, cite the request or the step instead: `request 2 - [rule-id]`.
 
@@ -95,3 +95,5 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 A description change updates `README.md` in the same commit. A rename updates the directory, the frontmatter `name`, the rule id prefix and `display_name` in `agents/openai.yaml`.
 
 Sentences stay at or under 30 words, counting a code span as one word. Before adding a sentence, check whether another skill already owns that rule.
+
+Run `node scripts/check.mjs` before committing. It exits 1 on a broken convention above, a skill change with no version bump or kit drift.
