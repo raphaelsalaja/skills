@@ -22,7 +22,13 @@ Name what is under review: the uncommitted diff, a branch, a pull request, this 
 
 Read `AGENTS.md`, `CLAUDE.md` and the editor rule folders. A written project rule outranks a default here. Flagging code that follows a written rule is `audit-project-rules-first`.
 
-## 3. Run every skill
+## 3. Scan for known breaks
+
+Run [scan.mjs](scan.mjs) with Node, passing the folders in scope. It prints each line that matches a known break, with the id of the rule it breaks. Each hit is a candidate. Open the line and drop any hit the code disproves, such as `rounded-full` on an avatar. A hit reported unread is `audit-confirm-each-hit`.
+
+The scan finds patterns only, so a clean scan still runs every skill.
+
+## 4. Run every skill
 
 Check the scope against each skill and record what you inspected.
 
@@ -34,9 +40,10 @@ Check the scope against each skill and record what you inspected.
 | `restraint` | Unrequested UI, settings, fallbacks, dead code and narrating comments |
 | `copy` | Every label, description and status string |
 | `prose` | Each changed post, breakdown or design note, when writing is in scope |
-| `defaults` | Surfaces, type, sound, focus, names, forms, loading, hotkeys and dialogs |
+| `defaults` | Surfaces, type, tables, sound, focus, names, forms, loading, hotkeys and overlays |
 | `motion` | Every transition, animation, gesture, exit and motion blur |
 | `color` | Text and field contrast in each theme, tokens inside components and the accent |
+| `states` | Empty, failed, stale and denied states of each surface that shows data |
 | `gather` | Each reference board: platform, links and the part to take |
 | `match` | Each named reference, when the work copies one |
 | `rule` | Repeated corrections with no written rule, and edits that break one |
@@ -46,11 +53,11 @@ Check the scope against each skill and record what you inspected.
 
 Skipping a skill without saying why is `audit-run-every-skill`.
 
-## 4. Merge by root cause
+## 5. Merge by root cause
 
 One cause that breaks rules in two skills is one finding with both ids. Five call sites with the same local fix is one finding with five locations. Listing each symptom on its own line is `audit-one-row-per-cause`.
 
-## 5. Number the fixes and open the report
+## 6. Number the fixes and open the report
 
 Rank findings by severity, then by reach. Number them so the user can answer "fix 1, 2 and 5".
 
@@ -68,6 +75,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | --- | --- | --- |
 | `audit-state-the-scope` | "Audited the app" | "Audited the uncommitted diff: 14 files" |
 | `audit-project-rules-first` | A border flagged in a repo whose rules require it | The project rule cited, no finding |
+| `audit-confirm-each-hit` | `rounded-full` on an avatar reported as a pill button | The line opened and the hit dropped |
 | `audit-run-every-skill` | `copy` silently skipped | "`copy`: no strings changed" |
 | `audit-one-row-per-cause` | Five rows for one missing primitive fix | One row, five locations |
 | `audit-shipped-report` | A report page written from scratch | `report.html` copied, only `report.js` written |

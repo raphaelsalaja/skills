@@ -86,7 +86,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `avatar` | Character silhouettes, eyes on a sphere, whole-body idle life, moods as eye shapes, reactions to the page, the contact sheet |
 | `bots` | The Grok round, picked Bots only, stripping private details, real copy links, the Bot marks, the physics pile, Bot cards and the org chart |
 | `sketchbook` | Daily batches of live interaction tiles, the taste file, kept components, wildcards and a clip suggestion |
-| `audit` | Review scope, running every skill, merging by root cause, the numbered report and the verdict |
+| `audit` | Review scope, the pattern scan, running every skill, merging by root cause, the numbered report and the verdict |
 
 `reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `copy` owns the words that stay in the interface and `prose` owns the words around it. `defaults` owns how the surfaces that stay behave, `motion` owns how they move and `color` owns how they read. `states` owns which states a screen shows and `invariants` owns which combinations the code can hold. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
 
