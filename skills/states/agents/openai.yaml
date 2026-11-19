@@ -1,0 +1,3 @@
+interface:
+  display_name: "States"
+  short_description: "Empty, failed, stale and denied states"

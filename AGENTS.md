@@ -16,7 +16,7 @@ A skill states the rule, the exact value and the detection pattern. It does not 
 
 ## Two kinds of skill
 
-**Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy`, `prose`, `defaults`, `motion` and `color`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
+**Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy`, `prose`, `defaults`, `motion`, `color` and `states`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
 
 **Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `viewports`, `icons`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `invariants`, `avatar`, `bots`, `sketchbook` and `audit`. Their steps are numbered `## 1.` onward.
 
@@ -69,6 +69,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `defaults` | Scroll edges, shadows, surfaces, theme, focus and accessible names, hit areas, hover styles, links and URL state, forms, loading, type rendering, sound cues, hotkeys in inputs, dialogs |
 | `motion` | What animates, easing, durations, springs and gestures, exits and presence, cross-fades and icon morphs, motion blur through the package, reduced motion |
 | `color` | Text and control contrast, composited measurement, scrims, role tokens, translucent neutrals, dark palettes, accent and status meaning |
+| `states` | The listed states, the three empty states, missing values, errors by kind and place, kept input, retry in place, visible rollback, stale values, denied access, waiting on the user and the end of a list |
 | `gather` | Asking which sources to use, the user's saves and the site on every source, boards through Pond, a read-only library, parallel source agents, stopping at a usage limit, queries and image searches, live captures, the collector, the linked board, More Like This and saving picks |
 | `match` | Inspecting a named reference, computed values, state inventory, side-by-side proof |
 | `rule` | Writing a correction into the agent file, conflicts between rules, sweeping old breaks |
@@ -87,7 +88,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `sketchbook` | Daily batches of live interaction tiles, the taste file, kept components, wildcards and a clip suggestion |
 | `audit` | Review scope, running every skill, merging by root cause, the numbered report and the verdict |
 
-`reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `copy` owns the words that stay in the interface and `prose` owns the words around it. `defaults` owns how the surfaces that stay behave, `motion` owns how they move and `color` owns how they read. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
+`reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `copy` owns the words that stay in the interface and `prose` owns the words around it. `defaults` owns how the surfaces that stay behave, `motion` owns how they move and `color` owns how they read. `states` owns which states a screen shows and `invariants` owns which combinations the code can hold. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
 
 ## Authoring
 

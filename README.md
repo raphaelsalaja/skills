@@ -22,6 +22,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**defaults**](skills/defaults/SKILL.md): Applies house defaults for **scroll edges**, surfaces, type, sound, focus, forms, loading, hotkeys and dialogs.
 - [**motion**](skills/motion/SKILL.md): Applies house motion for what animates, **easing, durations**, springs, gestures, exits, motion blur and reduced motion.
 - [**color**](skills/color/SKILL.md): Holds text and control **contrast to exact ratios**, routes colour through role tokens and gives dark mode its own palette.
+- [**states**](skills/states/SKILL.md): Designs **every state a screen can enter**, from first run and filtered to zero through failures, rollbacks, stale data and the end of a list.
 
 ### Procedures
 
