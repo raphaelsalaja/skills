@@ -97,7 +97,7 @@ A sequence of steps, a comparison or a set of values goes in a list, table or fi
 
 ## Captions say what happens
 
-A caption under a demo or figure describes what happens in it, in order: the menu grows out of the button, the shadow arrives on the fourth frame and the content on the sixth. A caption that states the lesson is `prose-caption-the-action`.
+A caption under a demo or figure describes what happens in it, in order. The menu grows out of the button, the shadow arrives on the fourth frame and the content on the sixth. A caption that states the lesson is `prose-caption-the-action`.
 
 A caption is two sentences at most. Anything else it needs to say goes in the paragraph next to it. A caption of three or more sentences is `prose-caption-two-sentences`.
 
