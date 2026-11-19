@@ -49,6 +49,8 @@ A swipe dismisses on distance or on speed, so past about `0.11` px per milliseco
 
 Dragging past a boundary meets growing friction rather than a wall. A drawer that stops dead at the top is `motion-friction-at-edges`. Capture the pointer once a drag starts and ignore extra touches. See [recipes.md](recipes.md#flick-to-dismiss).
 
+A sheet whose body scrolls starts a drag from its handle, or from the body once it is scrolled to the top. A sheet that closes as the user scrolls its list back up is `motion-scroll-before-drag`.
+
 ## Every gesture has a button
 
 Each drag, swipe or pinch also works with a click and with the keyboard. A list that reorders only by dragging is `motion-gesture-alternative`.
@@ -137,6 +139,10 @@ To animate a container's width or height, measure an inner element with a `Resiz
 
 While a panel collapses, its content keeps its open width, so nothing reflows mid-animation. Sidebar content set to `w-full` as the sidebar closes is `motion-hold-content-size`.
 
+## Nothing flashes fast
+
+No element flashes more than three times in any one second. An alert that blinks five times a second is `motion-no-fast-flash`.
+
 ## Reduced motion removes movement
 
 When `prefers-reduced-motion: reduce` matches, slides, scales and blurs become an opacity cross-fade. A sliding drawer that ignores the setting is `motion-reduced-motion`.
@@ -160,6 +166,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `motion-spring-for-gestures` | A drag release on `duration: 0.3, ease: "easeOut"` | `type: "spring"` with `velocity: info.velocity.x` |
 | `motion-flick-dismisses` | Dismiss only past a fixed distance | Dismiss past the distance or above `0.11` px per ms |
 | `motion-friction-at-edges` | A drawer that stops dead at its top | Movement damped the further it is dragged |
+| `motion-scroll-before-drag` | `drag="y"` on a sheet whose list scrolls | The drag starting from the handle, or from the list at `scrollTop: 0` |
 | `motion-gesture-alternative` | Rows that reorder only by drag | `Move Up` and `Move Down` in the row menu |
 | `motion-ease-by-direction` | A modal entering on `ease-in` | Ease-out in and out, the exit shorter |
 | `motion-strong-ease-out` | `transition: transform 200ms ease-out` | `transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1)` |
@@ -188,12 +195,13 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `motion-dialogs-stay-mounted` | `{open && <Dialog.Root open>}` | `<Dialog.Root open={open} onOpenChange={setOpen}>` |
 | `motion-measure-inner` | `ref` and `animate={{ height: bounds.height }}` on one node | The outer node animates, the inner node holds the `ref` |
 | `motion-hold-content-size` | `w-full` content inside a collapsing sidebar | `w-64` content that keeps its width |
+| `motion-no-fast-flash` | `animation: blink 200ms infinite` on an alert | A steady alert, or a pulse slower than three a second |
 | `motion-reduced-motion` | A drawer that slides under reduced motion | An opacity cross-fade |
 | `motion-blur-reduced-motion` | `reducedMotion: "never"` | The default `"user"` |
 
 ## Reporting
 
-**Severity.** `HIGH` breaks use or access. That is an exit that never plays, a container that measures itself or a gesture with no button. It is also motion blur on text being read, or a layer with two children under `squeeze()` or `svg()`.
+**Severity.** `HIGH` breaks use or access. That is an exit that never plays, a container that measures itself or a gesture with no button. It is also anything flashing more than three times a second, or a sheet that closes when its list scrolls. It is also motion blur on text being read, or a layer with two children under `squeeze()` or `svg()`.
 
 `MEDIUM` is a sliding page, a replayed entrance, a gesture on a fixed curve or motion over 300ms. It is also motion on typing, a wrong curve, `transition: all`, keyframes on toggled state or ignored reduced motion. It is also a conditionally rendered dialog, content reflowing as it collapses, a `scale(0)` entrance or a sheet that ignores a flick. It is also a hand-written blur, a blur ref on a wrapper, an opaque host or a transform on the layer. It is also a spinner on anything but Echo, a smear past 1.05 or `reducedMotion: "never"`.
 
