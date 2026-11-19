@@ -1,17 +1,17 @@
 ---
 name: defaults
-description: Applies house defaults for scroll edges, surfaces, type, sound, focus, forms, loading, hotkeys and dialogs.
+description: Applies house defaults for scroll edges, surfaces, type, tables, sound, focus, forms, loading, hotkeys and overlays.
 ---
 
 # Defaults
 
-This skill holds the interface defaults that apply on every screen. It covers surfaces, type, sound, focus, forms, loading and overlays.
+This skill holds the interface defaults that apply on every screen. It covers surfaces, type, tables, sound, focus, forms, loading and overlays.
 
 ## Tokens first, then these values
 
 Use the project's token wherever one exists for a value below. Where none exists, the values here are exact. A hard scroll cut or a clipped shadow is a finding in any style.
 
-Words and punctuation belong to `copy`. Building any of these with the project's primitive belongs to `reuse`. Whether a sound or an animation should exist at all belongs to `restraint`. How things move belongs to `motion`, and colour and contrast belong to `color`. Concentric radii, optical nudges and icon alignment belong to `alignment`.
+Words and punctuation belong to `copy`. Building any of these with the project's primitive belongs to `reuse`. Whether a sound or an animation should exist at all belongs to `restraint`. How things move belongs to `motion`, and colour and contrast belong to `color`. Concentric radii, optical nudges and icon alignment belong to `alignment`. Empty, failed and stale screens belong to `states`.
 
 ## Scroll edges fade
 
@@ -157,9 +157,43 @@ Offer undo after a destructive action. Where undo is impossible, confirm in plac
 
 Prices, counts, timers and table columns use `font-variant-numeric: tabular-nums`. A counter whose width jitters as it ticks is `defaults-tabular-numbers`.
 
+## Columns align by type
+
+Numbers, amounts and dates align right, and text aligns left. Each header takes its own column's alignment. Only single-glyph columns, such as a checkbox or a status dot, centre. A centred price column is `defaults-align-columns`.
+
+## Tables rule rows, not cells
+
+Rows take a 1px translucent divider and columns take none. A vertical rule goes only between two numeric columns that could be confused. A border on every cell is `defaults-row-dividers`.
+
+## Long tables keep their labels
+
+A table taller than the screen keeps its header with `position: sticky` and an opaque background. When it scrolls sideways, the first column sticks as well. A header that scrolls away over 200 rows is `defaults-sticky-table-header`.
+
+The whole header cell is the sort button. The sorted column shows its direction and sets `aria-sort`. A sort dropdown above the table is `defaults-sortable-header`.
+
+## Row controls hold their column
+
+Checkbox and row action columns keep their width at all times. Hover changes only their opacity. Columns shifting as a checkbox appears on row hover is `defaults-reserved-row-controls`.
+
 ## Headings balance, paragraphs wrap pretty
 
 Headings take `text-wrap: balance` and body paragraphs take `text-wrap: pretty`. A heading with one word alone on its last line is `defaults-balanced-wrap`.
+
+## Paragraphs keep a readable measure
+
+Running text stops at `max-width: 65ch`. Buttons, navigation and table cells are exempt. A paragraph stretching across a 1440px window is `defaults-line-length`.
+
+## Leading tightens as type grows
+
+Set `line-height` unitless: 1.5 for body text and 1.1–1.3 for headings. Anything that wraps to three lines or more takes at least 1.4. `leading-none` on a three-line description is `defaults-leading-by-size`.
+
+## Tracking follows size
+
+Type above 32px tightens to about `-0.02em`. Uppercase labels open to about `0.05em` and come from `text-transform`, never typed capitals. A 48px heading at the font's default tracking is `defaults-tracking-by-size`.
+
+## Every weight is a real face
+
+Load each weight and italic the design uses. Bold or italic drawn by the browser from the regular face is `defaults-real-faces`.
 
 ## Text renders crisp
 
@@ -204,6 +238,38 @@ The user can turn sound off, and volume starts at `0.3`. A hardcoded `audio.volu
 ## One dialog at a time
 
 Never open a dialog on top of a dialog. Use a menu, a popover or a new page. That is `defaults-no-stacked-dialogs`.
+
+## Locking scroll never moves the page
+
+Set `scrollbar-gutter: stable` on the root, so locking scroll behind a modal does not shift the page sideways. A centred layout jumping 15px as a dialog opens is `defaults-stable-gutter`.
+
+## Anchored overlays stay on screen
+
+A menu or popover that does not fit flips to the other side of its trigger. Then it shifts along the edge, then caps its height and scrolls inside. It keeps 8px from the viewport edge. A menu cut off at the bottom of the window is `defaults-flip-then-shift`.
+
+Overlays render in a portal at the document root, so no ancestor's `overflow` or `transform` can clip them. A dialog clipped by a card with a `transform` is `defaults-portal-overlays`.
+
+## Tooltips hold a label
+
+A tooltip holds a short label and nothing to click. Anything with a link or a button is a popover, opened by a click. A tooltip holding a link is `defaults-tooltip-is-a-label`.
+
+Content shown on hover stays open while the pointer crosses onto it, and closes with Escape. A preview card that vanishes in the gap to its trigger is `defaults-hover-content-stays`.
+
+## Phones get sheets
+
+Below 600px a dialog holding content or a form opens as a bottom sheet. Alerts stay centred at every width. A centred form dialog at 375 is `defaults-sheet-on-phones`.
+
+## Outside clicks never lose work
+
+A click outside closes an overlay only when nothing would be lost. A dialog with unsaved input, or a destructive confirm, closes only from its own buttons and Escape. A form dialog that drops typed text on an outside click is `defaults-safe-outside-press`.
+
+## Only blocking overlays dim the page
+
+A dialog or sheet dims the page with black at 25–50%. Menus, popovers and tooltips dim nothing. A dimmed page behind a dropdown is `defaults-backdrop-only-modal`.
+
+## Toasts queue
+
+At most three toasts show at once, and the rest queue. A toast stays 4–6 seconds and pauses while hovered or focused. Six toasts stacked at once is `defaults-toast-budget`.
 
 ## The pair
 
@@ -250,7 +316,16 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `defaults-loading-button` | The label swapped for a spinner | Label kept, spinner beside it, button disabled |
 | `defaults-undo-destructive` | A delete that happens at once with no way back | A toast with `Undo` |
 | `defaults-tabular-numbers` | A ticking timer that shifts width | `font-variant-numeric: tabular-nums` |
+| `defaults-align-columns` | A centred price column | `text-align: right` on the cells and the header |
+| `defaults-row-dividers` | A border on every cell | `border-bottom: 1px solid var(--gray-a3)` on rows only |
+| `defaults-sticky-table-header` | A header that scrolls away over 200 rows | `position: sticky; top: 0` with `background: var(--surface)` |
+| `defaults-sortable-header` | A sort dropdown above the table | The header cell as a button, with `aria-sort="ascending"` |
+| `defaults-reserved-row-controls` | A checkbox column that appears on row hover | The column always there, its opacity rising on hover |
 | `defaults-balanced-wrap` | One word alone on a heading's last line | `h1 { text-wrap: balance }` and `p { text-wrap: pretty }` |
+| `defaults-line-length` | A paragraph across a 1440px window | `max-width: 65ch` |
+| `defaults-leading-by-size` | `line-height: 1` on a three-line description | `line-height: 1.4` |
+| `defaults-tracking-by-size` | A 48px heading at the font's default tracking | `letter-spacing: -0.02em` |
+| `defaults-real-faces` | `font-weight: 600` with only the 400 face loaded | The 600 face in `@font-face` |
 | `defaults-antialiased-root` | Default subpixel smoothing on light text | `-webkit-font-smoothing: antialiased` on the root |
 | `defaults-inline-mono` | `<code>` at the size of its sentence | `font-size: 0.9em` |
 | `defaults-truncate-with-way-back` | A truncated file name and nothing else | A tooltip with the full name |
@@ -264,14 +339,23 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `defaults-no-sound-on-repeat` | `playSound("keystroke")` inside `onChange` | No sound on typing |
 | `defaults-sound-optional` | `audio.volume = 1` and no off switch | A sound setting, volume `0.3` by default |
 | `defaults-no-stacked-dialogs` | A confirm dialog opened from a settings dialog | A menu or popover inside the dialog |
+| `defaults-stable-gutter` | `overflow: hidden` on `body` shifting the page 15px | `scrollbar-gutter: stable` on `html` |
+| `defaults-flip-then-shift` | A menu cut off at the bottom of the window | Flipped above its trigger, then shifted, then capped and scrolling |
+| `defaults-portal-overlays` | A dialog clipped by a card with a `transform` | The dialog in a portal at the document root |
+| `defaults-tooltip-is-a-label` | A tooltip holding a `Learn More` link | A popover opened by a click |
+| `defaults-hover-content-stays` | A preview card that closes in the gap to its trigger | The card open while the pointer crosses onto it |
+| `defaults-sheet-on-phones` | A centred form dialog at 375 | A bottom sheet below 600px |
+| `defaults-safe-outside-press` | A form dialog that closes on an outside click and drops the text | Outside clicks ignored while the form has changes |
+| `defaults-backdrop-only-modal` | A dimmed page behind a dropdown | No backdrop on menus and popovers |
+| `defaults-toast-budget` | Six toasts stacked at once | Three visible, the rest queued |
 
 ## Reporting
 
-**Severity.** `HIGH` breaks use or access. That is a clipped shadow, a hard scroll cut, hotkeys that fire while typing, a stacked dialog, a target under 24px or a silent wait. It is also a field that rejects pasted formatting, or sound with no visual twin or off switch. It is also an unnamed icon button, status in colour alone, focus that escapes a dialog, blocked zoom or a route with no link. It is also a submit disabled until valid, a truncated value with no way back or a destructive action with no undo or confirmation. It is also content pushed off screen by a long value, a `100vh` shell hiding its controls or a bar under the home indicator.
+**Severity.** `HIGH` breaks use or access. That is a clipped shadow, a hard scroll cut, hotkeys that fire while typing, a stacked dialog, a target under 24px or a silent wait. It is also a field that rejects pasted formatting, or sound with no visual twin or off switch. It is also an unnamed icon button, status in colour alone, focus that escapes a dialog, blocked zoom or a route with no link. It is also a submit disabled until valid, a truncated value with no way back or a destructive action with no undo or confirmation. It is also content pushed off screen by a long value, a `100vh` shell hiding its controls or a bar under the home indicator. It is also an overlay cut off by the window or by an ancestor, a tooltip holding a link or an outside click that drops typed work.
 
-`MEDIUM` is a pill button, a click focus ring or a hover stuck on touch. It is also proportional figures in data, sound on a frequent action, scroll leaking from an overlay, state lost on refresh or a flickering skeleton. It is also a field with the wrong keyboard, a mobile input under 16px, a dead label, Enter that does not submit or a busy button with no indicator. It is also an unannounced update, a field hidden under sticky chrome or a card inside a card. It is also a tap flash or tap delay, a selectable control label or an unformatted number or plural.
+`MEDIUM` is a pill button, a click focus ring or a hover stuck on touch. It is also proportional figures in data, sound on a frequent action, scroll leaking from an overlay, state lost on refresh or a flickering skeleton. It is also a field with the wrong keyboard, a mobile input under 16px, a dead label, Enter that does not submit or a busy button with no indicator. It is also an unannounced update, a field hidden under sticky chrome or a card inside a card. It is also a tap flash or tap delay, a selectable control label or an unformatted number or plural. It is also a centred number column, a long table with no sticky header, a sort with no `aria-sort` or row controls that shift columns. It is also a paragraph past `65ch`, wrapped text under 1.4 leading or a browser-drawn bold. It is also a page that shifts on scroll lock, hover content that vanishes or a centred form dialog on a phone. It is also a backdrop behind a menu or more than three toasts.
 
-`LOW` is an opaque border beside a shadow, a decorative glow, a single harsh shadow or a transitioned `box-shadow`. It is also unbalanced headings, a missing image outline, a borderless sticky header, a light scrollbar on a dark page, a smeared theme switch or missing root font smoothing. It is also full-size inline code or a placeholder dash for an empty field.
+`LOW` is an opaque border beside a shadow, a decorative glow, a single harsh shadow or a transitioned `box-shadow`. It is also unbalanced headings, a missing image outline, a borderless sticky header, a light scrollbar on a dark page, a smeared theme switch or missing root font smoothing. It is also full-size inline code or a placeholder dash for an empty field. It is also a border on every table cell or display type at default tracking.
 
 **Format.** One finding per root cause:
 

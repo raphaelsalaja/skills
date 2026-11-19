@@ -66,7 +66,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `restraint` | Unrequested interface, settings and code, fallbacks, legacy, deleting instead of deferring, narrating comments |
 | `copy` | Title Case labels, word count, one-line descriptions, status tense, em dashes and ellipses |
 | `prose` | Long-form posts and breakdowns: the opening context, first person, linked reasons, lists in the sentence, what happened, own limits, rejected options, exact values, asides and footnotes, sources and citations, marked guesses, British spelling, captions, the ending, the author's voice |
-| `defaults` | Scroll edges, shadows, surfaces, theme, focus and accessible names, hit areas, hover styles, links and URL state, forms, loading, type rendering, sound cues, hotkeys in inputs, dialogs |
+| `defaults` | Scroll edges, shadows, surfaces, theme, focus and accessible names, hit areas, hover styles, links and URL state, forms, loading, type rendering and measure, tables, sound cues, hotkeys in inputs, dialogs, anchored overlays, sheets and toasts |
 | `motion` | What animates, easing, durations, springs and gestures, exits and presence, cross-fades and icon morphs, motion blur through the package, reduced motion |
 | `color` | Text and control contrast, composited measurement, scrims, role tokens, translucent neutrals, dark palettes, accent and status meaning |
 | `states` | The listed states, the three empty states, missing values, errors by kind and place, kept input, retry in place, visible rollback, stale values, denied access, waiting on the user and the end of a list |
