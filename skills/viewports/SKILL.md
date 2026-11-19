@@ -1,6 +1,6 @@
 ---
 name: viewports
-description: Renders a page at every width, each breakpoint edge, a short landscape phone and 200% text, then reports what overflows, clips or hides.
+description: Renders a page at every width, each breakpoint edge, a short landscape phone, 200% text and longer or mirrored text, then reports what overflows, clips or hides.
 ---
 
 # Viewports
@@ -41,7 +41,13 @@ Render 812×375, a phone held sideways. Open each dialog, sheet and menu at that
 
 At 1024 wide, set the root font size to 200% and render again. Text wraps and its boxes grow, with nothing overlapping. Labels overlapping their icons at 200% is `viewports-text-zoom`. A layout that cannot grow because sizes are set in `px` gets the same id.
 
-## 7. Report by width
+## 7. Lengthen and mirror the text
+
+At 375 and 1440, run [stretch.js](stretch.js) through the browser's evaluate call. It doubles labels under 11 characters and lengthens longer text by 40–60%, as translation does. Labels wrap or truncate with a way back. A tab label pushing its neighbour off the bar is `viewports-longer-text`.
+
+When the project ships a right-to-left locale, set `dir="rtl"` on the root and render both widths again. The layout mirrors, and only icons that point a direction flip. Padding stuck on one side because of `margin-left` is `viewports-mirror-rtl`.
+
+## 8. Report by width
 
 Return one screenshot per width with the overlay numbers, then the findings in the same order. A finding with no width named is `viewports-name-the-width`.
 
@@ -58,11 +64,13 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `viewports-no-hover-only-controls` | Row actions behind `:hover` alone | Shown at all times under `(hover: none)` |
 | `viewports-short-heights` | A dialog's `Save` below a 375px screen | `max-height: 100dvh` with the body scrolling |
 | `viewports-text-zoom` | `height: 32px` on a button that clips at 200% | `min-height: 2rem` with padding |
+| `viewports-longer-text` | `width: 96px` on a tab whose label doubles | `min-width: 96px` with the label free to grow |
+| `viewports-mirror-rtl` | `margin-left: 12px` on a row's icon | `margin-inline-start: 12px` |
 | `viewports-name-the-width` | "The header overlaps" | "At 768, the header overlaps the search field" |
 
 ## Reporting
 
-**Severity.** `HIGH` is sideways page scroll, a control that hover alone reveals on touch or an action unreachable at a short height. `MEDIUM` is clipped text, overlap at 200% text or a break at a breakpoint edge. `LOW` is a finding that does not name its width.
+**Severity.** `HIGH` is sideways page scroll, a control that hover alone reveals on touch or an action unreachable at a short height. `MEDIUM` is clipped text, overlap at 200% text or a break at a breakpoint edge. It is also a layout that breaks under longer text or fails to mirror. `LOW` is a finding that does not name its width.
 
 **Format.** One finding per root cause, naming the width:
 

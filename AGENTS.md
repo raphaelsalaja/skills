@@ -73,7 +73,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `gather` | Asking which sources to use, the user's saves and the site on every source, boards through Pond, a read-only library, parallel source agents, stopping at a usage limit, queries and image searches, live captures, the collector, the linked board, More Like This and saving picks |
 | `match` | Inspecting a named reference, computed values, state inventory, side-by-side proof |
 | `rule` | Writing a correction into the agent file, conflicts between rules, sweeping old breaks |
-| `viewports` | The width set, breakpoint edges, sideways scroll, clipped text, hover-only controls, short heights, doubled text |
+| `viewports` | The width set, breakpoint edges, sideways scroll, clipped text, hover-only controls, short heights, doubled text, longer and mirrored text |
 | `icons` | Missing glyphs, the spec measured from the whole set, the grid, the morph form, one skeleton, the lint, the shipped sheet and the project's icon API |
 | `ship` | Commits and their Conventional Commit messages, changesets, pushes, merges, pull requests per bug, releases, deploy checks |
 | `prototype` | Labelled real-code variants of one idea, pruning after the pick |
