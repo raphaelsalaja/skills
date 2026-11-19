@@ -34,6 +34,8 @@ Repeated siblings sit at one gap. A list spaced 8, 8 then 12px is `alignment-eve
 
 Every padding, gap and margin is a step on the project's scale. A 6px padding on a 4px scale is `alignment-on-scale`.
 
+A surface's padding is never smaller than the gap between its children, on the axis that gap separates. A card at 8px padding around rows 16px apart is `alignment-padding-over-gap`. Tables and full-bleed lists are exempt.
+
 ## 4. Check the centres
 
 Text in a control centres on its cap height and baseline, not its line box. Ink sitting 2px low in a button is `alignment-ink-centre`. Trim the box with `text-box: trim-both cap alphabetic` or balance the padding.
@@ -70,6 +72,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `alignment-shared-edge` | Title inset 2px from its description | Both start on one ink line |
 | `alignment-even-gaps` | Rows at 8, 8 and 12px | Rows at 8, 8 and 8px |
 | `alignment-on-scale` | `padding: 6px` on a 4px scale | `padding: 8px` |
+| `alignment-padding-over-gap` | `padding: 8px` around rows `16px` apart | `padding: 16px` |
 | `alignment-ink-centre` | Label ink 2px low in its button | `text-box: trim-both cap alphabetic` |
 | `alignment-icon-with-label` | Icon centred on the line box | Icon centred on the cap height |
 | `alignment-optical-glyph` | Play icon centred by its box | Play icon nudged `1px` right, named |
@@ -80,7 +83,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a miss visible at 1x on a primary surface, such as a heading column or a primary button. `MEDIUM` is a 1–2px miss, uneven gaps, a radius mismatch, a weight imbalance or a hand-built report. `LOW` is an off-scale value that still renders aligned.
+**Severity.** `HIGH` is a miss visible at 1x on a primary surface, such as a heading column or a primary button. `MEDIUM` is a 1–2px miss, uneven gaps, padding smaller than the gap, a radius mismatch, a weight imbalance or a hand-built report. `LOW` is an off-scale value that still renders aligned.
 
 **Format.** One finding per root cause, numbered to match the overlay:
 

@@ -227,6 +227,30 @@
     add("alignment-on-scale", els[0], `${key} is off the ${scale}px scale (${els.length} elements)`, { count: els.length });
   }
 
+  // Padding over gap: a surface's padding on the axis its gap separates is at least that gap.
+  for (const el of elements.filter(hasSurface)) {
+    if (el.closest("table")) continue;
+    const style = getComputedStyle(el);
+    if (!/flex|grid/.test(style.display)) continue;
+    if ([...el.children].filter(isVisible).length < 2) continue;
+    const { padding } = contentBox(el);
+    const axes = style.display.includes("grid")
+      ? ["row", "column"]
+      : [style.flexDirection.startsWith("column") ? "row" : "column"];
+    for (const axis of axes) {
+      const gap = Number.parseFloat(axis === "row" ? style.rowGap : style.columnGap) || 0;
+      const pad = axis === "row"
+        ? Math.min(padding.top, padding.bottom)
+        : Math.min(padding.left, padding.right);
+      // Zero padding is a full-bleed list, which the rule exempts.
+      if (gap > 0 && pad > 0 && pad < gap) {
+        add("alignment-padding-over-gap", el,
+          `Padding ${round(pad)}px is smaller than the ${round(gap)}px gap between its children`,
+          { padding: round(pad), gap: round(gap) });
+      }
+    }
+  }
+
   // 4–6. Controls: ink centred in its box, icons level with labels, icon-only centring.
   const controls = elements.filter((el) => {
     const rect = el.getBoundingClientRect();

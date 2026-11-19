@@ -79,7 +79,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `prototype` | Labelled real-code variants of one idea, pruning after the pick |
 | `lab` | Every state of real components forced open on one development page |
 | `deconstruct` | Motion broken into named states, events and per-property tracks, the editable timeline |
-| `alignment` | Measured edges, gaps, ink centring, optical nudges, concentric radii, visual weight, the annotated report |
+| `alignment` | Measured edges, gaps, padding over gap, ink centring, optical nudges, concentric radii, visual weight, the annotated report |
 | `keyboard` | The keyboard-only walk, focus order, reach, visible stops, composite arrows, Escape, focus after removal |
 | `frames` | The throttled trace, frame and input budgets, layout and paint cost per frame, the before and after recording |
 | `invariants` | Flags that move together, implied state machines and impossible states, one status and one writer, unchecked assumptions, where each rule is enforced |
