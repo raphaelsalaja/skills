@@ -64,7 +64,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `scope` | Every ask in the message, the smallest reading, earlier instructions, keeping what worked, no phasing |
 | `reuse` | Own component, then library, then platform, then custom, one standard, fixes in the primitive and the sibling sweep |
 | `restraint` | Unrequested interface, settings and code, fallbacks, legacy, deleting instead of deferring, narrating comments |
-| `copy` | Title Case labels, word count, one-line descriptions, status tense, em dashes and ellipses |
+| `copy` | Title Case labels, word count, verb-first and confirm buttons, error fixes, link text, toggle labels, whole sentences, one-line descriptions, status tense, em dashes and ellipses |
 | `prose` | Long-form posts and breakdowns: the opening context, first person, linked reasons, lists in the sentence, what happened, own limits, rejected options, exact values, asides and footnotes, sources and citations, marked guesses, British spelling, captions, the ending, the author's voice |
 | `defaults` | Scroll edges, shadows, surfaces, theme, focus and accessible names, hit areas, hover styles, links and URL state, forms, loading, type rendering and measure, tables, sound cues, hotkeys in inputs, dialogs, anchored overlays, sheets and toasts |
 | `motion` | What animates, easing, durations, springs and gestures, exits and presence, cross-fades and icon morphs, motion blur through the package, reduced motion |
