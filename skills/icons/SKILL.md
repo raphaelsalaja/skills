@@ -9,11 +9,11 @@ This skill draws the icons a project's set is missing, in that set's own style. 
 
 ## Nothing is drawn until the set is measured
 
-The spec is exact. The sheet measures it from every icon the set already has, and each new glyph follows it. A guessed stroke, radius or grid is a finding. The size range and the codepoints are exact too.
+The spec is exact. The sheet measures it from every icon the set already has, and each new glyph follows it. A guessed stroke, radius or grid is a finding. The size range and the codepoints are exact too. The voice holds to the range the set already draws.
 
-Run it for `draw an icon for`, `we need a ... icon`, `custom icons` or `the set doesn't have a`. Also run it for `match our icons`, `filled version`, `animate this icon`, `morph`, `icon sheet`, `icon font` or `this icon looks off next to the others`.
+Run it for `draw an icon for`, `we need a ... icon`, `custom icons` or `the set doesn't have a`. Also run it for `match our icons`, `filled version`, `animate this icon`, `morph`, `icon sheet`, `icon font`, `doesn't feel like ours` or `this icon looks off next to the others`.
 
-Which glyphs to draw belongs to `scope`. Searching the set first belongs to `reuse`. Optical nudges belong to `alignment`. The curve, duration and reduced-motion fallback of any icon animation belong to `motion`. Accessible names belong to `defaults`. Visible labels belong to `copy`. Contrast belongs to `color`.
+Building or redrawing a whole set belongs to `iconset`. Which glyphs to draw belongs to `scope`. Searching the set first belongs to `reuse`. Optical nudges belong to `alignment`. The curve, duration and reduced-motion fallback of any icon animation belong to `motion`. Accessible names belong to `defaults`. Visible labels belong to `copy`. Contrast belongs to `color`.
 
 ## 1. Draw only what the set lacks
 
@@ -29,7 +29,7 @@ Mark logos and brand marks `brand: true`. They are never measured, redrawn or re
 
 The sheet derives the spec from every existing icon on the most common viewBox. It records the stroke, caps, joins, radii, grid step, padding, round overshoot and ink coverage per kind. Copy Spec gives `icon-spec.md`, saved beside the icons.
 
-Drawing before `icon-spec.md` exists, or from a spec measured by hand, from a sample or from memory, is `icons-measure-the-spec`. With fewer than 3 icons on one viewBox, stop and ask for the reference set.
+Drawing before `icon-spec.md` exists, or from a spec measured by hand, from a sample or from memory, is `icons-measure-the-spec`. With fewer than 3 icons on one viewBox, stop and ask for the reference set. A set that does not exist yet is built with `iconset`.
 
 An existing icon off the spec shows as an outlier. List it in the report and leave it, because redrawing it is a separate ask under `scope`.
 
@@ -45,9 +45,21 @@ A drawing holds from 0.75 to 1.25 times its grid, so a 16 grid serves 12–20px.
 
 When the set ships a separate drawing per size, draw every size and run one sheet per size. Each size takes the stroke its own sheet measures. The smaller drawing drops detail and the larger may add it, such as a keyhole on the 24 lock.
 
-When the set's icons are only rects on whole pixels, the set is pixel-style. Draw each glyph as a text grid first, then convert that grid to rects. A pixel icon begun as smooth paths is `icons-pixel-grid-first`. Pixel sets skip step 6 and swap with the cross-fade in `motion`.
+When the set's icons are only rects on whole pixels, the set is pixel-style. Draw each glyph as a text grid first, then convert that grid to rects. A pixel icon begun as smooth paths is `icons-pixel-grid-first`. Pixel sets skip step 7 and swap with the cross-fade in `motion`.
 
-## 4. Fit each glyph to a keyline and reuse its parts
+## 4. Hold the set's voice
+
+The voice is how the set builds a shape, which a stroke and a grid alone do not fix. The sheet measures what it can of it beside the spec.
+
+Construction counts the icons that draw a free curve, one whose bend changes along its length, rather than lines, arcs and round corners. Corners gives the radius range of every rounded turn. Parts gives the most separate strokes an icon of each kind carries.
+
+Build each new glyph the way the set builds its own. Where the set makes a cloud from straight segments with rounded joins, a cloud of free curves is off its voice. A free curve the set rarely draws, a corner outside its range or more parts than its kind carries is `icons-hold-the-voice`. A concept that cannot be drawn without a free curve, such as a wave, keeps it and the report says why.
+
+Fill in the Voice table in `icon-spec.md` before drawing, naming two existing icons for each tendency. It records whether a shape that could stay open is closed, whether lines run on to the keyline and which way an either-way composition faces. It also records how caps and small details end and how much detail an icon carries. A voice written as adjectives, such as "clean and friendly", is `icons-write-the-voice`.
+
+A new glyph never takes more attention than its neighbours. One more detailed, more decorative or cleverer than the set reads as another hand, even when it lints clean.
+
+## 5. Fit each glyph to a keyline and reuse its parts
 
 Every glyph fits one of 4 keylines: a square at the padding, a circle past it by the round overshoot, a wide rectangle and a tall rectangle. The sheet reads the rectangles from the widest and tallest existing icons. A diagonal glyph takes the circle.
 
@@ -59,7 +71,7 @@ A part the set already draws, such as a folder, a file, a badge or a slash, reus
 
 A slash cuts flat through the glyph at the set's angle and draws no shadow line beside it. A composition that could face either way, such as a diagonal arrow or a small object above a large one, faces the set's way.
 
-## 5. Correct what the eye sees
+## 6. Correct what the eye sees
 
 Separate parts sit at least one stroke width apart, and never under 1px. Two strokes that merge into one blot at 16px are `icons-open-gaps`. A cut where a badge or slash clips a base shape keeps one width across the set.
 
@@ -69,7 +81,7 @@ A dot takes the diameter its role already has in the set: a dot ending a line, a
 
 Round shapes may pass the padding by the spec's round overshoot and no further. Arrows and play shapes take the nudge in `alignment`, drawn into the coordinates. A circle drawn at a square's size cites `alignment-visual-weight`, and a play icon centred on its box cites `alignment-optical-glyph`.
 
-## 6. Write every new icon in the morph form
+## 7. Write every new icon in the morph form
 
 Every new icon animates and morphs into every other new icon of its kind. Each one is the same number of `path` elements, and each path is an absolute `M` followed by the same number of explicit `C` segments.
 
@@ -83,17 +95,17 @@ Each path starts at its topmost anchor, leftmost on a tie. Order the paths longe
 
 An optimiser that merges paths or converts shapes breaks the form, so turn off `mergePaths` and `convertShapeToPath` for these files. A `circle`, `rect`, `line`, `Z`, relative command or path count off the morph form is `icons-morph-form`.
 
-## 7. Build outline and filled from one skeleton
+## 8. Build outline and filled from one skeleton
 
 Outline and filled variants share one skeleton and one morph form. The filled form fills the outline's own paths and keeps its silhouette. Inner detail becomes a counter at least 1px wide, and narrower counters are dropped. A filled icon redrawn from scratch is `icons-one-skeleton`. A fill cannot morph, so outline and filled swap with the cross-fade in `motion`.
 
-## 8. Lint every icon against the spec
+## 9. Lint every icon against the spec
 
 The sheet lints each new icon for viewBox, stroke, caps where ends are open, joins where corners exist, grid, padding, radii and more than 3 decimals. It also rejects transforms, ids, classes, inline styles, masks and clip paths.
 
-Ink coverage compares outline with outline and filled with filled, inside the range the set already spans. A kind the set lacks shows `Not Verified` and is judged on the sheet. Each miss is `icons-lint-the-spec`.
+Ink coverage compares outline with outline and filled with filled, inside the range the set already spans. A kind the set lacks shows `Not Verified` and is judged on the sheet. Each miss is `icons-lint-the-spec`. Each new icon's free curves, corner radii and parts are checked against the voice.
 
-## 9. Read the set on one sheet
+## 10. Read the set on one sheet
 
 The sheet sorts by name, so new glyphs sit among old ones, and badges each new one. Style, Size and Dark Tiles at the top set what the grid shows.
 
@@ -109,9 +121,9 @@ Clicking an icon opens its dialog. Its Morph tab chains any icons under the stag
 
 A converted preview is the sheet's own guess, not the form that ships. Prompts copies the fix, the redraw or the morph-form request for the agent to apply.
 
-A sheet written from scratch, or icons checked one at a time, is `icons-one-sheet`. Fix every finding and reopen it until Findings is empty.
+A sheet written from scratch, or icons checked one at a time, is `icons-one-sheet`. Fix every finding and reopen it until Findings is empty, apart from a free curve the concept needs.
 
-## 10. Match the project's icon component
+## 11. Match the project's icon component
 
 Generate components on the project's existing icon API, including its props and file shape. Name each glyph by what it draws, with the siblings' casing and variant suffix, such as `LockFillIcon` beside `LockIcon`. Keep each path its own element, so a caller can animate `d` or draw the stroke on. A one-off component with its own props, or a decorative icon with no `aria-hidden`, is `icons-match-the-api`.
 
@@ -121,7 +133,7 @@ When the set ships as an icon font, a new glyph takes the next unused codepoint.
 
 Add a hover, active or swap animation only when the user asks, and run it through `motion`. An icon that is the only content of a control cites `defaults-name-icon-buttons`. Contrast cites `color-ui-contrast`.
 
-## 11. See each new glyph beside real text
+## 12. See each new glyph beside real text
 
 Context on the sheet uses its own rows, not the project's type, spacing or colour. Render each new glyph in the project's own row beside its label, at its shipped size, in both themes. Then view it at 100% zoom on a phone, where 16px is 16px. A glyph approved only on the sheet or zoomed in is `icons-in-context`. Without a phone, report `Not verified on device`.
 
@@ -138,6 +150,8 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `icons-set-angles` | A 40° arrow among 45° arrows | The arrow at 45° |
 | `icons-size-range` | The 16 drawing scaled to 28px | The 24 drawing at 28px |
 | `icons-pixel-grid-first` | A pixel glyph drawn as smooth paths | A text grid converted to rects |
+| `icons-hold-the-voice` | A cloud of free curves in a set built from lines and round corners | The cloud from straight segments with rounded joins |
+| `icons-write-the-voice` | "Voice: clean and friendly" | "Open or closed: closed, as in `FolderIcon` and `BoxIcon`" |
 | `icons-keyline-shapes` | A pencil widened to fill the square | The pencil on the tall keyline |
 | `icons-same-parts` | A folder redrawn for `FolderPlusIcon` | The set's folder path with its plus badge |
 | `icons-open-gaps` | Two 1.5 strokes 0.5 apart | The strokes 1.5 apart |
@@ -153,7 +167,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a glyph drawn with no spec, a duplicate of a concept the set already draws or a moved or reused codepoint. `MEDIUM` is an off-grid icon, an off-angle diagonal, a drawing shown outside its size range or a pixel set drawn as paths. `MEDIUM` is also a glyph stretched off its keyline, a recurring part redrawn, closed gaps, a failed lint, an icon off the morph form or a second skeleton. It is also a missing sheet, a file outside the set, a component off the project's API or a glyph never seen beside real text. `LOW` is a clogged junction, a dot off its role's size or a morph that twists or flashes on the sheet.
+**Severity.** `HIGH` is a glyph drawn with no spec, a duplicate of a concept the set already draws or a moved or reused codepoint. `MEDIUM` is an off-grid icon, a glyph off the set's voice, an off-angle diagonal, a drawing shown outside its size range or a pixel set drawn as paths. `MEDIUM` is also a glyph stretched off its keyline, a recurring part redrawn, closed gaps, a failed lint, an icon off the morph form or a second skeleton. It is also a missing sheet, a file outside the set, a component off the project's API or a glyph never seen beside real text. `LOW` is a voice written as adjectives, a clogged junction, a dot off its role's size or a morph that twists or flashes on the sheet.
 
 **Format.** One finding per root cause:
 

@@ -17,7 +17,8 @@
   and logos `brand: true`. Brand marks are listed but never measured. `sizes` is optional.
 
   The sheet measures every existing icon, derives the spec from the whole set and lints each icon against it.
-  An existing icon off the spec is an outlier, not a finding. New icons are also checked for the morph form.
+  An existing icon off the spec is an outlier, not a finding. New icons are also checked for the morph form and the
+  voice: free curves, corner radii and parts per icon, each against the range the set already draws.
   The grid filters by view, style and size. Review shows Pixels, Weight, Context and Morph. Clicking an icon opens a dialog
   to inspect, customise, morph and copy prompts. Copy Spec writes icon-spec.md. Copy Findings lists what the new
   icons miss. Icons pasted or dropped on the page are measured and linted for that session only.
@@ -629,6 +630,57 @@
         });
       }
 
+      const SAMPLE = 0.1;
+
+      function voiceOf(painted, width) {
+        const voice = { free: false, corners: [], parts: 0 };
+        for (const element of painted) {
+          if (typeof element.getTotalLength !== "function") continue;
+          const subpaths = element.tagName === "path" ? element.getAttribute("d").split(/(?=[Mm])/).filter((d) => d.trim()) : [null];
+          for (const d of subpaths) {
+            let target = element;
+            if (d !== null) {
+              target = document.createElementNS(SVG_NS, "path");
+              target.setAttribute("d", d);
+              element.parentNode.append(target);
+            }
+            const length = target.getTotalLength();
+            const count = Math.min(4000, Math.ceil(length / SAMPLE));
+            const points = length > SAMPLE ? Array.from({ length: count + 1 }, (_, index) => target.getPointAtLength((index * length) / count)) : [];
+            if (target !== element) target.remove();
+            if (!points.length) continue;
+            voice.parts += 1;
+            let run = [];
+            let start = 0;
+            const close = (end) => {
+              if (run.length >= 4) {
+                const turn = run.reduce((sum, value) => sum + value, 0);
+                const chord = Math.hypot(points[end].x - points[start].x, points[end].y - points[start].y);
+                const radius = round(chord / (2 * Math.sin(turn / 2)), 0.25);
+                if (turn > 1.2 && turn < 1.95 && radius > 0 && radius <= width / 3) voice.corners.push(radius);
+                if (run.length >= 12) {
+                  const smooth = run.slice(2, -2).map((_, index) => run.slice(index, index + 5).reduce((sum, value) => sum + value, 0) / 5);
+                  const inner = smooth.slice(Math.floor(smooth.length * 0.15), Math.ceil(smooth.length * 0.85));
+                  if (inner.length && Math.max(...inner) / Math.min(...inner) > 1.8) voice.free = true;
+                }
+              }
+              run = [];
+            };
+            for (let index = 1; index < count; index += 1) {
+              const [a, b, c] = [points[index - 1], points[index], points[index + 1]];
+              const bend = Math.atan2(c.y - b.y, c.x - b.x) - Math.atan2(b.y - a.y, b.x - a.x);
+              const turn = Math.abs(Math.atan2(Math.sin(bend), Math.cos(bend)));
+              if (turn > 0.008 && turn < 0.6) {
+                if (!run.length) start = index - 1;
+                run.push(turn);
+              } else close(index);
+            }
+            close(count);
+          }
+        }
+        return voice;
+      }
+
       async function measure(icon) {
         const svg = sized(icon.svg, 16);
         workspace.append(svg);
@@ -680,6 +732,7 @@
           masks: elements.some((element) => ["clipPath", "mask", "filter", "image", "text", "use"].includes(element.tagName)) ||
             /\s(clip-path|mask|filter)=/.test(icon.svg),
           coverage: await coverage(icon.svg, viewBox),
+          voice: voiceOf(painted, viewBox[2]),
           morph: morphOf(svg),
         };
         svg.remove();
@@ -713,6 +766,14 @@
           range[0] = Math.min(range[0], entry.coverage);
           range[1] = Math.max(range[1], entry.coverage);
         }
+        const voiced = base.filter((entry) => entry.kind !== "Pixel");
+        const corners = voiced.flatMap((entry) => entry.voice.corners);
+        const parts = {};
+        for (const entry of voiced) {
+          const range = (parts[entry.kind] ??= [Infinity, -Infinity]);
+          range[0] = Math.min(range[0], entry.voice.parts);
+          range[1] = Math.max(range[1], entry.voice.parts);
+        }
         const drawn = measured.filter((entry) => entry.icon.new);
         const grid = gridOf(base);
         const rectangle = (long, short) => {
@@ -741,6 +802,12 @@
           wide: rectangle("width", "height"),
           tall: rectangle("height", "width"),
           ranges,
+          voice: {
+            count: voiced.length,
+            free: voiced.filter((entry) => entry.voice.free).length,
+            corners: corners.length ? [Math.min(...corners), Math.max(...corners)] : null,
+            parts,
+          },
           tags: [...new Set(base.flatMap((entry) => entry.tags))].filter((tag) => ALLOWED.has(tag)),
         };
       }
@@ -776,6 +843,15 @@
           if (shapes.some((shape) => shape === null)) add("icons-morph-form", "a path that is not M followed by explicit C segments");
           const counts = [...new Set(shapes.filter(Boolean))].filter((count) => count !== segments);
           if (counts.length) add("icons-morph-form", `${counts.join(", ")} segments in a path, every path has ${segments}`);
+        }
+        if (entry.icon.new && entry.kind !== "Pixel" && spec.voice.count) {
+          const { count, free, corners, parts } = spec.voice;
+          if (entry.voice.free && free / count < 0.1) add("icons-hold-the-voice", `a free curve, ${free} of ${count} icons in the set draw one`);
+          if (!corners && entry.voice.corners.length) add("icons-hold-the-voice", `corner radius ${[...new Set(entry.voice.corners)].join(", ")}, the set keeps its corners sharp`);
+          const off = corners ? entry.voice.corners.filter((radius) => radius < corners[0] - spec.grid || radius > corners[1] + spec.grid) : [];
+          if (off.length) add("icons-hold-the-voice", `corner radius ${[...new Set(off)].join(", ")}, the set rounds corners from ${corners[0]} to ${corners[1]}`);
+          const range = parts[entry.kind];
+          if (range && entry.voice.parts > range[1]) add("icons-hold-the-voice", `${entry.voice.parts} parts, no ${entry.kind.toLowerCase()} icon in the set has more than ${range[1]}`);
         }
         return misses;
       }
@@ -830,8 +906,19 @@
           ["Round Overshoot", spec.overshoot ? `${spec.overshoot} past the padding` : "None measured"],
           ["Keylines", keylineText(spec)],
           ["Ink Coverage", ranges || "Not measured"],
+          ...voiceLines(spec.voice),
           ["Elements", spec.tags.filter((tag) => tag !== "svg").join(", ")],
           ["Morph Form", spec.morph.slots ? `${spec.morph.slots} paths of M and ${spec.morph.segments} C segments` : "No new icons yet"],
+        ];
+      }
+
+      function voiceLines(voice) {
+        if (!voice.count) return [["Voice", "Not measured"]];
+        const parts = Object.entries(voice.parts).map(([kind, [low, high]]) => `${kind} ${low} to ${high}`).join(", ");
+        return [
+          ["Construction", voice.free ? `Free curves in ${voice.free} of ${voice.count} icons` : "Lines, arcs and round corners, no free curves"],
+          ["Corners", voice.corners ? `Rounded from ${voice.corners[0]} to ${voice.corners[1]}` : "Sharp"],
+          ["Parts", `${parts} per icon`],
         ];
       }
 
@@ -845,6 +932,18 @@
           "| Property | Value |",
           "| --- | --- |",
           ...specLines(spec).map(([property, value]) => `| ${property} | ${value} |`),
+          "",
+          "## Voice",
+          "",
+          "Each tendency the sheet cannot measure, with two icons from the set that show it.",
+          "",
+          "| Tendency | Shown by |",
+          "| --- | --- |",
+          "| Open or closed |  |",
+          "| Line length |  |",
+          "| Direction |  |",
+          "| Caps and small details |  |",
+          "| Detail |  |",
           "",
         ].join("\n");
       }
@@ -1810,6 +1909,7 @@
         const panel = h("aside", { class: "panel" }, head, tabs, body, foot);
         const node = h("div", { class: "insp", "data-layout": layout }, stage, panel);
         const maxInk = Math.max(...Object.values(spec.ranges).map(([, high]) => high)) * 1.4;
+        const maxParts = Math.max(4, ...Object.values(spec.voice.parts).map(([, high]) => high)) * 1.4;
 
         const customised = () => customise(result.icon.svg, custom);
         const markupOf = (entry) => customise(entry.icon.svg, custom);
@@ -1883,7 +1983,8 @@
             h("div", { class: "bars" },
               bar("Stroke", entry.stroke, entry.stroke ? format(entry.stroke) : "None", 3),
               bar("Inset", entry.inset, `${format(entry.inset)}, ${entry.edge}`, spec.padding * 2 || 4),
-              bar("Ink", entry.coverage ?? 0, entry.coverage == null ? "Not Verified" : percent(entry.coverage), maxInk, spec.ranges[entry.kind])),
+              bar("Ink", entry.coverage ?? 0, entry.coverage == null ? "Not Verified" : percent(entry.coverage), maxInk, spec.ranges[entry.kind]),
+              bar("Parts", entry.voice.parts, String(entry.voice.parts), maxParts, spec.voice.parts[entry.kind])),
             h("div", {},
               h("p", { class: "section-title" }, "Findings"),
               findingList(misses, status === "Not Verified" ? "The set has no icons of this kind to compare." : "Passes the spec.", false)),

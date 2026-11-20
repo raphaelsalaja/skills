@@ -76,7 +76,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `match` | Inspecting a named reference, computed values, state inventory, side-by-side proof |
 | `rule` | Writing a correction into the agent file, the user's silent edits, conflicts between rules, a check for matchable rules, sweeping old breaks |
 | `viewports` | The width set, breakpoint edges, sideways scroll, clipped text, hover-only controls, short heights, doubled text, text spacing, longer, shorter and unbroken text, other scripts, mirrored text and flipped directional icons |
-| `icons` | Missing glyphs and concepts, the spec measured from the whole set, the grid and its angles, size ranges, keylines, reused parts, open junctions and dot roles, the morph form, one skeleton, the lint, the shipped sheet, the project's icon API, font codepoints and icons beside real text |
+| `icons` | Missing glyphs and concepts, the spec measured from the whole set, the set's voice, the grid and its angles, size ranges, keylines, reused parts, open junctions and dot roles, the morph form, one skeleton, the lint, the shipped sheet, the project's icon API, font codepoints and icons beside real text |
 | `ship` | Commits and their Conventional Commit messages, changesets, pushes, merges, pull requests per bug, releases, deploy checks |
 | `prototype` | Labelled real-code variants of one idea, the cost of each, a bar that clears the work, replaying entrances, pruning after the pick and riffing on it |
 | `lab` | Every state of real components forced open on one development page |
