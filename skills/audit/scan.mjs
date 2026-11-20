@@ -14,18 +14,25 @@ const tokenFile = /(token|theme|palette|colou?r|variable)s?\./i;
 const lineCues = [
   ["motion-name-the-properties", /transition:\s*all\b|\btransition-all\b/],
   ["motion-no-scale-from-zero", /scale\(0\)|\bscale:\s*0\s*[,}]|\bscale-0\b/],
+  ["motion-ease-by-direction", /(?<![\w-])ease-in(?![\w-])|ease:\s*["']easeIn["']/],
   ["motion-strong-ease-out", /(?<![\w-])ease-out(?![\w-])|ease:\s*["']easeOut["']/],
+  ["motion-no-scroll-reveals", /whileInView|data-aos|\banimate-fade/],
+  ["motion-no-idle-loops", /animation:[^;\n]*\binfinite\b|\banimate-(pulse|ping|bounce)\b/, (match, line) => !/spin|load(ing|er)|skeleton/i.test(line)],
   ["motion-short-stagger", /staggerChildren:\s*(0?\.[1-9]|[1-9])/],
   ["motion-press-scale", /whileTap=\{\{\s*scale:\s*([\d.]+)/, (match) => Number(match[1]) < 0.95],
   ["motion-press-scale", /\bactive:scale-(\d+)\b/, (match) => Number(match[1]) < 95],
   ["motion-under-300ms", /duration:\s*(0?\.[5-9]\d*|[1-9](\.\d+)?)\s*[,}]|transition(?!-delay)[^;\n]*\b([5-9]\d{2}|\d{4,})ms|\bduration-([5-9]\d{2}|\d{4,})\b/],
   ["motion-instant-hover-color", /transition(-property)?:[^;\n]*\b(background|background-color|color|border-color)\b|\btransition-colors\b/],
   ["defaults-fade-the-shadow", /transition(-property)?:[^;\n]*box-shadow|\btransition-shadow\b/],
+  ["overlays-stable-gutter", /(body|documentElement)\.style\.(overflow|position)\s*=\s*["'](hidden|fixed)["']|^\s*(html|body)\s*(,\s*(html|body)\s*)?\{[^}]*\b(overflow:\s*hidden|position:\s*fixed)/],
+  ["frames-brief-will-change", /will-change:\s*(?!auto\b)[a-z]|\bwill-change-(transform|opacity|scroll|contents)\b/],
+  ["frames-no-inherited-variable", /setProperty\(\s*["'`]--|["']--[\w-]+["']\s*:\s*(?!(true|false|null|undefined)\b)[`A-Za-z_$(]/],
   ["defaults-allow-zoom", /maximum-scale\s*=\s*1(?![.\d])|user-scalable\s*=\s*no/],
   ["defaults-dynamic-viewport", /\b100vh\b|\bh-screen\b/],
   ["defaults-focus-keyboard-only", /:focus(?![-\w])|outline:\s*(none|0)\b|\boutline-none\b|(?<![\w-])focus:(ring|outline|border|shadow)/],
   ["defaults-rounded-not-pill", /border-radius:\s*9{3,}px|\brounded-full\b/],
-  ["defaults-validate-on-submit", /disabled=\{\s*!\s*[\w.]*(valid|canSubmit)/i],
+  ["forms-validate-on-submit", /disabled=\{\s*!\s*[\w.]*(valid|canSubmit)/i],
+  ["forms-user-invalid", /(?<!user-):invalid\b|(?<![\w-])invalid:(?=[a-z[])/],
   ["defaults-instant-feedback", /if\s*\(\s*[\w.]*(isLoading|loading|isPending|pending|isFetching)\s*\)\s*return\s+(null|<><\/>)/],
   ["defaults-sound-optional", /\.volume\s*=\s*1(\.0)?\b/],
   ["states-list-every-state", /if\s*\(\s*!\s*[\w.]*(data|items|rows|results|list)\s*\)\s*return\s+(null|<><\/>)/],
@@ -33,13 +40,21 @@ const lineCues = [
   ["copy-no-ellipsis", /[A-Za-z](\.\.\.|\u2026)(?=["'`<\s]|$)/, (match, line) => !/placeholder/i.test(line)],
   ["copy-no-em-dash", /\u2014|&mdash;/],
   ["color-role-tokens", /(?<![\w-])(color|background|background-color|border-color|fill|stroke):\s*#[0-9a-fA-F]{3,8}\b|\b(text|bg|border|fill|stroke)-\[#[0-9a-fA-F]{3,8}\]|var\(--(gray|grey|neutral|slate|zinc|red|blue|green)-\d+\)/, (match, line, file) => !tokenFile.test(basename(file)) && !/^\s*--[\w-]+:/.test(line)],
+  ["audit-content-is-data", /\b(ignore|disregard)\s+(all\s+|any\s+)?(previous|prior|above|earlier)\s+instructions\b|\b(ai|llm|agent|assistant|reviewer)s?\b[^.\n]{0,40}\b(skip this file|do not (review|report|flag))\b/i],
 ];
 
-// Inputs span several lines in JSX, so these read the whole tag.
+// Tags span several lines in JSX, so these read the whole tag.
 const inputTag = /<[Ii]nput\b(?:=>|[^>])*>/g;
+const imageTag = /<img\b(?:=>|[^>])*>/g;
+const priorityTag = /<(?:img|Image)\b(?:=>|[^>])*>/g;
+const mediaTag = /<(?:img|video)\b(?:=>|[^>])*>/g;
 const tagCues = [
-  ["defaults-input-types", (tag) => /\b(name|id|type)=["'{]?[^"'}\s]*(email|phone|tel|address|postal|zip|first.?name|last.?name|full.?name)/i.test(tag) && !/autocomplete/i.test(tag)],
-  ["defaults-label-hit-area", (tag) => /placeholder=/.test(tag) && !/aria-label|aria-labelledby|\bid=/.test(tag) && !/type=["'](hidden|submit|button|checkbox|radio)["']/.test(tag)],
+  ["forms-input-types", inputTag, (tag) => /\b(name|id|type)=["'{]?[^"'}\s]*(email|phone|tel|address|postal|zip|first.?name|last.?name|full.?name)/i.test(tag) && !/autocomplete/i.test(tag)],
+  ["forms-label-hit-area", inputTag, (tag) => /placeholder=/.test(tag) && !/aria-label|aria-labelledby|\bid=/.test(tag) && !/type=["'](hidden|submit|button|checkbox|radio)["']/.test(tag)],
+  ["forms-consent-unchecked", inputTag, (tag) => /type=["']checkbox["']/.test(tag) && /\b(defaultChecked|checked)\b(?!=\{false\})/.test(tag) && /newsletter|marketing|offer|promo|subscribe|consent|updates|share/i.test(tag)],
+  ["defaults-alt-by-purpose", imageTag, (tag) => !/\balt=/.test(tag) || /\balt=["']([^"']*\.(png|jpe?g|gif|webp|svg|avif)|image|img|photo|picture|icon)["']/i.test(tag)],
+  ["vitals-lcp-priority", priorityTag, (tag) => /\bloading=\{?["']lazy["']/.test(tag) && (/\bfetchpriority=\{?["']high["']/i.test(tag) || /\spriority(?![\w-])(?!=\{false\})/.test(tag))],
+  ["vitals-size-media", mediaTag, (tag) => !/\b(width|height|fill)\b|aspect-ratio|(?<![\w-])(aspect|size|[wh])-(\d|\[|full|screen|square|video|px)/.test(tag)],
 ];
 
 const iconPackages = ["lucide-react", "@heroicons/react", "react-icons", "@tabler/icons-react", "@phosphor-icons/react", "phosphor-react", "@radix-ui/react-icons", "react-feather", "@iconify/react", "@mui/icons-material", "@fortawesome/react-fontawesome"];
@@ -88,8 +103,8 @@ function scan(file, text) {
     }
   });
 
-  for (const match of text.matchAll(inputTag)) {
-    for (const [rule, test] of tagCues) {
+  for (const [rule, pattern, test] of tagCues) {
+    for (const match of text.matchAll(pattern)) {
       if (test(match[0])) add(rule, file, lineOf(text, match.index), snippet(match[0]));
     }
   }
@@ -104,6 +119,12 @@ function scan(file, text) {
     add("defaults-keys-ignore-inputs", file, lineOf(text, keydown.index), "A global keydown listener with no input guard");
   }
 
+  if (!/isComposing/.test(text)) {
+    lines.forEach((line, index) => {
+      if (/\bkey\s*===?\s*["']Enter["']|["']Enter["']\s*===?\s*[\w.]*\bkey\b/.test(line)) add("forms-ime-safe-enter", file, index + 1, snippet(line));
+    });
+  }
+
   project.hover += (text.match(/:hover\b|(?<![\w-])hover:/g) ?? []).length;
   project.active += (text.match(/:active\b|(?<![\w-])active:/g) ?? []).length;
 
@@ -111,7 +132,7 @@ function scan(file, text) {
   if (animation && !project.animates) project.animates = { file, line: lineOf(text, animation.index) };
   if (/prefers-reduced-motion|useReducedMotion|reducedMotion|motion-reduce:|motion-safe:/.test(text)) project.reducedMotion = true;
 
-  const lock = /body\.style\.overflow\s*=\s*["']hidden["']|react-remove-scroll|@radix-ui\/react-dialog|from ["']vaul["']/.exec(text);
+  const lock = /react-remove-scroll|@radix-ui\/react-dialog|from ["']vaul["']/.exec(text);
   if (lock && !project.scrollLock) project.scrollLock = { file, line: lineOf(text, lock.index) };
   if (/scrollbar-gutter/.test(text)) project.gutter = true;
 }
@@ -120,7 +141,7 @@ for (const root of roots) walk(root);
 
 if (project.hover && !project.active) add("defaults-no-tap-highlight", roots.join(" "), 1, `Hover styles: ${project.hover}, :active styles: 0`);
 if (project.animates && !project.reducedMotion) add("motion-reduced-motion", project.animates.file, project.animates.line, "Animation in the project and no reduced-motion query anywhere");
-if (project.scrollLock && !project.gutter) add("defaults-stable-gutter", project.scrollLock.file, project.scrollLock.line, "Scroll is locked and no scrollbar-gutter is set");
+if (project.scrollLock && !project.gutter) add("overlays-stable-gutter", project.scrollLock.file, project.scrollLock.line, "A library locks scroll and no scrollbar-gutter is set");
 
 const order = [...new Set([...lineCues, ...tagCues].map(([rule]) => rule))];
 const rank = (rule) => (order.includes(rule) ? order.indexOf(rule) : order.length);
@@ -130,5 +151,5 @@ for (const hit of hits) console.log(`${hit.where} - [${hit.rule}] ${hit.text}`);
 const rules = new Set(hits.map((hit) => hit.rule)).size;
 const files = `${scanned} ${scanned === 1 ? "file" : "files"}`;
 console.log(hits.length
-  ? `\n${hits.length} candidates for ${rules} rules in ${files}. Open each line before reporting it.`
+  ? `\n${hits.length} ${hits.length === 1 ? "candidate" : "candidates"} for ${rules} ${rules === 1 ? "rule" : "rules"} in ${files}. Open each line before reporting it.`
   : `No candidates in ${files}.`);

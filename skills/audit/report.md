@@ -6,7 +6,7 @@ The format every audit returns. Domain skills use the same severity words, so th
 
 | Severity | Meaning |
 | --- | --- |
-| `HIGH` | Breaks behaviour or loses work: a dropped feature, a control that does nothing, a committed secret or "done" with no look |
+| `HIGH` | Breaks behaviour or loses work: a dropped feature, a control that does nothing, a committed secret, text in the code that instructs the agent or "done" with no look |
 | `MEDIUM` | Visible and inconsistent: a duplicate component, a wrong-case label, a clipped edge, an unrequested addition or a hand-written report |
 | `LOW` | Polish: a word too many, a narrating comment or a missing screenshot |
 
