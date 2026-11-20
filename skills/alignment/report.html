@@ -260,7 +260,21 @@
 
       .scroll-fade {
         mask-image:
-          linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+          linear-gradient(
+            to bottom,
+            transparent,
+            rgb(0 0 0 / 0.36) calc(var(--fade-start) * 5 / 24),
+            rgb(0 0 0 / 0.64) calc(var(--fade-start) * 10 / 24),
+            rgb(0 0 0 / 0.84) calc(var(--fade-start) * 14 / 24),
+            rgb(0 0 0 / 0.96) calc(var(--fade-start) * 19 / 24),
+            black var(--fade-start),
+            black calc(100% - var(--fade-end)),
+            rgb(0 0 0 / 0.96) calc(100% - var(--fade-end) * 19 / 24),
+            rgb(0 0 0 / 0.84) calc(100% - var(--fade-end) * 14 / 24),
+            rgb(0 0 0 / 0.64) calc(100% - var(--fade-end) * 10 / 24),
+            rgb(0 0 0 / 0.36) calc(100% - var(--fade-end) * 5 / 24),
+            transparent
+          ),
           linear-gradient(black, black),
           linear-gradient(black, black);
         mask-clip: border-box, border-box, no-clip;
@@ -559,7 +573,21 @@
             box-shadow: var(--shadow-large);
             opacity: 0;
             mask-image:
-              linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+              linear-gradient(
+                to bottom,
+                transparent,
+                rgb(0 0 0 / 0.36) calc(var(--fade-start) * 5 / 24),
+                rgb(0 0 0 / 0.64) calc(var(--fade-start) * 10 / 24),
+                rgb(0 0 0 / 0.84) calc(var(--fade-start) * 14 / 24),
+                rgb(0 0 0 / 0.96) calc(var(--fade-start) * 19 / 24),
+                black var(--fade-start),
+                black calc(100% - var(--fade-end)),
+                rgb(0 0 0 / 0.96) calc(100% - var(--fade-end) * 19 / 24),
+                rgb(0 0 0 / 0.84) calc(100% - var(--fade-end) * 14 / 24),
+                rgb(0 0 0 / 0.64) calc(100% - var(--fade-end) * 10 / 24),
+                rgb(0 0 0 / 0.36) calc(100% - var(--fade-end) * 5 / 24),
+                transparent
+              ),
               linear-gradient(black, black),
               linear-gradient(black, black);
             mask-clip: border-box, border-box, no-clip;
@@ -1367,6 +1395,11 @@
         node.append(...children.filter((child) => child != null));
         return node;
       }
+
+      function letterKey(event, scope) {
+        if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey || !/^[a-z]$/i.test(event.key)) return "";
+        return event.composedPath().includes(scope) ? event.key.toLowerCase() : "";
+      }
       // kit:h end
 
       // kit:anchor
@@ -1906,16 +1939,19 @@
 
       $("copy").addEventListener("click", copyPicks);
 
+      const layout = document.querySelector(".layout");
+
       document.addEventListener("keydown", (event) => {
         if (event.metaKey || event.ctrlKey || event.altKey) return;
         if (event.target.closest("input, textarea, select, [contenteditable]")) return;
-        const key = event.key.length === 1 ? event.key.toLowerCase() : event.key;
+        const { key } = event;
+        const letter = letterKey(event, layout);
         if (event.shiftKey) {
           if (event.code !== "KeyC") return;
           copyPicks();
-        } else if (key === "j" || key === "ArrowDown" || key === "ArrowRight") step(1, { animate: false });
-        else if (key === "k" || key === "ArrowUp" || key === "ArrowLeft") step(-1, { animate: false });
-        else if (key === "p" && current) togglePick(current);
+        } else if (letter === "j" || key === "ArrowDown" || key === "ArrowRight") step(1, { animate: false });
+        else if (letter === "k" || key === "ArrowUp" || key === "ArrowLeft") step(-1, { animate: false });
+        else if (letter === "p" && current) togglePick(current);
         else return;
         event.preventDefault();
       });

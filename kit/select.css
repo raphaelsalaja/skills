@@ -62,7 +62,21 @@
       box-shadow: var(--shadow-large);
       opacity: 0;
       mask-image:
-        linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+        linear-gradient(
+          to bottom,
+          transparent,
+          rgb(0 0 0 / 0.36) calc(var(--fade-start) * 5 / 24),
+          rgb(0 0 0 / 0.64) calc(var(--fade-start) * 10 / 24),
+          rgb(0 0 0 / 0.84) calc(var(--fade-start) * 14 / 24),
+          rgb(0 0 0 / 0.96) calc(var(--fade-start) * 19 / 24),
+          black var(--fade-start),
+          black calc(100% - var(--fade-end)),
+          rgb(0 0 0 / 0.96) calc(100% - var(--fade-end) * 19 / 24),
+          rgb(0 0 0 / 0.84) calc(100% - var(--fade-end) * 14 / 24),
+          rgb(0 0 0 / 0.64) calc(100% - var(--fade-end) * 10 / 24),
+          rgb(0 0 0 / 0.36) calc(100% - var(--fade-end) * 5 / 24),
+          transparent
+        ),
         linear-gradient(black, black),
         linear-gradient(black, black);
       mask-clip: border-box, border-box, no-clip;

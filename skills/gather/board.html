@@ -257,7 +257,21 @@
 
       .scroll-fade {
         mask-image:
-          linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+          linear-gradient(
+            to bottom,
+            transparent,
+            rgb(0 0 0 / 0.36) calc(var(--fade-start) * 5 / 24),
+            rgb(0 0 0 / 0.64) calc(var(--fade-start) * 10 / 24),
+            rgb(0 0 0 / 0.84) calc(var(--fade-start) * 14 / 24),
+            rgb(0 0 0 / 0.96) calc(var(--fade-start) * 19 / 24),
+            black var(--fade-start),
+            black calc(100% - var(--fade-end)),
+            rgb(0 0 0 / 0.96) calc(100% - var(--fade-end) * 19 / 24),
+            rgb(0 0 0 / 0.84) calc(100% - var(--fade-end) * 14 / 24),
+            rgb(0 0 0 / 0.64) calc(100% - var(--fade-end) * 10 / 24),
+            rgb(0 0 0 / 0.36) calc(100% - var(--fade-end) * 5 / 24),
+            transparent
+          ),
           linear-gradient(black, black),
           linear-gradient(black, black);
         mask-clip: border-box, border-box, no-clip;
@@ -1717,7 +1731,7 @@
         </div>
       </nav>
 
-      <main class="groups" id="groups"><p class="empty" id="empty" hidden></p></main>
+      <main class="groups" id="groups" tabindex="-1"><p class="empty" id="empty" hidden></p></main>
     </div>
 
     <div class="tray" id="tray" role="region" aria-label="Picks" data-frame data-empty inert>
@@ -1796,6 +1810,11 @@
         }
         node.append(...children.filter((child) => child != null));
         return node;
+      }
+
+      function letterKey(event, scope) {
+        if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey || !/^[a-z]$/i.test(event.key)) return "";
+        return event.composedPath().includes(scope) ? event.key.toLowerCase() : "";
       }
       // kit:h end
 
@@ -2602,7 +2621,7 @@
           else if (key === "m") moreLikeThis(current, $("viewer-more"));
           else if (key === "o") window.open(current.url, "_blank", "noreferrer");
           else return;
-        } else if (key === "c") {
+        } else if (letterKey(event, $("groups")) === "c" || letterKey(event, $("tray")) === "c") {
           if ($("compare").disabled) return;
           openCompare();
         } else {

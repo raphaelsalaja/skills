@@ -260,7 +260,21 @@
 
     .scroll-fade {
       mask-image:
-        linear-gradient(to bottom, transparent, black var(--lab-fade-start), black calc(100% - var(--lab-fade-end)), transparent),
+        linear-gradient(
+          to bottom,
+          transparent,
+          rgb(0 0 0 / 0.36) calc(var(--lab-fade-start) * 5 / 24),
+          rgb(0 0 0 / 0.64) calc(var(--lab-fade-start) * 10 / 24),
+          rgb(0 0 0 / 0.84) calc(var(--lab-fade-start) * 14 / 24),
+          rgb(0 0 0 / 0.96) calc(var(--lab-fade-start) * 19 / 24),
+          black var(--lab-fade-start),
+          black calc(100% - var(--lab-fade-end)),
+          rgb(0 0 0 / 0.96) calc(100% - var(--lab-fade-end) * 19 / 24),
+          rgb(0 0 0 / 0.84) calc(100% - var(--lab-fade-end) * 14 / 24),
+          rgb(0 0 0 / 0.64) calc(100% - var(--lab-fade-end) * 10 / 24),
+          rgb(0 0 0 / 0.36) calc(100% - var(--lab-fade-end) * 5 / 24),
+          transparent
+        ),
         linear-gradient(black, black),
         linear-gradient(black, black);
       mask-clip: border-box, border-box, no-clip;
@@ -559,7 +573,21 @@
           box-shadow: var(--lab-shadow-large);
           opacity: 0;
           mask-image:
-            linear-gradient(to bottom, transparent, black var(--lab-fade-start), black calc(100% - var(--lab-fade-end)), transparent),
+            linear-gradient(
+              to bottom,
+              transparent,
+              rgb(0 0 0 / 0.36) calc(var(--lab-fade-start) * 5 / 24),
+              rgb(0 0 0 / 0.64) calc(var(--lab-fade-start) * 10 / 24),
+              rgb(0 0 0 / 0.84) calc(var(--lab-fade-start) * 14 / 24),
+              rgb(0 0 0 / 0.96) calc(var(--lab-fade-start) * 19 / 24),
+              black var(--lab-fade-start),
+              black calc(100% - var(--lab-fade-end)),
+              rgb(0 0 0 / 0.96) calc(100% - var(--lab-fade-end) * 19 / 24),
+              rgb(0 0 0 / 0.84) calc(100% - var(--lab-fade-end) * 14 / 24),
+              rgb(0 0 0 / 0.64) calc(100% - var(--lab-fade-end) * 10 / 24),
+              rgb(0 0 0 / 0.36) calc(100% - var(--lab-fade-end) * 5 / 24),
+              transparent
+            ),
             linear-gradient(black, black),
             linear-gradient(black, black);
           mask-clip: border-box, border-box, no-clip;
