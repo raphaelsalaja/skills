@@ -39,7 +39,7 @@ Put every anchor point on the spec's grid step, while curve handles stay free. U
 
 Within the step, keep straight stroke edges on whole pixels. A 2 stroke centres on whole pixels and a 1 stroke on half pixels. A 1.5 stroke centres on a quarter, so its outer edge lands on a whole pixel. Snap at the drawing's native size only, because one drawing shown at 12, 16 and 20px has no single pixel grid.
 
-Straight segments run at 0°, 45° or 90° unless the concept needs another angle, such as a bolt. Diagonals and 3D views share one angle across the set. A 40° arrow among 45° arrows is `icons-set-angles`.
+Straight segments run at the angles the set already uses, such as 0°, 45° and 90°, unless the concept needs another, such as a bolt. Diagonals and 3D views share one angle across the set. A 40° arrow among 45° arrows is `icons-set-angles`.
 
 A drawing holds from 0.75 to 1.25 times its grid, so a 16 grid serves 12–20px. Past that its stroke scales too, and a 1.25 stroke becomes 2.5 at 32px. A drawing shown outside its range is `icons-size-range`.
 

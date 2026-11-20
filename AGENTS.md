@@ -89,7 +89,7 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `avatar` | Character silhouettes, eyes on a sphere, whole-body idle life, moods as eye shapes, reactions to the page, the contact sheet |
 | `bots` | The Grok round, picked Bots only, stripping private details, real copy links, the Bot marks, the physics pile, Bot cards and the org chart |
 | `sketchbook` | Daily batches of live interaction tiles, the taste file, kept components, wildcards and a clip suggestion |
-| `iconset` | The old set's audit, one icon per concept and its tags, the written voice, strokes picked beside the type, the seed set, the parts register and flat shipping, exploration rows, the migration map, the SVG contract and fixes at the source, the one build command and the generated catalogue |
+| `iconset` | The old set's audit, one icon per concept and its tags, the style read from the product, asked and picked from drawn tiles with its metaphors kept, the written voice, strokes picked beside the type, the seed set, the parts register and flat shipping, exploration rows, the migration map, the SVG contract and fixes at the source, the one build command and the generated catalogue |
 | `stress` | The value map with sources and limits, worst-case data through the demo boundary, the development-only data switch, the case catalog, the real container width and the kept fixture |
 | `animate` | Moments where content teleports, the frequency gate, the smallest motion that explains a change, the delight budget and the before and after clips |
 | `audit` | Review scope, the project's own system, content as data, the pattern scan, running every skill, merging by root cause, the numbered report, the verdict and self-contained hand-off plans |

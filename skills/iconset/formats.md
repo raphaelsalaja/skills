@@ -1,6 +1,34 @@
 # Formats
 
-The files an icon library keeps beside its drawings. The build command reads each one, so the code and the catalogue never drift from them.
+The files an icon library keeps beside its drawings. The build command reads every one after the style record, so the code and the catalogue never drift from them.
+
+## Style
+
+`style.md` sits beside the icons and records how the direction was picked. The voice and the stroke step start from it, and a later redraw reads why.
+
+```
+## Signals
+Type: humanist sans, stem 1.4 at 14px, contrast 1.1:1, open apertures, round terminals, x-height 0.53
+Labels: 14px regular
+Radius: 10px controls, pill buttons
+Logo: circles and one free curve
+Platform: web and iOS, bottom navigation on phones
+Theme: light first
+Tiers: UI icons, plus pictograms on empty states
+
+## Traits
+Calm, but not sleepy
+Friendly, but not childish
+
+## Offered
+Round, Soft, Keep the old set's style
+
+## Picked
+Round. Soft read thin beside the labels on a phone.
+
+## Fill
+Line, filled when selected
+```
 
 ## Concepts
 
