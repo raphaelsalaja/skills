@@ -41,7 +41,21 @@
 
   With server rendering, add `prototype-switcher:not(:defined) { visibility: hidden }` so the variants do not flash stacked before the script runs.
 
-  The bar renders in a shadow root and inherits only `color-scheme` from the app, so it matches whatever theme the app sets on its root. It sits at the bottom centre. The current variant lives in `?variant=inline-filters`, and Show All in `?variant=all`. Pick copies "Pick Inline Filters from /prototypes/filters". Keys: ← and → step, 1–9 jump, A toggles Show All, P picks and Escape leaves it. Keys are ignored while focus is in a field.
+  The bar renders in a shadow root and inherits only `color-scheme` from the app, so it matches whatever theme the app sets on its root. It sits at the bottom centre with every variant as one button, or at the top centre with `<prototype-switcher data-position="top">` when a variant uses the bottom edge. A row wider than the screen scrolls sideways and keeps the current variant in view. The current variant lives in `?variant=inline-filters`, and Show All in `?variant=all`. Pick copies "Pick Inline Filters from /prototypes/filters". Keys: ← and → step, 1–9 jump, A toggles Show All, P picks, R replays and Escape leaves Show All. Keys are ignored while focus is in a field. A, P and R work only while focus is in the bar or a variant, and a click on a variant puts it there.
+
+  R takes the current variant out of the page and puts it back, so CSS animations and `@starting-style` entrances run again. It then fires `prototype-replay` on the variant. A component that animates on mount from script remounts by changing its `key` on that event:
+
+    function Replayable({ children }) {
+      const ref = useRef(null);
+      const [run, setRun] = useState(0);
+      useEffect(() => {
+        const section = ref.current.closest("[data-variant]");
+        const replay = () => setRun((n) => n + 1);
+        section.addEventListener("prototype-replay", replay);
+        return () => section.removeEventListener("prototype-replay", replay);
+      }, []);
+      return <div ref={ref} key={run}>{children}</div>;
+    }
 */
 
 if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) {
@@ -67,6 +81,18 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
 
     .end {
       height: 80px;
+    }
+
+    :host([data-position="top"]) .variants {
+      padding-top: 80px;
+    }
+
+    :host([data-position="top"]) .variant {
+      scroll-margin: 96px 0 24px;
+    }
+
+    :host([data-position="top"]) .end {
+      display: none;
     }
 
     .ui {
@@ -245,7 +271,21 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
 
     .scroll-fade {
       mask-image:
-        linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
+        linear-gradient(
+          to bottom,
+          transparent,
+          rgb(0 0 0 / 0.36) calc(var(--fade-start) * 5 / 24),
+          rgb(0 0 0 / 0.64) calc(var(--fade-start) * 10 / 24),
+          rgb(0 0 0 / 0.84) calc(var(--fade-start) * 14 / 24),
+          rgb(0 0 0 / 0.96) calc(var(--fade-start) * 19 / 24),
+          black var(--fade-start),
+          black calc(100% - var(--fade-end)),
+          rgb(0 0 0 / 0.96) calc(100% - var(--fade-end) * 19 / 24),
+          rgb(0 0 0 / 0.84) calc(100% - var(--fade-end) * 14 / 24),
+          rgb(0 0 0 / 0.64) calc(100% - var(--fade-end) * 10 / 24),
+          rgb(0 0 0 / 0.36) calc(100% - var(--fade-end) * 5 / 24),
+          transparent
+        ),
         linear-gradient(black, black),
         linear-gradient(black, black);
       mask-clip: border-box, border-box, no-clip;
@@ -411,152 +451,6 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
     }
     /* kit:controls end */
 
-    /* kit:select */
-    .select {
-      display: inline-flex;
-      gap: 6px;
-      align-items: center;
-      min-width: 0;
-      max-width: 280px;
-      height: 28px;
-      padding: 0 28px 0 12px;
-      font-size: 13px;
-      font-variation-settings: var(--font-weight-500);
-      color: var(--text-primary);
-      text-overflow: ellipsis;
-      white-space: nowrap;
-      cursor: pointer;
-      appearance: none;
-      background: var(--background-tertiary) no-repeat right 11px center / 10px
-        url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%236b6b6b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
-      border-radius: var(--radius-control);
-
-      &:active {
-        background-color: var(--background-hover);
-      }
-    }
-
-    @supports (appearance: base-select) {
-      .select,
-      .select::picker(select) {
-        appearance: base-select;
-      }
-
-      .select {
-        padding-right: 12px;
-        background-image: none;
-
-        &::picker-icon {
-          width: 10px;
-          height: 10px;
-          content: "";
-          background: var(--text-quaternary);
-          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
-          transition: rotate var(--duration-snappy) var(--ease-out);
-        }
-
-        &:open::picker-icon {
-          rotate: 180deg;
-        }
-
-        selectedcontent {
-          overflow: hidden;
-          text-overflow: ellipsis;
-        }
-
-        &::picker(select) {
-          min-width: anchor-size(width);
-          max-height: min(400px, 60dvh);
-          scrollbar-width: none;
-          padding: 4px;
-          margin-block: 8px;
-          background: var(--background-raised);
-          border: 1px solid transparent;
-          border-radius: var(--radius-menu);
-          box-shadow: var(--shadow-large);
-          opacity: 0;
-          mask-image:
-            linear-gradient(to bottom, transparent, black var(--fade-start), black calc(100% - var(--fade-end)), transparent),
-            linear-gradient(black, black),
-            linear-gradient(black, black);
-          mask-clip: border-box, border-box, no-clip;
-          mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
-          mask-position: 0 0, 0 0, -64px -64px;
-          mask-repeat: no-repeat;
-          mask-composite: add, exclude;
-          animation: scroll-fade linear both;
-          animation-timeline: scroll(self);
-          transition:
-            opacity var(--duration-exit) var(--ease-out),
-            display var(--duration-exit) allow-discrete,
-            overlay var(--duration-exit) allow-discrete;
-        }
-
-        &:open::picker(select) {
-          opacity: 1;
-          transition-duration: var(--duration-snappy);
-
-          @starting-style {
-            opacity: 0;
-          }
-        }
-      }
-
-      .select option {
-        display: flex;
-        gap: 6px;
-        align-items: center;
-        height: 28px;
-        padding: 0 8px;
-        font-size: 13px;
-        font-variation-settings: var(--font-weight-500);
-        color: var(--text-tertiary);
-        white-space: nowrap;
-        cursor: pointer;
-        border-radius: var(--radius-control);
-
-        &:active {
-          color: var(--text-primary);
-          background: var(--fill-hover);
-        }
-
-        &:focus-visible {
-          color: var(--text-primary);
-          background: var(--background-tertiary);
-          outline: none;
-        }
-
-        &:checked {
-          color: var(--text-primary);
-        }
-
-        &::checkmark {
-          order: 1;
-          margin-left: auto;
-          padding-left: 16px;
-          color: var(--accent);
-        }
-      }
-    }
-
-    @media (width <= 640px) {
-      .select {
-        font-size: 16px;
-      }
-    }
-
-    @media (hover: hover) and (pointer: fine) {
-      .select:hover {
-        background-color: var(--background-hover);
-      }
-
-      .select option:hover {
-        color: var(--text-primary);
-        background: var(--fill-hover);
-      }
-    }
-    /* kit:select end */
-
     /* kit:overlays */
     .toast {
       position: fixed;
@@ -675,6 +569,7 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       gap: 6px;
       align-items: center;
       width: max-content;
+      max-width: calc(100vw - 32px);
       height: 40px;
       padding: 5px;
       margin: 0 auto;
@@ -713,6 +608,21 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       }
     }
 
+    :host([data-position="top"]) .bar {
+      inset: calc(16px + env(safe-area-inset-top)) 0 auto;
+      transform-origin: top center;
+    }
+
+    :host([data-position="top"]) .bar:not(:popover-open) {
+      translate: 0 -12px;
+    }
+
+    @starting-style {
+      :host([data-position="top"]) .bar:popover-open {
+        translate: 0 -12px;
+      }
+    }
+
     .divider {
       flex: none;
       width: 1px;
@@ -720,13 +630,36 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       background: var(--border-secondary);
     }
 
-    .select {
-      max-width: min(280px, 100vw - 176px);
-    }
+    .tabs {
+      position: relative;
+      display: flex;
+      flex: 0 1 auto;
+      gap: 2px;
+      min-width: 0;
+      padding: 4px;
+      margin: -4px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      mask-image: linear-gradient(
+        to right,
+        transparent,
+        rgb(0 0 0 / 0.36) calc(var(--fade-start) * 5 / 24),
+        rgb(0 0 0 / 0.64) calc(var(--fade-start) * 10 / 24),
+        rgb(0 0 0 / 0.84) calc(var(--fade-start) * 14 / 24),
+        rgb(0 0 0 / 0.96) calc(var(--fade-start) * 19 / 24),
+        black var(--fade-start),
+        black calc(100% - var(--fade-end)),
+        rgb(0 0 0 / 0.96) calc(100% - var(--fade-end) * 19 / 24),
+        rgb(0 0 0 / 0.84) calc(100% - var(--fade-end) * 14 / 24),
+        rgb(0 0 0 / 0.64) calc(100% - var(--fade-end) * 10 / 24),
+        rgb(0 0 0 / 0.36) calc(100% - var(--fade-end) * 5 / 24),
+        transparent
+      );
+      animation: scroll-fade linear both;
+      animation-timeline: scroll(self inline);
 
-    @supports (appearance: base-select) {
-      .select::picker(select) {
-        margin-block: 14px;
+      &::-webkit-scrollbar {
+        display: none;
       }
     }
 
@@ -770,6 +703,12 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       kbd {
         color: var(--text-tertiary);
       }
+    }
+
+    :host([data-position="top"]) .hint {
+      top: calc(100% + 14px);
+      bottom: auto;
+      translate: -50% -4px;
     }
 
     @media (hover: hover) and (pointer: fine) {
@@ -852,10 +791,11 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
 
   const template = `
     <style>${css}</style>
-    <div class="variants"></div>
+    <div class="variants" tabindex="-1"></div>
     <div class="end"></div>
     <nav class="ui bar" popover="manual" aria-label="Variants" data-frame>
-      <select class="select" aria-label="Variant"></select>
+      <div class="tabs" role="group" aria-label="Variant"></div>
+      <span class="divider" aria-hidden="true"></span>
       <span class="tipped">
         <button class="tool-button all" type="button" aria-pressed="false" aria-label="Show All" aria-keyshortcuts="A">${icons.grid}</button>
         <span class="hint" aria-hidden="true">Show All<kbd>A</kbd></span>
@@ -925,7 +865,7 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
     #flight = null;
     #list;
     #bar;
-    #select;
+    #tabs;
     #allButton;
     #pickButton;
     #toast;
@@ -942,12 +882,16 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       this.#root.innerHTML = template;
       this.#list = this.#root.querySelector(".variants");
       this.#bar = this.#root.querySelector(".bar");
-      this.#select = this.#root.querySelector(".select");
+      this.#tabs = this.#root.querySelector(".tabs");
       this.#allButton = this.#root.querySelector(".all");
       this.#pickButton = this.#root.querySelector(".pick-variant");
       this.#toast = this.#root.querySelector(".toast");
 
-      this.#select.addEventListener("change", () => this.#show(Number(this.#select.value)));
+      this.#tabs.addEventListener("click", (event) => {
+        const tab = event.target.closest(".chip");
+        if (tab) this.#show(Number(tab.dataset.index));
+      });
+      new ResizeObserver(() => this.#reveal()).observe(this.#tabs);
       this.#allButton.addEventListener("click", () => this.#setAll(!this.#all));
       this.#pickButton.addEventListener("click", () => this.#pick());
 
@@ -961,6 +905,13 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
         clearTimeout(this.#warmTimer);
         this.#bar.removeAttribute("data-warm");
       });
+      this.addEventListener(
+        "pointerdown",
+        () => {
+          if (!this.contains(document.activeElement)) this.#list.focus({ preventScroll: true });
+        },
+        { capture: true },
+      );
     }
 
     connectedCallback() {
@@ -1010,7 +961,7 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       const current = this.#items[this.#index]?.element;
       const slugs = new Set();
 
-      this.#items = elements.map((element) => {
+      this.#items = elements.map((element, index) => {
         const item = previous.get(element) ?? this.#createItem(element);
         previous.delete(element);
         item.label = element.dataset.variant.trim() || "Untitled";
@@ -1022,22 +973,22 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
         item.title.textContent = item.label;
         item.noteNode.textContent = item.note;
         item.noteNode.hidden = !item.note;
+        item.tab.textContent = item.label;
+        item.tab.dataset.index = String(index);
+        if (index < 9) item.tab.setAttribute("aria-keyshortcuts", String(index + 1));
+        else item.tab.removeAttribute("aria-keyshortcuts");
         return item;
       });
-      for (const item of previous.values()) item.wrapper.remove();
+      for (const item of previous.values()) {
+        item.wrapper.remove();
+        item.tab.remove();
+      }
 
       const wrappers = this.#items.map((item) => item.wrapper);
       if (wrappers.some((wrapper, index) => this.#list.children[index] !== wrapper)) this.#list.append(...wrappers);
+      const tabs = this.#items.map((item) => item.tab);
+      if (tabs.some((tab, index) => this.#tabs.children[index] !== tab)) this.#tabs.append(...tabs);
       for (const item of this.#items) item.slot.assign(item.element);
-
-      this.#select.replaceChildren(
-        ...this.#items.map((item, index) => {
-          const option = h("option", "", item.label);
-          option.value = String(index);
-          return option;
-        }),
-      );
-      this.#select.title = `Variant (1–${Math.min(this.#items.length, 9)})`;
 
       const wanted = this.#match(this.#wanted);
       if (wanted >= 0) {
@@ -1060,7 +1011,9 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       const noteNode = h("span", "note");
       const head = h("header", "ui head", title, noteNode);
       const wrapper = h("div", "variant", head, slot);
-      return { element, slot, title, noteNode, head, wrapper };
+      const tab = h("button", "chip");
+      tab.type = "button";
+      return { element, slot, title, noteNode, head, wrapper, tab };
     }
 
     #match(value) {
@@ -1077,16 +1030,32 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
         item.wrapper.hidden = !this.#all && index !== this.#index;
         item.wrapper.toggleAttribute("data-current", index === this.#index);
         item.head.hidden = !this.#all;
+        item.tab.setAttribute("aria-pressed", String(index === this.#index));
+        item.tab.tabIndex = index === this.#index ? 0 : -1;
       });
-      this.#select.value = String(this.#index);
       this.#allButton.setAttribute("aria-pressed", String(this.#all));
+      this.#reveal();
+    }
+
+    #reveal() {
+      const tab = this.#items[this.#index]?.tab;
+      if (!tab) return;
+      const fade = 24;
+      const start = tab.offsetLeft - fade;
+      const end = tab.offsetLeft + tab.offsetWidth + fade - this.#tabs.clientWidth;
+      if (start < this.#tabs.scrollLeft) this.#tabs.scrollLeft = start;
+      else if (end > this.#tabs.scrollLeft) this.#tabs.scrollLeft = end;
     }
 
     #show(index) {
       if (index < 0 || index >= this.#items.length || index === this.#index) return;
       const direction = Math.sign(index - this.#index);
+      const tabFocused = this.#tabs.contains(this.#root.activeElement);
+      const focused = document.activeElement;
       this.#index = index;
       this.#render();
+      this.#keepFocus(focused);
+      if (tabFocused) this.#items[index].tab.focus({ preventScroll: true });
       this.#writeURL();
       const { wrapper } = this.#items[index];
       if (this.#all) {
@@ -1109,9 +1078,11 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       const anchor = this.#items[this.#index]?.element;
       if (all === this.#all || !anchor) return;
       const before = anchor.getBoundingClientRect().top;
+      const focused = document.activeElement;
       this.#all = all;
       this.#flight?.cancel();
       this.#render();
+      this.#keepFocus(focused);
       this.#writeURL();
       this.#spyPaused = true;
       scrollParent(this).scrollBy({ top: anchor.getBoundingClientRect().top - before, behavior: "instant" });
@@ -1120,6 +1091,25 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       this.#items.forEach((item, index) => {
         (index === this.#index ? item.head : item.wrapper).animate(fade, { duration: 260, easing: easeOut });
       });
+    }
+
+    #replay() {
+      const item = this.#items[this.#index];
+      if (!item) return;
+      const { element, slot } = item;
+      const next = element.nextSibling;
+      const focused = document.activeElement;
+      element.remove();
+      this.insertBefore(element, next);
+      slot.assign(element);
+      this.#keepFocus(focused);
+      element.dispatchEvent(new Event("prototype-replay"));
+    }
+
+    #keepFocus(focused) {
+      if (focused === this || !this.contains(focused)) return;
+      if (document.activeElement === focused && focused.checkVisibility()) return;
+      this.#list.focus({ preventScroll: true });
     }
 
     async #pick() {
@@ -1155,27 +1145,20 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       if (!this.#items.length || event.defaultPrevented || event.isComposing) return;
       if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
       const target = event.composedPath()[0];
-      const ownSelect = target === this.#select && !this.#isOpen(this.#select);
-      if (!ownSelect && target instanceof Element && (target.closest(typing) || target.isContentEditable)) return;
+      if (target instanceof Element && (target.closest(typing) || target.isContentEditable)) return;
 
       const key = event.key.toLowerCase();
+      const inside = event.composedPath().includes(this);
       if (key === "arrowleft") this.#show(this.#index - 1);
       else if (key === "arrowright") this.#show(this.#index + 1);
       else if (/^[1-9]$/.test(key) && Number(key) <= this.#items.length) this.#show(Number(key) - 1);
-      else if (key === "a") this.#setAll(!this.#all);
-      else if (key === "p") this.#pick();
+      else if (key === "a" && inside) this.#setAll(!this.#all);
+      else if (key === "p" && inside) this.#pick();
+      else if (key === "r" && inside) this.#replay();
       else if (key === "escape" && this.#all) this.#setAll(false);
       else return;
       event.preventDefault();
     };
-
-    #isOpen(select) {
-      try {
-        return select.matches(":open");
-      } catch {
-        return false;
-      }
-    }
 
     #resumeSpy = () => {
       this.#spyPaused = false;
