@@ -11,7 +11,7 @@ This skill cuts a change down to the ask. It removes extra interface, options an
 
 An element, option or code path the user did not ask for is a finding unless the ask needs it to work. Work that has not shipped carries no backwards compatibility. A cut the user has not approved is a proposal, not an edit.
 
-Label wording belongs to `copy`. Reusing an existing part belongs to `reuse`.
+Label wording belongs to `copy`. Reusing an existing part belongs to `reuse`. Whether an animation should exist belongs to `motion`, and deleting one cleanly belongs here.
 
 ## Nothing beside the ask
 
@@ -35,6 +35,12 @@ When the user says remove, delete the code and its styles, variables, routes and
 
 Asked for a cleanup, list unused files, exports, styles, dependencies and leftover prototypes. Delete them once approved.
 
+## A deleted animation takes its start and its waits
+
+Deleting an animation also deletes its start state: `initial={{ opacity: 0 }}`, `animation-fill-mode: forwards` from `opacity: 0` and reveal classes waiting on an observer. A start state left behind keeps the element invisible, which is `restraint-remove-the-start-state`.
+
+It also deletes what waited on it: `onAnimationEnd`, `transitionend`, exit-complete callbacks and timeouts sized to a duration. Focus moved in such a callback moves at once instead. A leftover `setTimeout(focusInput, 200)` is `restraint-remove-the-wait`.
+
 ## Comments state constraints or go
 
 Delete comments that narrate the code. Keep one only when it states a constraint the code cannot show. A narrating comment is `restraint-no-narrating-comments`.
@@ -53,11 +59,13 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `restraint-no-fallbacks` | `value ?? defaultValue` for a value that is always set | `value` |
 | `restraint-delete-dont-defer` | "Deferred for your review" | Deleted, or one question |
 | `restraint-remove-the-trail` | A removed package's variables left in `theme.css` | The variables removed with it |
+| `restraint-remove-the-start-state` | `animate` removed, `initial={{ opacity: 0 }}` left | Both removed, and `motion.div` back to `div` |
+| `restraint-remove-the-wait` | `setTimeout(focusInput, 200)` left after the exit is gone | `focusInput()` when the panel closes |
 | `restraint-no-narrating-comments` | `// Render the header` | No comment |
 
 ## Reporting
 
-**Severity.** `HIGH` is a feature, setting or code path nobody asked for, or a "removed" item that still exists. `MEDIUM` is a fallback, a legacy branch or a leftover variable. `LOW` is a narrating comment.
+**Severity.** `HIGH` is a feature, setting or code path nobody asked for, or a "removed" item that still exists. It is also an element left invisible by a deleted animation's start state. `MEDIUM` is a fallback, a legacy branch or a leftover variable. It is also a callback or timeout still waiting on a deleted animation. `LOW` is a narrating comment.
 
 **Format.** One finding per root cause:
 
