@@ -25,14 +25,14 @@
     ]
   };
 
-  `media` is a path beside this file or a full URL. `kind` is "image" or "video", and a video may add `poster`. `url` is the original, and it identifies the item, so each one is unique. `details` adds rows to the viewer. While `live` is true the board reloads board.js every 2s and adds new cards in place.
+  `media` is a path beside this file or a full URL. `kind` is "image" or "video", and a video may add `poster`. `url` is the original, and it identifies the item, so each one is unique. `details` adds rows to the viewer, and a value such as { text: "Kevin", url: "https://dribbble.com/kevin" } shows as a link. While `live` is true the board reloads board.js every 2s and adds new cards in place.
 -->
 <html lang="en">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#080808" media="(prefers-color-scheme: dark)" />
+    <meta name="theme-color" content="#100f0f" media="(prefers-color-scheme: dark)" />
     <title>Gather</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -104,8 +104,42 @@
         --radius-menu: 12px;
         --radius-panel: 16px;
         /* kit:tokens end */
-        --gap: 24px;
-        --inset: 48px;
+        --gray-1: light-dark(#fafafa, color(display-p3 0.0627 0.0588 0.0588));
+        --gray-2: light-dark(#ffffff, color(display-p3 0.102 0.098 0.098));
+        --gray-3: light-dark(#f2f2f2, color(display-p3 0.1216 0.1176 0.1176));
+        --gray-4: light-dark(#e9e9e9, color(display-p3 0.1647 0.1569 0.1569));
+        --gray-5: light-dark(#dddddd, color(display-p3 0.2235 0.2157 0.2157));
+        --gray-10: light-dark(#8a8888, color(display-p3 0.388 0.38 0.38));
+        --gray-11: light-dark(#6b6969, color(display-p3 0.561 0.557 0.557));
+        --gray-12: light-dark(#100f0f, color(display-p3 1 1 1));
+        --text-secondary: light-dark(#3d3b3b, color(display-p3 0.737 0.733 0.733));
+        --border-primary: light-dark(rgb(0 0 0 / 0.06), color(display-p3 1 1 1 / 0.08));
+        --border-secondary: light-dark(rgb(0 0 0 / 0.1), color(display-p3 1 1 1 / 0.12));
+        --background-tertiary: light-dark(rgb(0 0 0 / 0.04), color(display-p3 1 1 1 / 0.06));
+        --background-hover: light-dark(rgb(0 0 0 / 0.07), color(display-p3 1 1 1 / 0.1));
+        --background-primary: light-dark(#ffffff, color(display-p3 0.0627 0.0588 0.0588));
+        --shadow-extra-large:
+          0 0 0 1px light-dark(rgb(0 0 0 / 0.08), color(display-p3 1 1 1 / 0.1)),
+          0 4px 24px 0 light-dark(rgb(0 0 0 / 0.08), color(display-p3 0 0 0 / 0.35));
+        --ease-out: cubic-bezier(0.19, 1, 0.22, 1);
+        --ease-float: cubic-bezier(0.16, 1, 0.3, 1);
+        --radius-menu: 10px;
+        --radius-panel: 10px;
+        --pill: light-dark(#ffffff, #222224);
+        --pill-active: light-dark(#f3f3f3, #303032);
+        --pill-icon: light-dark(#5c5c5e, #9f9fa1);
+        --pill-text: light-dark(#1b1b1b, #efeff1);
+        --pill-ring: 0 0 0 0.5px light-dark(rgb(0 0 0 / 0.09), rgb(255 255 255 / 0.06)), inset 0 0.5px 0 light-dark(transparent, rgb(255 255 255 / 0.06));
+        --pill-shadow: 0 3px 6px -2px light-dark(rgb(0 0 0 / 0.02), rgb(0 0 0 / 0.24)), 0 1px 1px light-dark(rgb(0 0 0 / 0.04), rgb(0 0 0 / 0.24));
+        --tile-ring:
+          0 0 0 0.5px light-dark(rgb(0 0 0 / 0.106), transparent), 0 0 0 1px light-dark(transparent, rgb(253 253 253 / 0.074)),
+          0 3px 6px -2px light-dark(rgb(0 0 0 / 0.02), transparent), 0 1px 1px light-dark(rgb(0 0 0 / 0.04), transparent);
+        --tile-radius: 4px;
+        --tile-fill: light-dark(#f7f7f7, #0f0f0f);
+        --gap: 16px;
+        --min-card: 250px;
+        --max-columns: 4;
+        --inset: 20px;
       }
 
       /* kit:page */
@@ -283,74 +317,6 @@
         animation-timeline: scroll(self);
       }
       /* kit:fade end */
-
-      /* kit:head */
-      .head {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        max-width: 640px;
-      }
-
-      .title {
-        font-variation-settings: var(--font-weight-500);
-      }
-
-      .brief {
-        color: var(--text-tertiary);
-        overflow-wrap: anywhere;
-
-        a {
-          display: inline-flex;
-          gap: 4px;
-          align-items: center;
-          color: var(--text-secondary);
-
-          svg {
-            color: var(--text-quaternary);
-          }
-
-          &:active,
-          &:active svg {
-            color: var(--text-primary);
-          }
-        }
-
-        code {
-          color: var(--text-secondary);
-        }
-      }
-
-      @property --bar-line {
-        syntax: "<color>";
-        inherits: false;
-        initial-value: transparent;
-      }
-
-      .bar {
-        position: sticky;
-        top: 0;
-        z-index: 10;
-        display: flex;
-        flex-wrap: wrap;
-        gap: 8px;
-        align-items: center;
-        padding: 16px 0;
-        border-image: linear-gradient(to top, var(--bar-line) 1px, var(--background-primary) 1px) fill 0 / / 0 100vw;
-        transition: --bar-line var(--duration-snappy) var(--ease-out);
-
-        &[data-stuck] {
-          --bar-line: var(--border-primary);
-        }
-      }
-
-      @media (hover: hover) and (pointer: fine) {
-        .brief a:hover,
-        .brief a:hover svg {
-          color: var(--text-primary);
-        }
-      }
-      /* kit:head end */
 
       /* kit:controls */
       .chip,
@@ -967,79 +933,365 @@
       }
       /* kit:panel end */
 
-      .page {
-        width: min(1600px, 100% - var(--inset) * 2);
-        margin: 0 auto;
-        padding-bottom: 128px;
-
-        @media (width <= 640px) {
-          --inset: 24px;
-        }
-      }
-
-      .head {
-        padding-top: 40px;
-        margin-bottom: 8px;
-      }
-
-      .status {
-        display: inline-flex;
-        gap: 8px;
-        align-items: center;
-        color: var(--text-tertiary);
-
-        &::before {
-          width: 6px;
-          height: 6px;
-          content: "";
-          background: var(--accent);
-          border-radius: 50%;
-        }
-      }
-
-      @keyframes pulse {
-        50% {
-          opacity: 0.3;
-        }
-      }
-
-      @media (prefers-reduced-motion: no-preference) {
-        .status::before {
-          animation: pulse 1.6s var(--ease-in-out) infinite;
-        }
-      }
-
-      .bar-row {
+      /* kit:section */
+      .section-head {
         display: flex;
-        flex: 1;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        align-items: baseline;
+        margin-bottom: 20px;
+
+        .count {
+          margin-left: auto;
+        }
+      }
+
+      .section-title {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .section-description {
+        color: var(--text-tertiary);
+      }
+
+      .rows > * + * {
+        border-top: 1px solid var(--border-primary);
+      }
+
+      .empty {
+        padding: 64px 0;
+        color: var(--text-tertiary);
+        text-align: center;
+      }
+      /* kit:section end */
+
+      html {
+        line-height: 18px;
+      }
+
+      .page {
+        width: min(1120px, 100% - var(--inset) * 2);
+        margin: 0 auto;
+        padding-bottom: 64px;
+      }
+
+      .board-head {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding-top: 64px;
+      }
+
+      .board-title {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .board-brief {
+        max-width: 640px;
+        font-size: 14px;
+        line-height: 24px;
+        color: var(--text-tertiary);
+        text-wrap: pretty;
+      }
+
+      .board-filters {
+        display: flex;
         flex-wrap: wrap;
         gap: 8px;
         align-items: center;
-        min-width: 0;
+        margin-top: 24px;
+      }
 
-        @media (width <= 640px) {
-          flex-wrap: nowrap;
-          margin-inline: calc(var(--inset) * -1);
-          padding-inline: var(--inset);
-          overflow-x: auto;
-          overscroll-behavior-x: contain;
-          mask: linear-gradient(to right, transparent, black var(--inset) calc(100% - var(--inset)), transparent);
+      .board-filter,
+      .board-action {
+        display: inline-flex;
+        gap: 8px;
+        align-items: center;
+        height: 32px;
+        padding: 0 14px 0 12px;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-secondary);
+        white-space: nowrap;
+        background: var(--pill);
+        border-radius: 999px;
+        box-shadow: var(--pill-ring), var(--pill-shadow);
+
+        svg {
+          flex: none;
+          color: var(--text-tertiary);
+        }
+
+        &[data-active] {
+          color: var(--text-primary);
+        }
+
+        &:active {
+          color: var(--text-primary);
         }
       }
 
-      .filters,
-      .picks {
+      .board-action:disabled {
+        color: var(--text-quaternary);
+
+        svg {
+          color: inherit;
+        }
+      }
+
+      .filter-menu {
+        flex-direction: column;
+        width: 260px;
+        max-height: min(400px, 60dvh);
+        overflow: hidden;
+        color: var(--text-primary);
+        background: var(--background-raised);
+        border: 1px solid transparent;
+        border-radius: var(--radius-menu);
+        box-shadow: var(--shadow-large);
+        opacity: 0;
+        position-area: block-end span-inline-end;
+        position-try-fallbacks: flip-block, flip-inline;
+        transition:
+          opacity var(--duration-exit) var(--ease-out),
+          display var(--duration-exit) allow-discrete,
+          overlay var(--duration-exit) allow-discrete;
+
+        &:popover-open {
+          display: flex;
+          opacity: 1;
+          transition-duration: var(--duration-snappy);
+
+          @starting-style {
+            opacity: 0;
+          }
+        }
+      }
+
+      @supports (position-area: block-end) {
+        .filter-menu {
+          inset: auto;
+          margin: 8px 0;
+        }
+      }
+
+      .filter-search {
         display: flex;
-        flex-shrink: 0;
-        gap: 2px;
+        flex: none;
+        gap: 8px;
+        align-items: center;
+        height: 40px;
+        padding: 0 12px;
+        color: var(--text-quaternary);
+        border-bottom: 1px solid var(--border-primary);
+
+        input {
+          flex: 1;
+          min-width: 0;
+          height: 100%;
+          font-size: 13px;
+          color: var(--text-primary);
+          background: none;
+          outline: none;
+
+          &::placeholder {
+            color: var(--text-quaternary);
+          }
+
+          &::-webkit-search-cancel-button {
+            appearance: none;
+          }
+        }
       }
 
-      .filters .chip {
-        padding-inline: 8px;
+      .filter-menu-head {
+        display: flex;
+        flex: none;
+        align-items: center;
+        justify-content: space-between;
+        height: 32px;
+        padding: 4px 12px 0;
+        font-size: 11px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-quaternary);
+        text-transform: uppercase;
       }
 
-      .picks {
+      .filter-clear {
+        font-size: 11px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-tertiary);
+        text-transform: uppercase;
+
+        &:disabled {
+          cursor: default;
+          color: var(--text-quaternary);
+        }
+
+        &:active:not(:disabled) {
+          color: var(--text-primary);
+        }
+      }
+
+      .filter-options {
+        padding: 0 4px 4px;
+        overflow-y: auto;
+        scrollbar-width: none;
+      }
+
+      .filter-option {
+        display: flex;
+        gap: 10px;
+        align-items: center;
+        height: 32px;
+        padding: 0 8px;
+        font-size: 13px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        border-radius: var(--radius-control);
+
+        input {
+          display: grid;
+          flex: none;
+          place-items: center;
+          width: 16px;
+          height: 16px;
+          margin: 0;
+          cursor: pointer;
+          appearance: none;
+          border-radius: 50%;
+          box-shadow: inset 0 0 0 1px var(--border-secondary);
+
+          &::before {
+            width: 10px;
+            height: 10px;
+            content: "";
+            background: var(--text-on-accent);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.25 5.25l1.75 1.75 3.75-4'/%3E%3C/svg%3E");
+            opacity: 0;
+          }
+
+          &:checked {
+            background: var(--accent);
+            box-shadow: none;
+
+            &::before {
+              opacity: 1;
+            }
+          }
+
+          &:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+          }
+        }
+
+        span {
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+
+        &:has(input:checked) {
+          color: var(--text-primary);
+        }
+      }
+
+      .board-search {
+        width: 240px;
+        height: 32px;
+        padding: 0 12px;
+        background: var(--pill);
+        border-radius: 999px;
+        box-shadow: var(--pill-ring), var(--pill-shadow);
+      }
+
+      .board-divider {
+        width: 1px;
+        height: 16px;
+        margin: 0 4px;
+        background: var(--border-secondary);
+      }
+
+      .board-actions {
+        display: flex;
+        gap: 8px;
         margin-left: auto;
+      }
+
+      @media (width <= 640px) {
+        .board-search {
+          width: 100%;
+        }
+
+        .board-divider {
+          display: none;
+        }
+      }
+
+      .group-head {
+        margin-bottom: 20px;
+      }
+
+      .group-title {
+        font-variation-settings: var(--font-weight-500);
+        text-wrap: balance;
+      }
+
+      .group-description {
+        margin-top: 4px;
+        font-size: 13px;
+        line-height: 20px;
+        color: var(--text-tertiary);
+      }
+
+      .groups {
+        display: flex;
+        flex-direction: column;
+        gap: 48px;
+        margin-top: 40px;
+      }
+
+      .pill {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        height: 32px;
+        padding: 2px;
+        color: var(--pill-icon);
+        background: var(--pill);
+        border-radius: 999px;
+        box-shadow: var(--pill-ring), var(--pill-shadow);
+      }
+
+      .tool {
+        position: relative;
+        display: grid;
+        flex: none;
+        place-items: center;
+        height: 100%;
+        aspect-ratio: 1;
+        color: var(--pill-icon);
+        border-radius: 999px;
+        transition:
+          background-color 150ms,
+          color 150ms;
+
+        &::before {
+          position: absolute;
+          inset: -2px;
+          content: "";
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--accent);
+          background: var(--pill-active);
+        }
+
+        &:disabled {
+          opacity: 0.4;
+        }
       }
 
       .source-icon {
@@ -1053,228 +1305,6 @@
         background: var(--background-tertiary);
         border-radius: 4px;
         object-fit: cover;
-
-        &[data-brand="Pond"] {
-          color: #fff;
-          background: linear-gradient(#6db5ff, #3d8bf2);
-        }
-      }
-
-      .source-icons {
-        display: flex;
-
-        .source-icon + .source-icon {
-          margin-left: -4px;
-          box-shadow: 0 0 0 1.5px var(--chip-ring);
-        }
-      }
-
-      .chip {
-        --chip-ring: var(--background-primary);
-
-        &[aria-pressed="true"] {
-          --chip-ring: var(--background-tertiary);
-        }
-      }
-
-      .groups {
-        display: flex;
-        flex-direction: column;
-        gap: 48px;
-        margin-top: 16px;
-      }
-
-      .tray {
-        position: fixed;
-        bottom: calc(16px + env(safe-area-inset-bottom));
-        left: 50%;
-        z-index: 20;
-        display: flex;
-        gap: 6px;
-        align-items: center;
-        height: 52px;
-        padding: 6px;
-        background: var(--background-raised);
-        border-radius: 14px;
-        box-shadow: var(--shadow-extra-large);
-        translate: -50% 0;
-        transition:
-          opacity var(--duration-snappy) var(--ease-out),
-          translate var(--duration-snappy) var(--ease-out);
-
-        &[data-empty] {
-          pointer-events: none;
-          opacity: 0;
-          translate: -50% 12px;
-          transition-duration: var(--duration-exit);
-        }
-      }
-
-      .tray-thumbs {
-        --fanned: 0;
-        position: relative;
-        display: grid;
-        place-items: center;
-        width: 56px;
-        height: 40px;
-        margin-inline: 4px;
-
-        &::before {
-          position: absolute;
-          right: -220px;
-          bottom: 100%;
-          left: -48px;
-          height: calc(var(--fanned) * 260px);
-          content: "";
-        }
-
-        &::after {
-          width: 32px;
-          height: 32px;
-          grid-area: 1 / 1;
-          content: "";
-          background: conic-gradient(from -37deg at 50% 100%, var(--text-secondary) 74deg, transparent 0) center / 12px 8px no-repeat;
-          border: 1.5px solid var(--text-tertiary);
-          border-radius: 8px;
-          pointer-events: none;
-          opacity: var(--fanned);
-          scale: calc(0.8 + var(--fanned) * 0.2);
-          transition:
-            opacity var(--duration-snappy) var(--ease-out),
-            scale var(--duration-snappy) var(--ease-out);
-        }
-
-        &:focus-within {
-          --fanned: 1;
-        }
-
-        @media (width <= 640px) {
-          display: none;
-        }
-      }
-
-      .tray .icon-button {
-        width: 32px;
-        height: 32px;
-        background: transparent;
-      }
-
-      .tray-divider {
-        width: 1px;
-        height: 24px;
-        background: var(--border-secondary);
-
-        @media (width <= 640px) {
-          display: none;
-        }
-      }
-
-      .tray-thumb,
-      .tray-more {
-        --x: calc(var(--k) * var(--k) * -1.5px - 4px);
-        --y: calc(-46px - var(--k) * 40px);
-        grid-area: 1 / 1;
-        rotate: calc(var(--tilt, 0deg) * (1 - var(--fanned)) + var(--k) * -2deg * var(--fanned));
-        transition:
-          rotate var(--duration-snappy) var(--ease-out),
-          translate var(--duration-snappy) var(--ease-out),
-          scale var(--duration-snappy) var(--ease-out),
-          opacity var(--duration-snappy) var(--ease-out);
-        transition-delay: calc(var(--fanned) * var(--k) * 24ms);
-      }
-
-      .tray-thumb {
-        position: relative;
-        width: 40px;
-        height: 30px;
-        padding: 2px;
-        cursor: zoom-in;
-        background: #fff;
-        border-radius: 4px;
-        box-shadow:
-          0 0 0 0.5px rgb(0 0 0 / 0.2),
-          0 2px 4px rgb(0 0 0 / 0.4);
-        translate: calc(var(--shift) * (1 - var(--fanned)) + var(--x) * var(--fanned)) calc(var(--y) * var(--fanned));
-
-        @starting-style {
-          opacity: 0;
-          translate: var(--shift) -12px;
-          rotate: 0deg;
-        }
-
-        img,
-        video {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          border-radius: 2px;
-        }
-      }
-
-      .tray-more {
-        position: relative;
-        z-index: 1;
-        display: grid;
-        place-items: center;
-        min-width: 18px;
-        height: 18px;
-        padding: 0 5px;
-        font-size: 11px;
-        font-variation-settings: var(--font-weight-500);
-        font-variant-numeric: tabular-nums;
-        color: var(--text-primary);
-        background: var(--background-tertiary);
-        border-radius: 9px;
-        box-shadow: 0 0 0 2px var(--background-raised);
-        translate: calc(20px * (1 - var(--fanned)) + var(--x) * var(--fanned)) calc(-16px * (1 - var(--fanned)) + var(--y) * var(--fanned));
-
-        &::after {
-          content: "Show All Picks";
-        }
-      }
-
-      .tray-label,
-      .tray-more::after {
-        position: absolute;
-        top: 50%;
-        left: calc(100% + 8px);
-        max-width: 200px;
-        padding: 0 8px;
-        overflow: hidden;
-        font-size: 12px;
-        font-variation-settings: var(--font-weight-500);
-        line-height: 20px;
-        color: var(--text-primary);
-        text-overflow: ellipsis;
-        white-space: nowrap;
-        pointer-events: none;
-        background: var(--background-raised);
-        border-radius: 10px;
-        box-shadow: var(--shadow-extra-large);
-        opacity: var(--fanned);
-        translate: 0 -50%;
-        transition: opacity var(--duration-snappy) var(--ease-out);
-      }
-
-      .group-head {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 4px 12px;
-        align-items: baseline;
-        margin-bottom: 20px;
-
-        .count {
-          margin-left: auto;
-        }
-      }
-
-      .group-title {
-        font-variation-settings: var(--font-weight-500);
-        text-wrap: balance;
-      }
-
-      .group-description {
-        color: var(--text-tertiary);
       }
 
       .cards {
@@ -1289,12 +1319,10 @@
 
         &::after {
           position: absolute;
-          inset: 0;
+          inset: -6px;
           content: "";
-          border-radius: 10px;
-          box-shadow:
-            0 0 0 2px var(--background-primary),
-            0 0 0 4px var(--accent);
+          border: 2px solid var(--accent);
+          border-radius: 6px;
           opacity: 0;
           pointer-events: none;
           transition: opacity var(--duration-snappy) var(--ease-out);
@@ -1312,17 +1340,9 @@
         overflow: hidden;
         aspect-ratio: 4 / 3;
         cursor: zoom-in;
-        background: var(--background-tertiary);
-        border-radius: 10px;
-
-        &::after {
-          position: absolute;
-          inset: 0;
-          pointer-events: none;
-          content: "";
-          border-radius: inherit;
-          box-shadow: inset 0 0 0 1px var(--border-primary);
-        }
+        background: var(--tile-fill);
+        border-radius: var(--tile-radius);
+        box-shadow: var(--tile-ring);
 
         img,
         video {
@@ -1345,115 +1365,29 @@
         }
       }
 
-      .tools {
+      .ref-pick {
         position: absolute;
         top: 8px;
         right: 8px;
-        display: flex;
-        gap: 6px;
-      }
-
-      .tool {
-        position: relative;
-        display: grid;
-        place-items: center;
-        width: 28px;
-        height: 28px;
-        color: var(--text-tertiary);
-        background: color-mix(in oklab, var(--background-primary) 82%, transparent);
-        border-radius: var(--radius-control);
-        box-shadow: var(--shadow-large);
+        z-index: 1;
+        width: 22px;
+        height: 22px;
+        background: var(--pill);
+        border-radius: 6px;
+        box-shadow: var(--pill-ring), var(--pill-shadow);
         opacity: 0;
-        backdrop-filter: blur(8px);
-        transition: opacity var(--duration-snappy) var(--ease-out);
+        transition:
+          opacity 160ms var(--ease-float),
+          color 150ms,
+          background-color 150ms;
 
-        &::before {
-          position: absolute;
-          inset: -3px;
-          content: "";
-        }
-
-        &:active:not([aria-pressed="true"]) {
-          color: var(--text-primary);
-        }
-
-        .ref:has(:focus-visible) & {
-          opacity: 1;
-        }
-
-        &[aria-pressed="true"] {
-          color: var(--text-on-accent);
-          background: var(--accent);
+        .ref:is(:hover, :has(:focus-visible), [data-picked]) & {
           opacity: 1;
         }
 
         @media not ((hover: hover) and (pointer: fine)) {
-          &.tool-pick {
-            opacity: 1;
-          }
-
-          &:not(.tool-pick) {
-            display: none;
-          }
-        }
-      }
-
-      .caption {
-        position: absolute;
-        inset: auto 0 0;
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-        padding: 40px 12px 10px;
-        font-size: 13px;
-        line-height: 18px;
-        color: #fff;
-        pointer-events: none;
-        background: linear-gradient(to top, oklch(0 0 0 / 0.72), oklch(0 0 0 / 0.48) 55%, transparent);
-        border-radius: 0 0 10px 10px;
-        opacity: 0;
-        transition: opacity var(--duration-snappy) var(--ease-out);
-
-        .ref:has(:focus-visible) & {
           opacity: 1;
         }
-
-        @media not ((hover: hover) and (pointer: fine)) {
-          display: none;
-        }
-      }
-
-      .caption-line {
-        display: flex;
-        gap: 6px;
-        align-items: baseline;
-        min-width: 0;
-      }
-
-      .caption-title {
-        overflow: hidden;
-        font-variation-settings: var(--font-weight-500);
-        text-overflow: ellipsis;
-        white-space: nowrap;
-      }
-
-      .caption-source {
-        flex: none;
-        color: oklch(1 0 0 / 0.72);
-      }
-
-      .caption-note {
-        display: -webkit-box;
-        overflow: hidden;
-        color: oklch(1 0 0 / 0.88);
-        -webkit-line-clamp: 1;
-        -webkit-box-orient: vertical;
-      }
-
-      .empty {
-        padding: 64px 0;
-        color: var(--text-tertiary);
-        text-align: center;
       }
 
       .viewer {
@@ -1531,7 +1465,7 @@
         min-height: 0;
         margin: 12px 12px 12px 0;
         overflow: hidden;
-        background: var(--background-raised);
+        background: var(--background-primary);
         border: 1px solid transparent;
         border-radius: var(--radius-panel);
         box-shadow: var(--shadow-extra-large);
@@ -1560,199 +1494,79 @@
         }
       }
 
-      .compare {
-        position: fixed;
-        inset: 0;
-        width: 100%;
-        max-width: none;
-        height: 100%;
-        max-height: none;
-        color: var(--text-primary);
-        background: color-mix(in oklab, var(--background-primary) 92%, transparent);
-        backdrop-filter: blur(24px);
-        opacity: 0;
-        transition:
-          opacity var(--duration-exit) var(--ease-out),
-          display var(--duration-exit) allow-discrete,
-          overlay var(--duration-exit) allow-discrete;
-
-        @media (width <= 640px) {
-          --inset: 24px;
-        }
-
-        &[open] {
-          display: flex;
-          flex-direction: column;
-          opacity: 1;
-          transition-duration: var(--duration-snappy);
-
-          @starting-style {
-            opacity: 0;
-          }
-        }
-
-        &::backdrop {
-          background: transparent;
-        }
+      .viewer-close {
+        width: 32px;
+        height: 32px;
+        background: var(--pill);
+        box-shadow: var(--pill-ring);
       }
 
-      .compare-head {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        padding: 16px var(--inset) 0;
+      .viewer-tools {
+        box-shadow: var(--pill-ring);
+      }
 
-        h2 {
-          font-variation-settings: var(--font-weight-500);
+      .site-link {
+        gap: 6px;
+
+        span {
+          text-decoration: underline;
+          text-decoration-color: var(--border-secondary);
+          text-underline-offset: 3px;
         }
 
-        .icon-button {
-          margin-left: auto;
+        &:active span {
+          text-decoration-color: currentColor;
         }
-      }
-
-      .compare-row {
-        display: grid;
-        flex: 1;
-        grid-auto-columns: calc((100% - var(--gap) * (var(--n) - 1)) / var(--n));
-        grid-auto-flow: column;
-        grid-template-rows: minmax(0, 1fr) auto;
-        gap: 20px var(--gap);
-        min-height: 0;
-        padding: 24px var(--inset) var(--inset);
-        overflow-x: auto;
-        overscroll-behavior-x: contain;
-        scroll-padding-inline: var(--inset);
-        scroll-snap-type: x mandatory;
-
-        @media (width <= 640px) {
-          grid-auto-columns: 82%;
-          grid-template-rows: auto auto;
-          align-content: start;
-          column-gap: 16px;
-        }
-      }
-
-      .compare-item {
-        display: grid;
-        grid-row: span 2;
-        grid-template-rows: subgrid;
-        min-width: 0;
-        min-height: 0;
-        scroll-snap-align: start;
-      }
-
-      .compare-media {
-        display: flex;
-        align-items: flex-end;
-        min-height: 0;
-
-        img,
-        video {
-          max-width: 100%;
-          max-height: 100%;
-          object-fit: contain;
-          border-radius: 12px;
-          box-shadow: var(--shadow-large);
-
-          @media (width <= 640px) {
-            max-height: 60dvh;
-          }
-        }
-      }
-
-      .compare-caption {
-        display: flex;
-        flex-direction: column;
-        gap: 2px;
-
-        a {
-          display: inline-flex;
-          gap: 4px;
-          align-items: center;
-          font-variation-settings: var(--font-weight-500);
-
-          svg {
-            color: var(--text-quaternary);
-          }
-        }
-      }
-
-      .compare-source {
-        color: var(--text-tertiary);
-      }
-
-      .compare-note {
-        margin-top: 6px;
-        color: var(--text-secondary);
-      }
-
-      .compare-mine {
-        padding-left: 10px;
-        margin-top: 6px;
-        color: var(--text-secondary);
-        box-shadow: inset 2px 0 0 var(--accent);
       }
 
       @media (hover: hover) and (pointer: fine) {
-        .tray-thumbs:hover {
-          --fanned: 1;
+        .tool:hover:not(:disabled, [aria-pressed="true"]) {
+          color: var(--pill-text);
+          background: var(--pill-active);
         }
 
-        .tray-thumb:hover,
-        .tray-more:hover {
-          scale: 1.1;
-        }
-
-        .ref:hover :is(.tool, .caption) {
-          opacity: 1;
-        }
-
-        .tool:hover:not([aria-pressed="true"]) {
+        .board-filter:hover,
+        .board-action:hover:not(:disabled),
+        .filter-clear:hover:not(:disabled) {
           color: var(--text-primary);
         }
 
-        .compare-caption a:hover svg {
+        .filter-option:hover {
           color: var(--text-primary);
+          background: var(--fill-hover);
+        }
+
+        .site-link:hover span {
+          text-decoration-color: currentColor;
         }
       }
     </style>
   </head>
   <body>
     <div class="page">
-      <header class="head">
-        <h1 class="title" id="title"></h1>
-        <p class="brief" id="brief"></p>
-        <p class="status" id="status" hidden>Gathering <span class="count" id="status-count"></span></p>
+      <header class="board-head">
+        <h1 class="board-title" id="title"></h1>
+        <p class="board-brief" id="brief"></p>
       </header>
 
-      <nav class="bar" id="bar" aria-label="Filters">
-        <div class="bar-row">
-          <div class="filters" id="source-filter" role="group" aria-label="Source"></div>
-          <div class="picks">
-            <button class="chip" id="picked-only" type="button" aria-pressed="false"></button>
-          </div>
+      <div class="board-filters" id="filters">
+        <label class="search board-search">
+          <input type="search" id="query" placeholder="Filter References" aria-label="Filter References" autocomplete="off" spellcheck="false" />
+        </label>
+        <span class="board-divider" id="filters-divider" aria-hidden="true"></span>
+        <div class="board-actions" id="tray" role="region" aria-label="Picks" data-frame>
+          <button class="board-action" id="copy" type="button" aria-label="Copy Picks" aria-keyshortcuts="Shift+C" data-tip data-key="⇧C" disabled>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" /><path d="M10.5 5.5V4a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 4v5A1.5 1.5 0 0 0 4 10.5h1.5" /></svg>
+            <span>Copy</span>
+          </button>
+          <button class="board-action" id="clear" type="button" aria-label="Clear Picks" data-tip disabled>
+            <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 2.5 C11.038 2.5 13.5 4.962 13.5 8 C13.5 11.038 11.038 13.5 8 13.5 C4.962 13.5 2.5 11.038 2.5 8 C2.5 4.962 4.962 2.5 8 2.5 C8 2.5 8 2.5 8 2.5 C8 2.5 8 2.5 8 2.5 C8 2.5 8 2.5 8 2.5 C8 2.5 8 2.5 8 2.5 C8 2.5 8 2.5 8 2.5 C8 2.5 8 2.5 8 2.5" /><path d="M6.25 6.25 C6.25 6.25 9.75 9.75 9.75 9.75 C9.75 9.75 9.75 9.75 9.75 9.75 C9.75 9.75 9.75 9.75 9.75 9.75 C9.75 9.75 9.75 9.75 9.75 9.75 C9.75 9.75 9.75 9.75 9.75 9.75 C9.75 9.75 9.75 9.75 9.75 9.75 C9.75 9.75 9.75 9.75 9.75 9.75 C9.75 9.75 9.75 9.75 9.75 9.75 C9.75 9.75 9.75 9.75 9.75 9.75 C9.75 9.75 9.75 9.75 9.75 9.75" /><path d="M9.75 6.25 C9.75 6.25 6.25 9.75 6.25 9.75 C6.25 9.75 6.25 9.75 6.25 9.75 C6.25 9.75 6.25 9.75 6.25 9.75 C6.25 9.75 6.25 9.75 6.25 9.75 C6.25 9.75 6.25 9.75 6.25 9.75 C6.25 9.75 6.25 9.75 6.25 9.75 C6.25 9.75 6.25 9.75 6.25 9.75 C6.25 9.75 6.25 9.75 6.25 9.75 C6.25 9.75 6.25 9.75 6.25 9.75 C6.25 9.75 6.25 9.75 6.25 9.75" /></svg>
+            <span>Clear</span>
+          </button>
         </div>
-      </nav>
+      </div>
 
       <main class="groups" id="groups" tabindex="-1"><p class="empty" id="empty" hidden></p></main>
-    </div>
-
-    <div class="tray" id="tray" role="region" aria-label="Picks" data-frame data-empty inert>
-      <div class="tray-thumbs" id="tray-thumbs"></div>
-      <span class="tray-divider" aria-hidden="true"></span>
-      <button class="icon-button" id="compare" type="button" aria-label="Compare Picks" aria-keyshortcuts="C" data-tip data-key="C" disabled>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3.5H4A1.5 1.5 0 0 0 2.5 5v6A1.5 1.5 0 0 0 4 12.5h4z" fill="currentColor" fill-opacity="0.3" /><rect x="2.5" y="3.5" width="11" height="9" rx="1.5" /><path d="M8 3.5v9" /></svg>
-      </button>
-      <button class="icon-button" id="save" type="button" aria-label="Save Picks" aria-keyshortcuts="Shift+S" data-tip data-key="⇧S" disabled>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"><path d="M4 2.5h8v11L8 10.5l-4 3z" /></svg>
-      </button>
-      <button class="icon-button" id="copy" type="button" aria-label="Copy Picks" aria-keyshortcuts="Shift+C" data-tip data-key="⇧C" disabled>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5.5" y="5.5" width="8" height="8" rx="1.5" /><path d="M10.5 5.5V4a1.5 1.5 0 0 0-1.5-1.5H4A1.5 1.5 0 0 0 2.5 4v5A1.5 1.5 0 0 0 4 10.5h1.5" /></svg>
-      </button>
-      <button class="icon-button" id="clear" type="button" aria-label="Clear Picks" data-tip disabled>
-        <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 4.5h11M6.5 4.5v-2h3v2M4 4.5l.75 9h6.5l.75-9" /></svg>
-      </button>
     </div>
 
     <dialog class="viewer" id="viewer" aria-label="Reference">
@@ -1760,16 +1574,16 @@
       <aside class="panel">
         <div class="panel-scroll scroll-fade">
           <div class="panel-top">
-            <button class="icon-button" id="viewer-close" type="button" aria-label="Close" title="Close (Esc)">
+            <button class="tool viewer-close" id="viewer-close" type="button" aria-label="Close" title="Close (Esc)">
               <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
             </button>
-            <div class="panel-tools">
-              <button class="icon-button" id="viewer-more" type="button" aria-label="More Like This" title="More Like This (M)"></button>
-              <button class="icon-button" id="viewer-pick" type="button" aria-pressed="false"></button>
-              <button class="icon-button" id="viewer-prev" type="button" aria-label="Previous" title="Previous (K)">
+            <div class="viewer-tools pill">
+              <button class="tool" id="viewer-more" type="button" aria-label="More Like This" title="More Like This (M)"></button>
+              <button class="tool" id="viewer-pick" type="button" aria-pressed="false"></button>
+              <button class="tool" id="viewer-prev" type="button" aria-label="Previous" title="Previous (K)">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12.5 8h-9M7 4.5L3.5 8 7 11.5" /></svg>
               </button>
-              <button class="icon-button" id="viewer-next" type="button" aria-label="Next" title="Next (J)">
+              <button class="tool" id="viewer-next" type="button" aria-label="Next" title="Next (J)">
                 <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8h9M9 4.5L12.5 8 9 11.5" /></svg>
               </button>
             </div>
@@ -1778,7 +1592,6 @@
             <span class="panel-group" id="viewer-group"></span>
             <h2 class="panel-title" id="viewer-title"></h2>
             <p class="panel-note" id="viewer-note"></p>
-            <span class="panel-count" id="viewer-count"></span>
           </header>
           <label class="field" id="viewer-field" hidden>
             <span class="field-label">Your Note</span>
@@ -1787,17 +1600,6 @@
           <dl id="viewer-details"></dl>
         </div>
       </aside>
-    </dialog>
-
-    <dialog class="compare" id="compare-dialog" aria-labelledby="compare-title">
-      <header class="compare-head">
-        <h2 id="compare-title">Compare</h2>
-        <span class="count" id="compare-count"></span>
-        <button class="icon-button" id="compare-close" type="button" aria-label="Close" title="Close (Esc)">
-          <svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><path d="M4 4l8 8M12 4l-8 8" /></svg>
-        </button>
-      </header>
-      <div class="compare-row" id="compare-row"></div>
     </dialog>
 
     <script src="board.js"></script>
@@ -1907,36 +1709,24 @@
       document.addEventListener("pointerdown", hideTip);
       // kit:overlays end
 
-      // kit:bar
-      function stick(bar) {
-        const mark = () => bar.toggleAttribute("data-stuck", scrollY > 0 && bar.getBoundingClientRect().top <= 0);
-        addEventListener("scroll", mark, { passive: true });
-        mark();
-        new ResizeObserver(() => {
-          document.documentElement.style.setProperty("--bar-height", `${bar.offsetHeight + 8}px`);
-        }).observe(bar);
-      }
-      // kit:bar end
-
       const storageKey = `gather:${location.pathname}`;
       const picked = new Set(JSON.parse(localStorage.getItem(storageKey) || "[]"));
       const notes = JSON.parse(localStorage.getItem(`${storageKey}:notes`) || "{}");
-      const filters = { source: null, pickedOnly: false };
       const motion = matchMedia("(prefers-reduced-motion: no-preference)");
+      const fine = matchMedia("(pointer: fine)");
       const byUrl = new Map();
-      const sections = new Map();
       let board = window.board ?? { title: "Gather", brief: "", live: true, groups: [] };
       let items = [];
-      let sources = [];
+
+      const token = (name) => parseFloat(getComputedStyle(document.documentElement).getPropertyValue(name));
 
       const icons = {
         check: `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M3.5 8.5l3 3 6-7" /></svg>`,
-        external: `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h6v6M11.5 4.5l-7 7" /></svg>`,
-        more: `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2.5v3M8 10.5v3M2.5 8h3M10.5 8h3M4.2 4.2l1.4 1.4M10.4 10.4l1.4 1.4M4.2 11.8l1.4-1.4M10.4 5.6l1.4-1.4" /></svg>`,
-        all: `<svg width="10" height="10" viewBox="0 0 10 10" fill="currentColor"><rect width="4" height="4" rx="1" /><rect x="6" width="4" height="4" rx="1" /><rect y="6" width="4" height="4" rx="1" /><rect x="6" y="6" width="4" height="4" rx="1" /></svg>`,
-        marked: `<svg width="11" height="11" viewBox="0 0 200 200" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M41.7555 0C18.779 0 0 16.8356 0 37.4344V147.588C0 154.781 2.41284 161.439 7.79548 165.922L39.157 194.047L40.2555 195.004C40.3088 195.048 40.3596 195.096 40.4104 195.144C40.47 195.2 40.5296 195.256 40.5935 195.307C48.6398 201.713 59.7586 201.099 69.4939 196.225L111.957 175.013C112.745 174.627 114.295 174.236 116.267 174.236C118.246 174.237 119.748 174.638 120.439 174.984L162.945 196.216C171.389 200.448 180.844 201.533 188.665 197.39C196.471 193.254 200 185.313 200 176.68V66.5259C200.052 56.7318 195.822 47.7929 188.951 41.1277C188.906 41.0849 188.862 41.0437 188.817 41.0024L188.708 40.9004L186.658 39.0822L186.416 38.8644L157.779 13.3525C156.041 11.501 154.114 9.7963 152.012 8.27668C144.87 3.11543 135.768 0 125.9 0H41.7555ZM18.9183 155.344C17.7753 154.434 16.2247 152.183 16.2247 147.588V37.4344C16.2247 24.869 27.7396 14.5457 41.7555 14.5457H125.9C131.799 14.5457 137.242 16.3758 141.586 19.4417L145.811 23.2107C149.119 26.9362 151.152 31.5638 151.315 36.5916C151.323 36.8552 151.327 37.1205 151.325 37.3871V147.588C151.325 153.015 149.219 155.116 147.966 155.78C146.73 156.434 143.685 157.076 138.396 154.425L95.8908 133.184C92.1514 131.309 87.7477 130.6 83.8173 130.599C79.8686 130.599 75.4154 131.34 71.6593 133.184L29.1433 154.435C23.0831 157.472 20.0458 156.239 18.9183 155.344Z" /></svg>`,
-        pond: `<svg width="10" height="10" viewBox="0 0 207 207" fill="currentColor"><path fill-rule="evenodd" clip-rule="evenodd" d="M120.711 14.6446C140.237 -4.88145 171.895 -4.88142 191.421 14.6446C210.947 34.1707 210.947 65.8283 191.421 85.3545L177.279 99.4967C175.326 101.449 175.326 104.615 177.279 106.568L191.421 120.71C210.947 140.236 210.947 171.895 191.421 191.421C171.895 210.947 140.237 210.947 120.711 191.421L106.568 177.278C104.615 175.325 101.449 175.325 99.4967 177.278L85.3555 191.421C65.8293 210.947 34.1708 210.947 14.6446 191.421C-4.88146 171.895 -4.88159 140.236 14.6446 120.71L28.7868 106.568C30.7394 104.615 30.7394 101.449 28.7868 99.4967L14.6446 85.3545C-4.88125 65.8283 -4.88141 34.1707 14.6446 14.6446C34.1707 -4.88153 65.8293 -4.88151 85.3555 14.6446L99.4969 28.786C101.449 30.7385 104.615 30.7386 106.568 28.7862L120.711 14.6446ZM72.2891 53C61.2434 53.0001 52.2891 61.9544 52.2891 73V133C52.2893 144.046 61.2436 153 72.2891 153H132.289C143.335 153 152.289 144.046 152.289 133V73C152.289 61.9543 143.335 53 132.289 53H72.2891Z" /></svg>`,
-        globe: `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="8" cy="8" r="5.75" /><path d="M2.25 8h11.5M8 2.25c-3 3.5-3 8 0 11.5M8 2.25c3 3.5 3 8 0 11.5" /></svg>`,
+        search: `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><circle cx="7" cy="7" r="4.25" /><path d="M10.25 10.25l3.25 3.25" /></svg>`,
+        section: `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 3 C4 3 6.25 3 6.25 3 C6.25 3 7.75 4.5 7.75 4.5 C7.75 4.5 12 4.5 12 4.5 C12.828 4.5 13.5 5.172 13.5 6 C13.5 6 13.5 11.5 13.5 11.5 C13.5 12.328 12.828 13 12 13 C12 13 4 13 4 13 C3.172 13 2.5 12.328 2.5 11.5 C2.5 11.5 2.5 4.5 2.5 4.5 C2.5 3.672 3.172 3 4 3" /><path d="M4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3" /><path d="M4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3 C4 3 4 3 4 3" /></svg>`,
+        source: `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6.75 4.25 C8.131 2.869 10.369 2.869 11.75 4.25 C13.131 5.631 13.131 7.869 11.75 9.25 C11.75 9.25 11.75 9.25 11.75 9.25 C11.75 9.25 11.75 9.25 11.75 9.25 C11.75 9.25 11.75 9.25 11.75 9.25 C11.75 9.25 11.75 9.25 11.75 9.25 C11.75 9.25 11.75 9.25 11.75 9.25 C11.75 9.25 11.75 9.25 11.75 9.25 C11.75 9.25 11.75 9.25 11.75 9.25 C11.75 9.25 11.75 9.25 11.75 9.25" /><path d="M4.25 6.75 C2.869 8.131 2.869 10.369 4.25 11.75 C5.631 13.131 7.869 13.131 9.25 11.75 C9.25 11.75 9.25 11.75 9.25 11.75 C9.25 11.75 9.25 11.75 9.25 11.75 C9.25 11.75 9.25 11.75 9.25 11.75 C9.25 11.75 9.25 11.75 9.25 11.75 C9.25 11.75 9.25 11.75 9.25 11.75 C9.25 11.75 9.25 11.75 9.25 11.75 C9.25 11.75 9.25 11.75 9.25 11.75 C9.25 11.75 9.25 11.75 9.25 11.75" /><path d="M9.5 6.5 C9.5 6.5 6.5 9.5 6.5 9.5 C6.5 9.5 6.5 9.5 6.5 9.5 C6.5 9.5 6.5 9.5 6.5 9.5 C6.5 9.5 6.5 9.5 6.5 9.5 C6.5 9.5 6.5 9.5 6.5 9.5 C6.5 9.5 6.5 9.5 6.5 9.5 C6.5 9.5 6.5 9.5 6.5 9.5 C6.5 9.5 6.5 9.5 6.5 9.5 C6.5 9.5 6.5 9.5 6.5 9.5 C6.5 9.5 6.5 9.5 6.5 9.5" /></svg>`,
+        kind: `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 2.5 C4 2.5 8 2.5 8 2.5 C8 2.5 13.5 8 13.5 8 C13.5 8 8 13.5 8 13.5 C8 13.5 2.5 8 2.5 8 C2.5 8 2.5 4 2.5 4 C2.5 3.172 3.172 2.5 4 2.5 C4 2.5 4 2.5 4 2.5 C4 2.5 4 2.5 4 2.5 C4 2.5 4 2.5 4 2.5 C4 2.5 4 2.5 4 2.5" /><path d="M5.75 5.5 C5.888 5.5 6 5.612 6 5.75 C6 5.888 5.888 6 5.75 6 C5.612 6 5.5 5.888 5.5 5.75 C5.5 5.612 5.612 5.5 5.75 5.5 C5.75 5.5 5.75 5.5 5.75 5.5 C5.75 5.5 5.75 5.5 5.75 5.5 C5.75 5.5 5.75 5.5 5.75 5.5 C5.75 5.5 5.75 5.5 5.75 5.5 C5.75 5.5 5.75 5.5 5.75 5.5 C5.75 5.5 5.75 5.5 5.75 5.5" /><path d="M4 2.5 C4 2.5 4 2.5 4 2.5 C4 2.5 4 2.5 4 2.5 C4 2.5 4 2.5 4 2.5 C4 2.5 4 2.5 4 2.5 C4 2.5 4 2.5 4 2.5 C4 2.5 4 2.5 4 2.5 C4 2.5 4 2.5 4 2.5 C4 2.5 4 2.5 4 2.5 C4 2.5 4 2.5 4 2.5 C4 2.5 4 2.5 4 2.5" /></svg>`,
+        more: `<svg width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M7 4.5 C7.54 7.425 8.575 8.46 11.5 9 C8.575 9.54 7.54 10.575 7 13.5 C6.46 10.575 5.425 9.54 2.5 9 C5.425 8.46 6.46 7.425 7 4.5 C7 4.5 7 4.5 7 4.5 C7 4.5 7 4.5 7 4.5 C7 4.5 7 4.5 7 4.5 C7 4.5 7 4.5 7 4.5 C7 4.5 7 4.5 7 4.5 C7 4.5 7 4.5 7 4.5" /><path d="M12 2.5 C12 2.5 12 5.5 12 5.5 C12 5.5 12 5.5 12 5.5 C12 5.5 12 5.5 12 5.5 C12 5.5 12 5.5 12 5.5 C12 5.5 12 5.5 12 5.5 C12 5.5 12 5.5 12 5.5 C12 5.5 12 5.5 12 5.5 C12 5.5 12 5.5 12 5.5 C12 5.5 12 5.5 12 5.5 C12 5.5 12 5.5 12 5.5" /><path d="M10.5 4 C10.5 4 13.5 4 13.5 4 C13.5 4 13.5 4 13.5 4 C13.5 4 13.5 4 13.5 4 C13.5 4 13.5 4 13.5 4 C13.5 4 13.5 4 13.5 4 C13.5 4 13.5 4 13.5 4 C13.5 4 13.5 4 13.5 4 C13.5 4 13.5 4 13.5 4 C13.5 4 13.5 4 13.5 4 C13.5 4 13.5 4 13.5 4" /></svg>`,
       };
 
       function place(parent, nodes) {
@@ -2006,18 +1796,12 @@
         const item = { ...raw, kind: raw.kind ?? "image", ratio: 4 / 3, inView: false };
         item.el = mediaFor(item);
         item.shot = h("button", { class: "shot", type: "button", onclick: () => openViewer(item) }, item.el);
-        item.captionTitle = h("span", { class: "caption-title" });
-        item.captionSource = h("span", { class: "caption-source" });
-        item.captionNote = h("span", { class: "caption-note" });
-        item.more = h("button", { class: "tool", type: "button", html: icons.more, onclick: () => moreLikeThis(item, item.more) });
-        item.open = h("a", { class: "tool", target: "_blank", rel: "noreferrer", html: icons.external });
-        item.pick = h("button", { class: "tool tool-pick", type: "button", html: icons.check, onclick: () => togglePick(item) });
+        item.pick = h("button", { class: "pick ref-pick", type: "button", html: icons.check, onclick: () => togglePick(item) });
         item.node = h(
           "figure",
           { class: "ref", "data-kind": item.kind },
           item.shot,
-          h("div", { class: "caption", "aria-hidden": "true" }, h("span", { class: "caption-line" }, item.captionTitle, item.captionSource), item.captionNote),
-          h("div", { class: "tools" }, item.more, item.open, item.pick),
+          item.pick,
         );
         item.node.item = item;
 
@@ -2050,29 +1834,16 @@
 
       function renderItem(item) {
         item.shot.setAttribute("aria-label", `View ${item.title}`);
-        item.captionTitle.textContent = item.title;
-        item.captionSource.textContent = item.source;
-        item.captionNote.textContent = item.note ?? "";
-        item.captionNote.hidden = !item.note;
-        item.more.setAttribute("aria-label", `More Like ${item.title}`);
-        item.more.title = "More Like This (M)";
-        item.open.href = item.url;
-        item.open.setAttribute("aria-label", `Open ${item.title}`);
-        item.open.title = "Open Original (O)";
         renderPick(item);
       }
 
+      const sections = new Map();
+
       function createSection(title) {
-        const count = h("span", { class: "count" });
-        const description = h("p", { class: "group-description" });
         const cards = h("div", { class: "cards" });
-        const node = h(
-          "section",
-          { class: "group" },
-          h("header", { class: "group-head" }, h("h2", { class: "group-title" }, title), description, count),
-          cards,
-        );
-        const section = { title, node, count, description, cards, members: [] };
+        const description = h("p", { class: "group-description" });
+        const node = h("section", {}, h("header", { class: "group-head" }, h("h2", { class: "group-title" }, title), description), cards);
+        const section = { node, description, cards, members: [] };
         sections.set(title, section);
         return section;
       }
@@ -2085,9 +1856,7 @@
         $("brief").hidden = !board.brief;
 
         const next = [];
-        const titles = new Set();
         for (const group of board.groups) {
-          titles.add(group.title);
           const section = sections.get(group.title) ?? createSection(group.title);
           section.description.textContent = group.description ?? "";
           section.description.hidden = !group.description;
@@ -2108,6 +1877,7 @@
           item.node.remove();
           byUrl.delete(item.url);
         }
+        const titles = new Set(board.groups.map((group) => group.title));
         for (const [title, section] of sections) {
           if (titles.has(title)) continue;
           section.node.remove();
@@ -2116,10 +1886,6 @@
         place($("groups"), board.groups.map((group) => sections.get(group.title).node));
 
         items = next;
-        sources = [...new Set(items.map((item) => item.source))];
-        if (filters.source !== null && !sources.includes(filters.source)) filters.source = null;
-        $("status").hidden = !board.live;
-        $("status-count").textContent = String(items.length);
         renderFilters();
         renderPicks();
         layout();
@@ -2148,171 +1914,147 @@
         }, 2000);
       }
 
-      function isVisible(item) {
-        return (
-          (filters.source === null || item.source === filters.source) &&
-          (!filters.pickedOnly || picked.has(item.url))
-        );
-      }
-
-      const platforms = {
-        X: "x.com",
-        "Are.na": "are.na",
-        Cosmos: "cosmos.so",
-        Mobbin: "mobbin.com",
-        Pinterest: "pinterest.com",
-        Savee: "savee.com",
-        Dribbble: "dribbble.com",
-        Behance: "behance.net",
-        Layers: "layers.to",
-        Recent: "recent.design",
-        Refero: "refero.design",
-        Siteinspire: "siteinspire.com",
-        "Minimal Gallery": "minimal.gallery",
-        "Land-book": "land-book.com",
-        Saaspo: "saaspo.com",
-        "Page Flows": "pageflows.com",
-        "Nicely Done": "nicelydone.club",
-        "Design Spells": "designspells.com",
-        "60fps": "60fps.design",
-        Awwwards: "awwwards.com",
-        "One Page Love": "onepagelove.com",
-        "Lapa Ninja": "lapa.ninja",
-        "Fonts In Use": "fontsinuse.com",
-        Typewolf: "typewolf.com",
-        CodePen: "codepen.io",
-      };
-
-      const marks = { "": icons.all, Live: icons.globe, Pond: icons.pond, "marked.dev": icons.marked };
-
-      function partIcon(part) {
-        const letter = () => h("span", { class: "source-icon" }, part[0]);
-        if (marks[part]) return h("span", { class: "source-icon", "data-brand": part, html: marks[part] });
-        if (!platforms[part]) return null;
-        const image = h("img", { class: "source-icon", src: `https://www.google.com/s2/favicons?domain=${platforms[part]}&sz=64`, alt: "" });
-        image.addEventListener("error", () => image.replaceWith(letter()));
-        return image;
-      }
-
-      function sourceIcon(source) {
-        const found = source.split(" › ").map(partIcon).filter(Boolean);
-        return h("span", { class: "source-icons" }, ...(found.length ? found : [h("span", { class: "source-icon" }, source[0])]));
-      }
-
-      const sourceChips = new Map();
-
-      function sourceChip(value, label) {
-        if (!sourceChips.has(value)) {
-          const count = h("span", { class: "count" });
-          const node = h(
-            "button",
-            { class: "chip", type: "button", "data-tip": label, onclick: () => setFilter("source", value || null) },
-            sourceIcon(value),
-            count,
-          );
-          sourceChips.set(value, { node, count });
-        }
-        return sourceChips.get(value);
-      }
-
-      function renderFilters() {
-        const entries = [["", "All Sources", items.length], ...sources.map((source) => [source, source, items.filter((item) => item.source === source).length])];
-        const nodes = entries.map(([value, label, count]) => {
-          const chip = sourceChip(value, label);
-          chip.count.textContent = String(count);
-          chip.node.setAttribute("aria-label", `${label}, ${count}`);
-          chip.node.setAttribute("aria-pressed", String((filters.source ?? "") === value));
-          return chip.node;
-        });
-        const group = $("source-filter");
-        place(group, nodes);
-        for (const child of [...group.children]) if (!nodes.includes(child)) child.remove();
-      }
+      const favicon = (domain) => `https://www.google.com/s2/favicons?domain=${domain}&sz=64`;
 
       const pickedItems = () => items.filter((item) => picked.has(item.url));
 
       function renderPicks() {
         const count = pickedItems().length;
-        const pickedOnly = $("picked-only");
-        pickedOnly.setAttribute("aria-pressed", String(filters.pickedOnly));
-        pickedOnly.replaceChildren("Picked", h("span", { class: "count" }, String(count)));
         $("copy").disabled = count === 0;
-        $("save").disabled = count === 0;
         $("clear").disabled = count === 0;
-        $("compare").disabled = count < 2;
-        renderTray();
       }
 
-      const tilts = [7, -6, 5, -8, -2];
-      const shifts = [-4, 3, -2, 4, 0];
+      const filters = { section: new Set(), source: new Set(), kind: new Set(), q: "" };
+      const facets = [
+        { key: "section", label: "Sections", value: (item) => item.group },
+        { key: "source", label: "Sources", value: (item) => item.source },
+        { key: "kind", label: "Kinds", value: (item) => String(item.details?.Kind ?? "") },
+      ];
 
-      function thumbFor(item) {
-        item.thumb ??= h(
-          "button",
-          { class: "tray-thumb", type: "button", "aria-label": `View ${item.title}`, onclick: () => openViewer(item) },
-          mediaFor(item),
-          h("span", { class: "tray-label" }, item.title),
+      for (const facet of facets) {
+        const id = `filter-${facet.key}`;
+        facet.button = h("button", { class: "board-filter", type: "button", popovertarget: id, style: `anchor-name: --${id}`, html: icons[facet.key] }, (facet.text = h("span", {}, facet.label)));
+        facet.clear = h("button", { class: "filter-clear", type: "button", onclick: () => clearFilter(facet) }, "Clear");
+        facet.list = h("div", { class: "filter-options", role: "group", "aria-label": facet.label });
+        facet.search = h("input", { type: "search", placeholder: `Search ${facet.label}`, "aria-label": `Search ${facet.label}`, autocomplete: "off", spellcheck: "false" });
+        facet.search.addEventListener("input", () => searchOptions(facet));
+        facet.searchRow = h("label", { class: "filter-search", html: icons.search }, facet.search);
+        facet.menu = h(
+          "div",
+          { class: "filter-menu", id, popover: "", style: `position-anchor: --${id}` },
+          facet.searchRow,
+          h("div", { class: "filter-menu-head" }, h("span", {}, facet.label), facet.clear),
+          facet.list,
         );
-        return item.thumb;
-      }
-
-      const trayMore = h("button", { class: "tray-more", type: "button", onclick: () => setFilter("pickedOnly", true) });
-
-      function renderTray() {
-        const picks = [...picked].map((url) => byUrl.get(url)).filter(Boolean);
-        const shown = picks.slice(-5).map(thumbFor);
-        const tray = $("tray");
-        tray.toggleAttribute("data-empty", picks.length === 0);
-        tray.inert = picks.length === 0;
-        const pile = $("tray-thumbs");
-        for (const child of [...pile.children]) if (!shown.includes(child)) child.remove();
-        shown.forEach((node, index) => {
-          const slot = tilts.length - shown.length + index;
-          node.style.setProperty("--tilt", `${tilts[slot]}deg`);
-          node.style.setProperty("--shift", `${shifts[slot]}px`);
-          node.style.setProperty("--k", String(shown.length - 1 - index));
-          if (pile.children[index] !== node) pile.insertBefore(node, pile.children[index] ?? null);
+        facet.menu.addEventListener("toggle", (event) => {
+          if (event.newState === "open" && !facet.searchRow.hidden && fine.matches) facet.search.focus();
+          if (event.newState === "closed" && facet.search.value) {
+            facet.search.value = "";
+            searchOptions(facet);
+          }
         });
-        trayMore.textContent = `+${picks.length - shown.length}`;
-        trayMore.style.setProperty("--k", String(shown.length));
-        trayMore.setAttribute("aria-label", `Show All ${picks.length} Picks`);
-        if (picks.length > shown.length) pile.append(trayMore);
+        $("tray").before(facet.button);
+        document.body.append(facet.menu);
       }
 
-      function setFilter(key, value) {
-        filters[key] = value;
-        renderFilters();
-        renderPicks();
+      function iconFor(value) {
+        const item = items.find((entry) => entry.source === value);
+        if (!item) return null;
+        const image = h("img", { class: "source-icon", src: favicon(new URL(item.url).hostname.replace(/^www\./, "")), alt: "" });
+        image.addEventListener("error", () => image.remove());
+        return image;
+      }
+
+      function renderFilters() {
+        for (const facet of facets) {
+          const counts = new Map();
+          for (const item of items) {
+            const value = facet.value(item);
+            if (value) counts.set(value, (counts.get(value) ?? 0) + 1);
+          }
+          for (const value of filters[facet.key]) if (!counts.has(value)) filters[facet.key].delete(value);
+          const values = [...counts.keys()];
+          if (facet.key !== "section") values.sort((a, b) => counts.get(b) - counts.get(a) || a.localeCompare(b));
+          const signature = values.map((value) => `${value}:${counts.get(value)}`).join("|");
+          if (facet.signature !== signature) {
+            facet.signature = signature;
+            facet.list.replaceChildren(
+              ...values.map((value) => {
+                const box = h("input", { type: "checkbox", value, onchange: () => toggleFilter(facet, value, box.checked) });
+                return h("label", { class: "filter-option", "data-value": value.toLowerCase() }, box, facet.key === "source" ? iconFor(value) : null, h("span", {}, value));
+              }),
+            );
+            facet.searchRow.hidden = values.length <= 15;
+          }
+          facet.button.hidden = counts.size < 2;
+          renderFilter(facet);
+        }
+        $("filters-divider").hidden = facets.every((facet) => facet.button.hidden);
+        $("query").value = filters.q;
+      }
+
+      function renderFilter(facet) {
+        const chosen = filters[facet.key];
+        for (const box of facet.list.querySelectorAll("input")) box.checked = chosen.has(box.value);
+        facet.button.toggleAttribute("data-active", chosen.size > 0);
+        facet.text.textContent = chosen.size ? `${facet.label} (${chosen.size})` : facet.label;
+        facet.clear.disabled = chosen.size === 0;
+      }
+
+      function searchOptions(facet) {
+        const words = facet.search.value.trim().toLowerCase().split(/\s+/);
+        for (const option of facet.list.children) option.hidden = !words.every((word) => option.dataset.value.includes(word));
+      }
+
+      function toggleFilter(facet, value, on) {
+        if (on) filters[facet.key].add(value);
+        else filters[facet.key].delete(value);
+        renderFilter(facet);
         layout();
         writeHash();
       }
 
-      function nearest(item) {
-        const index = items.indexOf(item);
-        return items.slice(index).find(isVisible) ?? items.slice(0, index).findLast(isVisible) ?? null;
+      function clearFilter(facet) {
+        filters[facet.key].clear();
+        renderFilter(facet);
+        layout();
+        writeHash();
       }
 
+      function matches(item) {
+        if (facets.some((facet) => filters[facet.key].size && !filters[facet.key].has(facet.value(item)))) return false;
+        if (!filters.q) return true;
+        const details = Object.values(item.details ?? {}).flat().map((part) => part?.text ?? part);
+        const text = [item.title, item.note, item.source, item.group, ...details].join(" ").toLowerCase();
+        return filters.q.toLowerCase().split(/\s+/).every((word) => text.includes(word));
+      }
+
+      $("query").addEventListener("input", (event) => {
+        filters.q = event.target.value.trim();
+        layout();
+        writeHash();
+      });
+
       function focusNear(item, options) {
-        const target = nearest(item);
-        (target ? target.shot : $("source-filter").querySelector('[aria-pressed="true"]')).focus(options);
+        const shown = items.filter((entry) => !entry.node.hidden);
+        const target = shown.includes(item) ? item : shown.at(-1);
+        target?.shot.focus(options);
         return target;
       }
 
       let width = 0;
 
       function layout() {
-        const focused = items.find((item) => item.node.contains(document.activeElement));
-        const gap = parseFloat(getComputedStyle(document.documentElement).getPropertyValue("--gap"));
+        const gap = token("--gap");
         width = $("groups").clientWidth;
-        const columns = Math.min(6, Math.max(1, Math.floor((width + gap) / (200 + gap))));
+        const columns = Math.min(token("--max-columns"), Math.max(1, Math.floor((width + gap) / (token("--min-card") + gap))));
         const cardWidth = (width - gap * (columns - 1)) / columns;
         let shown = 0;
-        for (const group of board.groups) {
-          const section = sections.get(group.title);
+        for (const section of sections.values()) {
           const heights = Array(columns).fill(0);
           let visible = 0;
           for (const item of section.members) {
-            item.node.hidden = !isVisible(item);
+            item.node.hidden = !matches(item);
             if (item.node.hidden) continue;
             const shortest = heights.indexOf(Math.min(...heights));
             item.node.style.translate = `${shortest * (cardWidth + gap)}px ${heights[shortest]}px`;
@@ -2320,18 +2062,14 @@
             visible += 1;
           }
           section.node.hidden = visible === 0;
-          section.count.textContent = String(visible);
           section.cards.style.setProperty("--card-width", `${cardWidth}px`);
           section.cards.style.height = `${Math.max(0, Math.max(...heights) - gap)}px`;
           shown += visible;
         }
         const empty = $("empty");
         if (items.length === 0) empty.textContent = board.live ? "Gathering References" : "No References Yet";
-        else if (filters.pickedOnly && pickedItems().length === 0) empty.textContent = "Nothing Picked Yet";
         else empty.textContent = "No References Match";
         empty.hidden = shown > 0;
-        if (focused && !isVisible(focused)) focusNear(focused);
-        renderTray();
       }
 
       let pending = 0;
@@ -2368,7 +2106,6 @@
         renderPick(item);
         renderPicks();
         if (viewer.open && current === item) renderViewer();
-        if (filters.pickedOnly && !viewer.open) layout();
       }
 
       function setPicks(urls) {
@@ -2378,7 +2115,6 @@
         for (const item of items) renderPick(item);
         renderPicks();
         if (viewer.open) renderViewer();
-        if (filters.pickedOnly && !viewer.open) layout();
       }
 
       function clearPicks(anchor) {
@@ -2396,10 +2132,6 @@
         if (hadFocus) undo.focus({ preventScroll: true });
       }
 
-      $("picked-only").addEventListener("click", () => setFilter("pickedOnly", !filters.pickedOnly));
-
-      stick($("bar"));
-
       function describe(item, index) {
         const pad = index === undefined ? "" : "   ";
         const lines = [`${index === undefined ? "" : `${index + 1}. `}${item.title}, ${item.source}`];
@@ -2416,22 +2148,14 @@
         copy(`${lead} from the ${board.title} board:\n\n${picks.map(describe).join("\n\n")}\n`, anchor);
       }
 
-      function savePicks(anchor) {
-        const picks = pickedItems();
-        if (picks.length === 0) return;
-        const lead = picks.length === 1 ? "Save this pick" : `Save these ${picks.length} picks`;
-        const ask = "Ask me where if I haven't said, match the naming already there and skip anything already saved";
-        copy(`${lead} from the ${board.title} board. ${ask}:\n\n${picks.map(describe).join("\n\n")}\n`, anchor);
-      }
-
       function moreLikeThis(item, anchor) {
         const rest = `Seed an image search from it and leave out the ${items.length} references already on the board.`;
         copy(`Find more like this reference for the ${item.group} group on the ${board.title} board:\n\n${describe(item)}\n\n${rest}\n`, anchor);
       }
 
       $("copy").addEventListener("click", (event) => copyPicks(event.currentTarget));
-      $("save").addEventListener("click", (event) => savePicks(event.currentTarget));
       $("clear").addEventListener("click", (event) => clearPicks(event.currentTarget));
+      $("query").insertAdjacentHTML("beforebegin", icons.search);
 
       const viewer = $("viewer");
       $("viewer-pick").innerHTML = icons.check;
@@ -2453,14 +2177,14 @@
         const scale = rect.width / to.width;
         const x = rect.left + rect.width / 2 - (to.left + to.width / 2);
         const y = rect.top + rect.height / 2 - (to.top + to.height / 2);
-        return { transform: `translate(${x}px, ${y}px) scale(${scale})`, borderRadius: `${10 / scale}px` };
+        return { transform: `translate(${x}px, ${y}px) scale(${scale})`, borderRadius: `${token("--tile-radius") / scale}px` };
       }
 
       const flies = (item) => motion.matches && item.kind !== "video" && thumbnail(item);
 
       async function openViewer(item) {
         if (viewer.open) return;
-        sequence = items.filter(isVisible);
+        sequence = items.filter((entry) => !entry.node.hidden);
         current = item;
         renderViewer();
         flight?.cancel();
@@ -2499,9 +2223,11 @@
         const isPicked = picked.has(current.url);
         if (staged !== current) {
           staged = current;
-          $("stage").replaceChildren(mediaFor(current, { controls: true }));
+          const media = mediaFor(current, { controls: true });
+          const shown = current;
+          media.addEventListener(media.tagName === "VIDEO" ? "loadeddata" : "load", () => current === shown && viewer.open && renderViewer(), { once: true });
+          $("stage").replaceChildren(media);
         }
-        $("viewer-count").textContent = `${index + 1} of ${sequence.length}`;
         $("viewer-group").textContent = current.group;
         $("viewer-title").textContent = current.title;
         $("viewer-note").textContent = current.note ?? "";
@@ -2509,9 +2235,12 @@
         $("viewer-field").hidden = !isPicked;
         if (document.activeElement !== $("viewer-notes")) $("viewer-notes").value = notes[current.url] ?? "";
 
-        const original = h("a", { href: current.url, target: "_blank", rel: "noreferrer", html: icons.external });
-        original.prepend(new URL(current.url).hostname.replace(/^www\./, ""));
-        const rows = [["Source", current.source], ["Original", original], ...Object.entries(current.details ?? {})];
+        const rows = [
+          ["Source", current.source],
+          ["Original", siteLink(current.url)],
+          ...Object.entries(current.details ?? {}).map(([label, value]) => [label, [value].flat().map((part) => (part?.url ? siteLink(part.url, part.text) : part))]),
+          ...mediaRows($("stage").firstChild),
+        ];
         $("viewer-details").replaceChildren(
           ...rows.map(([label, value]) =>
             h(
@@ -2530,6 +2259,27 @@
         pick.title = `${label} (P)`;
         $("viewer-prev").disabled = index <= 0;
         $("viewer-next").disabled = index === sequence.length - 1;
+      }
+
+      function siteLink(url, text) {
+        const host = new URL(url).hostname.replace(/^www\./, "");
+        const site = h("img", { class: "source-icon", src: favicon(host), alt: "" });
+        site.addEventListener("error", () => site.remove());
+        return h("a", { class: "site-link", href: url, target: "_blank", rel: "noreferrer" }, site, h("span", {}, text ?? host));
+      }
+
+      function mediaRows(media) {
+        const video = media.tagName === "VIDEO";
+        const width = video ? media.videoWidth : media.naturalWidth;
+        const height = video ? media.videoHeight : media.naturalHeight;
+        const format = new URL(current.media, location.href).pathname.split(".").pop().toUpperCase();
+        const rows = [["Format", format]];
+        if (video && Number.isFinite(media.duration)) {
+          const seconds = Math.round(media.duration);
+          rows.push(["Length", `${Math.floor(seconds / 60)}:${String(seconds % 60).padStart(2, "0")}`]);
+        }
+        if (width) rows.push(["Size", `${width}\u00a0\u00d7\u00a0${height}`]);
+        return rows;
       }
 
       function step(offset) {
@@ -2561,48 +2311,14 @@
       viewer.addEventListener("close", () => {
         $("stage").replaceChildren();
         staged = null;
-        if (filters.pickedOnly) layout();
         writeHash();
         if (!current) return;
         const target = focusNear(current, { preventScroll: true });
         target?.shot.scrollIntoView({ block: "nearest", behavior: motion.matches ? "smooth" : "auto" });
       });
 
-      const compare = $("compare-dialog");
-
-      function openCompare() {
-        const picks = pickedItems();
-        if (picks.length < 2) return;
-        $("compare-count").textContent = String(picks.length);
-        $("compare-row").style.setProperty("--n", String(Math.min(4, picks.length)));
-        $("compare-row").replaceChildren(
-          ...picks.map((item) => {
-            const link = h("a", { href: item.url, target: "_blank", rel: "noreferrer", html: icons.external });
-            link.prepend(item.title);
-            return h(
-              "figure",
-              { class: "compare-item" },
-              h("div", { class: "compare-media" }, mediaFor(item, { controls: true })),
-              h(
-                "figcaption",
-                { class: "compare-caption" },
-                link,
-                h("span", { class: "compare-source" }, `${item.source} · ${item.group}`),
-                item.note ? h("p", { class: "compare-note" }, item.note) : null,
-                notes[item.url] ? h("p", { class: "compare-mine" }, notes[item.url]) : null,
-              ),
-            );
-          }),
-        );
-        compare.showModal();
-      }
-
-      $("compare").addEventListener("click", openCompare);
-      $("compare-close").addEventListener("click", () => compare.close());
-      compare.addEventListener("close", () => $("compare-row").replaceChildren());
-
       document.addEventListener("keydown", (event) => {
-        if (event.metaKey || event.ctrlKey || event.altKey || compare.open) return;
+        if (event.metaKey || event.ctrlKey || event.altKey) return;
         if (event.key === "Escape" && viewer.open) {
           event.preventDefault();
           closeViewer();
@@ -2612,7 +2328,6 @@
         if (event.shiftKey) {
           if (viewer.open) return;
           if (event.code === "KeyC") copyPicks($("copy"));
-          else if (event.code === "KeyS") savePicks($("save"));
           else return;
           event.preventDefault();
           return;
@@ -2625,9 +2340,6 @@
           else if (key === "m") moreLikeThis(current, $("viewer-more"));
           else if (key === "o") window.open(current.url, "_blank", "noreferrer");
           else return;
-        } else if (letterKey(event, $("groups")) === "c" || letterKey(event, $("tray")) === "c") {
-          if ($("compare").disabled) return;
-          openCompare();
         } else {
           const item = items.find((item) => item.node.contains(event.target));
           if (!item) return;
@@ -2641,8 +2353,8 @@
 
       function writeHash() {
         const params = new URLSearchParams();
-        if (filters.source !== null) params.set("source", filters.source);
-        if (filters.pickedOnly) params.set("picked", "1");
+        for (const facet of facets) for (const value of filters[facet.key]) params.append(facet.key, value);
+        if (filters.q) params.set("q", filters.q);
         if (viewer.open && current) params.set("item", current.url);
         const hash = params.toString();
         history.replaceState(null, "", hash ? `#${hash}` : location.pathname + location.search);
@@ -2650,14 +2362,14 @@
 
       function readHash() {
         const params = new URLSearchParams(location.hash.slice(1));
-        filters.source = sources.includes(params.get("source")) ? params.get("source") : null;
-        filters.pickedOnly = params.get("picked") === "1";
-        return items.find((item) => item.url === params.get("item") && isVisible(item));
+        for (const facet of facets) filters[facet.key] = new Set(params.getAll(facet.key));
+        filters.q = params.get("q") ?? "";
+        renderFilters();
+        return items.find((item) => item.url === params.get("item"));
       }
 
       ingest(board);
       const opened = readHash();
-      renderFilters();
       renderPicks();
       layout();
       if (opened) openViewer(opened);

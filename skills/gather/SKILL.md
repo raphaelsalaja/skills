@@ -79,13 +79,15 @@ Each reference gets one note naming the part to take, such as "the top bar". A r
 
 Mark each reference `Shipped` or `Concept` under `Kind` in its `details`. A concept shot shown as a shipped product is `gather-concept-or-shipped`.
 
+Name the creator under `Creator`, with their profile as a `url` when the source shows it.
+
 Name each group in two or three words of Title Case, such as "Agent Activity", and put the detail in its description. A group named like a sentence is `gather-short-group-names`.
 
 When the cut is done, run the collector once more with `--done` so the board stops reloading.
 
 ## 7. Act on what comes back
 
-The board copies three prompts. Copy Picks returns the picks with the user's notes, which become the brief for the next step. More Like This returns one reference. Save Picks returns the picks to save.
+The board copies two prompts. Copy Picks returns the picks with the user's notes, which become the brief for the next step. More Like This returns one reference.
 
 For More Like This, seed an image search from that reference and keep to its group, with every url on the board left out. A text search on its title is `gather-more-from-the-pick`.
 

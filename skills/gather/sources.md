@@ -75,6 +75,7 @@ Each agent writes one file, `.gather/<brief>/candidates/<source>.json`, holding 
 - `source` puts › between a library and the board inside it, such as `Pond › Are.na`.
 - `saved` is `true` for an item from the user's own saves on any source. Saved items lead each group.
 - `details` adds rows to the viewer, such as `{ "Creator": "Kevin", "Style": ["Minimal", "Clean"] }`.
+- A detail value of `{ "text": "Kevin", "url": "https://dribbble.com/kevin" }` shows as a link.
 
 ## Board
 
