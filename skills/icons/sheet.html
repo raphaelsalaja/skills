@@ -18,7 +18,7 @@
 
   The sheet measures every existing icon, derives the spec from the whole set and lints each icon against it.
   An existing icon off the spec is an outlier, not a finding. New icons are also checked for the morph form.
-  The grid filters by view, style and size. Review shows Pixels, Weight and Morph. Clicking an icon opens a dialog
+  The grid filters by view, style and size. Review shows Pixels, Weight, Context and Morph. Clicking an icon opens a dialog
   to inspect, customise, morph and copy prompts. Copy Spec writes icon-spec.md. Copy Findings lists what the new
   icons miss. Icons pasted or dropped on the page are measured and linted for that session only.
 -->
@@ -421,6 +421,15 @@
       .tiles[data-large] { grid-template-columns: repeat(auto-fill, minmax(112px, 1fr)); }
       .tiles[data-large] .tile-name { opacity: 1; }
       .blur svg { filter: blur(2px); }
+      .tiles[data-context] { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+      .tiles[data-context] .tile { aspect-ratio: auto; place-items: stretch; padding: 28px 12px 12px; text-align: left; }
+      .tiles[data-context] .tile-name { display: none; }
+      .context { display: grid; gap: 10px; font-size: 13px; line-height: 20px; color: var(--ink); }
+      .context svg { flex: none; }
+      .context-row { display: flex; align-items: center; gap: 8px; height: 28px; padding: 0 8px; border-radius: 6px; background: color-mix(in oklab, var(--ink) 5%, transparent); }
+      .context-button { display: inline-flex; align-items: center; justify-self: start; gap: 6px; height: 28px; padding: 0 12px 0 10px; border-radius: 8px; box-shadow: 0 0 0 1px var(--line); }
+      .context-line { display: block; color: var(--ink-quiet); }
+      .context-line svg { display: inline; vertical-align: -2px; color: var(--ink); }
       .spec-view .card-wide { grid-column: 1 / -1; }
       .card-note { margin: -4px 0 12px; font-size: 13px; color: var(--text-tertiary); }
       .card-head .card-note { margin: 0; font-variation-settings: var(--font-weight-400); }
@@ -659,6 +668,7 @@
           caps: ends.some((end) => end.open) ? style(strokes[0], "stroke-linecap") : null,
           joins: ends.some((end) => end.corners) ? style(strokes[0], "stroke-linejoin") : null,
           inset: tightest[1],
+          box: { width: viewBox[2] - insets.left - insets.right, height: viewBox[3] - insets.top - insets.bottom },
           edge,
           numbers,
           radii: painted.flatMap(radiiOf),
@@ -704,6 +714,16 @@
           range[1] = Math.max(range[1], entry.coverage);
         }
         const drawn = measured.filter((entry) => entry.icon.new);
+        const grid = gridOf(base);
+        const rectangle = (long, short) => {
+          const shaped = base.filter((entry) => entry.box[short] > 0 && entry.box[long] / entry.box[short] >= 1.2);
+          if (!shaped.length) return null;
+          return {
+            [long]: round(Math.max(...shaped.map((entry) => entry.box[long])), grid),
+            [short]: mode(shaped.map((entry) => round(entry.box[short], grid))),
+            count: shaped.length,
+          };
+        };
         return {
           morph: {
             slots: Math.max(0, ...drawn.map((entry) => entry.morph.slots)),
@@ -715,9 +735,11 @@
           caps: mode(outline.map((entry) => entry.caps).filter(Boolean)),
           joins: mode(outline.map((entry) => entry.joins).filter(Boolean)),
           radii: [...new Set(base.flatMap((entry) => entry.radii))].sort((a, b) => a - b),
-          grid: gridOf(base),
+          grid,
           padding,
           overshoot: round(overshoot, 0.25),
+          wide: rectangle("width", "height"),
+          tall: rectangle("height", "width"),
           ranges,
           tags: [...new Set(base.flatMap((entry) => entry.tags))].filter((tag) => ALLOWED.has(tag)),
         };
@@ -806,6 +828,7 @@
           ["Grid", `Every coordinate a multiple of ${spec.grid}`],
           ["Padding", `${spec.padding} from ink to the viewBox edge`],
           ["Round Overshoot", spec.overshoot ? `${spec.overshoot} past the padding` : "None measured"],
+          ["Keylines", keylineText(spec)],
           ["Ink Coverage", ranges || "Not measured"],
           ["Elements", spec.tags.filter((tag) => tag !== "svg").join(", ")],
           ["Morph Form", spec.morph.slots ? `${spec.morph.slots} paths of M and ${spec.morph.segments} C segments` : "No new icons yet"],
@@ -892,6 +915,16 @@
         return button;
       }
 
+      const circleRadius = (spec) => Number(spec.viewBox.split(" ")[2]) / 2 - spec.padding + spec.overshoot;
+
+      function keylineText(spec) {
+        const live = Number(spec.viewBox.split(" ")[2]) - spec.padding * 2;
+        const parts = [`square ${format(live)}`, `circle ${format(circleRadius(spec) * 2)} across`];
+        parts.push(spec.wide ? `wide ${format(spec.wide.width)} by ${format(spec.wide.height)}` : "no wide icons measured");
+        parts.push(spec.tall ? `tall ${format(spec.tall.width)} by ${format(spec.tall.height)}` : "no tall icons measured");
+        return parts.join(", ");
+      }
+
       function keylines(spec, size) {
         const [, , w] = spec.viewBox.split(" ").map(Number);
         const unit = size / w;
@@ -902,7 +935,28 @@
           lines.push(`<line x1="${p}" y1="0" x2="${p}" y2="${size}" stroke-opacity="${opacity}"/><line x1="0" y1="${p}" x2="${size}" y2="${p}" stroke-opacity="${opacity}"/>`);
         }
         const pad = spec.padding * unit;
-        return `<svg class="keylines" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" fill="none" stroke="var(--accent)" aria-hidden="true">${lines.join("")}<rect x="${pad}" y="${pad}" width="${size - pad * 2}" height="${size - pad * 2}" stroke-dasharray="4 4" stroke-opacity="0.8"/></svg>`;
+        const centre = size / 2;
+        const shapes = [
+          `<rect x="${pad}" y="${pad}" width="${size - pad * 2}" height="${size - pad * 2}" stroke-dasharray="4 4" stroke-opacity="0.8"/>`,
+          `<circle cx="${centre}" cy="${centre}" r="${circleRadius(spec) * unit}" stroke-dasharray="2 3" stroke-opacity="0.6"/>`,
+        ];
+        for (const box of [spec.wide, spec.tall].filter(Boolean)) {
+          const width = box.width * unit;
+          const height = box.height * unit;
+          shapes.push(`<rect x="${centre - width / 2}" y="${centre - height / 2}" width="${width}" height="${height}" stroke-dasharray="1 3" stroke-opacity="0.6"/>`);
+        }
+        return `<svg class="keylines" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}" fill="none" stroke="var(--accent)" aria-hidden="true">${lines.join("")}${shapes.join("")}</svg>`;
+      }
+
+      const CONTEXT_TEXT = 13;
+
+      function contextSample(result) {
+        const shipped = Number(result.entry.viewBox.split(" ")[2]) || 16;
+        const name = result.icon.name;
+        return h("span", { class: "context" },
+          h("span", { class: "context-row" }, sized(result.icon.svg, shipped), h("span", {}, name)),
+          h("span", { class: "context-button" }, sized(result.icon.svg, shipped), h("span", {}, name)),
+          h("span", { class: "context-line" }, "Select ", sized(result.icon.svg, CONTEXT_TEXT + 1), ` ${name} to continue, or keep reading beside it.`));
       }
 
       /* Stage: morph between morph-form icons, cross-fade otherwise */
@@ -2134,7 +2188,7 @@
 
       /* The main page */
 
-      const VIEWS = { Icons: ["All", "New", "Issues", "Spec"], Review: ["Pixels", "Weight", "Morph"] };
+      const VIEWS = { Icons: ["All", "New", "Issues", "Spec"], Review: ["Pixels", "Weight", "Context", "Morph"] };
 
       function morphPairs(results, spec) {
         const ready = results.filter((result) => result.icon.new && !lint(result.entry, spec).some((miss) => miss.rule === "icons-morph-form"));
@@ -2245,6 +2299,7 @@
           for (const [key, node] of Object.entries(countNodes)) node.textContent = String(counts[key]());
           cancelAnimationFrame(loop);
           tiles.removeAttribute("data-large");
+          tiles.removeAttribute("data-context");
           if (state.view === "Spec") {
             const brands = sheet.icons.filter((icon) => icon.brand).map((icon) => icon.name);
             content.replaceChildren(h("div", { class: "spec-view" },
@@ -2282,9 +2337,11 @@
               return tile(result, rasterAt(result.icon.svg, native, INK[state.theme], native * 3));
             }
             if (state.view === "Weight") return tile(result, h("span", { class: "blur" }, sized(result.icon.svg, 48)));
+            if (state.view === "Context") return tile(result, contextSample(result));
             return tile(result, sized(result.icon.svg, state.size));
           }));
           if (state.view === "Weight" || state.view === "Pixels") tiles.setAttribute("data-large", "");
+          if (state.view === "Context") tiles.setAttribute("data-context", "");
           content.replaceChildren(shown.length ? tiles : h("p", { class: "empty" }, "No icons match."));
         }
 
