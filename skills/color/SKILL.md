@@ -11,7 +11,7 @@ This skill holds the colour rules that apply on every screen. It covers contrast
 
 The contrast ratios here are exact and apply in every theme. A ratio is read from the colour the screen draws, never guessed from a token's name. A ratio under the threshold is a finding in any style.
 
-Searching for an existing token belongs to `reuse`. `color-scheme`, `theme-color`, the theme switch and status shown by colour alone belong to `defaults`. Whether a colour should be there at all belongs to `restraint`.
+Searching for an existing token belongs to `reuse`. `color-scheme`, `theme-color`, the theme switch, status shown by colour alone and surfaces under reduced transparency belong to `defaults`. Whether a colour should be there at all belongs to `restraint`.
 
 ## Body text clears 4.5:1
 
@@ -21,11 +21,13 @@ Text under 24px, or under 18.66px when bold, meets 4.5:1 against what sits behin
 
 The edge that shows where a field is, a toggle's track and an icon that carries meaning meet 3:1 against their surround. A field whose only edge is a `#e5e5e5` border on white, at 1.3:1, is `color-ui-contrast`. Dividers and the ring on a floating surface are decoration and exempt.
 
+Native checkboxes, radios and range inputs take the accent through `accent-color`, and the drawn control meets 3:1 against its surface. With `color-scheme: light dark` on the root, they redraw for the dark theme. A default blue checkbox beside an orange accent is `color-accent-color`.
+
 ## Measure the colour on screen
 
 Translucent colours and `opacity` composite over every layer behind them before the ratio is read. Read each theme and each surface the text appears on. A ratio taken from the token's hex while the text sits at `opacity: 0.6` is `color-measure-composited`.
 
-Run [contrast.js](contrast.js) in the page through the browser's evaluate call. Treat each result as a candidate, and confirm it in a zoomed crop before reporting it.
+Run [contrast.js](contrast.js) in the page through the browser's evaluate call. Treat each result as a candidate, and confirm it in a zoomed crop before reporting it. Each failure carries `suggestion`, the nearest colour at the same hue that passes. Fix with the role token closest to it.
 
 ## Text over images takes a scrim
 
@@ -45,9 +47,25 @@ Dark surfaces rise by getting lighter, because a shadow barely shows on a dark p
 
 Accents and status colours take dark values tuned for contrast. The light `#2563eb` link reused on a `#0a0a0a` page, at 3.8:1, is `color-dark-tuned-accents`.
 
+Dark body text is an off-white such as `#ededed`, which still reads at 16.9:1 on `#0a0a0a`. Pure `#ffffff` at 19.8:1 halates on near-black, and is `color-dark-off-white-text`.
+
+Logos and brand images carry a variant or a treatment that reads in both themes. A dark logo on a dark surface is `color-logo-both-themes`. An image with a white background dims slightly in dark mode, with `filter: brightness(0.9)`.
+
+## Increased contrast has its own tokens
+
+Under `@media (prefers-contrast: more)` the role tokens remap. Small text reaches 7:1 and translucent borders turn opaque. Read every colour in light, dark and increased contrast. A theme with no `prefers-contrast: more` block is `color-more-contrast`.
+
+## Gradients blend in oklch and fade on a curve
+
+A gradient between two hues interpolates `in oklch`, so its middle stays saturated rather than turning grey. A blue to yellow gradient with a muddy grey middle is `color-gradient-in-oklch`.
+
+A fade to transparent, such as a scroll edge or a scrim, takes about 6 stops along an ease-out curve. Two linear stops leave a visible line where the fade meets the solid colour. `linear-gradient(transparent, black 24px)` is `color-eased-gradient`.
+
 ## The accent marks action
 
 The accent colour marks the primary action, the selection and focus. An accent heading or a row of accent icons is `color-one-accent`.
+
+Each view or region, such as a card, a toolbar or a form, holds one accent-filled button, and the rest are secondary or quiet. Two filled accent buttons side by side is `color-one-primary`. A dialog footer's order belongs to `overlays-button-order`.
 
 Each status colour keeps one meaning. Red marks errors and destructive actions only. A red "New" badge is `color-status-meaning`.
 
@@ -59,18 +77,25 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | --- | --- | --- |
 | `color-text-contrast` | `color: #999` on white, 2.8:1 | `color: #737373`, 4.7:1 |
 | `color-ui-contrast` | A field edged by `#e5e5e5` on white, 1.3:1 | `border-color: #8a8a8a`, 3.5:1 |
+| `color-accent-color` | A default blue checkbox beside an orange accent | `accent-color: var(--accent)` at 3:1, with `color-scheme: light dark` on the root |
 | `color-measure-composited` | "The token is `#171717`, so it passes" | The ratio of the drawn colour at `opacity: 0.6`, read on screen |
-| `color-scrim-under-text` | White text straight over a photo | `linear-gradient(to top, rgba(0, 0, 0, 0.6), transparent)` under the text |
+| `color-scrim-under-text` | White text straight over a photo | An eased scrim from `rgba(0, 0, 0, 0.6)` at the bottom to transparent, under the text |
 | `color-role-tokens` | `color: var(--gray-500)` in `Card` | `color: var(--text-secondary)` |
 | `color-alpha-neutrals` | `background: #f5f5f5` on hover | `background: var(--gray-a3)` on hover |
 | `color-dark-raises-lighter` | A dark popover at the page's `#0a0a0a` | The popover at `#1a1a1a` over the `#0a0a0a` page |
 | `color-dark-tuned-accents` | `#2563eb` links on `#0a0a0a`, 3.8:1 | `#60a5fa` in the dark theme, 7.8:1 |
+| `color-dark-off-white-text` | `--text-primary: #ffffff` on `#0a0a0a`, 19.8:1 | `--text-primary: #ededed`, 16.9:1 |
+| `color-logo-both-themes` | The dark logo on the `#0a0a0a` page | A light logo variant in the dark theme |
+| `color-more-contrast` | One set of role tokens for every contrast setting | A `prefers-contrast: more` block with small text at 7:1 and opaque borders |
+| `color-gradient-in-oklch` | `linear-gradient(to right, #2563eb, #facc15)` | `linear-gradient(in oklch to right, #2563eb, #facc15)` |
+| `color-eased-gradient` | `linear-gradient(transparent, black 24px)` | `linear-gradient(transparent, rgb(0 0 0 / 0.36) 5px, rgb(0 0 0 / 0.64) 10px, rgb(0 0 0 / 0.84) 14px, rgb(0 0 0 / 0.96) 19px, black 24px)` |
 | `color-one-accent` | Section headings in the accent colour | Headings in `--text-primary`, the accent on the primary button |
+| `color-one-primary` | `Save Draft` and `Publish` side by side, both accent-filled | `Publish` filled, `Save Draft` secondary |
 | `color-status-meaning` | A red "New" badge | A neutral or accent badge |
 
 ## Reporting
 
-**Severity.** `HIGH` is body text under its ratio on a primary surface, a field whose edge fails 3:1 or text over an image with no scrim. `MEDIUM` is a palette step inside a component, a solid neutral that vanishes on a surface or a ratio never read on screen. It is also a dark surface raised by shadow alone or a light accent reused in dark mode. `LOW` is the accent used for decoration or a status colour carrying a second meaning.
+**Severity.** `HIGH` is body text under its ratio on a primary surface, a field whose edge fails 3:1 or text over an image with no scrim. `MEDIUM` is a palette step inside a component, a solid neutral that vanishes on a surface or a ratio never read on screen. It is also a dark surface raised by shadow alone or a light accent reused in dark mode. It is also a theme with no increased contrast remap, or a logo lost on a dark surface. It is also two accent-filled buttons in one view or region. `LOW` is the accent used for decoration, a status colour carrying a second meaning or a gradient that greys in the middle. It is also a fade on two linear stops, or a native control left in the default accent. It is also pure white body text on a dark page.
 
 **Format.** One finding per root cause:
 

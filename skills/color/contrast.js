@@ -45,6 +45,52 @@
   const hex = ({ r, g, b }) =>
     `#${[r, g, b].map((v) => Math.round(v).toString(16).padStart(2, "0")).join("")}`;
 
+  // sRGB to OKLCH and back, so a suggestion can move lightness while holding hue.
+  const toOklch = ({ r, g, b }) => {
+    const [lr, lg, lb] = [r, g, b].map(channel);
+    const l = Math.cbrt(0.4122214708 * lr + 0.5363325363 * lg + 0.0514459929 * lb);
+    const m = Math.cbrt(0.2119034982 * lr + 0.6806995451 * lg + 0.1073969566 * lb);
+    const s = Math.cbrt(0.0883024619 * lr + 0.2817188376 * lg + 0.6299787005 * lb);
+    const a = 1.9779984951 * l - 2.428592205 * m + 0.4505937099 * s;
+    const bb = 0.0259040371 * l + 0.7827717662 * m - 0.808675766 * s;
+    return { l: 0.2104542553 * l + 0.793617785 * m - 0.0040720468 * s, c: Math.hypot(a, bb), h: Math.atan2(bb, a) };
+  };
+  const toLinearRgb = ({ l, c, h }) => {
+    const a = c * Math.cos(h);
+    const b = c * Math.sin(h);
+    const lc = (l + 0.3963377774 * a + 0.2158037573 * b) ** 3;
+    const mc = (l - 0.1055613458 * a - 0.0638541728 * b) ** 3;
+    const sc = (l - 0.0894841775 * a - 1.291485548 * b) ** 3;
+    return [
+      4.0767416621 * lc - 3.3077115913 * mc + 0.2309699292 * sc,
+      -1.2684380046 * lc + 2.6097574011 * mc - 0.3413193965 * sc,
+      -0.0041960863 * lc - 0.7034186147 * mc + 1.707614701 * sc,
+    ];
+  };
+  const encode = (v) => {
+    const x = Math.min(Math.max(v, 0), 1);
+    return Math.round((x <= 0.0031308 ? 12.92 * x : 1.055 * x ** (1 / 2.4) - 0.055) * 255);
+  };
+
+  // Walks lightness away from the background, shedding chroma only to stay in gamut.
+  const nearestPassing = (ink, ground, required) => {
+    const start = toOklch(ink);
+    const away = luminance(ground) > 0.18 ? -0.005 : 0.005;
+    for (const step of [away, -away]) {
+      for (let l = start.l; l >= 0 && l <= 1; l += step) {
+        let c = start.c;
+        let linear = toLinearRgb({ l, c, h: start.h });
+        while (c > 0 && linear.some((v) => v < -1e-4 || v > 1 + 1e-4)) {
+          c = Math.max(c - 0.005, 0);
+          linear = toLinearRgb({ l, c, h: start.h });
+        }
+        const [r, g, b] = linear.map(encode);
+        if (ratio({ r, g, b }, ground) >= required) return hex({ r, g, b });
+      }
+    }
+    return null;
+  };
+
   const probe = document.createElement("div");
   probe.style.cssText = "position:fixed;width:0;height:0;background-color:Canvas";
   document.documentElement.append(probe);
@@ -135,8 +181,9 @@
       return;
     }
     if (measured < required) {
+      values.suggestion = nearestPassing(drawn, ground.colour, required);
       add(findings, "color-text-contrast", el,
-        `${label} at ${round(measured)}:1, needs ${required}:1 (${hex(drawn)} on ${hex(ground.colour)})`, values);
+        `${label} at ${round(measured)}:1, needs ${required}:1 (${hex(drawn)} on ${hex(ground.colour)}). Nearest passing at this hue: ${values.suggestion}`, values);
     }
   };
 
@@ -168,9 +215,10 @@
     const edge = width ? over(parse(style.borderBottomColor), fill) : fill;
     const best = Math.max(ratio(fill, outside), ratio(edge, outside));
     if (best < 3) {
+      const suggestion = nearestPassing(edge, outside, 3);
       add(findings, "color-ui-contrast", field,
-        `Field edge at ${round(best)}:1 against its surround, needs 3:1. Confirm in a crop, a box-shadow ring is not measured`,
-        { ratio: round(best), required: 3, fill: hex(fill), edge: hex(edge), surround: hex(outside) });
+        `Field edge at ${round(best)}:1 against its surround, needs 3:1. Nearest passing edge at this hue: ${suggestion}. Confirm in a crop, a box-shadow ring is not measured`,
+        { ratio: round(best), required: 3, fill: hex(fill), edge: hex(edge), surround: hex(outside), suggestion });
     }
   }
 
