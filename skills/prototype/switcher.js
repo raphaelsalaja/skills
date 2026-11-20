@@ -548,6 +548,10 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
         transition: none;
       }
 
+      &:not(:popover-open) {
+        display: none;
+      }
+
       kbd {
         font: inherit;
         color: var(--text-tertiary);
