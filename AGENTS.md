@@ -4,13 +4,13 @@ This file is the single source of guidance for coding agents working in this rep
 
 ## What this repository is
 
-A collection of agent skills for building interfaces with coding agents. It is distributed two ways: via `npx skills add raphaelsalaja/skills` and as the Claude Code plugin `userinterface` served by the marketplace in this same repository. It is documentation. The only tooling is `kit/sync.mjs`, which copies the shared interface kit into the skills, and `scripts/check.mjs`, which checks the skills against this file.
+A collection of agent skills for building interfaces with coding agents. It is distributed through `npx skills add raphaelsalaja/skills`, so every skill runs under its own name, such as `/verify`. It is documentation. The only tooling is `kit/sync.mjs`, which copies the shared interface kit into the skills, and `scripts/check.mjs`, which checks the skills against this file.
 
 The house rule is the pair. Every rule shows the broken line and the line that replaces it. `## The pair` in each skill is that rule, and a finding is `file:line - [rule-id]`. When a finding is about the work rather than a file, cite the request or the step instead: `request 2 - [rule-id]`.
 
 A skill states the rule, the exact value and the detection pattern. It does not restate a sibling skill. It names no person, company or outside product as its source.
 
-`.claude-plugin/plugin.json` and `.claude-plugin/marketplace.json` define the plugin and its marketplace. Both are named `userinterface`, so plugin users invoke skills as `/userinterface:verify` while skills-CLI users invoke `/verify`. Skills are discovered from `skills/` automatically, so adding a skill needs no manifest change. Bump `version` in `plugin.json` in the same commit as any change under `skills/`. That number is the only signal plugin users update on. Commit messages follow Conventional Commits, such as `feat(defaults): add the safe-area rule`.
+Skills are discovered from `skills/` automatically, so adding a skill needs no manifest change. Commit messages follow Conventional Commits, such as `feat(defaults): add the safe-area rule`.
 
 `opencode.json` registers `skills/` under `skills.paths` so opencode loads the collection while this repository itself is open.
 
@@ -102,4 +102,4 @@ A description change updates `README.md` in the same commit. A rename updates th
 
 Sentences stay at or under 30 words, counting a code span as one word. Before adding a sentence, check whether another skill already owns that rule.
 
-Run `node scripts/check.mjs` before committing. It exits 1 on a broken convention above, a skill change with no version bump or kit drift.
+Run `node scripts/check.mjs` before committing. It exits 1 on a broken convention above or kit drift.

@@ -81,12 +81,3 @@ Principle skills and `verify`, `gather`, `match`, `rule`, `viewports` and `icons
 ```
 
 A review ends as `file:line` findings with a rule id, then a short summary table. `Block` means a high-severity finding remains. `Approve` means it does not.
-
-## Claude Code plugin
-
-```text
-/plugin marketplace add raphaelsalaja/skills
-/plugin install userinterface@userinterface
-```
-
-Plugin skills take the plugin name as a prefix, such as `/userinterface:audit`.

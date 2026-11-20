@@ -125,15 +125,6 @@ for (const path of markdown) {
   });
 }
 
-// A change under skills/ bumps the plugin version.
-const git = (...args) => spawnSync("git", args, { cwd: root, encoding: "utf8" }).stdout.trim();
-const changed = [git("diff", "--name-only", "HEAD", "--", "skills"), git("ls-files", "--others", "--exclude-standard", "skills")].join("\n").trim();
-const version = (text) => JSON.parse(text).version;
-const committed = git("show", "HEAD:.claude-plugin/plugin.json");
-if (changed && committed && version(committed) === version(read(".claude-plugin/plugin.json"))) {
-  fail(".claude-plugin/plugin.json", `skills/ changed but version is still ${version(committed)}`);
-}
-
 const kit = spawnSync("node", [join(root, "kit/sync.mjs"), "--check"], { encoding: "utf8" });
 if (kit.status !== 0) fail("kit", kit.stderr.trim());
 
