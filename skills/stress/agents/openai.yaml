@@ -1,0 +1,5 @@
+interface:
+  display_name: "Stress"
+  short_description: "Worst-case data through the real boundary"
+policy:
+  allow_implicit_invocation: false

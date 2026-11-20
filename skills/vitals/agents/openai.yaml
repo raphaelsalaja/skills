@@ -1,0 +1,5 @@
+interface:
+  display_name: "Vitals"
+  short_description: "Trace a cold page load"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Animate"
+  short_description: "Add motion where content teleports"
+policy:
+  allow_implicit_invocation: false

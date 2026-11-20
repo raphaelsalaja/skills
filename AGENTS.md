@@ -16,13 +16,13 @@ A skill states the rule, the exact value and the detection pattern. It does not 
 
 ## Two kinds of skill
 
-**Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy`, `prose`, `defaults`, `motion`, `color` and `states`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
+**Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy`, `prose`, `defaults`, `forms`, `overlays`, `motion`, `color` and `states`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
 
-**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `viewports`, `icons`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `invariants`, `avatar`, `bots`, `sketchbook` and `audit`. Their steps are numbered `## 1.` onward.
+**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `viewports`, `icons`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `vitals`, `invariants`, `stress`, `animate`, `avatar`, `bots`, `sketchbook` and `audit`. Their steps are numbered `## 1.` onward.
 
 ## Invocation
 
-`ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `invariants`, `avatar`, `bots`, `sketchbook` and `audit` are user-invoked. Each one sets `disable-model-invocation: true` in its frontmatter and `allow_implicit_invocation: false` under `policy` in `agents/openai.yaml`. Set both or neither. The README line ends with "User-invoked." Every other skill may load on its own.
+`ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `vitals`, `invariants`, `stress`, `animate`, `avatar`, `bots`, `sketchbook` and `audit` are user-invoked. Each one sets `disable-model-invocation: true` in its frontmatter and `allow_implicit_invocation: false` under `policy` in `agents/openai.yaml`. Set both or neither. The README line ends with "User-invoked." Every other skill may load on its own.
 
 ## Structure
 
@@ -60,35 +60,40 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 
 | Skill | Owns |
 | --- | --- |
-| `verify` | Evidence from the running result, repeat reports, where to see the change |
+| `verify` | Evidence from the running result, a clean console, touch checked on a phone, repeat reports, where to see the change |
 | `scope` | Every ask in the message, the smallest reading, earlier instructions, keeping what worked, no phasing |
 | `reuse` | Own component, then library, then platform, then custom, one standard, fixes in the primitive and the sibling sweep |
-| `restraint` | Unrequested interface, settings and code, fallbacks, legacy, deleting instead of deferring, narrating comments |
-| `copy` | Title Case labels, word count, verb-first and confirm buttons, error fixes, link text, toggle labels, whole sentences, one-line descriptions, status tense, em dashes and ellipses |
+| `restraint` | Unrequested interface, settings and code, fallbacks, legacy, deleting instead of deferring, a deleted animation's start state and waits, narrating comments |
+| `copy` | Title Case labels, word count, the key word first, verb-first and confirm buttons, what a confirm loses, the last step's action, error fixes and errors by kind, link text, instructions that name the control, toggle labels, whole sentences, one name per action, Create and Add, one-line descriptions, status tense, units held by non-breaking spaces, true minus and times signs, em dashes and ellipses |
 | `prose` | Long-form posts and breakdowns: the opening context, first person, linked reasons, lists in the sentence, what happened, own limits, rejected options, exact values, asides and footnotes, sources and citations, marked guesses, British spelling, captions, the ending, the author's voice |
-| `defaults` | Scroll edges, shadows, surfaces, theme, focus and accessible names, hit areas, hover styles, links and URL state, forms, loading, type rendering and measure, tables, sound cues, hotkeys in inputs, dialogs, anchored overlays, sheets and toasts |
-| `motion` | What animates, easing, durations, springs and gestures, sheet drags over scrolling content, exits and presence, cross-fades and icon morphs, motion blur through the package, flashing, reduced motion |
-| `color` | Text and control contrast, composited measurement, scrims, role tokens, translucent neutrals, dark palettes, accent and status meaning |
-| `states` | The listed states, the three empty states, missing values, errors by kind and place, kept input, retry in place, visible rollback, stale values, denied access, waiting on the user and the end of a list |
+| `defaults` | Scroll edges and overscroll, shadows, surfaces, the z-index scale, translucency, theme and the system setting, focus and accessible names, exposed state, focusables under `aria-hidden`, alt text, captions and autoplay, headings, titles and language, untranslated names, hit areas and spacing, actions on release, hover styles, links and underlines in prose, URL state and list position, breadcrumbs and the selected item, mobile viewport and taps, hotkeys, loading and busy focus, urgent alerts, undo, type rendering and the type scale, weights, steady weight and measure, real tables, sticky columns and pagination, relative times and meters, sound cues |
+| `forms` | Labels and fieldsets, required marks, rules and plain hints between label and field, input types, keyboard hints and spellcheck, one name field, pasted input, soft limits, field width, columns and control height, textarea sizing, icons inside fields, radios, stacked options and searchable long lists, switches, kept options and select colours, typed dates, no change on input, autofocus off touch, unchecked consent, asking once, one question per page and the review page, Enter and composition, validation on submit, the error summary and error title, tied errors, user-invalid styles, the validating indicator, no reset button and one save, the unsaved-changes guard, sign-in without recall |
+| `overlays` | The top layer, focus in dialogs, one dialog at a time and none on load, dialog button order, safe destructive defaults, CSS scroll lock, declared dismissal and outside clicks, anchored placement, one popover and one submenu level, tooltips and none on disabled buttons, sheets on phones, backdrops, one banner at a time, toasts and action toasts that stay |
+| `motion` | What animates and what holds still, idle loops and pause controls, easing, durations, springs, bounce and flick projection, drags and gestures, sheet drags over scrolling content, staggers and choreography, exits and presence, SVG parts around their own centre, CSS entrances and size to auto, view transitions, cross-fades and icon morphs, motion blur through the package, flashing, reduced motion and gated smooth scroll |
+| `color` | Text and control contrast, `accent-color` on native controls, composited measurement, the nearest passing colour, increased contrast, gradient interpolation and eased fades, scrims, role tokens, translucent neutrals, dark palettes and off-white text, logos in both themes, accent and status meaning, one primary per region |
+| `states` | The listed states, the three empty states, missing values, user text as typed, many values at once, the current user, errors by kind and place, quiet degradation, kept input, one-click fixes, retry in place, visible rollback, stale values, denied access, session timeouts, waiting on the user, progress that ends, the confirmation page and the end of a list |
 | `gather` | Asking which sources to use, the user's saves and the site on every source, boards through Pond, a read-only library, parallel source agents, stopping at a usage limit, queries and image searches, live captures, the collector, the linked board, More Like This and saving picks |
 | `match` | Inspecting a named reference, computed values, state inventory, side-by-side proof |
-| `rule` | Writing a correction into the agent file, conflicts between rules, sweeping old breaks |
-| `viewports` | The width set, breakpoint edges, sideways scroll, clipped text, hover-only controls, short heights, doubled text, longer and mirrored text |
-| `icons` | Missing glyphs, the spec measured from the whole set, the grid, the morph form, one skeleton, the lint, the shipped sheet and the project's icon API |
+| `rule` | Writing a correction into the agent file, the user's silent edits, conflicts between rules, a check for matchable rules, sweeping old breaks |
+| `viewports` | The width set, breakpoint edges, sideways scroll, clipped text, hover-only controls, short heights, doubled text, text spacing, longer, shorter and unbroken text, other scripts, mirrored text and flipped directional icons |
+| `icons` | Missing glyphs and concepts, the spec measured from the whole set, the grid and its angles, size ranges, keylines, reused parts, open junctions and dot roles, the morph form, one skeleton, the lint, the shipped sheet, the project's icon API, font codepoints and icons beside real text |
 | `ship` | Commits and their Conventional Commit messages, changesets, pushes, merges, pull requests per bug, releases, deploy checks |
-| `prototype` | Labelled real-code variants of one idea, pruning after the pick |
+| `prototype` | Labelled real-code variants of one idea, the cost of each, a bar that clears the work, replaying entrances, pruning after the pick and riffing on it |
 | `lab` | Every state of real components forced open on one development page |
 | `deconstruct` | Motion broken into named states, events and per-property tracks, the editable timeline |
-| `alignment` | Measured edges, gaps, padding over gap, ink centring, optical nudges, concentric radii, visual weight, the annotated report |
-| `keyboard` | The keyboard-only walk, focus order, reach, visible stops, composite arrows, Escape, focus after removal |
-| `frames` | The throttled trace, frame and input budgets, layout and paint cost per frame, the before and after recording |
-| `invariants` | Flags that move together, implied state machines and impossible states, one status and one writer, unchecked assumptions, where each rule is enforced |
+| `alignment` | Measured edges, gaps, padding over gap, icon-side padding, ink centring, optical nudges, top alignment beside wrapping text, concentric radii and their floor, visual weight, the annotated report |
+| `keyboard` | The keyboard-only walk, focus order, reach, visible stops, composite arrows, Escape, reaching toasts and leaving editors, focus after removal |
+| `frames` | The throttled trace, traces on a real phone, frame and input budgets, layout and paint cost per frame, yielding long loops, inherited variables per frame, motion off the main thread, long lists, brief `will-change`, the before and after recording |
+| `vitals` | The throttled cold load, the median of three loads, the load budgets, LCP priority, sized media, video over GIF, late shifts, subset WOFF2 fonts, offscreen `content-visibility`, long load tasks and the before and after recording |
+| `invariants` | Flags that move together, implied state machines and impossible states, one status and one writer, unchecked assumptions, matching input and storage limits, where each rule is enforced |
 | `avatar` | Character silhouettes, eyes on a sphere, whole-body idle life, moods as eye shapes, reactions to the page, the contact sheet |
 | `bots` | The Grok round, picked Bots only, stripping private details, real copy links, the Bot marks, the physics pile, Bot cards and the org chart |
 | `sketchbook` | Daily batches of live interaction tiles, the taste file, kept components, wildcards and a clip suggestion |
-| `audit` | Review scope, the pattern scan, running every skill, merging by root cause, the numbered report and the verdict |
+| `stress` | The value map with sources and limits, worst-case data through the demo boundary, the development-only data switch, the case catalog, the real container width and the kept fixture |
+| `animate` | Moments where content teleports, the frequency gate, the smallest motion that explains a change, the delight budget and the before and after clips |
+| `audit` | Review scope, the project's own system, content as data, the pattern scan, running every skill, merging by root cause, the numbered report, the verdict and self-contained hand-off plans |
 
-`reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `copy` owns the words that stay in the interface and `prose` owns the words around it. `defaults` owns how the surfaces that stay behave, `motion` owns how they move and `color` owns how they read. `states` owns which states a screen shows and `invariants` owns which combinations the code can hold. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
+`reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `motion` owns whether an animation exists and `restraint` owns deleting it cleanly. `copy` owns the words that stay in the interface and `prose` owns the words around it. `defaults` owns how the surfaces that stay behave, `motion` owns how they move and `color` owns how they read. `forms` owns how fields take input and `overlays` owns how layers open and close. `states` owns which states a screen shows and `invariants` owns which combinations the code can hold. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
 
 ## Authoring
 

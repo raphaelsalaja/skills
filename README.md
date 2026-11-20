@@ -19,7 +19,9 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**restraint**](skills/restraint/SKILL.md): Ships the **smallest thing** that does the job and deletes what nobody asked for.
 - [**copy**](skills/copy/SKILL.md): Writes interface labels in **Title Case**, short and plain, with one-line descriptions and no em dashes.
 - [**prose**](skills/prose/SKILL.md): Writes posts and breakdowns that **open on where the author stands**, show the options that lost, give exact numbers and mark every guess as a guess.
-- [**defaults**](skills/defaults/SKILL.md): Applies house defaults for **scroll edges**, surfaces, type, tables, sound, focus, forms, loading, hotkeys and overlays.
+- [**defaults**](skills/defaults/SKILL.md): Applies house defaults for **scroll edges**, surfaces, theme, focus, names, page structure, links, mobile, type, tables, data, loading and sound.
+- [**forms**](skills/forms/SKILL.md): Builds forms that **label every field**, ask for the right keyboard, take typed and pasted input, validate on submit and never ask twice.
+- [**overlays**](skills/overlays/SKILL.md): Builds dialogs, menus, popovers, tooltips, sheets and toasts on **the browser's top layer**, with declared dismissal and a page that never moves.
 - [**motion**](skills/motion/SKILL.md): Applies house motion for what animates, **easing, durations**, springs, gestures, exits, motion blur and reduced motion.
 - [**color**](skills/color/SKILL.md): Holds text and control **contrast to exact ratios**, routes colour through role tokens and gives dark mode its own palette.
 - [**states**](skills/states/SKILL.md): Designs **every state a screen can enter**, from first run and filtered to zero through failures, rollbacks, stale data and the end of a list.
@@ -30,7 +32,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**gather**](skills/gather/SKILL.md): Collects references from **the user's own saves** and every site they pick onto one linked board before a design is built.
 - [**match**](skills/match/SKILL.md): Rebuilds a named reference from its **real source and computed values**, then compares the two side by side.
 - [**rule**](skills/rule/SKILL.md): Turns a **repeated correction** into a short project rule with the broken and fixed line, then applies it to existing code.
-- [**viewports**](skills/viewports/SKILL.md): Renders a page at **every width**, each breakpoint edge, a short landscape phone, 200% text and longer or mirrored text, then reports what overflows, clips or hides.
+- [**viewports**](skills/viewports/SKILL.md): Renders a page at **every width**, each breakpoint edge, a short landscape phone, 200% text and spaced, longer, shorter, unbroken or mirrored text, then reports what overflows, clips or hides.
 - [**icons**](skills/icons/SKILL.md): Draws missing icons in the **project's own style**, measured from every icon the set already has and built to morph, then shows the set on one sheet.
 - [**ship**](skills/ship/SKILL.md): Commits, pushes, merges and releases a change, **watches the checks** and confirms it is live. User-invoked.
 - [**prototype**](skills/prototype/SKILL.md): Builds several **real, labelled variants** of one idea on a single page so the user can pick, then deletes the rest. User-invoked.
@@ -39,7 +41,10 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**alignment**](skills/alignment/SKILL.md): Measures a running page for edges, gaps, centring and radii that **miss by a pixel or two**, then judges visual weight and returns a numbered report with proof. User-invoked.
 - [**keyboard**](skills/keyboard/SKILL.md): Walks a running page with **the keyboard alone**, records every focus stop and reports controls it cannot reach, see or operate. User-invoked.
 - [**frames**](skills/frames/SKILL.md): Records **a performance trace** of one interaction on a throttled CPU, names what drops frames or delays input, then proves the fix with a second trace. User-invoked.
+- [**vitals**](skills/vitals/SKILL.md): Records **a cold page load** on a throttled network and CPU, names what delays the largest paint or shifts the layout, then proves the fix with a second recording. User-invoked.
 - [**invariants**](skills/invariants/SKILL.md): Finds the **state machines and rules** an app relies on but never enforces, then returns a numbered report of where to enforce each one. User-invoked.
+- [**stress**](skills/stress/SKILL.md): Swaps **the worst real data** into a screen through its own data boundary, then reports every value that breaks it. User-invoked.
+- [**animate**](skills/animate/SKILL.md): Finds where **content teleports** between states and adds the smallest motion that explains each change, gated by how often it happens. User-invoked.
 - [**avatar**](skills/avatar/SKILL.md): Draws any object as **a flat character with two capsule eyes**, then animates its whole body so it glances, blinks, breathes, follows the pointer and falls asleep. User-invoked.
 - [**bots**](skills/bots/SKILL.md): Turns chosen Grok Bots into **a shakeable pile**, portfolio cards and an org chart page, each with a link to copy the bot, with private details stripped. User-invoked.
 - [**sketchbook**](skills/sketchbook/SKILL.md): Generates a daily batch of interaction experiments in the project's own stack as **live tiles you keep or kill**, learning your taste with every batch. User-invoked.
@@ -63,7 +68,10 @@ Principle skills and `verify`, `gather`, `match`, `rule`, `viewports` and `icons
 /alignment the settings page
 /keyboard the settings dialog
 /frames opening the command palette
+/vitals the pricing page
 /invariants the editor store
+/stress the members table
+/animate the inbox
 /avatar a coffee cup for the support card
 /bots my whole team
 /sketchbook
