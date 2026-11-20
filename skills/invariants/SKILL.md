@@ -46,6 +46,9 @@ Run each search across the scope and list every hit. Reading files by eye for as
 | Order that must hold | An effect or listener that reads what another one sets |
 | One of a kind | "only one", "should never" and "always" in comments |
 | Default hiding a gap | `?? []`, `?? ""` and `?? 0` on values that are always set |
+| Limits that must match | `maxLength` and `.max(` beside the column or schema that stores the field |
+
+A field's input limit matches its storage limit. A 50-character input saving to a 255-character column means longer values will still arrive from imports or the API. Give both one limit, or render for the larger one. `maxLength={50}` over a `varchar(255)` is `invariants-matching-limits`. When the storage is out of scope, mark the limit `Not verified`.
 
 ## 5. Name where each rule is enforced
 
@@ -72,6 +75,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `invariants-one-status` | `isLoading`, `isError` and `data` side by side | `{ status: "error", error }` or `{ status: "done", data }` |
 | `invariants-one-writer` | `setStatus("closing")` called from five components | One `close` event handled in the reducer |
 | `invariants-search-every-shape` | Files read by eye for assumptions | Every search in the table run, hits listed |
+| `invariants-matching-limits` | `maxLength={50}` on a name stored as `varchar(255)` | One limit of 50 on both, or the card laid out for 255 characters |
 | `invariants-name-the-enforcer` | "IDs are probably unique" | "`rows.tsx:40` keys on `id`, nothing enforces it" |
 | `invariants-enforce-at-the-edge` | `if (!items.length) return` in six components | The schema at `api.ts:12` rejects an empty list |
 | `invariants-enforce-in-code` | `// never empty` | `items: [Item, ...Item[]]` |
@@ -79,7 +83,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is an impossible state a line can reach, or an assumption that crashes or loses work when broken. `MEDIUM` is an ungrouped set of flags, a status with many writers or a rule enforced only by a comment. `LOW` is an impossible state no line reaches, or a guard repeated at every read.
+**Severity.** `HIGH` is an impossible state a line can reach, or an assumption that crashes or loses work when broken. `MEDIUM` is an ungrouped set of flags, a status with many writers or a rule enforced only by a comment. It is also an input limit that differs from the storage limit. `LOW` is an impossible state no line reaches, or a guard repeated at every read.
 
 **Format.** One finding per root cause, numbered:
 

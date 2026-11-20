@@ -36,15 +36,21 @@ Every padding, gap and margin is a step on the project's scale. A 6px padding on
 
 A surface's padding is never smaller than the gap between its children, on the axis that gap separates. A card at 8px padding around rows 16px apart is `alignment-padding-over-gap`. Tables and full-bleed lists are exempt.
 
+A button with a leading or trailing icon takes 2px less padding on the icon side than on the text side, because the icon's box carries its own empty edge. `padding: 0 12px` around a leading icon is `alignment-icon-side-padding`, and it takes `padding: 0 12px 0 10px`. That 2px is an optical offset, exempt from the scale.
+
 ## 4. Check the centres
 
 Text in a control centres on its cap height and baseline, not its line box. Ink sitting 2px low in a button is `alignment-ink-centre`. Trim the box with `text-box: trim-both cap alphabetic` or balance the padding.
 
 An icon beside a label centres on the label's cap height. An icon centred on the line box and sitting 1px low is `alignment-icon-with-label`.
 
+Once text can wrap, the row top-aligns with `align-items: flex-start`. An avatar centred beside a three-line name drifts to the middle line, and that is `alignment-top-when-wrapping`.
+
 Play icons, arrows and triangles carry their weight on one side. A play icon centred by its box that looks shifted left is `alignment-optical-glyph`. Nudge it and name the value, such as `--play-nudge: 1px`.
 
 A nested surface's radius is the outer radius minus the inset. A 16px panel inside a 16px card at 8px inset is `alignment-concentric-radius`, and it takes 8px.
+
+When that subtraction falls below 2px, the inner radius holds at 2px, or at 0 when the outer corner is square. A panel at 0 or 1px inside a rounded card reads as a mistake, and is `alignment-concentric-floor`.
 
 ## 5. Judge the weight
 
@@ -73,17 +79,20 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `alignment-even-gaps` | Rows at 8, 8 and 12px | Rows at 8, 8 and 8px |
 | `alignment-on-scale` | `padding: 6px` on a 4px scale | `padding: 8px` |
 | `alignment-padding-over-gap` | `padding: 8px` around rows `16px` apart | `padding: 16px` |
+| `alignment-icon-side-padding` | `padding: 0 12px` on a button with a leading icon | `padding: 0 12px 0 10px` |
 | `alignment-ink-centre` | Label ink 2px low in its button | `text-box: trim-both cap alphabetic` |
 | `alignment-icon-with-label` | Icon centred on the line box | Icon centred on the cap height |
+| `alignment-top-when-wrapping` | `align-items: center` beside a three-line name | `align-items: flex-start`, the avatar level with the first line |
 | `alignment-optical-glyph` | Play icon centred by its box | Play icon nudged `1px` right, named |
 | `alignment-concentric-radius` | 16px panel in a 16px card at 8px inset | 8px panel radius |
+| `alignment-concentric-floor` | A square panel in a 6px card at 8px inset | `border-radius: max(var(--card-radius) - 8px, 2px)`, a 2px panel radius |
 | `alignment-visual-weight` | 2px icon stroke beside 1.5px stems | Stroke matched to the text weight |
-| `alignment-annotated-proof` | "The button looks a bit off" | Finding 3, 1.8px low, with the crop |
 | `alignment-shipped-report` | Crops cut by hand into a page written from scratch | `report.html` copied, only `report.js` written |
+| `alignment-annotated-proof` | "The button looks a bit off" | Finding 3, 1.8px low, with the crop |
 
 ## Reporting
 
-**Severity.** `HIGH` is a miss visible at 1x on a primary surface, such as a heading column or a primary button. `MEDIUM` is a 1–2px miss, uneven gaps, padding smaller than the gap, a radius mismatch, a weight imbalance or a hand-built report. `LOW` is an off-scale value that still renders aligned.
+**Severity.** `HIGH` is a miss visible at 1x on a primary surface, such as a heading column or a primary button. `MEDIUM` is a 1–2px miss, uneven gaps, padding smaller than the gap, a radius mismatch, a weight imbalance or a hand-built report. It is also a row centred beside text that wraps, or a button padded the same on its icon side and its text side. It is also an inner radius under 2px inside a rounded surface. `LOW` is an off-scale value that still renders aligned.
 
 **Format.** One finding per root cause, numbered to match the overlay:
 

@@ -23,6 +23,10 @@ Reload, or confirm hot reload applied, then look at the same place. A build pass
 
 Look at the whole surface, not only the line you edited. Scroll to both ends and open each state the change touches. Checking only the edited element is `verify-whole-surface`.
 
+Read the console before and after. Done means no error or warning the change introduced, such as a missing `key` warning. A new console error or warning left behind is `verify-clean-console`.
+
+Touch behaviour is confirmed on a real phone over remote debugging, ideally one a few years old. That covers sticky hover, tap delay, rubber-banding, safe areas and the on-screen keyboard. Check once with the keyboard open and once in landscape. Without a phone, report `Not verified on device`. A touch fix called done from desktop emulation is `verify-on-device`.
+
 ## 3. Find the cause on a repeat report
 
 When the user reports the same problem again, stop adjusting the same value. Diff against the last commit where it worked, read the computed style or search for the cause. A third guess at one property is `verify-root-cause-on-repeat`.
@@ -43,6 +47,8 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `verify-build-is-not-proof` | "Typecheck passes, so it is fixed" | "Reloaded Settings and the toggle now persists" |
 | `verify-click-new-controls` | A new "Add Condition" button with no handler | Click it once and see a row appear |
 | `verify-whole-surface` | Checking the edited row only | The whole panel, scrolled to both ends |
+| `verify-clean-console` | "Done" with a new missing `key` warning in the console | The warning fixed, the console as clean as before |
+| `verify-on-device` | A safe-area fix checked in desktop emulation | Checked on a phone with the keyboard open and in landscape, or `Not verified on device` |
 | `verify-root-cause-on-repeat` | A third tweak to the same `padding` | Diff against the last working commit, then fix |
 | `verify-say-where` | "It should work now" | "Open Library, right-click a save, choose Hide" |
 | `verify-open-the-result` | `~/Downloads/clips` printed in the reply | The folder opened for the user |
@@ -50,7 +56,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is "done" with no look at the running result, or a new control that does nothing. `MEDIUM` is a repeat report met with another guess, or a reply with no place to see the change. `LOW` is a checked change whose reply omits how it was checked.
+**Severity.** `HIGH` is "done" with no look at the running result, or a new control that does nothing. `MEDIUM` is a repeat report met with another guess, or a reply with no place to see the change. It is also a console error or warning the change introduced, or a touch change neither tried on a phone nor marked. `LOW` is a checked change whose reply omits how it was checked.
 
 **Format.** One finding per root cause, citing the request when no file applies:
 
