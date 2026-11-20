@@ -10,8 +10,16 @@ Code for the defaults in `SKILL.md`. Swap the literal values for the project's t
   mask-image: linear-gradient(
     to bottom,
     transparent,
+    rgb(0 0 0 / 0.36) 5px,
+    rgb(0 0 0 / 0.64) 10px,
+    rgb(0 0 0 / 0.84) 14px,
+    rgb(0 0 0 / 0.96) 19px,
     black 24px,
     black calc(100% - 24px),
+    rgb(0 0 0 / 0.96) calc(100% - 19px),
+    rgb(0 0 0 / 0.84) calc(100% - 14px),
+    rgb(0 0 0 / 0.64) calc(100% - 10px),
+    rgb(0 0 0 / 0.36) calc(100% - 5px),
     transparent
   );
 }
@@ -111,19 +119,31 @@ Use the project's dark-mode selector in place of the media query. Keep the outli
 ## Theme switch
 
 ```ts
-export function setTheme(theme: "light" | "dark") {
+const themeColors = { light: "#ffffff", dark: "#0a0a0a" };
+
+export function setTheme(choice: "system" | "light" | "dark") {
+  const theme =
+    choice === "system"
+      ? matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
+      : choice;
+
   const style = document.createElement("style");
   style.textContent = "*, *::before, *::after { transition: none !important; }";
   document.head.appendChild(style);
 
-  document.documentElement.dataset.theme = theme;
+  const root = document.documentElement;
+  root.dataset.theme = theme;
+  root.style.colorScheme = theme;
+  document
+    .querySelectorAll('meta[name="theme-color"]')
+    .forEach((meta) => meta.setAttribute("content", themeColors[theme]));
   void window.getComputedStyle(document.body).opacity;
 
   requestAnimationFrame(() => style.remove());
 }
 ```
 
-Reading a computed style forces the new theme to apply before transitions return. When the project uses a theme library, use its option for this instead.
+Reading a computed style forces the new theme to apply before transitions return. Save the choice, and while it is `"system"`, call `setTheme` again when the media query changes. When the project uses a theme library, use its option for this instead.
 
 ## Hit area
 
@@ -144,15 +164,25 @@ A 16px glyph with `inset: -12px` gives a 40px target, and `-14px` gives 44px for
 ## Mobile baseline
 
 ```html
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<meta
+  name="viewport"
+  content="width=device-width, initial-scale=1, viewport-fit=cover, interactive-widget=resizes-content"
+/>
+<meta name="color-scheme" content="light dark" />
 <meta name="theme-color" media="(prefers-color-scheme: light)" content="#ffffff" />
 <meta name="theme-color" media="(prefers-color-scheme: dark)" content="#0a0a0a" />
 ```
 
 ```css
 html {
+  color-scheme: light dark;
   -webkit-tap-highlight-color: transparent;
   -webkit-text-size-adjust: 100%;
+}
+
+html,
+body {
+  overscroll-behavior: none;
 }
 
 button,
@@ -161,6 +191,7 @@ a,
   touch-action: manipulation;
   user-select: none;
   -webkit-user-select: none;
+  -webkit-touch-callout: none;
 }
 
 .app {
@@ -172,7 +203,7 @@ a,
 }
 ```
 
-Match each `theme-color` to the top of the page, not the brand colour. Leave `user-select` alone on links inside prose, where people copy the text.
+Match each `theme-color` to the top of the page, not the brand colour. Leave `user-select` and `-webkit-touch-callout` alone on links inside prose, where people copy the text and preview the link. Set `overscroll-behavior: none` only on apps, not on documents people read.
 
 ## Hotkey guard
 
@@ -189,6 +220,34 @@ window.addEventListener("keydown", (event) => {
 ```
 
 When the project uses a hotkey library, use its option for ignoring form fields instead.
+
+## Steady weight
+
+A selected tab whose label must turn bold keeps its width with a hidden bold copy of the label.
+
+```html
+<button class="tab" data-label="Billing" aria-selected="true">Billing</button>
+```
+
+```css
+.tab {
+  display: inline-grid;
+  font-weight: 400;
+}
+
+.tab::after {
+  height: 0;
+  overflow: hidden;
+  font-weight: 600;
+  content: attr(data-label);
+  visibility: hidden;
+  user-select: none;
+}
+
+.tab[aria-selected="true"] {
+  font-weight: 600;
+}
+```
 
 ## Loading delay
 

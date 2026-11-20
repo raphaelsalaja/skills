@@ -1,0 +1,3 @@
+interface:
+  display_name: "Overlays"
+  short_description: "Dialogs, popovers, sheets and toasts"

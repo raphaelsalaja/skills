@@ -12,7 +12,7 @@ This skill puts the mouse away and walks a running page with keys alone. It reco
 
 Focus order, reach and operation are judged from keys pressed in the running page. A stop the walk did not press is `Not verified`, never assumed. One unreachable control is a finding however minor the control.
 
-How the focus ring looks, dialog focus traps and accessible names belong to `defaults`, and a failure there cites its id. Opening the running result belongs to `verify`. Forcing hidden states open belongs to `lab`.
+How the focus ring looks and accessible names belong to `defaults` and dialog focus traps belong to `overlays`. A failure there cites its id. Opening the running result belongs to `verify`. Forcing hidden states open belongs to `lab`.
 
 ## 1. Load the recorder
 
@@ -34,6 +34,8 @@ When navigation comes before the main content, the first stop is a skip link to 
 
 Compare the stops against what the page shows and against the recorder's `unreachable` list. A clickable `div` the walk never lands on is `keyboard-reach-every-control`.
 
+Toasts sit in a region labelled "Notifications" that a documented shortcut, such as Alt+T, reaches. An editor that keeps Tab for indenting lets Escape then Tab leave it. A toast's Undo the walk cannot reach, or an editor Tab never leaves, is `keyboard-reach-toasts`.
+
 ## 4. Operate each control
 
 Enter and Space press buttons, Enter follows links and Space toggles checkboxes and switches. A control that answers a click but no key is `keyboard-operate-every-control`.
@@ -44,7 +46,7 @@ Escape closes the open menu, popover, sheet or dialog. An overlay that only a cl
 
 ## 5. Open and close each overlay
 
-Open each dialog, menu and popover from the keyboard. Focus moves inside, stays inside a modal and returns to the trigger on close. A failure cites `defaults-trap-and-return-focus`.
+Open each dialog, menu and popover from the keyboard. Focus moves inside, stays inside a modal and returns to the trigger on close. A failure cites `overlays-trap-and-return-focus`.
 
 ## 6. Remove something, then find focus
 
@@ -66,6 +68,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `keyboard-no-hidden-stops` | Tab landing on links in the closed drawer | `inert` on the drawer while it is closed |
 | `keyboard-skip-link` | Twenty header stops before the first result | A `Skip to Content` link as stop 1 |
 | `keyboard-reach-every-control` | `<div onClick={openRow}>` | `<button onClick={openRow}>` |
+| `keyboard-reach-toasts` | A toast's Undo that Tab never reaches | `aria-label="Notifications"` on the region, reached with Alt+T |
 | `keyboard-operate-every-control` | A switch that toggles on click only | Space toggles it |
 | `keyboard-arrows-inside-composites` | Eight Tab stops inside one menu | One stop, arrows move between items |
 | `keyboard-escape-closes` | A popover that closes on outside click only | Escape closes it and focus returns to the trigger |
@@ -74,7 +77,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a control the keyboard cannot reach or operate, or focus lost to `body` after an action. `MEDIUM` is a stop out of reading order, a stop with no visible ring or a stop hidden off screen. It is also a composite with a Tab stop per item, or an overlay Escape does not close. `LOW` is a missing skip link, or a report without numbered stops.
+**Severity.** `HIGH` is a control the keyboard cannot reach or operate, an editor Tab cannot leave or focus lost to `body` after an action. `MEDIUM` is a stop out of reading order, a stop with no visible ring or a stop hidden off screen. It is also a composite with a Tab stop per item, or an overlay Escape does not close. `LOW` is a missing skip link, or a report without numbered stops. It is also a toast region with no name or no shortcut.
 
 **Format.** One finding per root cause, numbered and citing the stop:
 
