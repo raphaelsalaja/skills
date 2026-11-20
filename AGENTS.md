@@ -18,11 +18,11 @@ A skill states the rule, the exact value and the detection pattern. It does not 
 
 **Principle** skills hold a standard applied during any work: `scope`, `reuse`, `restraint`, `copy`, `prose`, `defaults`, `forms`, `overlays`, `motion`, `color` and `states`. Their headings state the point, such as `## Shadows are never cut off`, and they have no numbered steps.
 
-**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `viewports`, `icons`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `vitals`, `invariants`, `stress`, `animate`, `avatar`, `bots`, `sketchbook` and `audit`. Their steps are numbered `## 1.` onward.
+**Procedure** skills run a job in order: `verify`, `gather`, `match`, `rule`, `viewports`, `icons`, `ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `vitals`, `invariants`, `stress`, `animate`, `avatar`, `bots`, `sketchbook`, `iconset` and `audit`. Their steps are numbered `## 1.` onward.
 
 ## Invocation
 
-`ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `vitals`, `invariants`, `stress`, `animate`, `avatar`, `bots`, `sketchbook` and `audit` are user-invoked. Each one sets `disable-model-invocation: true` in its frontmatter and `allow_implicit_invocation: false` under `policy` in `agents/openai.yaml`. Set both or neither. The README line ends with "User-invoked." Every other skill may load on its own.
+`ship`, `prototype`, `lab`, `deconstruct`, `alignment`, `keyboard`, `frames`, `vitals`, `invariants`, `stress`, `animate`, `avatar`, `bots`, `sketchbook`, `iconset` and `audit` are user-invoked. Each one sets `disable-model-invocation: true` in its frontmatter and `allow_implicit_invocation: false` under `policy` in `agents/openai.yaml`. Set both or neither. The README line ends with "User-invoked." Every other skill may load on its own.
 
 ## Structure
 
@@ -89,11 +89,12 @@ Headings are sentence case. Straight quotes. No em dashes. En dashes are for num
 | `avatar` | Character silhouettes, eyes on a sphere, whole-body idle life, moods as eye shapes, reactions to the page, the contact sheet |
 | `bots` | The Grok round, picked Bots only, stripping private details, real copy links, the Bot marks, the physics pile, Bot cards and the org chart |
 | `sketchbook` | Daily batches of live interaction tiles, the taste file, kept components, wildcards and a clip suggestion |
+| `iconset` | The old set's audit, one icon per concept and its tags, the written voice, strokes picked beside the type, the seed set, the parts register and flat shipping, exploration rows, the migration map, the SVG contract and fixes at the source, the one build command and the generated catalogue |
 | `stress` | The value map with sources and limits, worst-case data through the demo boundary, the development-only data switch, the case catalog, the real container width and the kept fixture |
 | `animate` | Moments where content teleports, the frequency gate, the smallest motion that explains a change, the delight budget and the before and after clips |
 | `audit` | Review scope, the project's own system, content as data, the pattern scan, running every skill, merging by root cause, the numbered report, the verdict and self-contained hand-off plans |
 
-`reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `motion` owns whether an animation exists and `restraint` owns deleting it cleanly. `copy` owns the words that stay in the interface and `prose` owns the words around it. `defaults` owns how the surfaces that stay behave, `motion` owns how they move and `color` owns how they read. `forms` owns how fields take input and `overlays` owns how layers open and close. `states` owns which states a screen shows and `invariants` owns which combinations the code can hold. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
+`reuse` owns the sweep that follows a fix moved into a shared component. `rule` owns the sweep that follows a new rule. `restraint` owns what to leave out of the interface. `motion` owns whether an animation exists and `restraint` owns deleting it cleanly. `copy` owns the words that stay in the interface and `prose` owns the words around it. `defaults` owns how the surfaces that stay behave, `motion` owns how they move and `color` owns how they read. `forms` owns how fields take input and `overlays` owns how layers open and close. `states` owns which states a screen shows and `invariants` owns which combinations the code can hold. `iconset` owns the decisions for a whole icon set and `icons` owns each glyph drawn into it. `audit` owns the shared severity ladder in `audit/report.md`, and every other skill uses the same three words.
 
 ## Authoring
 

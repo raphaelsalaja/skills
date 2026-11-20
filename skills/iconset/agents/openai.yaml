@@ -1,0 +1,5 @@
+interface:
+  display_name: "Iconset"
+  short_description: "Build or redraw a whole icon library"
+policy:
+  allow_implicit_invocation: false
