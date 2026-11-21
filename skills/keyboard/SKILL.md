@@ -16,21 +16,21 @@ How the focus ring is styled, sticky chrome that covers focus and accessible nam
 
 ## 1. Load the recorder
 
-Open the page at the state the user named and click nothing. Run [tabstops.js](tabstops.js) through the browser's evaluate call. It returns pointer targets with no keyboard way in and scrollers with nothing to focus, then records each stop as keys are pressed. Judging order or reach from the markup is `keyboard-press-the-keys`.
+Open the page at the state the user named and click nothing. Run [tabstops.js](tabstops.js) through the browser's evaluate call. It returns pointer targets with no keyboard way in, scrollers with nothing to focus, reordered containers and the skip link. Then it records each stop as keys are pressed. Judging order or reach from the markup is `keyboard-press-the-keys`.
 
-Send keys through trusted input, such as Playwright's `keyboard.press` or the operating system. A dispatched DOM `KeyboardEvent` never moves focus, so a walk with no stops means the keys never arrived.
+Send keys through trusted input, such as Playwright's `keyboard.press` or the operating system. A dispatched DOM `KeyboardEvent` never moves focus, so a walk with no stops means the keys never arrived. `window.__keyboard.keys` counts Tab presses as `trusted` and `untrusted`, so one press tells which kind the tool sends.
 
 ## 2. Walk forward, then back
 
 Press Tab from the top of the page until focus leaves it, then Shift+Tab back to the start. Read `window.__keyboard.stops` and call `window.__keyboard.highlight()`.
 
-Stops follow the reading order of the layout. A jump from the header to the footer and back, or any positive `tabindex`, is `keyboard-order-follows-layout`. Search the CSS for `order:`, `row-reverse`, `column-reverse` and `grid-auto-flow: dense`, which move boxes but not their stops. Fix the source order, because `reading-flow` works only in Chromium.
+Stops follow the reading order of the layout. A jump from the header to the footer and back, or any positive `tabindex`, is `keyboard-order-follows-layout`. Search the CSS for `order:`, `row-reverse`, `column-reverse` and `grid-auto-flow: dense`, which move boxes but not their stops. The recorder's `reordered` list names each container that does this around two or more stops. Fix the source order, because `reading-flow` works only in Chromium.
 
-Every stop shows an indicator on screen whose pixels change by 3:1 from the unfocused state. A stop with no visible ring is `keyboard-see-every-stop`. The recorder's `ringWidth` gives the outline thickness, and one under 2px cites `defaults-focus-keyboard-only`.
+Every stop shows an indicator on screen whose pixels change by 3:1 from the unfocused state. A stop with no visible ring is `keyboard-see-every-stop`. The recorder sets a stop's `ring` to false once focus leaves it unchanged. Its `ringWidth` gives the outline thickness, and one under 2px cites `defaults-focus-keyboard-only`. A `ringStyle` of `auto` is the browser's own ring, which reads 1px however wide it draws.
 
 Every stop is something the user can see. Focus landing on links inside a closed drawer is `keyboard-no-hidden-stops`. The recorder marks a stop `obscured`, fully or partly, when sticky chrome, a banner or a toast covers it. An obscured stop cites `defaults-clear-sticky-chrome`, and a stop with no name cites `defaults-name-icon-buttons`.
 
-When navigation comes before the main content, the first stop is a skip link to it. It shows when focused, and after Enter the next Tab lands inside `main`. Twenty header stops before the first result is `keyboard-skip-link`.
+When navigation comes before the main content, the first stop is a skip link to it. It shows when focused, and after Enter the next Tab lands inside `main`. Twenty header stops before the first result is `keyboard-skip-link`. The recorder's `skipLink` reads `target: null` for a link to an id that does not exist, and each stop's `inMain` shows where that next Tab landed.
 
 ## 3. Reach every control
 

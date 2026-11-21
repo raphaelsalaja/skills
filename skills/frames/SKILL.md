@@ -22,7 +22,9 @@ CPU throttling models a slow processor, not a weak GPU or small memory. Trace bl
 
 ## 2. Record it
 
-Run [observe.js](observe.js) through the browser's evaluate call. Call `window.__frames.start()`, perform the interaction three times, then call `window.__frames.stop()`. When a long frame has no named script, record a full performance profile too. Reporting smoothness without a recording is `frames-trace-not-feel`.
+Run [observe.js](observe.js) through the browser's evaluate call. Through `Runtime.evaluate`, pass `includeCommandLineAPI: true`, or its `listeners` field reads `null`. Call `window.__frames.start()`, perform the interaction three times, then call `window.__frames.stop()`. When a long frame has no named script, record a full performance profile too. Reporting smoothness without a recording is `frames-trace-not-feel`.
+
+Perform it with trusted input, such as Playwright's `mouse` and `keyboard` or the operating system. Event timing skips script-dispatched input, so `interactions` stays empty while `inputs` counts only `untrusted`. A result with `throttled: true` means the browser held a background tab's frames. Bring the tab to the front and record again, or mark the frame numbers `Not verified`.
 
 ## 3. Read the budget
 
@@ -40,9 +42,9 @@ Reading layout after writing a style forces the browser to lay out mid-frame. `o
 
 A loop that runs past 50ms holds every key and click behind it. Yield to input every 50ms with `await scheduler.yield()`, falling back to `setTimeout(0)` where it is missing, as in Safari. A 5,000-row loop with no yield is `frames-yield-every-50ms`.
 
-A `touchstart`, `touchmove` or `wheel` listener on an element holds each scroll until it returns, in case it calls `preventDefault()`. Register it with `{ passive: true }`, and block gestures with `touch-action` instead. A `wheel` listener on a scrolling list without that flag is `frames-passive-listeners`.
+A `touchstart`, `touchmove` or `wheel` listener on an element holds each scroll until it returns, in case it calls `preventDefault()`. Register it with `{ passive: true }`, and block gestures with `touch-action` instead. A `wheel` listener on a scrolling list without that flag is `frames-passive-listeners`. The recording's `listeners.blocking` names each one.
 
-A `scroll` listener that writes a style on each event runs on the main thread and trails the scroll. Move the effect onto a CSS scroll timeline, built as `motion` sets out. A progress bar whose `width` a `scroll` listener writes is `frames-scroll-driven`. Work that waits for scrolling to stop listens for `scrollend`, never a debounced `scroll` handler.
+A `scroll` listener that writes a style on each event runs on the main thread and trails the scroll. Move the effect onto a CSS scroll timeline, built as `motion` sets out. A progress bar whose `width` a `scroll` listener writes is `frames-scroll-driven`. Scroll during the recording, and `scrollWrites` names each element a scroll handler styled. Work that waits for scrolling to stop listens for `scrollend`, never a debounced `scroll` handler.
 
 A list over about 1,000 rows is virtualized or paginated, and the report says which. Rendering 5,000 rows into one scroller is `frames-virtualize-long-lists`.
 

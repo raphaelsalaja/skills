@@ -1,7 +1,12 @@
 // Run in the page before walking it with the keyboard (DevTools console, Runtime.evaluate or page.evaluate).
-// Returns { unreachable, scrollers, positiveTabindex } at once, then records every focus stop while keys are pressed.
-// Each stop carries its outline thickness and whether other content covers it, measured a frame after focus scrolls it in.
-// Read window.__keyboard.stops after the walk. Call window.__keyboard.highlight() to number the stops on the page.
+// Returns { unreachable, scrollers, positiveTabindex, reordered, skipLink } at once, then records every focus stop
+// while keys are pressed. reordered lists containers that CSS reorders around two or more stops. skipLink is null
+// unless the first stop is an in-page link, and then names its target and whether that target sits in main.
+// Each stop carries inMain, ring, ringStyle, ringWidth and whether other content covers it, measured a frame after
+// focus scrolls it in. ring turns false once focus leaves a stop that looked the same focused and unfocused.
+// ringStyle "auto" is the browser's own ring, whose ringWidth reads 1px though it draws wider.
+// Read window.__keyboard.stops after the walk. window.__keyboard.keys counts Tab presses as { trusted, untrusted }.
+// Call window.__keyboard.highlight() to number the stops on the page.
 (() => {
   window.__keyboard?.dispose();
 
@@ -42,6 +47,13 @@
   const ringWidth = (el) => {
     const style = getComputedStyle(el);
     return style.outlineStyle === "none" ? 0 : Number.parseFloat(style.outlineWidth) || 0;
+  };
+
+  // The outline and shadow an element draws, compared focused and unfocused once focus leaves it.
+  const ringOf = (el) => {
+    const style = getComputedStyle(el);
+    const outline = style.outlineStyle === "none" ? "none" : `${style.outlineStyle} ${style.outlineWidth} ${style.outlineColor}`;
+    return `${outline} | ${style.boxShadow} | ${style.borderColor} | ${style.backgroundColor}`;
   };
 
   const hasRing = (el) => ringWidth(el) > 0 || getComputedStyle(el).boxShadow !== "none";
@@ -94,10 +106,13 @@
       role: roleOf(el),
       name: nameOf(el),
       tabIndex: el.tabIndex,
+      inMain: Boolean(el.closest("main, [role=main]")),
       ring: hasRing(el),
+      ringStyle: getComputedStyle(el).outlineStyle,
       ringWidth: ringWidth(el),
       visible: isVisible(el),
       element: el,
+      focusedRing: ringOf(el),
     };
     measure(stop);
     stops.push(stop);
@@ -106,6 +121,12 @@
   };
 
   const onFocusOut = (event) => {
+    // Focus has already left, so the computed style is the unfocused one. No change means no indicator.
+    const left = stops.findLast((stop) => stop.element === event.target && stop.focusedRing);
+    if (left) {
+      left.ring = left.focusedRing !== ringOf(left.element);
+      delete left.focusedRing;
+    }
     if (event.relatedTarget) return;
     const from = describe(event.target);
     setTimeout(() => {
@@ -115,8 +136,15 @@
     });
   };
 
+  // A key the browser tool dispatches as a DOM event arrives untrusted and never moves focus.
+  const keys = { trusted: 0, untrusted: 0 };
+  const onKeyDown = (event) => {
+    if (event.key === "Tab") keys[event.isTrusted ? "trusted" : "untrusted"] += 1;
+  };
+
   document.addEventListener("focusin", onFocusIn, true);
   document.addEventListener("focusout", onFocusOut, true);
+  document.addEventListener("keydown", onKeyDown, true);
 
   // Topmost pointer targets with no way in from the keyboard.
   const unreachable = [...document.body.querySelectorAll("*")]
@@ -147,10 +175,45 @@
     .filter((el) => el.tabIndex > 0)
     .map((el) => ({ where: describe(el), tabIndex: el.tabIndex }));
 
+  // Containers whose boxes CSS reorders while their stops keep source order, holding two or more stops.
+  const reordered = [...document.body.querySelectorAll("*")]
+    .map((el) => {
+      const style = getComputedStyle(el);
+      const flex = /flex/.test(style.display);
+      const how = [
+        flex && style.flexDirection.endsWith("reverse") && `flex-direction: ${style.flexDirection}`,
+        flex && style.flexWrap === "wrap-reverse" && "flex-wrap: wrap-reverse",
+        /grid/.test(style.display) && style.gridAutoFlow.includes("dense") && `grid-auto-flow: ${style.gridAutoFlow}`,
+        /flex|grid/.test(style.display) && [...el.children].some((kid) => getComputedStyle(kid).order !== "0") && "order",
+      ].filter(Boolean);
+      const holding = [...el.children].filter((kid) => kid.matches(focusable) || kid.querySelector(focusable)).length;
+      return how.length && holding >= 2 && isVisible(el) ? { where: describe(el), how: how.join(", "), stops: holding } : null;
+    })
+    .filter(Boolean);
+
+  // The first stop in the page, when it is an in-page link: where it points and whether that lands in main.
+  const main = document.querySelector("main, [role=main]");
+  const first = [...document.querySelectorAll(focusable)].find(
+    (el) => el.tabIndex >= 0 && !el.closest("[inert]") && el.getClientRects().length && getComputedStyle(el).visibility !== "hidden",
+  );
+  let skipLink = null;
+  if (first?.matches('a[href^="#"]')) {
+    const id = decodeURIComponent(first.getAttribute("href").slice(1));
+    const target = id ? document.getElementById(id) ?? document.getElementsByName(id)[0] ?? null : null;
+    skipLink = {
+      where: describe(first),
+      name: nameOf(first),
+      href: first.getAttribute("href"),
+      target: target && describe(target),
+      targetInMain: Boolean(target && main?.contains(target)),
+    };
+  }
+
   window.__keyboard = {
     get stops() {
-      return stops.map(({ element, ...stop }) => stop);
+      return stops.map(({ element, focusedRing, ...stop }) => stop);
     },
+    keys,
     highlight() {
       document.querySelectorAll("[data-keyboard-overlay]").forEach((node) => node.remove());
       for (const stop of stops) {
@@ -190,8 +253,9 @@
       this.clear();
       document.removeEventListener("focusin", onFocusIn, true);
       document.removeEventListener("focusout", onFocusOut, true);
+      document.removeEventListener("keydown", onKeyDown, true);
     },
   };
 
-  return { unreachable, scrollers, positiveTabindex };
+  return { unreachable, scrollers, positiveTabindex, reordered, skipLink };
 })();
