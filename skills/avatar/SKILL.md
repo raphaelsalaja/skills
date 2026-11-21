@@ -14,7 +14,9 @@ The gaze, eye and blink values in [face.js](face.js) are measured off reference 
 
 Gathering references belongs to `gather`. Taking a reference animation apart frame by frame belongs to `deconstruct`. Offering silhouette variants belongs to `prototype`. Interface motion and its 300ms budget belong to `motion`, not a character's body. Frame cost belongs to `frames`. Opening the result belongs to `verify`.
 
-## 1. Study the reference
+## 1. Ask, then study the reference
+
+Before drawing, ask in one round: which object, where it ships and at what size, and a character whose life the user likes. Ask what the object does that a blob cannot, such as a lid that lifts, for step 5. Offer 28px and "No reference" as defaults. Drawing before the object and its place are known is `avatar-ask-the-character`.
 
 When the user names a reference character, open its source and step its recording at 10fps. Measure eye size, tilt, spacing and blink timing off the frames. A character drawn from one glance at the reference is `avatar-measure-the-reference`.
 
@@ -43,6 +45,12 @@ Keep toy proportions. No part is thinner than an eye is wide, every corner is ro
 Centre the mass and sit it on a flat or gently rounded base. Then look at the whole shape at 28px, at rest and mid-lean. If it reads as another object or a broken one, rebalance the parts or change the view, even when every rule above holds.
 
 Colour comes from two variables, `--avatar-body` and `--avatar-eyes`, checked in both themes. A fill written into the path is `avatar-colour-variables`.
+
+Show 3 silhouettes that differ in view or part balance, each at 28px and at 4× with the resting eyes. Lay them out with `prototype`. Animating a silhouette the user never picked is `avatar-pick-the-silhouette`.
+
+A lukewarm "it's cute, I guess" is not a pick. Ask which one comes closest and what it lacks. Treating faint praise as a pick is `avatar-lukewarm-is-not-a-pick`.
+
+Name the property behind a vague note before redrawing. "Looks off" is usually the view, "cramped" the face part, "clunky" a secondary part's size and "spiky" the proportions. A new silhouette after "not quite", with no part named, is `avatar-no-blind-redraw`.
 
 ## 3. Put the eyes on a sphere
 
@@ -75,7 +83,7 @@ Each reaction answers one input from the page:
 - The user presses the action or the character. It hops for 750ms with squash and stretch, then squints happily back out.
 - Nothing happens for 24s. It grows sleepy, falls asleep at 30s with slow deep breaths and wakes with a spin.
 
-Clamp the followed gaze to ±45° of yaw so the eyes stay on the face, and ignore touch pointers for following. A character that ignores the page around it is `avatar-react-to-the-page`.
+Clamp the followed gaze to ±45° of yaw so the eyes stay on the face, and ignore `pointerType === "touch"` for following. A character that ignores the page around it is `avatar-react-to-the-page`.
 
 When the character is the main toy on its page, it may also react to distance. It turns curious inside 640px, wary inside 260px and recoils inside 100px. A poked eye shuts while the other stays open.
 
@@ -89,6 +97,8 @@ Render the resting pose on the server from `restingEyes`, so the first paint alr
 
 Under `prefers-reduced-motion: reduce`, the character holds its resting pose and starts no loop. A character that still glances and hops is `avatar-still-when-reduced`. The character is decorative, so its SVG takes `aria-hidden="true"`.
 
+A character moving beside other content for more than 5s still takes the pause control `motion` owns. Falling asleep at 30s is not that control.
+
 ## 8. Prove it on a contact sheet
 
 A single screenshot cannot show motion, and a hidden tab throttles the loop. Run [sheet.js](sheet.js) through the browser's evaluate call, then call `window.__avatarSheet.start({ selector })`.
@@ -96,6 +106,8 @@ A single screenshot cannot show motion, and a hidden tab throttles the loop. Run
 Drive each mood with pointer events: idle, enter, hover, press and leave. Call `window.__avatarSheet.stop()` and screenshot the sheet it lays out. One still frame offered as proof is `avatar-contact-sheet`.
 
 A `warning` in the result means the tab was hidden or the loop stalled, so frames repeat or gaps widen. Keep the tab visible and sample again. Sleep needs 30s without input, so sample it once on its own.
+
+Show the sheet to the user. "Too much" or "twitchy" changes a mood row or a reaction, never the measured gaze and blink values.
 
 Finish with the character at its shipped size in both themes, then call `window.__avatarSheet.clear()`.
 
@@ -105,6 +117,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 | Rule | Broken | Replacement |
 | --- | --- | --- |
+| `avatar-ask-the-character` | A mug drawn from "make me a mascot" | "Which object, where does it sit and at what size?", asked first |
 | `avatar-measure-the-reference` | Eyes placed from one look at the reference | Size, tilt, spacing and blinks measured off frames at 10fps |
 | `avatar-keep-the-measurements` | `split: 15`, rounded to look tidy | `split: 15.5`, as measured |
 | `avatar-flat-silhouette` | A cup with an outline, shading and a smile | One solid shape and two eyes |
@@ -115,6 +128,9 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `avatar-holes-are-openings` | A cut-out slot for a coin or a button | Holes only where the object is open, such as the handle |
 | `avatar-toy-proportions` | A hairline stem and a sharp leaf tip | Parts at least an eye wide, rounded corners, soft tips |
 | `avatar-colour-variables` | `fill="#c27a3e"` in the path | `fill="var(--avatar-body)"`, set per theme |
+| `avatar-pick-the-silhouette` | One silhouette drawn and animated straight away | Three silhouettes at 28px and 4×, one picked by the user |
+| `avatar-lukewarm-is-not-a-pick` | "It's cute, I guess" read as a yes | "Which comes closest, and what does it lack?" |
+| `avatar-no-blind-redraw` | "Not quite" answered with three new silhouettes | "Is it the view, the face part or the handle?", then that part redrawn |
 | `avatar-eyes-on-a-sphere` | `translate(dx, dy)` on both eyes | `drawEyes(face, gaze, lid, head)` from yaw, pitch and roll |
 | `avatar-clip-to-the-body` | An eye hanging past the outline on a wide glance | Eyes inside a `clipPath` of the body path |
 | `avatar-never-still` | Eyes parked at rest between blinks | Layered drift and a glance every 1.5–4s |
@@ -130,7 +146,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a body that never moves, eyes escaping the silhouette or motion under reduced motion. `MEDIUM` is flat sliding eyes, a fixed blink, swapped mood drawings, an offscreen loop, a missing reaction or proof from one screenshot. A view that does not name the object, a cramped face or an oversized secondary part is also `MEDIUM`. `LOW` is a rounded measurement, a fill in the path, a rest pose that pops in or a character with no move of its own. A sliver at a join, a decorative hole or a hairline part is also `LOW`.
+**Severity.** `HIGH` is a body that never moves, eyes escaping the silhouette or motion under reduced motion. `MEDIUM` is flat sliding eyes, a fixed blink, swapped mood drawings, an offscreen loop, a missing reaction or proof from one screenshot. A view that does not name the object, a cramped face or an oversized secondary part is also `MEDIUM`. So is a character drawn before the object and its place were asked, an unpicked silhouette animated, faint praise taken as a pick or a blind redraw. `LOW` is a rounded measurement, a fill in the path, a rest pose that pops in or a character with no move of its own. A sliver at a join, a decorative hole or a hairline part is also `LOW`.
 
 **Format.** One finding per root cause:
 

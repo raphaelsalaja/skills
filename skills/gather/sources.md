@@ -84,7 +84,7 @@ Each agent writes one file, `.gather/<brief>/candidates/<source>.json`, holding 
 ```json
 {
   "title": "Settings Page",
-  "brief": "Desktop settings page, looking for grouping and density.",
+  "brief": "Desktop settings page, looking for grouping and density. Not: card grids.",
   "groups": [{ "title": "Grouping", "description": "How long lists of options are split up." }],
   "cut": ["https://mobbin.com/screens/9f12ab07"]
 }

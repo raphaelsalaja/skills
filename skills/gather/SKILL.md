@@ -25,6 +25,10 @@ Search on the same platform as the work. A desktop or web app takes web and desk
 
 Open the tabs, screenshots, links and design files already in the thread before searching anywhere. They seed the image searches in step 4. Searching Mobbin while the user's screenshots sit open in the browser is `gather-start-with-given`.
 
+When the thread holds no reference, ask for them in the same round as the source question in step 3. Ask for 1–3 products that do the part well, one the user dislikes and why for each. Offer "None, search wide" so the question never blocks.
+
+Read each answer for the part it does well, so "like Linear" becomes "Linear's dense grouped rows". Add each dislike to the brief after `Not:`, so every search agent avoids it. Searching with no reference and no question asked is `gather-ask-for-references`.
+
 ## 3. Ask which sources to use
 
 Ask one multi-select question with every source in [sources.md](sources.md#which-sources) as its own option, marking each one connected or not. Search only the sources picked.
@@ -77,6 +81,8 @@ Cut only clear misses, by adding their url to `cut` in `board.json`. When two re
 
 Each reference gets one note naming the part to take, such as "the top bar". A reference with no note is `gather-name-the-part`. Each keeps its source link. An image with no link is `gather-link-every-reference`.
 
+The same shot often lands from Pinterest, Pond and the maker's own page. Keep the copy closest to its maker, following a repin's link or an image search to find it. Cut the rest. Two tiles of one image, or a repin kept over the maker's shot, is `gather-one-copy-per-shot`.
+
 Mark each reference `Shipped` or `Concept` under `Kind` in its `details`. A concept shot shown as a shipped product is `gather-concept-or-shipped`.
 
 Name the creator under `Creator`, with their profile as a `url` when the source shows it.
@@ -88,6 +94,12 @@ When the cut is done, run the collector once more with `--done` so the board sto
 ## 7. Act on what comes back
 
 The board copies two prompts. Copy Picks returns the picks with the user's notes, which become the brief for the next step. More Like This returns one reference.
+
+Sum the picks up as one line of what to take and one of what to avoid, then ask the user to confirm it. Picks handed on as a list of links is `gather-sum-up-the-picks`.
+
+A lukewarm reply, such as "these are fine" or "nothing really pops", is not a direction. Ask which one or two come closest and what each lacks, naming the brief's parts. Building from a shrug is `gather-lukewarm-is-not-a-pick`.
+
+When the user rejects the whole board, ask which reference is closest and which is furthest. Add what the furthest does to `Not:` and seed image searches from the closest. A second board on the same queries after "none of these" is `gather-no-blind-retry`.
 
 For More Like This, seed an image search from that reference and keep to its group, with every url on the board left out. A text search on its title is `gather-more-from-the-pick`.
 
@@ -107,6 +119,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `gather-split-the-brief` | `query: "desktop settings page with grouped dense options"` | `"settings groups"`, `"preferences list"`, `"dense settings"` |
 | `gather-same-platform` | iOS screens for a desktop app | `platform: "web"` and desktop apps |
 | `gather-start-with-given` | A Mobbin search while the user's tabs are open | The open tabs read first |
+| `gather-ask-for-references` | A Mobbin search started on "settings page" alone | "Which apps do settings well, and which do you dislike?", asked with the sources |
 | `gather-ask-which-sources` | Six sources offered while Savee and Refero go unlisted | Every source in `sources.md` as its own option, marked connected or not |
 | `gather-boards-through-pond` | "Are.na's API blocks scripted requests, so I'll search it in the browser" while Pond is connected | Pond searched with `source: "arena"`, `"cosmos"` and `"pinterest"` |
 | `gather-parallel-sources` | Pond, then Mobbin, then Cosmos, one after another | One agent per source, started together |
@@ -124,8 +137,12 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `gather-cut-clear-misses` | Two close references, one cut by the agent | Both on the board for the user |
 | `gather-name-the-part` | A screenshot with no note | "Take the grouped list, not the colours" |
 | `gather-link-every-reference` | An image with no source | The image linked to its original |
+| `gather-one-copy-per-shot` | One shot twice, as a Pinterest repin and a Dribbble post | The Dribbble post kept, linked to its maker |
 | `gather-concept-or-shipped` | A Dribbble concept shown as a product | `details: { Kind: "Concept" }` |
 | `gather-short-group-names` | "Activity: thinking, tool calls and steps" | "Agent Activity" |
+| `gather-sum-up-the-picks` | Six links passed to `prototype` | "Take: grouped rows and quiet colour. Avoid: cards. Right?" |
+| `gather-lukewarm-is-not-a-pick` | "These are fine" read as approval | "Which two come closest, and what does each lack?" |
+| `gather-no-blind-retry` | "None of these" answered with 20 more from the same queries | The closest seeding an image search, the furthest's trait under `Not:` |
 | `gather-more-from-the-pick` | More Like This searched as "Linear settings" | An image search seeded from the picked screen |
 | `gather-match-the-naming` | A new channel named "FW 26 🔥" | `fashion / inspiration / 2026 / fall winter` |
 | `gather-no-duplicates` | The same pin added twice | Existing items checked and skipped |
@@ -135,9 +152,9 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 **Severity.** `HIGH` is a whole look copied when one part was asked for, items saved twice or under the wrong name, or saves rewritten in the user's library.
 
-`MEDIUM` is the wrong platform, one source only, sources searched in turn, a board with no links or a hand-written board or build script. It is also a search that skipped the source question or the user's own saves, or searched a source the user left out. So is a site searched without the user's saves there, or the reverse. So is a reference kept unseen, a close call settled by the agent or a concept shown as shipped. So is a Mobbin call after its usage warning, or a board reached around Pond while Pond holds its saves.
+`MEDIUM` is the wrong platform, one source only, sources searched in turn, a board with no links or a hand-written board or build script. It is also a search that skipped the source question or the user's own saves, or searched a source the user left out. So is a site searched without the user's saves there, or the reverse. So is a reference kept unseen, a close call settled by the agent or a concept shown as shipped. So is a Mobbin call after its usage warning, or a board reached around Pond while Pond holds its saves. So is a search with no references asked for, a lukewarm reply built on or a second board after "none of these" on the same queries.
 
-`LOW` is one long query, text search where an image search fits or a gallery thumbnail of a live site. So is a reference with no note, a long group name, repeats under "more" or More Like This searched by title.
+`LOW` is one long query, text search where an image search fits or a gallery thumbnail of a live site. So is a reference with no note, a long group name, repeats under "more" or More Like This searched by title. So is one shot shown twice, a repin kept over its maker or picks handed on without a summary.
 
 **Format.** One finding per root cause, citing the request when no file applies:
 

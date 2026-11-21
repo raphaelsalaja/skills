@@ -22,13 +22,17 @@ Only the Bots the user picked go on the site. A Bot added because it looked good
 
 Wait for the JSON array it returns. When the user pastes setups directly instead, read those the same way.
 
+While the round runs, ask where the pile sits and what the org chart page is called. Offer the home page and Team as defaults. Below, the org chart page is the Team page, whatever the user names it. A page name or spot assumed without asking is `bots-ask-the-placement`.
+
 ## 2. Strip what is private
 
 Check every entry again, whatever the Bots already removed. Strip emails, phone numbers, addresses, other people's names, clients, employers, private projects, internal links, keys, tokens, account details, memory and personal facts.
 
 When unsure, leave it out and list it at the end. A client name kept because it seemed harmless is `bots-strip-private`.
 
-A copy link comes only from a published template the user pasted back. A link written from a guessed pattern or a Bot's id is `bots-real-links`.
+A clip can leak what the text never held. Watch each one at full size through every transition for notifications, inboxes, names, URLs and account menus. Re-record a clip that shows any rather than blurring it, and check its file name and metadata. A clip published unwatched is `bots-check-the-clip`.
+
+A copy link comes only from a published template the user pasted back. Fetch each link and check that the page's `botName` matches its entry. A link written from a guessed pattern or a Bot's id is `bots-real-links`.
 
 ## 3. Write one data file
 
@@ -40,6 +44,8 @@ The areas are the user's own sidebar sections in Grok, named and ordered as they
 
 Shape and colour come from each Bot's published page, as [grok.md](grok.md) describes. A shape or colour picked by eye from a screenshot is `bots-page-marks`.
 
+Show every entry as one table before building: title, area, line, does, routines, tools, shape, colour and link. Wait for a yes. A lukewarm "looks fine, I guess" gets one question: which entry reads wrong? Building from entries the user never saw is `bots-approve-the-entries`.
+
 ## 4. Draw each Bot in its own mark
 
 Copy [marks.js](marks.js) beside the components. Each Bot is drawn in the shape and colour it has in Grok, from `MARKS[shape].path` and `markEyes(shape)`, with fills from `MARK_COLORS`. A generic avatar or an initial in a circle is `bots-real-marks`.
@@ -48,7 +54,7 @@ Black takes the page's text colour for the body and its background for the eyes,
 
 ## 5. Build the pile
 
-The home page gets a section titled "Grok Bots" holding one card. Inside it sits a 300px stage, 340px under 480px wide, and every Bot as an absolutely placed piece. Shuffle the order with a seeded random so the server and client agree.
+The page the user picked, the home page by default, gets a section titled "Grok Bots" holding one card. Inside it sits a 300px stage, 340px under 480px wide, and every Bot as an absolutely placed piece. Shuffle the order with a seeded random so the server and client agree.
 
 Copy [pile.js](pile.js) beside the component and add `matter-js`. Call `createPile` once the pieces mount and `destroy` on unmount.
 
@@ -88,7 +94,7 @@ Register the page wherever the site lists pages, such as the sitemap, the naviga
 
 ## 8. Open it and report
 
-Open the home page and the Team page in both themes, then shake, drag and tap the pile.
+Open the pile's page and the Team page in both themes, then shake, drag and tap the pile.
 
 Finish with three lists: the files created or changed, every detail stripped or left out as unsure, and the Bots still missing a link. Under that last list, give the Grok steps that make a link. Ending on "done" with none of these is `bots-list-what-is-missing`.
 
@@ -99,12 +105,15 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | Rule | Broken | Replacement |
 | --- | --- | --- |
 | `bots-user-picks` | All 25 Bots added because the list was there | Only the Bots the user named in round 1 |
+| `bots-ask-the-placement` | A new Team page on a site that lists its people under Studio | "Where should the pile sit, and what is the page called?", asked during the round |
 | `bots-strip-private` | "Books calls with Sarah at Acme" | "Books calls" |
+| `bots-check-the-clip` | A clip with an inbox notification sliding in at 0:04 | The clip watched through every transition and re-recorded clean |
 | `bots-real-links` | `https://x.ai/bot/sleep-coach`, built by hand | The link the user copied after Publish |
 | `bots-one-file` | Bot copy inlined in three components | One entry per Bot in `data/bots.ts` |
 | `bots-entry-shape` | A 90-word description from the Bot's instructions | "Guards a steady bedtime and a calm wind-down." |
 | `bots-real-marks` | An initial in a grey circle | The Bot's own shape and colour from `marks.js` |
 | `bots-page-marks` | `shape: "clover"` guessed from a sidebar icon | `shape: "cloud"` read from the Bot's x.ai page |
+| `bots-approve-the-entries` | `data/bots.ts` written straight from the JSON | Every entry shown as one table and confirmed first |
 | `bots-hull-bodies` | `Bodies.circle` for every Bot | `Body.create({ vertices })` from `markHull(shape)` |
 | `bots-drag-pushes` | `if (dragging) return` before `Engine.update` | A spring `Constraint` and the world still stepping |
 | `bots-jelly-keeps-area` | `scale(1.4, 0.8)` that grows the Bot | The matrix clamped and divided by its determinant's root |
@@ -120,7 +129,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a private detail on the page, a Bot the user did not pick or a link that was not copied from Grok. `MEDIUM` is a frozen pile while dragging, a shake that loses Bots, a Bot turning inside out, motion under reduced motion or a dead copy button. Circle bodies, a loop that never sleeps, sound before a touch, a flat grid instead of the chart or a missing finish list is also `MEDIUM`. `LOW` is a long description, a guessed shape or colour, a lone corner button or a name that opens on a drag.
+**Severity.** `HIGH` is a private detail on the page or in a clip, a Bot the user did not pick or a link that was not copied from Grok. `MEDIUM` is a frozen pile while dragging, a shake that loses Bots, a Bot turning inside out, motion under reduced motion or a dead copy button. Circle bodies, a loop that never sleeps, sound before a touch, a flat grid instead of the chart or a missing finish list is also `MEDIUM`. So is a clip published unwatched or entries built before the user saw them. `LOW` is a long description, a guessed shape or colour, a lone corner button or a name that opens on a drag. So is a page name or placement assumed.
 
 **Format.** One finding per root cause:
 
