@@ -34,9 +34,9 @@
 
   Times are milliseconds on one clock. `at` places a state or an event on it, and a segment starts `delay` after its `on` event. Labels take Title Case.
 
-  `easing` is kept as written: a cubic-bezier string or keyword, or a spring. A spring is { stiffness, damping, mass } or { bounce, duration }, with duration in seconds as Motion takes it. A spring may leave out the segment `duration`.
+  `easing` is kept as written: a cubic-bezier, linear() or steps() string, a keyword, or a spring. A spring is { stiffness, damping, mass } or { bounce, duration }, with duration in seconds as Motion takes it. A spring may leave out the segment `duration`.
 
-  A value is a number, a list such as [12, 0] for translate or a string that switches when its segment ends. `unit` follows each number. `template` wraps the value, such as "blur($)". `note` explains a track.
+  A value is a number, a list such as [12, 0] for translate or a string that switches when its segment ends. `unit` follows each number. `template` wraps the value, such as "blur($)". `note` explains a track, such as the frame rate its timings were read at.
 
   `notVerified` lists the fields of a segment that could not be read from the source, such as ["delay"]. `track.target` is a selector inside the preview.
 
@@ -2587,6 +2587,69 @@
         return (x) => (x <= 0 ? 0 : x >= 1 ? 1 : sampleY(solve(x)));
       }
 
+      function linearCurve(easing) {
+        const match = typeof easing === "string" && easing.trim().match(/^linear\(([\s\S]+)\)$/);
+        if (!match) return null;
+        const stops = [];
+        for (const part of match[1].split(",")) {
+          const [output, ...inputs] = part.trim().split(/\s+/);
+          const value = parseNumber(output);
+          if (!Number.isFinite(value) || inputs.length > 2) return null;
+          if (inputs.length === 0) stops.push({ output: value, input: null });
+          for (const input of inputs) {
+            const at = input.endsWith("%") ? parseNumber(input.slice(0, -1)) / 100 : NaN;
+            if (!Number.isFinite(at)) return null;
+            stops.push({ output: value, input: at });
+          }
+        }
+        if (stops.length < 2) return null;
+        if (stops[0].input === null) stops[0].input = 0;
+        const last = stops[stops.length - 1];
+        if (last.input === null) last.input = Math.max(1, ...stops.map((stop) => stop.input ?? 0));
+        let largest = -Infinity;
+        for (const stop of stops) {
+          if (stop.input === null) continue;
+          stop.input = Math.max(stop.input, largest);
+          largest = stop.input;
+        }
+        for (let i = 1; i < stops.length - 1; i++) {
+          if (stops[i].input !== null) continue;
+          let next = i;
+          while (stops[next].input === null) next++;
+          const from = stops[i - 1].input;
+          const span = (stops[next].input - from) / (next - i + 1);
+          for (let k = i; k < next; k++) stops[k].input = from + span * (k - i + 1);
+          i = next;
+        }
+        return (x) => {
+          if (x <= stops[0].input) return stops[0].output;
+          if (x >= last.input) return last.output;
+          const index = stops.findLastIndex((stop) => stop.input <= x);
+          const a = stops[index];
+          const b = stops[index + 1];
+          return a.output + ((b.output - a.output) * (x - a.input)) / (b.input - a.input);
+        };
+      }
+
+      function stepsCurve(easing) {
+        if (easing === "step-start") return stepsCurve("steps(1, jump-start)");
+        if (easing === "step-end") return stepsCurve("steps(1, jump-end)");
+        const match = typeof easing === "string" && easing.trim().match(/^steps\(\s*(\d+)\s*(?:,\s*(jump-start|jump-end|jump-none|jump-both|start|end)\s*)?\)$/);
+        if (!match) return null;
+        const count = Number(match[1]);
+        const position = match[2] ?? "end";
+        if (count < 1 || (position === "jump-none" && count < 2)) return null;
+        const jumps = position === "jump-both" ? count + 1 : position === "jump-none" ? count - 1 : count;
+        const early = ["jump-start", "start", "jump-both"].includes(position);
+        return (x) => Math.min(Math.max(Math.floor(x * count) + (early ? 1 : 0), 0), jumps) / jumps;
+      }
+
+      function easingCurve(easing) {
+        const points = bezierPoints(easing);
+        if (points) return cubicBezier(...points);
+        return linearCurve(easing) ?? stepsCurve(easing);
+      }
+
       function springConfig(easing) {
         if (!("bounce" in easing) && !("duration" in easing)) {
           return { stiffness: easing.stiffness ?? 100, damping: easing.damping ?? 10, mass: easing.mass ?? 1 };
@@ -2661,9 +2724,8 @@
         const { easing } = segment;
         if (segment.duration === 0) return { ...segment, start, length: 0, ease: () => 1 };
         if (typeof easing === "string") {
-          const points = bezierPoints(easing);
-          if (!points) throw new Error(`Unknown easing "${easing}"`);
-          const curve = cubicBezier(...points);
+          const curve = easingCurve(easing);
+          if (!curve) throw new Error(`Unknown easing "${easing}"`);
           return { ...segment, start, length: segment.duration, ease: (ms) => curve(ms / segment.duration) };
         }
         if (easing && typeof easing === "object") {
@@ -3421,7 +3483,7 @@
       }
 
       function easingValid(value) {
-        return bezierPoints(value) !== null;
+        return easingCurve(value) !== null;
       }
 
       function clearFlag(source, field) {
@@ -4180,7 +4242,8 @@
         if (typeof source.easing === "string" || source.easing == null) {
           if (source.easing != null || (source.duration ?? 0) > 0) {
             const curve = textInput("Easing", () => source.easing ?? "", (next) => {
-              source.easing = keywords[next] ? next : `cubic-bezier(${bezierPoints(next).join(", ")})`;
+              const points = keywords[next] ? null : bezierPoints(next);
+              source.easing = points ? `cubic-bezier(${points.join(", ")})` : next;
               clearFlag(source, "easing");
             }, easingValid);
             fields.push(row("Easing", easingMenu(source), {

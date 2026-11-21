@@ -23,7 +23,9 @@ Charts do not draw in from zero on mount or refresh, numbers do not count up on 
 
 ## Sections do not reveal on scroll
 
-Sections do not fade up as they scroll into view. A marketing page may keep one hero entrance, and any reveal that stays fires once. A fade-up on every section is `motion-no-scroll-reveals`.
+Sections do not fade up as they scroll into view. A marketing page may keep one hero entrance, and any reveal that stays fires once. A fade-up on every section is `motion-no-scroll-reveals`. A reveal built on `animation-timeline: view()` counts too.
+
+A scroll-linked effect that stays, such as a reading progress bar, runs on `animation-timeline: scroll()` inside `@supports (animation-timeline: scroll())`. Give it `animation-duration: 1ms`, because Firefox applies no animation with a zero duration. See [recipes.md](recipes.md#scroll-linked-progress).
 
 ## Nothing moves at rest
 
@@ -95,7 +97,7 @@ Decorative pointer-follow, such as a tilt or parallax, passes through `useSpring
 
 ## Bounce comes from force
 
-A spring started by a click, a key or the system runs `bounce: 0`. Bounce comes only from a drag or flick release: the house `stiffness: 500, damping: 30`, or `bounce` 0.1–0.3 on a duration spring. The same sheet closed by its button settles with no bounce. A click-opened menu that bounces is `motion-bounce-after-force`.
+A spring started by a click, a key or the system runs `bounce: 0`. Bounce comes only from a drag or flick release: the house `stiffness: 500, damping: 30`, or `bounce` 0.1–0.3 on a duration spring. The same sheet closed by its button settles with no bounce. A click-opened menu that bounces is `motion-bounce-after-force`. A `cubic-bezier()` with a y value past 1, such as `cubic-bezier(0.34, 1.56, 0.64, 1)`, is a bounce too.
 
 ## Drags start on purpose
 
@@ -128,6 +130,10 @@ Shaking or tilting the device counts as a gesture, so it also has a button, and 
 System changes such as a toast use easing, not a spring. Entrances and exits ease out, and a change of view eases in and out. Linear is only for progress bars, clocks and a hold-to-confirm fill. A modal entering on `ease-in` is `motion-ease-by-direction`.
 
 The built-in `ease-out` keyword is too weak. Use `cubic-bezier(0.23, 1, 0.32, 1)` to enter and exit, and `cubic-bezier(0.77, 0, 0.175, 1)` for movement on screen. A bare `ease-out` is `motion-strong-ease-out`.
+
+## CSS springs are sampled, never typed
+
+A CSS transition that needs a spring's shape takes its duration and `linear()` curve from a spring generator, such as `transform ${spring(0.3, 0)}` in Motion. The 300ms cap applies to the visual duration, the first argument, while the generated duration runs longer. Hand-typed `linear()` stops or bounce keyframes are `motion-css-spring-linear`. See [recipes.md](recipes.md#css-springs).
 
 ## A hold fills slowly and lets go fast
 
@@ -229,19 +235,23 @@ An element faded to `opacity: 0` gets `visibility: hidden`, or is removed, once 
 
 ## CSS sets its own start state
 
-A CSS entrance sets its start in `@starting-style` inside the open selector, not with a mounted flag set in an effect. A `useEffect` flipping `mounted` to start a fade is `motion-starting-style`.
+A CSS entrance sets its start in `@starting-style` inside the open selector, not with a mounted flag set in an effect. A `useEffect` flipping `mounted` to start a fade is `motion-starting-style`. A `@starting-style` block written outside the open rule comes after it, because both carry the same specificity.
 
-A top-layer exit transitions `opacity`, `transform`, `display` and `overlay`, with `transition-behavior: allow-discrete` as its own declaration. Inside the shorthand, older browsers drop the whole transition. Animate `::backdrop` the same way. Only Chromium animates `overlay`, so the exit is instant elsewhere. See [recipes.md](recipes.md#top-layer-entrances).
+A top-layer exit transitions `opacity`, `transform`, `display` and `overlay`, with `transition-behavior: allow-discrete` as its own declaration. Inside the shorthand, older browsers drop the whole transition. Animate `::backdrop` the same way. Only Chromium transitions `overlay`. Elsewhere the element leaves the top layer as the exit starts, so its backdrop vanishes at once and the fading panel can slip under page content. See [recipes.md](recipes.md#top-layer-entrances).
 
 A CSS animation with a delay sets `animation-fill-mode: both`, or delayed items flash their end state first. A delayed fade with no fill mode is `motion-fill-both-on-delay`.
 
-## View transitions hand over focus
+## View transitions swap at once and hand over focus
 
-With `document.startViewTransition()`, each `view-transition-name` is unique on each side and removed once the transition ends. Focus moves to the new content after `transition.finished`. A name left on two cards, or focus left on the old view, is `motion-view-transition-focus`.
+With `document.startViewTransition()`, each `view-transition-name` is unique on each side, and a name set from script is removed once the transition ends. Two elements sharing a name skip the whole transition. A list names each item with `view-transition-name: match-element`, which works only within one document. Focus moves to the new content after `transition.finished`. A name left on two cards, or focus left on the old view, is `motion-view-transition-focus`.
+
+The update callback only swaps the DOM. The page is frozen until the callback resolves, so data loads before `startViewTransition()` is called. An `await fetch()` inside the callback is `motion-view-transition-fetch-first`. Where the method is missing, run the update with no transition. See [recipes.md](recipes.md#view-transitions).
+
+A multi-page site moves between pages with `@view-transition { navigation: auto; }` in the CSS of both pages. Browsers without it navigate normally. A link handler that holds the navigation while an exit animation plays is `motion-cross-document-transitions`.
 
 ## Size animates to auto
 
-For a CSS transition to content size, set `:root { interpolate-size: allow-keywords }` and transition `block-size` from `0` to `auto`. Browsers without support jump to the final size, which is acceptable. A `ResizeObserver` feeding a CSS transition is `motion-animate-to-auto`.
+For a CSS transition to content size, set `:root { interpolate-size: allow-keywords }` and transition `block-size` from `0` to `auto`. One end must be a length, so `auto` to `max-content` never animates. Only Chromium ships it, and other browsers jump to the final size, which is acceptable. A `ResizeObserver` feeding a CSS transition is `motion-animate-to-auto`.
 
 An accordion transitions `block-size` and `content-visibility` on `details::details-content`, with `transition-behavior: allow-discrete`. An exclusive accordion uses `<details name="group">`. See [recipes.md](recipes.md#height-to-auto).
 
@@ -258,6 +268,8 @@ No element flashes more than three times in any one second. An alert that blinks
 ## Reduced motion removes movement
 
 When `prefers-reduced-motion: reduce` matches, slides, scales and blurs become an opacity cross-fade. Delays and staggers drop to zero. A drag still tracks 1:1 but loses its momentum and bounce. A sliding drawer that ignores the setting is `motion-reduced-motion`.
+
+A view transition follows the same rule. Under the setting, `::view-transition-group(*) { animation: none }` drops the movement and keeps the cross-fade between the old and new snapshots.
 
 Motion blur drops its streak under the setting while `reducedMotion` stays at `"user"`. `reducedMotion: "never"` is `motion-blur-reduced-motion`.
 
@@ -306,6 +318,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `motion-no-shake-only` | Shake to undo with no button | An `Undo` button, and a setting that turns shaking off |
 | `motion-ease-by-direction` | A modal entering on `ease-in` | Ease-out in and out, the exit shorter |
 | `motion-strong-ease-out` | `transition: transform 200ms ease-out` | `transition: transform 200ms cubic-bezier(0.23, 1, 0.32, 1)` |
+| `motion-css-spring-linear` | `@keyframes settle { 60% { scale: 1.04 } 80% { scale: 0.99 } }` tuned by eye | `transition: scale ${spring(0.3, 0)}`, the duration and `linear()` stops generated |
 | `motion-hold-slow-release-fast` | `transition: clip-path 2s linear` both ways | `2s linear` to fill, `200ms cubic-bezier(0.23, 1, 0.32, 1)` back |
 | `motion-one-timing-family` | A scrim at `300ms ease`, its panel at `200ms` on a spring | Both under one `MotionConfig` transition |
 | `motion-overlap-the-handoff` | A checkmark that starts once a `0.6s` draw ends | The checkmark starting at `0.5s` |
@@ -337,7 +350,9 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `motion-hide-after-fade` | `opacity: 0` on a closed menu | `opacity: 0` and then `visibility: hidden` |
 | `motion-starting-style` | `useEffect(() => setMounted(true), [])` to start a fade | `@starting-style { opacity: 0 }` inside `[open]` |
 | `motion-fill-both-on-delay` | `animation: fade-in 200ms 100ms` | `animation: fade-in 200ms 100ms both` |
-| `motion-view-transition-focus` | `view-transition-name: card` on every card | A name per card, cleared after `transition.finished` and focus moved |
+| `motion-view-transition-focus` | `view-transition-name: card` on every card | `view-transition-name: match-element` on each card, and focus moved after `transition.finished` |
+| `motion-view-transition-fetch-first` | `startViewTransition(async () => render(await fetch(url)))` | `const data = await load(url)`, then `startViewTransition(() => render(data))` |
+| `motion-cross-document-transitions` | `event.preventDefault()`, a 300ms fade-out, then `location.href = url` | `@view-transition { navigation: auto; }` on both pages and a plain link |
 | `motion-animate-to-auto` | A `ResizeObserver` setting `height` for a CSS transition | `interpolate-size: allow-keywords` and `block-size: auto` |
 | `motion-measure-inner` | `ref` and `animate={{ height: bounds.height }}` on one node | The outer node animates, the inner node holds the `ref` |
 | `motion-duration-by-distance` | `duration: 0.3` on every resize | `Math.min(Math.max(Math.abs(delta) / 500, 0.15), 0.27)` |
@@ -349,11 +364,11 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` breaks use or access. That is an exit that never plays, a container that measures itself or a gesture with no button. It is also anything flashing more than three times a second, or a sheet that closes when its list scrolls. It is also motion blur on text being read, or a layer with two children under `squeeze()` or `svg()`. It is also input blocked by an animation, an invisible element still taking clicks or moving content with no pause. It is also a control that starts a drag, a carousel that traps page scroll or a shake with no button. It is also focus left behind after a view transition.
+**Severity.** `HIGH` breaks use or access. That is an exit that never plays, a container that measures itself or a gesture with no button. It is also anything flashing more than three times a second, or a sheet that closes when its list scrolls. It is also motion blur on text being read, or a layer with two children under `squeeze()` or `svg()`. It is also input blocked by an animation, an invisible element still taking clicks or moving content with no pause. It is also a control that starts a drag, a carousel that traps page scroll or a shake with no button. It is also focus left behind after a view transition, or a page frozen while a fetch runs inside one.
 
-`MEDIUM` is a sliding page, a replayed entrance, a gesture on a fixed curve or motion over 300ms. It is also motion on typing, a wrong curve, `transition: all`, keyframes on toggled state or ignored reduced motion. It is also a conditionally rendered dialog, content reflowing as it collapses, a `scale(0)` entrance or a sheet that ignores a flick. It is also a hand-written blur, a blur ref on a wrapper, an opaque host or a transform on the layer. It is also a spinner on anything but Echo, a smear past 1.05 or `reducedMotion: "never"`. It is also data that animates in, sections that reveal on scroll or an idle loop. It is also a spring chasing the pointer, a linked value on its own animation or a drag with no threshold. It is also stacked hover sequences, entrances on recycled rows or a panel and its children entering together. It is also a mounted flag instead of `@starting-style`, a delay with no fill mode or a Back step sliding forward. It is also a failed drop that stays put, a staggered exit or a `ResizeObserver` behind a CSS transition. It is also an SVG part that turns around the SVG's origin rather than its own centre. It is also smooth scrolling outside a reduced motion query, or a long jump that glides.
+`MEDIUM` is a sliding page, a replayed entrance, a gesture on a fixed curve or motion over 300ms. It is also motion on typing, a wrong curve, `transition: all`, keyframes on toggled state or ignored reduced motion. It is also a conditionally rendered dialog, content reflowing as it collapses, a `scale(0)` entrance or a sheet that ignores a flick. It is also a hand-written blur, a blur ref on a wrapper, an opaque host or a transform on the layer. It is also a spinner on anything but Echo, a smear past 1.05 or `reducedMotion: "never"`. It is also data that animates in, sections that reveal on scroll or an idle loop. It is also a spring chasing the pointer, a linked value on its own animation or a drag with no threshold. It is also stacked hover sequences, entrances on recycled rows or a panel and its children entering together. It is also a mounted flag instead of `@starting-style`, a delay with no fill mode or a Back step sliding forward. It is also a failed drop that stays put, a staggered exit or a `ResizeObserver` behind a CSS transition. It is also an SVG part that turns around the SVG's origin rather than its own centre. It is also smooth scrolling outside a reduced motion query, or a long jump that glides. It is also a navigation held back for an exit animation.
 
-`LOW` is a faded hover colour, a heavy press scale or a long stagger. It is also motion from the wrong origin, a close as slow as its open, a slow tooltip or a hard icon swap. It is also a bare `ease-out`, an unblurred cross-fade or a drawer with no edge friction. It is also two transforms on a curve, a slowed demo at the full-speed shutter or a custom technique that leaves styles or rebuilds. It is also a lifting card, a pixel offset, an ignored flick projection, one spring across two axes or a click that bounces. It is also an unsprung tilt, mixed timings in one component, a follow-on that waits or a hold that drains slowly. It is also a fixed resize duration.
+`LOW` is a faded hover colour, a heavy press scale or a long stagger. It is also motion from the wrong origin, a close as slow as its open, a slow tooltip or a hard icon swap. It is also a bare `ease-out`, an unblurred cross-fade or a drawer with no edge friction. It is also two transforms on a curve, a slowed demo at the full-speed shutter or a custom technique that leaves styles or rebuilds. It is also a lifting card, a pixel offset, an ignored flick projection, one spring across two axes or a click that bounces. It is also an unsprung tilt, mixed timings in one component, a follow-on that waits or a hold that drains slowly. It is also a fixed resize duration or a CSS spring typed by hand.
 
 **Format.** One finding per root cause:
 

@@ -9,7 +9,7 @@ This skill holds the colour rules that apply on every screen. It covers contrast
 
 ## Ratios are exact, measured on screen
 
-The contrast ratios here are exact and apply in every theme. A ratio is read from the colour the screen draws, never guessed from a token's name. A ratio under the threshold is a finding in any style.
+The contrast ratios here are exact and apply in every theme. They are WCAG 2 ratios, the method conformance claims and accessibility law cite. A ratio is read from the colour the screen draws, never guessed from a token's name. A ratio under the threshold is a finding in any style.
 
 Searching for an existing token belongs to `reuse`. `color-scheme`, `theme-color`, the theme switch, status shown by colour alone and surfaces under reduced transparency belong to `defaults`. Whether a colour should be there at all belongs to `restraint`.
 
@@ -27,7 +27,19 @@ Native checkboxes, radios and range inputs take the accent through `accent-color
 
 Translucent colours and `opacity` composite over every layer behind them before the ratio is read. Read each theme and each surface the text appears on. A ratio taken from the token's hex while the text sits at `opacity: 0.6` is `color-measure-composited`.
 
-Run [contrast.js](contrast.js) in the page through the browser's evaluate call. Treat each result as a candidate, and confirm it in a zoomed crop before reporting it. Each failure carries `suggestion`, the nearest colour at the same hue that passes. Fix with the role token closest to it.
+Run [contrast.js](contrast.js) in the page through the browser's evaluate call. Treat each result as a candidate, and confirm it in a zoomed crop before reporting it. Each failure carries `suggestion`, the nearest colour at the same hue that passes. Fix with the role token closest to it. Each text finding also carries `lc`, its APCA lightness contrast.
+
+## The ratio is the pass line
+
+APCA lightness contrast (Lc) is a second read, never a pass. No standard requires it yet. White on `#f97316` reads at Lc 58 but fails at 2.8:1, and calling it a pass is `color-ratio-is-the-pass-line`.
+
+The ratio overstates light text on dark surfaces. `#888888` on `#0a0a0a` passes at 5.6:1 yet reads at only Lc 38. Report Lc beside the ratio in the dark theme, and between two passing candidates take the higher absolute Lc.
+
+## The contrast-color() function stays off mid-tones
+
+`contrast-color()` returns white or black, whichever has the higher ratio. On a mid-tone fill the pick can pass and still read poorly. `#2277d3` gets black at 4.65:1 and Lc 33, while white reads at Lc 76.
+
+Use it only on fills where its pick clears 7:1, a fill luminance under 0.1 or over 0.3. Give a mid-tone fill a paired token such as `--on-accent`. `contrast-color()` on a mid-blue button is `color-contrast-color-mid-tones`. Declare a fixed colour before it, which older browsers keep.
 
 ## Text over images takes a scrim
 
@@ -36,6 +48,10 @@ Text on a photo or a video sits on a gradient scrim or a solid plate. The ratio 
 ## Components use role tokens
 
 Components reference tokens named for their role, such as `--text-secondary` or `--surface-raised`. Only the theme file maps a role to a palette step. `color: var(--gray-500)` inside a component is `color-role-tokens`.
+
+## States mix from their role token
+
+Hover and pressed states of a coloured fill, such as `--accent`, derive from that token with `color-mix(in oklch, …)` or relative colour syntax. Every theme then carries them. Mix toward `--text-primary`, not black, so the dark theme lightens on hover. A hand-picked `#1d4ed8` hover beside `--accent: #2563eb` is `color-states-from-tokens`. The mixed fill is measured like any other.
 
 ## Neutrals on surfaces are translucent
 
@@ -57,7 +73,7 @@ Under `@media (prefers-contrast: more)` the role tokens remap. Small text reache
 
 ## Gradients blend in oklch and fade on a curve
 
-A gradient between two hues interpolates `in oklch`, so its middle stays saturated rather than turning grey. A blue to yellow gradient with a muddy grey middle is `color-gradient-in-oklch`.
+A gradient between two hues interpolates `in oklch`, so its middle stays saturated rather than turning grey. A blue to yellow gradient with a muddy grey middle is `color-gradient-in-oklch`. A `color-mix()` between two hues takes `in oklch` too, because `in srgb` greys the same way.
 
 A fade to transparent, such as a scroll edge or a scrim, takes about 6 stops along an ease-out curve. Two linear stops leave a visible line where the fade meets the solid colour. `linear-gradient(transparent, black 24px)` is `color-eased-gradient`.
 
@@ -79,8 +95,11 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `color-ui-contrast` | A field edged by `#e5e5e5` on white, 1.3:1 | `border-color: #8a8a8a`, 3.5:1 |
 | `color-accent-color` | A default blue checkbox beside an orange accent | `accent-color: var(--accent)` at 3:1, with `color-scheme: light dark` on the root |
 | `color-measure-composited` | "The token is `#171717`, so it passes" | The ratio of the drawn colour at `opacity: 0.6`, read on screen |
+| `color-ratio-is-the-pass-line` | "White on `#f97316` reads at Lc 58, so it passes" | 2.8:1 fails, so the fill darkens to `#c2410c`, 5.18:1 |
+| `color-contrast-color-mid-tones` | `color: contrast-color(#2277d3)`, black at 4.65:1 and Lc 33 | `color: var(--on-accent)` set to `#ffffff`, 4.52:1 and Lc 76 |
 | `color-scrim-under-text` | White text straight over a photo | An eased scrim from `rgba(0, 0, 0, 0.6)` at the bottom to transparent, under the text |
 | `color-role-tokens` | `color: var(--gray-500)` in `Card` | `color: var(--text-secondary)` |
+| `color-states-from-tokens` | `.button:hover { background: #1d4ed8 }` beside `--accent: #2563eb` | `background: color-mix(in oklch, var(--accent), var(--text-primary) 12%)` |
 | `color-alpha-neutrals` | `background: #f5f5f5` on hover | `background: var(--gray-a3)` on hover |
 | `color-dark-raises-lighter` | A dark popover at the page's `#0a0a0a` | The popover at `#1a1a1a` over the `#0a0a0a` page |
 | `color-dark-tuned-accents` | `#2563eb` links on `#0a0a0a`, 3.8:1 | `#60a5fa` in the dark theme, 7.8:1 |
@@ -95,7 +114,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is body text under its ratio on a primary surface, a field whose edge fails 3:1 or text over an image with no scrim. `MEDIUM` is a palette step inside a component, a solid neutral that vanishes on a surface or a ratio never read on screen. It is also a dark surface raised by shadow alone or a light accent reused in dark mode. It is also a theme with no increased contrast remap, or a logo lost on a dark surface. It is also two accent-filled buttons in one view or region. `LOW` is the accent used for decoration, a status colour carrying a second meaning or a gradient that greys in the middle. It is also a fade on two linear stops, or a native control left in the default accent. It is also pure white body text on a dark page.
+**Severity.** `HIGH` is body text under its ratio on a primary surface, a field whose edge fails 3:1 or text over an image with no scrim. `MEDIUM` is a palette step inside a component, a solid neutral that vanishes on a surface or a ratio never read on screen. It is also a dark surface raised by shadow alone or a light accent reused in dark mode. It is also a theme with no increased contrast remap, or a logo lost on a dark surface. It is also two accent-filled buttons in one view or region. It is also a pass claimed from Lc on a failing ratio, `contrast-color()` on a mid-tone fill or a hover colour picked by hand. `LOW` is the accent used for decoration, a status colour carrying a second meaning or a gradient that greys in the middle. It is also a fade on two linear stops, or a native control left in the default accent. It is also pure white body text on a dark page.
 
 **Format.** One finding per root cause:
 

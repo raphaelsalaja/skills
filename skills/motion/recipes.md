@@ -57,6 +57,43 @@ In Motion, pass the same curves as arrays, such as `ease: [0.23, 1, 0.32, 1]`.
 
 Similar controls share one duration. A spring that visibly oscillates, such as `stiffness: 1000` with `damping: 5`, is too loose.
 
+## CSS springs
+
+```tsx
+import { spring } from "motion";
+
+<style>{`
+  .chip {
+    transition: scale ${spring(0.3, 0)};
+  }
+`}</style>;
+```
+
+`spring(visualDuration, bounce)` prints a duration and a `linear()` curve. The first argument is when the motion looks done, so it is the value the duration caps apply to. The printed duration runs longer, because it includes the settling tail. Keep `bounce` at `0` for anything a click, key or the system starts.
+
+Without a generator, sample the spring yourself:
+
+```ts
+function springEasing({ stiffness = 400, damping = 40, mass = 1 } = {}, step = 10) {
+  let x = 0;
+  let v = 0;
+  let t = 0;
+  const samples = [0];
+  while (t < 5000 && (Math.abs(1 - x) > 0.001 || Math.abs(v) > 0.001)) {
+    for (let i = 0; i < step; i++) {
+      v += ((stiffness * (1 - x) - damping * v) / mass) / 1000;
+      x += v / 1000;
+    }
+    t += step;
+    samples.push(Math.round(x * 10000) / 10000);
+  }
+  samples[samples.length - 1] = 1;
+  return `${t}ms linear(${samples.join(", ")})`;
+}
+```
+
+Each sample is one `step` in ms, so stops sit evenly and need no percentages. Damping at `2 * Math.sqrt(stiffness * mass)` gives no bounce. The defaults reach 95% at 239ms, inside the 300ms cap, and settle at 640ms. A CSS transition carries no velocity, so a gesture release stays on a JavaScript spring.
+
 ## Drag release
 
 ```tsx
@@ -268,7 +305,54 @@ dialog[open]::backdrop {
 }
 ```
 
-The open state sets `200ms` and the closed state `150ms`, so the close runs faster. A popover uses the same pattern on `:popover-open`.
+The open state sets `200ms` and the closed state `150ms`, so the close runs faster. A popover uses the same pattern on `:popover-open`. A `@starting-style` block written at the top level instead of nested goes after `dialog[open]`, or the open rule overrides it.
+
+## View transitions
+
+```ts
+async function navigate(url: string) {
+  const data = await load(url);
+  if (!document.startViewTransition) {
+    render(data);
+    return;
+  }
+  const transition = document.startViewTransition(() => render(data));
+  await transition.finished;
+  document.querySelector<HTMLElement>("main h1")?.focus();
+}
+```
+
+In React, wrap the state change in `flushSync` inside the callback so the DOM has changed when it returns. The heading takes `tabIndex={-1}` so it can hold focus.
+
+```css
+.card {
+  view-transition-name: match-element;
+  view-transition-class: card;
+}
+
+::view-transition-group(*.card) {
+  animation-duration: 200ms;
+  animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*) {
+    animation: none;
+  }
+}
+```
+
+Two rendered elements with one name make `transition.ready` reject and skip the transition. `match-element` names by element identity, so it never crosses documents. A shared element across two pages takes the same explicit name on both.
+
+For a multi-page site, both pages carry the opt-in:
+
+```css
+@view-transition {
+  navigation: auto;
+}
+```
+
+It runs on same-origin link clicks and Back and Forward, never on a typed URL or a reload. Chromium skips a navigation that takes longer than 4s.
 
 ## Height to auto
 
@@ -309,6 +393,29 @@ details[open]::details-content {
 ```
 
 Every `details` sharing a `name` closes the others when one opens. Browsers without `interpolate-size` jump to the final size.
+
+## Scroll-linked progress
+
+```css
+@supports (animation-timeline: scroll()) {
+  .reading-progress {
+    transform-origin: left;
+    animation: reading-progress 1ms linear both;
+    animation-timeline: scroll(root block);
+  }
+}
+
+@keyframes reading-progress {
+  from {
+    transform: scaleX(0);
+  }
+  to {
+    transform: scaleX(1);
+  }
+}
+```
+
+Set `animation-timeline` after the `animation` shorthand, which resets it. A progress bar shows position rather than movement, so it stays under reduced motion. A parallax on the same timeline sits inside `@media (prefers-reduced-motion: no-preference)`.
 
 ## Container bounds
 

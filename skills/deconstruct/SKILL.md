@@ -18,6 +18,29 @@ Reading computed values and the side-by-side proof belong to `match`. Forcing co
 
 Open the source: the code, the live page or a recording. Read keyframes, transitions and spring configs, or step through frames at reduced playback speed. A breakdown from one viewing is `deconstruct-capture-the-source`.
 
+On a live page, read the browser's own record of every CSS animation, CSS transition and Web Animations API animation. Run this before triggering the motion:
+
+```js
+const read = (event) => {
+  for (const animation of event.target.getAnimations()) {
+    animation.playbackRate = 0.1;
+    console.log(
+      animation.transitionProperty ?? animation.animationName,
+      animation.effect.getTiming(),
+      animation.effect.getKeyframes(),
+    );
+  }
+};
+document.addEventListener("transitionrun", read);
+document.addEventListener("animationstart", read);
+```
+
+`getTiming()` gives the delay, duration and easing, and `getKeyframes()` gives each offset with its own easing. A timing guessed from a clip of a CSS transition is `deconstruct-read-the-animations`.
+
+Motion stepped by `requestAnimationFrame`, such as a JavaScript spring, never appears there, so read its config in the code. A spring handed to the Web Animations API shows as a `linear()` easing. Record the spring from the code when it exists, and keep the `linear()` string when it does not.
+
+A timing read from a recording is a whole number of frames, 16.7ms each at 60fps and 8.3ms at 120fps. Capture at the display's highest rate and write that rate in the track's `note`. A 30fps capture reported to the millisecond is `deconstruct-frame-timing`.
+
 ## 2. Name the states and events
 
 List the states the element can rest in and the events that move it between them, such as press, release, resolve and timeout. Write them as a table of state, entered on and left on. A sentence like "it shrinks, then spins" is `deconstruct-name-the-states`.
@@ -26,7 +49,9 @@ List the states the element can rest in and the events that move it between them
 
 Give every animated property its own track: scale, opacity, blur, width, colour, icon and label. Each track lists from, to, delay, duration and easing. "About 300ms" is `deconstruct-every-property`.
 
-Keep the curve as written. A spring stays a spring with its stiffness, damping and mass, or its bounce and duration. A spring flattened into a guessed bezier is `deconstruct-keep-the-curve`.
+Keep the curve as written. A spring stays a spring with its stiffness, damping and mass, or its bounce and duration. A spring flattened into a guessed bezier is `deconstruct-keep-the-curve`. A `linear()` or `steps()` easing stays as written too, and the viewer plays both.
+
+A keyframe animation with stops between its ends becomes one segment per interval. Each keyframe's easing runs only to the next keyframe, never across the whole animation, so an easing on the last keyframe is never used. A `40%` stop folded into one segment is `deconstruct-split-keyframes`.
 
 ## 4. Drive it from one clock
 
@@ -67,9 +92,12 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | Rule | Broken | Replacement |
 | --- | --- | --- |
 | `deconstruct-capture-the-source` | A breakdown from watching it once | The code read and frames stepped at 0.1× |
+| `deconstruct-read-the-animations` | "The fade looks like about 200ms" from a clip of a CSS transition | `getTiming()` read as `{ delay: 0, duration: 180, easing: "cubic-bezier(0.23, 1, 0.32, 1)" }` |
+| `deconstruct-frame-timing` | A press of `130ms`, read off a 30fps capture | 8 frames at 60fps, `133ms`, with "60fps capture" in the track's `note` |
 | `deconstruct-name-the-states` | "It shrinks, then spins" | Idle, Pressed, Copying and Copied with their events |
 | `deconstruct-every-property` | "About 300ms" | Scale `1` to `0.96`, 120ms, ease-out, at 400ms |
 | `deconstruct-keep-the-curve` | A spring approximated as `ease-out` | `stiffness: 400, damping: 30` as written |
+| `deconstruct-split-keyframes` | `@keyframes pop { 40% { scale: 1.1 } }` as one segment, `1` to `1` | `1` to `1.1` over the first 40%, then `1.1` to `1`, each with its keyframe's easing |
 | `deconstruct-one-clock` | A CSS replay button | Every frame computed from one `t` |
 | `deconstruct-scrub-the-timeline` | A looping preview only | A scrubber, play, pause and 0.25× |
 | `deconstruct-shipped-viewer` | A viewer page written from scratch | `viewer.html` copied, only `timeline.js` written |
@@ -80,7 +108,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a breakdown made without opening the source, or a missing state. `MEDIUM` is an estimated timing, a flattened curve, a viewer that cannot scrub, a hand-written viewer or an edit left only in the page. `LOW` is drift found and named at slow speed.
+**Severity.** `HIGH` is a breakdown made without opening the source, or a missing state. `MEDIUM` is an estimated timing, a flattened curve, a viewer that cannot scrub, a hand-written viewer or an edit left only in the page. It is also a guessed timing where `getAnimations()` could read it, or keyframes folded into one segment. `LOW` is drift found and named at slow speed, or a timing finer than its capture's frame.
 
 **Format.** One finding per root cause:
 

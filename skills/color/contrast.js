@@ -1,5 +1,6 @@
 // Run in the page (DevTools console, Runtime.evaluate or page.evaluate).
 // Returns { findings, unverified } with the contrast of each visible text run and field edge.
+// Text results also carry lc, the APCA lightness contrast, as a second read beside the ratio.
 // Colours are composited over the backgrounds behind them before the ratio is read.
 // Options: set window.__colorOptions = { root } before running.
 // Call window.__color.highlight() afterwards to draw numbered overlays.
@@ -39,6 +40,22 @@
   const ratio = (a, b) => {
     const [high, low] = [luminance(a), luminance(b)].sort((x, y) => y - x);
     return (high + 0.05) / (low + 0.05);
+  };
+
+  // APCA lightness contrast (Lc), signed: negative for light text on a dark ground.
+  const lightness = ({ r, g, b }) => {
+    const y = 0.2126729 * (r / 255) ** 2.4 + 0.7151522 * (g / 255) ** 2.4 + 0.072175 * (b / 255) ** 2.4;
+    return y < 0.022 ? y + (0.022 - y) ** 1.414 : y;
+  };
+  const lc = (text, ground) => {
+    const [ink, back] = [lightness(text), lightness(ground)];
+    if (Math.abs(back - ink) < 0.0005) return 0;
+    if (back > ink) {
+      const s = (back ** 0.56 - ink ** 0.57) * 1.14;
+      return s < 0.1 ? 0 : (s - 0.027) * 100;
+    }
+    const s = (back ** 0.65 - ink ** 0.62) * 1.14;
+    return s > -0.1 ? 0 : (s + 0.027) * 100;
   };
 
   const round = (value) => Math.round(value * 100) / 100;
@@ -170,6 +187,7 @@
     const required = isLarge(style) ? 3 : 4.5;
     const values = {
       ratio: round(measured),
+      lc: Math.round(lc(drawn, ground.colour) * 10) / 10,
       required,
       text: hex(drawn),
       background: hex(ground.colour),

@@ -20,6 +20,8 @@ Walk the flow in the running app. List each moment where content jumps between t
 
 Look for siblings that jump when an item is added, removed or reordered, and a panel that changes size in one frame. Look for an element that appears with no link to the control that opened it. Look for content swapped in place, such as a tab panel or a count, and an item that moves between two places.
 
+Then search the code for what the walk missed. Teleports start at `{open && <`, at `hidden` or `display: none` toggled by state and at a `key` changed to swap content. They also start at a list `.map(` whose items are added or removed.
+
 ```
 1. Delete a row: the rows below jump up 56px. Row menu.
 2. Open filters: the panel appears full height in one frame. Toolbar button.
@@ -30,11 +32,22 @@ Motion added before this list exists, such as a fade on every card, is `animate-
 
 ## 2. Gate by frequency
 
-Write beside each moment how often a regular user triggers it in a day. Strike every moment over 100 a day and every moment started from the keyboard. A motion left on a struck moment cites `motion-no-motion-on-repeat`. Moments from 10 to 100 a day get functional motion only. A moment built with no frequency beside it is `animate-gate-by-frequency`.
+Write beside each moment how often a regular user triggers it in a day. Strike every moment over 100 a day and every moment started from the keyboard. A motion left on a struck moment cites `motion-no-motion-on-repeat`. Moments from 10 to 100 a day get functional motion only. A moment built with no frequency beside it is `animate-gate-by-frequency`. Take counts from the project's analytics where it has them, and mark every other count as an estimate.
 
 ## 3. Explain the change
 
 Pick the smallest motion that shows what happened. An element opened by a control grows from that control. Siblings of an added, removed or reordered item move to their new places as a layout animation. A container that changes size animates its size. Content swapped in place cross-fades. An item that moves between two places travels there as one shared element. A slide, bounce or flip where a cross-fade explains the swap is `animate-explain-the-change`.
+
+| Change | With a motion library | In CSS |
+| --- | --- | --- |
+| Opened by a control | `initial` and `animate`, with `transformOrigin` at the trigger | `@starting-style` on the open state, with `transform-origin` at the trigger |
+| Siblings of an added, removed or reordered item | `layout` on each item | `view-transition-name: match-element` on each item, the change inside `startViewTransition()` |
+| A container changes size | The outer node animated to the inner node's measured size | `interpolate-size: allow-keywords` and `block-size: auto` |
+| Content swapped in place | `AnimatePresence mode="popLayout"`, keyed by the content | Both layers in one grid cell, `opacity` transitioned |
+| An item moves between two places | One `layoutId` on both | One `view-transition-name` on both |
+| Page to page in a multi-page site | None | `@view-transition { navigation: auto; }` on both pages |
+
+Each technique's values and limits sit in `motion`.
 
 ## 4. Spend the delight budget
 
@@ -48,6 +61,10 @@ Build each motion with the animation library the project already uses, or with C
 
 Record each built moment in the running app before and after the change, at full speed and at 0.25× playback. Report the list from step 1 with each moment marked built, struck or left as it was, and why. "Added motion to the list" with no recording is `animate-before-and-after`.
 
+Record each moment once more with `prefers-reduced-motion: reduce` emulated, through the browser's rendering settings or `Emulation.setEmulatedMedia`. Check that clip against the reduced motion rule in `motion`. Clips with no reduced motion pass are `animate-reduced-motion-clip`.
+
+Trigger each moment twice within 100ms, and reverse it halfway through. The motion picks up from where it is, with no jump back and no queued replay. A moment only ever triggered once from rest is `animate-interrupt-check`.
+
 ## The pair
 
 Every check is a pair. The broken line sits beside the line that replaces it.
@@ -59,10 +76,12 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `animate-explain-the-change` | Tab content sliding in with a bounce | The panel cross-fading while the tab indicator moves to the new tab |
 | `animate-delight-budget` | Confetti on every save | One drawn checkmark when the first project is created |
 | `animate-before-and-after` | "Added motion to the list" | Clips of the row delete before and after, at 1× and 0.25× |
+| `animate-reduced-motion-clip` | Clips at 1× and 0.25× only | A third clip of each moment with `prefers-reduced-motion: reduce` emulated |
+| `animate-interrupt-check` | Each moment triggered once from rest | The filter panel closed halfway open, and the delete pressed twice within 100ms |
 
 ## Reporting
 
-**Severity.** `HIGH` is motion added to a keyboard action or to a moment over 100 a day, or motion reported done with no recording. `MEDIUM` is a teleport left on a moment the gate kept, a motion that does not explain its change or delight past the budget. `LOW` is a moment with no frequency written, or a list that marks a moment without saying why.
+**Severity.** `HIGH` is motion added to a keyboard action or to a moment over 100 a day, or motion reported done with no recording. `MEDIUM` is a teleport left on a moment the gate kept, a motion that does not explain its change or delight past the budget. It is also motion reported done with no reduced motion clip. `LOW` is a moment with no frequency written, or a list that marks a moment without saying why. It is also a moment never interrupted mid-flight.
 
 **Format.** One finding per root cause, naming the moment and its frequency:
 
