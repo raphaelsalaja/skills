@@ -6,20 +6,22 @@ The directions, the references, the signals and the questions that pick a set's 
 
 Each direction is its own construction, not a filter over another. Offer only the 2 or 3 the references and the signals support. A reference the user loves that fits no row becomes its own direction, described in these columns.
 
-| Direction | Stroke | Corners outside / inside | Ends and joins | Angles and curves | Detail | Reads as |
+| Direction | Stroke | Radius (outside / inside) | Ends and joins | Angles and curves | Detail | Reads as |
 | --- | --- | --- | --- | --- | --- | --- |
-| Technical | 1.5 | 0 / 0 | Butt ends, miter joins | 0°, 45° and 90° only, arcs from circles | Minimal | Precise, dense, serious |
-| Neutral | 1.5 | 2 / 0 | Butt ends, miter inside corners | 0°, 45° and 90°, true arcs | Minimal | Plain, calm, out of the way |
-| Soft | 1.5 | 2 / 1 | Round ends, round joins | 0°, 45° and 90°, true arcs | Moderate | Composed and approachable |
-| Round | 2 | 3 / 2 | Round ends, round joins | Circles and arcs before straight corners, wide counters | Moderate | Warm, friendly, consumer |
-| Flowing | 1.5–2 | 3 / 2 | Round ends, round joins | Free curves wherever a shape bends | Moderate | Fluid, distinctive, expressive |
-| Chunky | 2.5–3, or filled masses with line details | 4 / 2 | Round ends, round joins | Inflated simple shapes, drawn on a 48 grid and shown from 24 up | Low | Playful, cartoonish, loud |
+| Technical | 1.5 | 0 (0 / 0) | Butt ends, miter joins | 0°, 45° and 90° only, arcs from circles | Minimal | Precise, dense, serious |
+| Neutral | 1.5 | 1 (1.75 / 0.25) | Butt ends, miter joins on unrounded corners | 0°, 45° and 90°, true arcs | Minimal | Plain, calm, out of the way |
+| Soft | 1.5 | 2 (2.75 / 1.25) | Round ends, round joins | 0°, 45° and 90°, true arcs | Moderate | Composed and approachable |
+| Round | 2 | 3 (4 / 2) | Round ends, round joins | Circles and arcs before straight corners, wide counters | Moderate | Warm, friendly, consumer |
+| Flowing | 1.5–2 | 3 (3.75–4 / 2–2.25) | Round ends, round joins | Free curves wherever a shape bends | Moderate | Fluid, distinctive, expressive |
+| Chunky | 2.5–3, or filled masses with line details | 4 (5.25–5.5 / 2.5–2.75) | Round ends, round joins | Inflated simple shapes, drawn on a 48 grid and shown from 24 up | Low | Playful, cartoonish, loud |
 | Hand-drawn | 1.5–2, varying by up to 0.25 | Loose | Round ends | A slight wobble, lines that overshoot or stop short | Moderate | Human, crafted, informal |
-| Pixel | Whole pixels | 0 / 0 | Square | Stepped diagonals at 1:1 or 2:1 | Low | Retro, playful, nostalgic |
+| Pixel | Whole pixels | 0 | Square | Stepped diagonals at 1:1 or 2:1 | Low | Retro, playful, nostalgic |
+
+The radius is the path's own, the value `style.json` keeps. A stroke adds half its width outside the corner and takes half inside, never below 0, which the brackets show. A filled direction rounds its shapes by the radius directly.
 
 A dimensional direction, such as soft 3D, clay or glass, is offered only for icons shown at 32px and up, such as pictograms and empty states. It faces straight on and never replaces the UI icons.
 
-A native app may stay close to its platform's own symbols. That direction takes the platform's weight scale, matched to the system font, and draws only what the platform lacks.
+A native app may stay close to its platform's own symbols. That direction takes the platform's weight scale, matched to the system font, and draws only what the platform lacks. Its icons ship through the templates under [Radius, logo and platform](#radius-logo-and-platform).
 
 ## Duotone
 
@@ -36,7 +38,7 @@ Duotone works at every size the set ships when its smallest size passes in real 
 
 ## The taste test
 
-Run it when the user has no references, or cannot say what they like. Show 6 to 8 open icon sets that span the directions: a sharp set, a neutral one, a soft one, a round one, a filled one, a duotone one, a hand-drawn one and a pixel one.
+Run it when the user has no references, or cannot say what they like. Show 6 to 8 open icon sets that span the directions. Pick from a sharp set, a neutral one, a soft one, a round one, a filled one, a duotone one, a hand-drawn one and a pixel one.
 
 Each set draws the same 6 concepts: a folder, a search, a gear, a bell, a user and an arrow. Put each set in its own row on the review page, beside labels in the product's font, in both themes.
 
@@ -86,15 +88,16 @@ When none of the variants lands, ask the user to point at one icon that feels mo
 
 ## Radius by part
 
-A radius in `style.json` is the largest a corner takes. Each corner takes less where its segments are short or its angle is sharp.
+A radius in `style.json` is the largest a corner takes. Each corner takes less where its segments are short or its angle is sharp. Work it out in this order, on a 24 grid with a set radius of 2.
 
-| Corner | Radius |
-| --- | --- |
-| Both segments 8 or longer | The set radius |
-| Either segment shorter than 8 | A quarter of the shorter segment, up to the set radius |
-| An angle under 60° | Half of the above |
-| 3 or more lines meeting | None |
-| A pixel direction | None |
+| Corner | Radius | Example |
+| --- | --- | --- |
+| Any corner | The set radius or a quarter of the shorter segment, whichever is smaller | Segments of 10 and 6 take 1.5 |
+| An angle under 60° | Half of the above | A star point of 3.4 at 36° takes 0.425 |
+| 3 or more lines meeting | None | The centre of an asterisk |
+| A pixel direction | None | Every corner |
+
+An override the eye asks for goes in the icon's own script beside the corner it bends, as [formats.md](formats.md#icon-scripts) shows.
 
 After a radius change, reopen stars, bolts, arrowheads, chevrons and small badges first. They break before anything else.
 
@@ -136,6 +139,16 @@ The platform sets the default fill.
 | Toolbars, lists and rows beside text | Line |
 
 Line and filled icons are recognised about as fast overall. Light line icons on dark read slightly slower, so a product that starts dark judges its tiles on dark first.
+
+A native app ships its custom icons in the platform's own template, so they follow the system's weights, scales and text.
+
+| Platform | Template | What it needs |
+| --- | --- | --- |
+| iOS and macOS | The custom symbol template exported from the system's symbol app, in its variable setup | Ultralight, Regular and Black at the small scale, filled paths with the same count, order and points so the other weights interpolate, and margins per variant |
+| Android | A vector drawable on a 24 by 24 viewport | One file per style, tinted by the theme rather than a fixed colour |
+| The web | The SVG tree in [formats.md](formats.md#svg-tree) | Nothing more |
+
+Draw the Regular source first and get it right. Copy its paths into the Ultralight and Black sources, then only move points, since an added or removed point breaks interpolation.
 
 ## The questions
 

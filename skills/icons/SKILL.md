@@ -13,13 +13,17 @@ The spec is exact. The sheet measures it from every icon the set already has, an
 
 Run it for `draw an icon for`, `we need a ... icon`, `custom icons` or `the set doesn't have a`. Also run it for `match our icons`, `filled version`, `animate this icon`, `morph`, `icon sheet`, `icon font`, `doesn't feel like ours` or `this icon looks off next to the others`.
 
-Building or redrawing a whole set belongs to `iconset`. Which glyphs to draw belongs to `scope`. Searching the set first belongs to `reuse`. Optical nudges belong to `alignment`. The curve, duration and reduced-motion fallback of any icon animation belong to `motion`. Accessible names belong to `defaults`. Visible labels belong to `copy`. Contrast belongs to `color`.
+Building or redrawing a whole set belongs to `iconset`. Which glyphs to draw belongs to `scope`. Searching the set first belongs to `reuse`. Optical nudges belong to `alignment`. The curve, duration and reduced-motion fallback of any icon animation belong to `motion`. Accessible names belong to `defaults`. Visible labels belong to `copy`. Contrast belongs to `color`. Mirroring a directional icon in right-to-left layouts belongs to `viewports`.
+
+A set built with `iconset` keeps its values in `style.json` and its decisions in `concepts.md`. Where those files exist, a new glyph reads its stroke, radius and cut from them.
 
 ## 1. Draw only what the set lacks
 
 Run `reuse` first. Search the icon package, the icon folder or the map that holds inline icons by the concept and two or three synonyms, not only the name. A search glyph may ship as `MagnifyingGlassIcon`. Draw a glyph only when the concept is absent. A second glyph for a concept the set already draws is `icons-only-missing`.
 
 Add the glyph where the set lives, beside its siblings. A new icon left in a feature file is `icons-in-the-package`. A missing glyph added there is not a finding in `reuse`.
+
+A glyph that draws a letter, a currency sign, a regional object or a gendered figure cites `iconset-local-metaphors`.
 
 ## 2. Measure the whole set
 
@@ -55,6 +59,8 @@ Construction counts the icons that draw a free curve, one whose bend changes alo
 
 Build each new glyph the way the set builds its own. Where the set makes a cloud from straight segments with rounded joins, a cloud of free curves is off its voice. A free curve the set rarely draws, a corner outside its range or more parts than its kind carries is `icons-hold-the-voice`. A concept that cannot be drawn without a free curve, such as a wave, keeps it and the report says why.
 
+A corner smaller than the range passes where the set's radius table gives it, such as a sharp star point in a set built with `iconset`. A Voice line marked should may bend where the glyph reads better, and the report says why.
+
 Fill in the Voice table in `icon-spec.md` before drawing, naming two existing icons for each tendency. It records whether a shape that could stay open is closed, whether lines run on to the keyline and which way an either-way composition faces. It also records how caps and small details end and how much detail an icon carries. A voice written as adjectives, such as "clean and friendly", is `icons-write-the-voice`.
 
 A new glyph never takes more attention than its neighbours. One more detailed, more decorative or cleverer than the set reads as another hand, even when it lints clean.
@@ -73,7 +79,7 @@ A slash cuts flat through the glyph at the set's angle and draws no shadow line 
 
 ## 6. Correct what the eye sees
 
-Separate parts sit at least one stroke width apart, and never under 1px. Two strokes that merge into one blot at 16px are `icons-open-gaps`. A cut where a badge or slash clips a base shape keeps one width across the set.
+Separate parts sit at least one stroke width apart, and never under 1px. Two strokes that merge into one blot at 16px are `icons-open-gaps`. A cut where a badge or slash clips a base shape keeps one width across the set, the `cut` in `style.json` where the set has one.
 
 Where 3 or more strokes meet, the overlap reads darker than any one stroke, and light strokes on Dark Tiles bloom further. End one converging stroke half a stroke width short of the junction. A clogged corner that reads heavy on Weight is `icons-open-junctions`.
 
@@ -86,6 +92,8 @@ Round shapes may pass the padding by the spec's round overshoot and no further. 
 Every new icon animates and morphs into every other new icon of its kind. Each one is the same number of `path` elements, and each path is an absolute `M` followed by the same number of explicit `C` segments.
 
 The sheet sets both counts from the most complex new icon and shows them as Morph Form. Pad a shorter path with zero-length segments at its end.
+
+In a set whose `concepts.md` marks icons Swaps, only those take the morph form, and the sheet's morph findings on the rest are skipped.
 
 Two icons that are one shape turned, such as back and forward, share one drawing. The swap rotates the whole icon instead of moving points, and the sheet marks the pair Spins.
 
@@ -121,13 +129,15 @@ Clicking an icon opens its dialog. Its Morph tab chains any icons under the stag
 
 A converted preview is the sheet's own guess, not the form that ships. Prompts copies the fix, the redraw or the morph-form request for the agent to apply.
 
-A sheet written from scratch, or icons checked one at a time, is `icons-one-sheet`. Fix every finding and reopen it until Findings is empty, apart from a free curve the concept needs.
+A sheet written from scratch, or icons checked one at a time, is `icons-one-sheet`. Fix every finding and reopen it until Findings is empty. The only exceptions are a free curve the concept needs and morph findings on icons that `concepts.md` does not mark Swaps.
 
 ## 11. Match the project's icon component
 
 Generate components on the project's existing icon API, including its props and file shape. Name each glyph by what it draws, with the siblings' casing and variant suffix, such as `LockFillIcon` beside `LockIcon`. Keep each path its own element, so a caller can animate `d` or draw the stroke on. A one-off component with its own props, or a decorative icon with no `aria-hidden`, is `icons-match-the-api`.
 
 When each size has its own drawing, the `size` prop picks that drawing and never scales another. Its type lists only the sizes drawn, such as `12 | 16`.
+
+In a native app whose icons are custom symbols, a new glyph ships in the same symbol template as its siblings, with every source the template interpolates from.
 
 When the set ships as an icon font, a new glyph takes the next unused codepoint. A redrawn glyph keeps its old codepoint, and a retired codepoint never goes to another glyph. A moved or reused codepoint is `icons-keep-codepoints`. Outline strokes in the font build, never in the source the sheet reads.
 
@@ -136,6 +146,8 @@ Add a hover, active or swap animation only when the user asks, and run it throug
 ## 12. See each new glyph beside real text
 
 Context on the sheet uses its own rows, not the project's type, spacing or colour. Render each new glyph in the project's own row beside its label, at its shipped size, in both themes. Then view it at 100% zoom on a phone, where 16px is 16px. A glyph approved only on the sheet or zoomed in is `icons-in-context`. Without a phone, report `Not verified on device`.
+
+Blur that row by 1px. A new glyph that blurs into the shape of a neighbour in the same bar cites `iconset-distinct-in-a-row`.
 
 ## The pair
 

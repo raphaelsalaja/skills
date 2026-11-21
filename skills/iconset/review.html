@@ -23,7 +23,14 @@
   };
 
   review.js only assigns window.review. Wrap any helper it needs in a block, since the page declares $ and h.
-  font and labelSize are the product's own label type, so rows read as the product does.
+  font and labelSize are the product's own label type, so rows read as the product does. When that font is not
+  installed, copy its files into .iconset/fonts/ and load them from review.js, so rows never fall back:
+
+  {
+    const face = new FontFace("Brand Sans", "url(fonts/brand-sans.woff2)", { weight: "100 900" });
+    document.fonts.add(face);
+    face.load();
+  }
 
   Kinds: images shows screenshots of references, options compares whole cards (directions, a concept's candidates
   or one-change variants), rows sets icons beside labels in the product's font, grid shows a set and pairs puts each

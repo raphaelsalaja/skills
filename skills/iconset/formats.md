@@ -35,9 +35,17 @@ Round. Soft read thin beside the labels on a phone.
 ## Fill
 Line, filled when selected
 
+## Voice
+Must: closed shapes. Broken: a folder with an open top. Fixed: the folder closed along its tab.
+Must: one diagonal angle, 45°. Broken: a 40° arrow. Fixed: the arrow at 45°.
+Should: lines run on to the keyline. Bent in: bolt, which reads better at its own height.
+Standard: no icon takes more attention than the label beside it.
+
 ## Changes
 First batch: "a bit harsh". Round ends picked over a larger radius and a lighter stroke.
 ```
+
+Once the seed passes, the Voice section is copied into the Voice table of `icon-spec.md`, which owns it from then on. `style.md` keeps the history of why.
 
 ## Variables
 
@@ -56,19 +64,42 @@ First batch: "a bit harsh". Round ends picked over a larger radius and a lighter
 }
 ```
 
-`cut` is the gap where a badge or slash clips a shape. `duotone` is absent when the set has none, and `back` is `opacity` or `colour`.
+`radius` is the path's own radius at the centre of the stroke. `cut` is the gap where a badge or slash clips a shape, and it is never narrower than that size's stroke. `duotone` is absent when the set has none, and `back` is `opacity` or `colour`.
+
+## Icon scripts
+
+Where the agent draws, each icon is a script that reads `style.json` and returns the SVG. A correction the eye asks for is a named override beside the part it bends, so regenerating the set keeps it.
+
+```js
+import style from "../style.json" with { type: "json" };
+import { polygon, starPoints } from "../helpers.js";
+
+export default (size) =>
+  polygon(starPoints(size), {
+    stroke: style.sizes[size].stroke,
+    radius: style.sizes[size].radius,
+    // 36° points: a quarter of 3.4, halved for the angle.
+    corners: { points: 0.425 },
+  });
+```
+
+The build runs every script, so the scripts and the SVG tree never disagree.
 
 ## Concepts
 
 `concepts.md` sits beside the icons. Each concept appears once and each icon answers one concept. The tags carry the synonyms, so they also feed the catalogue's search.
 
 ```
-| Concept | Icon | Tags |
-| --- | --- | --- |
-| Agent | `sparkle` | ai, assistant, model |
-| Search | `magnifying-glass` | search, find, lookup |
-| Parallel run | `lanes` | parallel, concurrent, fan out |
+| Concept | Icon | Tags | Marks |
+| --- | --- | --- | --- |
+| Agent | `sparkle` | ai, assistant, model | Contested: picked from 14 versions |
+| Search | `magnifying-glass` | search, find, lookup | |
+| Play | `play` | start, run, resume | Swaps with `pause` |
+| Billing | `banknote` | billing, payment, invoice | Local: no currency sign |
+| Parallel run | `lanes` | parallel, concurrent, fan out | Contested, new: 4 of 5 in testing |
 ```
+
+Marks records what the steps decided. Contested names the picture it came from, Swaps names its partner and Local names the neutral form or the locales. A new metaphor adds its test result.
 
 ## Migration
 
