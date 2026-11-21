@@ -97,6 +97,8 @@ A radius in `style.json` is the largest a corner takes. Each corner takes less w
 | Any corner | The set radius or a quarter of the shorter segment, whichever is smaller | Segments of 10 and 6 take 1.5 |
 | An angle under 60° | Half of the above | A star point of 3.4 at 36° takes 0.425 |
 | 3 or more lines meeting | None | The centre of an asterisk |
+| A line that ended on a corner now rounded | The line stops on the arc, along its own direction | A cube's back edge meets the rounded outer corner instead of poking past it |
+| A silhouette or duotone back layer | The outline's radius plus the offset outside, minus it inside | A 2.5 corner under a 0.625 offset takes 3.125 |
 | A pixel direction | None | Every corner |
 
 After a radius change, reopen stars, bolts, arrowheads, chevrons and small badges first. They break before anything else.

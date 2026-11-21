@@ -83,6 +83,8 @@ A slash cuts flat through the glyph at the set's angle and draws no shadow line 
 
 Separate parts sit at least one stroke width apart, and never under 1px. Two strokes that merge into one blot at 16px are `icons-open-gaps`. A cut where a badge or slash clips a base shape keeps one width across the set, the `cut` in `style.json` where the set has one.
 
+Measure every gap and cut from the ink. A round cap carries the ink half a stroke past an open end, so two 1.25 ends 2.5 apart leave 1.25 of white, and a switch to round caps reopens every gap in the set.
+
 Where 3 or more strokes meet, the overlap reads darker than any one stroke, and light strokes on Dark Tiles bloom further. End one converging stroke half a stroke width short of the junction. A clogged corner that reads heavy on Weight is `icons-open-junctions`.
 
 A dot takes the diameter its role already has in the set: a dot ending a line, a dot in an ellipsis or a lone dot. Measure each role from the existing icons. A dot sized off its role is `icons-dots-by-role`.
