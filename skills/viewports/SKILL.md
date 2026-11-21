@@ -59,7 +59,7 @@ Under 480px of height, fixed and sticky bars together cover at most a quarter of
 
 ## 7. Double the text
 
-At 1024 wide, set the root font size to 200% and render again. Text wraps and its boxes grow, with nothing overlapping. Labels overlapping their icons at 200% is `viewports-text-zoom`. A layout that cannot grow because sizes are set in `px` gets the same id.
+At 1024 wide, set the root font size to 200% and render again. Text wraps and its boxes grow, with nothing overlapping. Labels overlapping their icons at 200% is `viewports-text-zoom`. A root font size in `px` that stops the text growing cites `defaults-rem-sizes`.
 
 ## 8. Widen the spacing
 
@@ -118,7 +118,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is sideways page scroll, including the scroll a classic scrollbar exposes. It is also a control that hover alone reveals on touch, an action unreachable at a short height or a page locked to one orientation. `MEDIUM` is clipped text, overlap at 200% text or a break at a breakpoint edge. It is also a width no query matches, or bars that cover more than a quarter of a short screen. It is also a layout that breaks under longer text or fails to mirror. It is also a directional icon pointing the wrong way once mirrored, or a non-directional one flipped. It is also text cut by wider spacing, a value with no spaces escaping its box, marks cut off a tall script or user text in the wrong direction. It is also a component never rendered at its container width or content stranded at 2560. `LOW` is a finding that does not name its width, or a layout that looks broken with the shortest values.
+**Severity.** `HIGH` is sideways page scroll, including the scroll a classic scrollbar exposes. It is also a control that hover alone reveals on touch, an action unreachable at a short height or a page locked to one orientation. `MEDIUM` is clipped text, overlap at 200% text or a break at a breakpoint edge. It is also a layout judged from the code or a sweep that skips a breakpoint edge. It is also a width no query matches, or bars that cover more than a quarter of a short screen. It is also a layout that breaks under longer text or fails to mirror. It is also a directional icon pointing the wrong way once mirrored, or a non-directional one flipped. It is also text cut by wider spacing, a value with no spaces escaping its box, marks cut off a tall script or user text in the wrong direction. It is also a component never rendered at its container width or content stranded at 2560. `LOW` is a finding that does not name its width, or a layout that looks broken with the shortest values.
 
 **Format.** One finding per root cause, naming the width:
 

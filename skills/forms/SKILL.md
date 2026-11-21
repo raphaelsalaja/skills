@@ -51,7 +51,7 @@ A field takes input the way people type or paste it, such as spaces in a card nu
 
 ## Limits never block typing
 
-Never set `maxlength`, which blocks typing and silently cuts a paste short. Between the label and the field say "You can enter up to 200 characters", and past 75% show a live count, announced politely once typing pauses. Going over is an error on submit, such as "12 characters too many", and a limit people keep hitting gets raised. `maxlength="200"` on a bio is `forms-soft-limit`.
+Never set `maxlength`, which blocks typing and silently cuts a paste short. Between the label and the field say "You can enter up to 200 characters", and past 75% show a live count, announced politely once typing pauses. Over the limit, the count reads "12 characters too many". Submitting then shows a field error, worded as `copy` sets out. A limit people keep hitting gets raised. `maxlength="200"` on a bio is `forms-soft-limit`.
 
 ## Fields fit what they hold
 
@@ -125,7 +125,7 @@ A `button` inside a form defaults to `type="submit"`. Every button there that do
 
 ## Forms validate on submit
 
-Submit stays enabled until the request starts. On submit, show each error beside its field, and with one or two errors focus the first invalid field. A submit button disabled until the form is valid is `forms-validate-on-submit`.
+Submit stays enabled until the request starts, then turns busy as `defaults` sets out. On submit, show each error beside its field, and with one or two errors focus the first invalid field. A submit button disabled until the form is valid is `forms-validate-on-submit`.
 
 A form that shows its own errors sets `novalidate`, so the browser's bubbles never appear beside them. Keep `required`, `type` and `pattern` on the fields, because a submit attempt still flags each one for `:user-invalid`. Submit through a button or `form.requestSubmit()`, since `form.submit()` skips that step. Browser bubbles over the form's own errors are `forms-novalidate`.
 
@@ -177,7 +177,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `forms-input-16px` | `font-size: 14px` on a mobile input | `font-size: 16px` |
 | `forms-name-field` | A title select, then First Name and Last Name | One `Full Name` field with `autocomplete="name" spellcheck="false"` |
 | `forms-accept-messy-input` | A phone field that rejects `+1 (555) 010-2030` | Accepted, stored as `+15550102030` and shown formatted |
-| `forms-soft-limit` | `maxlength="200"` cutting a pasted bio short | "You can enter up to 200 characters", a count past 150 and "12 characters too many" on submit |
+| `forms-soft-limit` | `maxlength="200"` cutting a pasted bio short | "You can enter up to 200 characters", a count past 150 that reads "12 characters too many" once over, then an error on submit |
 | `forms-field-fits-input` | A ZIP field at `width: 100%` | `width: 6ch` |
 | `forms-one-column` | Two columns of unrelated fields | One column, with City, State and ZIP on one row |
 | `forms-control-height` | `height: 38px` on an input beside a 32px button | `height: var(--control-height)`, 36px on both |
@@ -220,7 +220,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 **Severity.** `HIGH` breaks use, access or the user's input. That is a field that rejects pasted formatting, a submit disabled until valid or a consent box that starts checked. It is also an Enter handler that fires mid-composition, a control that navigates on change, an error tied to nothing or a password the app prefilled. It is also sign-in that blocks paste or password managers, or that offers only a puzzle. It is also `maxlength` cutting a paste short, or a changed form that leaves without asking. It is also a button that submits the form by accident, or an upload only a mouse can reach.
 
-`MEDIUM` is a field with the wrong keyboard, a mobile input under 16px, a dead label or a group with no `legend`. It is also Enter that does not submit, an unmarked required field, rules hidden until the error or error styles on an untouched form. It is also a flow that asks twice, a switch that waits for Save, a `select` for two options, options that vanish or a date that cannot be typed. It is also a `select` of more than 15 options with no search, or rules set below their field. It is also a Reset button beside Submit. It is also three or more errors with no summary, a title with no error prefix, a stepped flow with no review page or a Save button per section. It is also a keyboard raised on load or a dark theme opening a white option list. It is also a card number in a number field, a locked value in a `disabled` input or an error that outlives its fix. It is also a password with no Show button, or a Confirm Password field.
+`MEDIUM` is a field with the wrong keyboard, a mobile input under 16px, a dead label or a group with no `legend`. It is also Enter that does not submit, an unmarked required field or error styles on an untouched form. It is also rules hidden until the error or set below their field. It is also a flow that asks twice, a switch that waits for Save, a `select` for two options, options that vanish or a date that cannot be typed. It is also a `select` of more than 15 options with no search. It is also a Reset button beside Submit. It is also three or more errors with no summary, a title with no error prefix, a stepped flow with no review page or a Save button per section. It is also a keyboard raised on load or a dark theme opening a white option list. It is also a card number in a number field, a locked value in a `disabled` input or an error that outlives its fix. It is also a password with no Show button, or a Confirm Password field.
 
 `LOW` is a missing keyboard hint, a field far wider than its input, unrelated fields in two columns or a textarea resized by script. It is also a link inside a hint, split name fields, an icon beside its field or a server check with no indicator. It is also a long unfamiliar flow that opens on many questions at once. It is also controls of mixed heights on one row, or options wrapped across a row. It is also labels set to the left of their fields, or browser bubbles beside the form's own errors.
 

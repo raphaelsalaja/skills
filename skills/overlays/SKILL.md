@@ -39,7 +39,7 @@ No dialog opens on page load. A startup problem, such as being offline, shows ca
 
 ## Dialog buttons keep one order
 
-A dialog footer puts Cancel on the left as a secondary button and the one primary action outermost on the right. A dialog never holds two primary buttons. `Save` left of `Cancel`, or two filled buttons in one footer, is `overlays-button-order`.
+A dialog footer puts Cancel on the left as a secondary button and the primary action outermost on the right. `Save` left of `Cancel` is `overlays-button-order`. Keeping one primary button per footer belongs to `color`.
 
 ## Destructive buttons are never the default
 
@@ -107,9 +107,7 @@ At most three toasts show at once, and the rest queue. A routine toast stays 4â€
 
 A toast carrying an action, such as Undo or Retry, or a critical message never closes on a timer. It stays until dismissed or used, with one action of two words or fewer and at most three lines. The action is also reachable outside the toast, such as Restore in the trash. An Undo toast gone after 5 seconds is `overlays-action-toast-stays`.
 
-A repeat toast with a stable id updates the one on screen. Three identical "Saved" toasts stacked is `overlays-toast-in-place`.
-
-A loading toast always resolves to success or failure. A saving toast that spins on after the request ends is `overlays-toast-resolves`.
+A repeat toast with a stable id updates the one on screen. Three identical "Saved" toasts stacked is `overlays-toast-in-place`. A loading toast that must end in success or failure belongs to `states`.
 
 ## The pair
 
@@ -124,7 +122,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `overlays-visible-close` | A dialog that closes only on Escape or a backdrop click | A visible `Close` button in its header, or `Cancel` in its footer |
 | `overlays-no-stacked-dialogs` | A confirm dialog opened from a settings dialog | A menu or popover inside the dialog |
 | `overlays-no-dialog-on-load` | An offline dialog on startup | Cached content with an inline `Offline` marker |
-| `overlays-button-order` | `Save` on the left, `Cancel` on the right, both filled | `Cancel` secondary on the left, `Save` the one primary on the far right |
+| `overlays-button-order` | `Save` on the left, `Cancel` on the right | `Cancel` secondary on the left, `Save` primary on the far right |
 | `overlays-destructive-not-default` | `<button autofocus>Delete</button>` in a confirm | Focus on `Cancel`, and typing the name for the worst cases |
 | `overlays-stable-gutter` | `overflow: hidden` on `body` shifting the page 15px, or `position: fixed` jumping it to the top | `overscroll-behavior: contain` on `dialog:modal` and its backdrop, `html:has(dialog:modal) { overflow: hidden }` and `html { scrollbar-gutter: stable }` |
 | `overlays-safe-outside-press` | A form dialog that closes on an outside click and drops the text | Outside clicks ignored while the form has changes |
@@ -147,13 +145,12 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `overlays-toast-budget` | Six toasts stacked at once | Three visible, the rest queued, timers paused while the tab is hidden |
 | `overlays-action-toast-stays` | An `Undo` toast gone after 5 seconds | The toast held until dismissed or used, with `Restore` in the trash as well |
 | `overlays-toast-in-place` | Three identical "Saved" toasts stacked | `toast("Saved", { id: "save" })` updating the one on screen |
-| `overlays-toast-resolves` | A loading toast left spinning after the request fails | The same toast turned into the failure, with `Retry` |
 
 ## Reporting
 
 **Severity.** `HIGH` breaks use or access. That is a stacked dialog, focus that escapes a dialog or an overlay cut off by the window or an ancestor. It is also an outside click that drops typed work, a destructive button that Enter can trigger, a tooltip holding a link or one only a pointer can open. It is also a tooltip on a disabled button, or an action toast that closes on a timer. It is also a dialog with no visible way to close it, or something the user needs held only in a tooltip.
 
-`MEDIUM` is a portal at `z-index: 9999`, a page that shifts or scrolls behind a modal, hover content that vanishes or a centred form dialog on a phone. It is also a dialog on page load, dismissal written by hand, a backdrop behind a menu, two clicks between menus or a toast that never resolves. It is also more than three toasts, or repeat toasts that stack. It is also Cancel and the primary action out of order, two primary buttons in one dialog or banners that stack or stick. It is also an unnamed dialog, a long dialog that opens past its start or links inside `role="menu"`. It is also a submenu that closes on the way to it, or a tooltip that closes the open menu.
+`MEDIUM` is a portal at `z-index: 9999`, a page that shifts or scrolls behind a modal, hover content that vanishes or a centred form dialog on a phone. It is also a dialog on page load, dismissal written by hand, a backdrop behind a menu or two clicks between menus. It is also more than three toasts, or repeat toasts that stack. It is also Cancel and the primary action out of order, or banners that stack or stick. It is also an unnamed dialog, a long dialog that opens past its start or links inside `role="menu"`. It is also a submenu that closes on the way to it, or a tooltip that closes the open menu.
 
 `LOW` is an overlay positioned by a scroll listener or a submenu two levels deep.
 

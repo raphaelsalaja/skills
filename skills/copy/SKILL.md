@@ -11,7 +11,7 @@ This skill writes and reviews the words inside an interface. It covers labels, p
 
 A label in sentence case is a finding. An em dash is a finding. A label that could lose a word is a finding only when the shorter label still says what happens.
 
-Extra interface beyond the words belongs to `restraint`. Which state a message appears in, such as filtered to zero, belongs to `states`.
+Extra interface beyond the words belongs to `restraint`. Which state a message appears in, such as filtered to zero, belongs to `states`. Where a field error sits and how it ties to its field belong to `forms`.
 
 ## Labels take Title Case
 
@@ -77,7 +77,7 @@ Create makes something new, and Add puts something that already exists into a pl
 
 ## One line of description or none
 
-Move any detail into a tooltip. Two lines under a setting is `copy-one-line-description`. Input requirements, such as password rules, formats and limits, are the exception: they sit between the label and the field, never only in a tooltip, as `forms` sets out.
+Move optional detail into a tooltip or a linked page. Two lines under a setting is `copy-one-line-description`. Anything the user needs to act, such as a limit, a price or a warning, stays on the page, because `overlays` keeps it out of tooltips. Input requirements, such as password rules and formats, sit between the label and the field, as `forms` sets out.
 
 ## Placeholders show an example or nothing
 
@@ -125,7 +125,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `copy-one-point-of-view` | `My Projects` in the sidebar, `Your Projects` as the page title | `Your Projects` in both |
 | `copy-one-name-per-action` | `Remove`, `Delete` and `Trash` for one action | `Delete` everywhere |
 | `copy-create-vs-add` | `Add Project` on a button that makes a blank project | `Create Project`, with `Add to Folder` for an existing one |
-| `copy-one-line-description` | Two lines under a setting | One line, the rest in a tooltip |
+| `copy-one-line-description` | Two lines under a setting | One line, the optional rest in a tooltip |
 | `copy-placeholder-example` | `placeholder="Enter your email"` under an Email label | `placeholder="name@example.com"`, or none |
 | `copy-state-tense` | `Searched` while running | `Searching`, then `Searched` |
 | `copy-status-names-the-change` | `Success!` after a delete | `Q3 Roadmap deleted` |
@@ -136,7 +136,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is an id or internal jargon shown to the user, or a status that says the wrong thing. It is also a confirm button that does not name its action, or a confirm body that does not name its target. `MEDIUM` is a label in the wrong case, a two-line description or an em dash. It is also a button with no verb, an error with no fix, a link that means nothing alone, a negative toggle or a sentence joined from fragments. It is also an instruction that points by colour or place, or one action under two names. It is also a field error that pleads, blames or says "invalid", or `Next` on a flow's last step. It is also a status that does not say what changed. `LOW` is a label one word longer than it needs, or siblings that open on the same word. It is also Add for something new, a unit wrapped away from its number or three periods for an ellipsis. It is also a hyphen for a minus sign, or a letter x for a times sign. It is also a joined verb such as `Login` on a button, two possessives for one user or a placeholder that repeats its label.
+**Severity.** `HIGH` is an id or internal jargon shown to the user, or a status that says the wrong thing. It is also a confirm button that does not name its action, or a confirm body that does not name its target. `MEDIUM` is a label in the wrong case, a two-line description or an em dash. It is also a button with no verb, an error with no fix, a link that means nothing alone, a negative toggle or a sentence joined from fragments. It is also an instruction that points by colour or place, or one action under two names. It is also a field error that pleads, blames or says "invalid", or `Next` on a flow's last step. It is also a status that does not say what changed. `LOW` is a label one word longer than it needs, a noun the context already names beside a number or siblings that open on the same word. It is also Add for something new, a unit wrapped away from its number or three periods for an ellipsis. It is also a hyphen for a minus sign, or a letter x for a times sign. It is also a joined verb such as `Login` on a button, two possessives for one user or a placeholder that repeats its label.
 
 **Format.** One finding per root cause:
 

@@ -186,11 +186,11 @@ System colours such as `Highlight`, `CanvasText` and `ButtonText` are the only o
 .icon-button::before {
   content: "";
   position: absolute;
-  inset: -8px;
+  inset: -12px;
 }
 ```
 
-A 16px glyph with `inset: -12px` gives a 40px target, and `-14px` gives 44px for touch. Shrink the inset where it would overlap a neighbour's hit area.
+A 16px glyph with `inset: -12px` gives a 40px target, `-14px` gives 44px for touch and `-4px` gives the 24px floor. Shrink the inset where it would overlap a neighbour's hit area.
 
 ## Mobile baseline
 

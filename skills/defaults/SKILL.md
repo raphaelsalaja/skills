@@ -55,7 +55,7 @@ A popover, menu or card that floats pairs its shadow with a translucent 1px ring
 
 Use the project's elevation token. Without one, layer three shadows with blur growing and opacity falling, all offset downward. One `0 4px 16px rgba(0, 0, 0, 0.2)` is `defaults-layered-shadows`. See [recipes.md](recipes.md#layered-shadow).
 
-To raise a surface on hover, fade in a pseudo-element that holds the raised shadow. A transition on `box-shadow` is `defaults-fade-the-shadow`. See [recipes.md](recipes.md#raised-on-hover).
+Where `motion` allows a surface to lift on hover, fade in a pseudo-element that holds the raised shadow. A transition on `box-shadow` is `defaults-fade-the-shadow`. See [recipes.md](recipes.md#raised-on-hover).
 
 ## Content images take a faint outline
 
@@ -63,7 +63,7 @@ Photos and screenshots take a 1px outline inset by 1px, black at 10% in light mo
 
 ## Images fill their box at any ratio
 
-An image in a fixed box takes `object-fit: cover`, so a 4000×200 panorama or a 200×4000 strip never stretches. Media set `width` and `height` or `aspect-ratio`, so the layout holds while they load. A stretched avatar is `defaults-cover-any-ratio`.
+An image in a fixed box takes `object-fit: cover`, so a 4000×200 panorama or a 200×4000 strip never stretches. A stretched avatar is `defaults-cover-any-ratio`. Sizing media before it loads belongs to `vitals`.
 
 ## Cards never nest
 
@@ -95,7 +95,7 @@ A theme switch turns transitions off for one frame. When it toggles a class, it 
 
 Use `:focus-visible` with a 2px solid `outline` at `outline-offset: 2px`. A ring on every click is `defaults-focus-keyboard-only`.
 
-Never remove the outline without drawing another. A `box-shadow` ring is no replacement, because forced-colours mode erases every shadow. Search for `outline: none`, `outline: 0` and Tailwind's `outline-none` with no `focus-visible:` ring beside it. Each one is `defaults-focus-outline`.
+Never remove the outline without drawing another. A `box-shadow` ring is no replacement, because forced-colours mode erases every shadow. Search for `outline: none`, `outline: 0` and Tailwind's `outline-none` with no `focus-visible:` ring beside it. Each one is `defaults-focus-outline`. Whether each ring shows in the running page, at a 3:1 change from unfocused, is checked by `keyboard`.
 
 ## Forced colours keep every edge and state
 
@@ -299,7 +299,7 @@ Truncated text the user needs opens in full through a tooltip, an expand control
 
 ## Layouts survive real data
 
-Test every field with the longest realistic value. Text columns take `min-width: 0`, fixed boxes such as avatars take `flex-shrink: 0` and emails and URLs take `overflow-wrap: anywhere`. A long email pushing the row menu off screen is `defaults-survives-long-content`.
+Text columns take `min-width: 0`, fixed boxes such as avatars take `flex-shrink: 0` and emails and URLs take `overflow-wrap: anywhere`. A long email pushing the row menu off screen is `defaults-survives-long-content`. Finding the longest real value belongs to `stress`, and rendering it at each width to `viewports`.
 
 A missing optional field drops its line rather than showing a placeholder. A lone dash where the role should be is `defaults-omit-empty-fields`.
 
@@ -443,7 +443,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 `MEDIUM` is a pill button, a click focus ring or a hover stuck on touch. It is also proportional figures in data, sound on a frequent action, scroll leaking out of a scroller, state lost on refresh or a flickering skeleton. It is also a busy button with no indicator, an unannounced update, a focused element left covered or a card inside a card. It is also a tap flash or a double tap that zooms, a selectable control label, a page that bounces or an unformatted number or plural. It is also alt text naming the file rather than the purpose, headings built from styled `div` elements, a shared page title or a missing `lang`. It is also a centred number column, a long table with no sticky header, a sort with no `aria-sort` or row controls that shift columns. It is also a wide table whose first column scrolls away, a long table with no count or a link in prose shown by colour alone. It is also a paragraph past `65ch`, wrapped text under 1.4 leading, a browser-drawn bold or a weight under 400. It is also a theme that ignores the system, translucency that ignores the user's setting, a stretched image or controls crowded closer than their spacing. It is also a list that loses its place on Back or results that jump on a filter change. It is also an undo with no visible result, a relative time past its edges or an unclamped meter. It is also a routine update announced as an alert, or a weight change that shifts its siblings. It is also a theme switch the styles ignore or a state lost in forced colours. It is also collapsed text that find in page misses or a root font size in `px`.
 
-`LOW` is an opaque border beside a shadow, a decorative glow, a single harsh shadow or a transitioned `box-shadow`. It is also unbalanced headings, justified text, a missing image outline or a borderless sticky header. It is also a light scrollbar or white flash on a dark page, a smeared theme switch or missing root font smoothing. It is also full-size inline code, a placeholder dash for an empty field or a long-press preview on a control. It is also a border on every table cell, display type at default tracking, a linked last breadcrumb or help links that move between pages. It is also a product name or code open to page translation, or an underline through descenders. It is also an ad hoc `z-index`, a font size off the type scale or a selected item marked by a left bar alone. It is also a layout that shifts as a scrollbar appears.
+`LOW` is an opaque border beside a shadow, a decorative glow, a single harsh shadow or a transitioned `box-shadow`. It is also unbalanced headings, justified text, a missing image outline or a borderless sticky header. It is also a light scrollbar or white flash on a dark page, a smeared theme switch or missing root font smoothing. It is also full-size inline code, a code line that wraps, a placeholder dash for an empty field or a long-press preview on a control. It is also a border on every table cell, display type at default tracking, a linked last breadcrumb or help links that move between pages. It is also a product name or code open to page translation, or an underline through descenders. It is also an ad hoc `z-index`, a font size off the type scale or a selected item marked by a left bar alone. It is also a layout that shifts as a scrollbar appears.
 
 **Format.** One finding per root cause:
 

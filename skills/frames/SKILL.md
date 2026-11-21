@@ -38,11 +38,11 @@ A layout property animated across a large subtree reflows every frame. `top` or 
 
 Reading layout after writing a style forces the browser to lay out mid-frame. `offsetHeight` read inside a loop that sets `style.height` is `frames-no-forced-layout`. Read every value first, then write.
 
-A loop that runs past 50ms holds every key and click behind it. Yield to input every 50ms with `await scheduler.yield()`, falling back to `setTimeout(0)` where it is missing, as in Safari. Wait for scrolling to stop with the `scrollend` event, not a debounced `scroll` handler. A 5,000-row loop with no yield, or a debounced scroll handler, is `frames-yield-every-50ms`.
+A loop that runs past 50ms holds every key and click behind it. Yield to input every 50ms with `await scheduler.yield()`, falling back to `setTimeout(0)` where it is missing, as in Safari. A 5,000-row loop with no yield is `frames-yield-every-50ms`.
 
 A `touchstart`, `touchmove` or `wheel` listener on an element holds each scroll until it returns, in case it calls `preventDefault()`. Register it with `{ passive: true }`, and block gestures with `touch-action` instead. A `wheel` listener on a scrolling list without that flag is `frames-passive-listeners`.
 
-A `scroll` listener that writes a style on each event runs on the main thread and trails the scroll. Move the effect onto a CSS scroll timeline, built as `motion` sets out. A progress bar whose `width` a `scroll` listener writes is `frames-scroll-driven`.
+A `scroll` listener that writes a style on each event runs on the main thread and trails the scroll. Move the effect onto a CSS scroll timeline, built as `motion` sets out. A progress bar whose `width` a `scroll` listener writes is `frames-scroll-driven`. Work that waits for scrolling to stop listens for `scrollend`, never a debounced `scroll` handler.
 
 A list over about 1,000 rows is virtualized or paginated, and the report says which. Rendering 5,000 rows into one scroller is `frames-virtualize-long-lists`.
 
@@ -74,7 +74,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `frames-paint-first` | `onInput` filtering 5,000 rows before the typed letter paints | The value set, `await scheduler.yield()`, then the filter |
 | `frames-compositor-properties` | `animate={{ width: 320 }}` on the full-page sidebar | `animate={{ x: 0 }}` with the width fixed |
 | `frames-no-forced-layout` | `el.style.height = el.scrollHeight + "px"` in a loop over rows | All heights read first, then all written |
-| `frames-yield-every-50ms` | A 5,000-row loop with no yield, and a debounced `scroll` handler | `await scheduler.yield()` every 50ms, and a `scrollend` listener |
+| `frames-yield-every-50ms` | A 5,000-row loop with no yield | `await scheduler.yield()` every 50ms |
 | `frames-passive-listeners` | `list.addEventListener("wheel", onWheel)` that never calls `preventDefault()` | `list.addEventListener("wheel", onWheel, { passive: true })` |
 | `frames-scroll-driven` | A `scroll` listener writing a progress bar's `width` | `animation-timeline: scroll()` driving `transform: scaleX()` on the bar |
 | `frames-virtualize-long-lists` | 5,000 rows rendered into one scroller | The visible rows virtualized, the report saying so |

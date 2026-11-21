@@ -12,7 +12,7 @@ This skill puts the mouse away and walks a running page with keys alone. It reco
 
 Focus order, reach and operation are judged from keys pressed in the running page. A stop the walk did not press is `Not verified`, never assumed. One unreachable control is a finding however minor the control.
 
-How the focus ring is styled, sticky chrome that covers focus and accessible names belong to `defaults`. Dialog focus traps belong to `overlays`. A failure there cites its id. Opening the running result belongs to `verify`. Forcing hidden states open belongs to `lab`.
+How the focus ring is styled, sticky chrome that covers focus and accessible names belong to `defaults`. Dialog focus traps and how an overlay declares its dismissal belong to `overlays`. A failure there cites its id. Opening the running result belongs to `verify`. Forcing hidden states open belongs to `lab`.
 
 ## 1. Load the recorder
 
@@ -26,9 +26,9 @@ Press Tab from the top of the page until focus leaves it, then Shift+Tab back to
 
 Stops follow the reading order of the layout. A jump from the header to the footer and back, or any positive `tabindex`, is `keyboard-order-follows-layout`. Search the CSS for `order:`, `row-reverse`, `column-reverse` and `grid-auto-flow: dense`, which move boxes but not their stops. Fix the source order, because `reading-flow` works only in Chromium.
 
-Every stop shows an indicator on screen whose pixels change by 3:1 from the unfocused state. A stop with no visible ring is `keyboard-see-every-stop`. The recorder's `ringWidth` gives the outline thickness, and one under 2px cites `defaults-focus-keyboard-only`. Focus landing on links inside a closed drawer is `keyboard-no-hidden-stops`. A stop with no name cites `defaults-name-icon-buttons`.
+Every stop shows an indicator on screen whose pixels change by 3:1 from the unfocused state. A stop with no visible ring is `keyboard-see-every-stop`. The recorder's `ringWidth` gives the outline thickness, and one under 2px cites `defaults-focus-keyboard-only`.
 
-The recorder marks a stop `obscured`, fully or partly, when sticky chrome, a banner or a toast covers it. An obscured stop cites `defaults-clear-sticky-chrome`.
+Every stop is something the user can see. Focus landing on links inside a closed drawer is `keyboard-no-hidden-stops`. The recorder marks a stop `obscured`, fully or partly, when sticky chrome, a banner or a toast covers it. An obscured stop cites `defaults-clear-sticky-chrome`, and a stop with no name cites `defaults-name-icon-buttons`.
 
 When navigation comes before the main content, the first stop is a skip link to it. It shows when focused, and after Enter the next Tab lands inside `main`. Twenty header stops before the first result is `keyboard-skip-link`.
 
@@ -38,7 +38,9 @@ Compare the stops against what the page shows and against the recorder's `unreac
 
 A region that scrolls but holds nothing focusable takes `tabindex="0"`, `role="region"` and an `aria-label`, because Safari never puts a scroller in the tab order. The recorder's `scrollers` list names each one. A code block that only a wheel can scroll is `keyboard-scroll-regions`.
 
-Toasts sit in a region labelled "Notifications" that a documented shortcut, such as Alt+T, reaches. An editor that keeps Tab for indenting lets Escape then Tab leave it. A toast's Undo the walk cannot reach, or an editor Tab never leaves, is `keyboard-reach-toasts`.
+Toasts sit in a region labelled "Notifications" that a documented shortcut, such as Alt+T, reaches. A toast's Undo the walk cannot reach is `keyboard-reach-toasts`.
+
+An editor that keeps Tab for indenting lets Escape then Tab move focus to the next control, and says so beside the editor. A code editor that Tab enters and never leaves is `keyboard-leave-editors`.
 
 ## 4. Operate each control
 
@@ -48,11 +50,11 @@ Menus, tabs, radio groups, listboxes and grids take one Tab stop, and arrows mov
 
 Tab into a composite lands on its selected item, such as the active tab or the checked radio, and on the last focused cell of a grid. Home and End jump to the first and last item. Tab back into a tablist landing on the first tab while the third is selected is `keyboard-return-to-active-item`.
 
-Escape closes the open menu, popover, sheet or dialog. An overlay that only a click can close is `keyboard-escape-closes`.
-
 ## 5. Open and close each overlay
 
 Open each dialog, menu and popover from the keyboard. Focus moves inside, stays inside a modal and returns to the trigger on close. A failure cites `overlays-trap-and-return-focus`.
+
+Press Escape in each one, and on each tooltip shown by focus. It closes the topmost layer only, and focus stays on or returns to the trigger. An overlay that only a click can close is `keyboard-escape-closes`. Its fix follows `overlays-declare-closedby`.
 
 ## 6. Remove or navigate, then find focus
 
@@ -78,6 +80,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `keyboard-reach-every-control` | `<div onClick={openRow}>` | `<button onClick={openRow}>` |
 | `keyboard-scroll-regions` | `<pre class="overflow-auto">` that only a wheel scrolls | `<pre tabindex="0" role="region" aria-label="Code Sample">` |
 | `keyboard-reach-toasts` | A toast's Undo that Tab never reaches | `aria-label="Notifications"` on the region, reached with Alt+T |
+| `keyboard-leave-editors` | A code editor that turns every Tab into an indent | Escape, then Tab, moving focus to the next control, with that hint beside the editor |
 | `keyboard-operate-every-control` | A switch that toggles on click only | Space toggles it |
 | `keyboard-arrows-inside-composites` | Eight Tab stops inside one menu | One stop, arrows move between items |
 | `keyboard-return-to-active-item` | Tab back into the tablist landing on `Overview` while `Billing` is selected | `tabindex="0"` on the selected tab and `tabindex="-1"` on the rest |
@@ -88,7 +91,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a control the keyboard cannot reach or operate, an editor Tab cannot leave or focus lost to `body` after an action. `MEDIUM` is a stop out of reading order, a stop with no visible ring or a stop hidden off screen. It is also a composite with a Tab stop per item, or an overlay Escape does not close. It is also a composite that forgets its selected item, a scroller Tab never reaches or focus left behind after a route change. `LOW` is a missing skip link, or a report without numbered stops. It is also a toast region with no name or no shortcut.
+**Severity.** `HIGH` is a control the keyboard cannot reach or operate, an editor Tab cannot leave or focus lost to `body` after an action. It is also order or reach judged from the markup, with no keys pressed. `MEDIUM` is a stop out of reading order, a stop with no visible ring or a stop hidden off screen. It is also a composite with a Tab stop per item, or an overlay Escape does not close. It is also a composite that forgets its selected item, a scroller Tab never reaches or focus left behind after a route change. It is also a toast whose Undo the keyboard never reaches. `LOW` is a missing skip link, or a report without numbered stops.
 
 **Format.** One finding per root cause, numbered and citing the stop:
 

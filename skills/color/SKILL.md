@@ -11,7 +11,7 @@ This skill holds the colour rules that apply on every screen. It covers contrast
 
 The contrast ratios here are exact and apply in every theme. They are WCAG 2 ratios, the method conformance claims and accessibility law cite. A ratio is read from the colour the screen draws, never guessed from a token's name. A ratio under the threshold is a finding in any style.
 
-Searching for an existing token belongs to `reuse`. `color-scheme`, `theme-color`, the theme switch, status shown by colour alone and surfaces under reduced transparency belong to `defaults`. Whether a colour should be there at all belongs to `restraint`.
+Searching for an existing token belongs to `reuse`. `color-scheme`, `theme-color`, the theme switch, status shown by colour alone and surfaces under reduced transparency belong to `defaults`. Whether a colour should be there at all belongs to `restraint`. A focus ring's style belongs to `defaults`, and its 3:1 change from the unfocused state is checked stop by stop in `keyboard`.
 
 ## Body text clears 4.5:1
 

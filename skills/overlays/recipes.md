@@ -131,4 +131,4 @@ document.querySelectorAll("[data-tip]").forEach((trigger) => {
 });
 ```
 
-The tooltip adds detail the label lacks, so it describes the button rather than repeating its name. `source` makes the trigger its implicit anchor, so `position-area` places it with no `anchor-name`. Where `hint` is unsupported the popover falls back to `manual`, which these listeners already close. Hover content that must stay open while the pointer crosses onto it needs a short close delay, which belongs to `motion`.
+The tooltip adds detail the label lacks, so it describes the button rather than repeating its name. `source` makes the trigger its implicit anchor, so `position-area` places it with no `anchor-name`. Where `hint` is unsupported the popover falls back to `manual`, which these listeners already close. Hover content that must stay open while the pointer crosses onto it bridges the gap with a transparent `::before` that spans it, so leaving the trigger never means leaving the overlay. No close delay is needed.

@@ -98,7 +98,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a miss visible at 1x on a primary surface, such as a heading column or a primary button. `MEDIUM` is a 1–2px miss, uneven gaps, padding smaller than the gap, a radius mismatch, a weight imbalance or a hand-built report. It is also a row centred beside text that wraps, or a button padded the same on its icon side and its text side. It is also two text sizes off one baseline, or a box on half a pixel that blurs at 1x. It is also an inner radius under 2px inside a rounded surface. `LOW` is an off-scale value that still renders aligned.
+**Severity.** `HIGH` is a miss visible at 1x on a primary surface, such as a heading column or a primary button. `MEDIUM` is a 1–2px miss, uneven gaps, padding smaller than the gap, a radius mismatch, a weight imbalance or a hand-built report. It is also a row centred beside text that wraps, or a button padded the same on its icon side and its text side. It is also two text sizes off one baseline, or a box on half a pixel that blurs at 1x. It is also an inner radius under 2px inside a rounded surface, or a check reasoned from the CSS rather than measured. `LOW` is an off-scale value that still renders aligned, or a finding with no measurement and no rect.
 
 **Format.** One finding per root cause, numbered to match the overlay:
 
