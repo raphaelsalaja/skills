@@ -11,11 +11,11 @@ This skill turns a correction into a written rule. It writes the rule once in th
 
 When the user says "make it a rule", "always", "never" or "remember this", write it down. When they correct the same thing twice, propose a rule. A rule is a pair, short enough to read before every edit.
 
-Following the rules while editing belongs to `scope`. Reviewing a codebase against all of them runs in `audit`.
+Following the rules while editing, and the later instruction winning in a thread, belong to `scope`. Reviewing a codebase against all of them runs in `audit`.
 
 ## 1. Read what exists
 
-Read `AGENTS.md`, `CLAUDE.md` and the editor rule folders before acting. Read nested rule files too: the one nearest the edited path wins, and the user's message outranks every file. Acting against a written rule is `rule-read-before-acting`.
+Before writing, read `AGENTS.md`, `CLAUDE.md`, the editor rule folders and every nested rule file. They show which file owns the topic and which old rule the new one meets.
 
 ## 2. Read the user's edits
 
@@ -55,7 +55,6 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 | Rule | Broken | Replacement |
 | --- | --- | --- |
-| `rule-read-before-acting` | A pill button added in a repo whose rules forbid pills | Rules read first, rounded button |
 | `rule-read-silent-edits` | The user's `duration: 200` set back to `400` on the next pass | `200` read from the diff and written as the rule |
 | `rule-write-the-pair` | "Use good casing" | "Labels take Title Case. `Add to library` becomes `Add to Library`" |
 | `rule-no-hedges` | "IMPORTANT: try to keep buttons consistent" | "Buttons use `Button`. `<button className="btn">` becomes `<Button>`" |
@@ -69,7 +68,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is an edit that breaks a written rule, or two rules that contradict. `MEDIUM` is a rule with no pair, old violations left after a new rule, a user's edit left unrecorded or a matchable rule with no check. It is also a personal preference committed to the shared file. `LOW` is a rule longer than it needs, a hedged rule or a folder's rule kept at the root.
+**Severity.** `HIGH` is two rules that contradict. `MEDIUM` is a rule with no pair, old violations left after a new rule, a user's edit left unrecorded or a matchable rule with no check. It is also one rule copied into a second file, or a personal preference committed to the shared file. `LOW` is a rule longer than it needs, a hedged rule or a folder's rule kept at the root.
 
 **Format.** One finding per root cause:
 

@@ -11,7 +11,7 @@ This skill sets the order for building anything new. The project's own parts com
 
 A new component, style or icon that duplicates one the project already has is a finding. Adding a primitive to the shared package and then using it is not. A project with no shared package is judged on the libraries it already depends on.
 
-Cutting what nobody asked for belongs to `restraint`. Copying an outside app belongs to `match`.
+Cutting what nobody asked for, including a helper with one caller, belongs to `restraint`. Copying an outside app belongs to `match`.
 
 ## The project's parts come first
 
@@ -74,7 +74,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a duplicate of an existing shared component, or a hand-built control a primitive covers. It is also a package installed under a name nobody checked. `MEDIUM` is a local restyle, an icon from outside the set or a shared fix applied at one call site. It is also a raw value beside its token, or a second library for one job. `LOW` is a library chosen without checking that it is maintained.
+**Severity.** `HIGH` is a duplicate of an existing shared component, or a hand-built control a primitive covers. It is also a package installed under a name nobody checked. `MEDIUM` is a local restyle, a second style for one kind of thing or a shared fix applied at one call site. It is also a raw value beside its token, a second library for one job or custom code a library or the platform covers. So is a prop guessed from an older version, or an icon from outside the set or off its drawn size. `LOW` is a library chosen without checking that it is maintained.
 
 **Format.** One finding per root cause:
 

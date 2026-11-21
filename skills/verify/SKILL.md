@@ -11,7 +11,7 @@ This skill decides when a change may be called done. It asks for evidence from t
 
 A typecheck, a lint pass or a green build does not show that a visual or behavioural change works. Saying "fixed" without opening the result is a finding. Opening it and reporting an imperfect result is not.
 
-Run it after any change to UI or behaviour, before replying "done". Run it at once when the user says "still", "nothing changed" or "test it yourself". What to change belongs to `scope`. Matching an outside app belongs to `match`.
+Run it after any change to UI or behaviour, before replying "done". Run it at once when the user says "still", "nothing changed" or "test it yourself". What to change belongs to `scope`. Matching an outside app belongs to `match`. Evidence behind a review finding belongs to `audit`.
 
 ## 1. See the problem first
 
@@ -69,7 +69,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is "done" with no look at the running result, or a new control that does nothing. It is also a check weakened to pass, or a result judged on a server that was not serving the edit. `MEDIUM` is a repeat report met with another guess, or a reply with no place to see the change. It is also a console error or warning the change introduced, or a touch change neither tried on a phone nor marked. `LOW` is a checked change whose reply omits how it was checked or attaches no evidence.
+**Severity.** `HIGH` is "done" with no look at the running result, or a new control that does nothing. It is also a check weakened to pass, or a result judged on a server that was not serving the edit. `MEDIUM` is an edit made before seeing the bug, a repeat report met with another guess or only the edited line checked. It is also a reply with no place to see the change, or "done" hiding an unchecked item. So is a console error or warning the change introduced, or a touch change neither tried on a phone nor marked. `LOW` is a checked change whose reply attaches no evidence, or a bare output path never opened.
 
 **Format.** One finding per root cause, citing the request when no file applies:
 

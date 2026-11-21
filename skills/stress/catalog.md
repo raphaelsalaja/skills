@@ -36,6 +36,8 @@ Take the first grapheme with `Intl.Segmenter`, never `name[0]`, which splits an 
 
 ## Tall scripts and mixed direction
 
+The Vietnamese, Thai and Arabic names run here as user data through the fixture. A clipped mark or a misplaced full stop in one of them is a `viewports` finding.
+
 | Case | Value | Passes when |
 | --- | --- | --- |
 | Vietnamese marks above and below | `Đặng Thị Ngọc Hân` | No mark is clipped by a fixed `height` or `line-height: 1` |
@@ -133,6 +135,8 @@ Slow and Failed run from the switch. Run the rest by changing one mock handler a
 | An unknown status | `"status": "ARCHIVED"`, a value the enum does not list | It shows a neutral label, never a crash or a blank badge |
 
 ## Limits that disagree
+
+A failure here is an `invariants` finding.
 
 | Case | Value | Passes when |
 | --- | --- | --- |

@@ -67,6 +67,8 @@ Cut the words that judge how hard something is: simply, just, easy, easily, obvi
 
 Say in passing where the author's own work falls short, without apology: the first version is always close and always wrong. A piece about the author's own work that claims no limits is `prose-admit-the-limits`.
 
+## Cut the throat-clearing
+
 Delete throat-clearing such as "It's worth noting", "Let's dive in", "Here's the thing" and "Not just X, but Y". That is `prose-no-filler`.
 
 ## Asides sit in brackets
@@ -167,7 +169,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is an invented experience, a guess stated as fact or an uncited claim. `MEDIUM` is a decision with no alternative, an adjective where a number exists, hype or filler. It is also an opener with no context, a breakdown with nobody in it or a rewritten voice. So is advice with no account of doing it, or own work with no limits. So is a change with no baseline, or a claim that will age with no version or date. `LOW` is an unlinked reason, a fragment run, a list or gloss split into sentences or too much you. It is also an American spelling, an inline caveat, a misused aside, a lesson caption, prose that should be a table or a punchline ending. It is also a clever heading, an abbreviation never spelled out, a word that calls the work easy or a code block past 20 lines.
+**Severity.** `HIGH` is an invented experience, a guess stated as fact or an uncited claim. `MEDIUM` is a decision with no alternative, or a reason that never reaches the person using it. It is also a value with no method, an adjective where a number exists, hype or filler. So is an opener with no context, a breakdown with nobody in it, a rewritten voice or advice with no account of doing it. So is own work with no limits, a change with no baseline or a claim that will age with no version or date. `LOW` is an unlinked reason, a fragment run, a list or gloss split into sentences or too much you. It is also a measured fact hedged, an American spelling, an inline caveat, a misused aside or prose that should be a table. So is a lesson caption, a caption past two sentences, a clever heading or a punchline ending. So is an abbreviation never spelled out, a word that calls the work easy or a code block past 20 lines.
 
 **Format.** One finding per root cause:
 

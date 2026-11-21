@@ -70,7 +70,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a rebuild made without opening the source, or a missing state the user named. `MEDIUM` is a guessed value under "one to one", a part copied beyond the ask or a hand-written compare page. It is also a fallback font rendering on either side, guessed motion, a design-file unit pasted unconverted or a screenshot measured in device pixels. `LOW` is a remaining difference that was found and named.
+**Severity.** `HIGH` is a rebuild made without opening the source or the same platform, or a missing state the user named. `MEDIUM` is a guessed value under "one to one", a part copied beyond the ask or the reference's brand shipped. It is also a fallback font rendering on either side, guessed motion, a design-file unit pasted unconverted or a screenshot measured in device pixels. So is "looks close" with no side-by-side, or a hand-written compare page. `LOW` is a remaining difference that was found and named.
 
 **Format.** One finding per root cause:
 

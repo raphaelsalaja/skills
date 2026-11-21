@@ -55,7 +55,7 @@ A flow gets at most one delight moment, and only on a moment under 10 a day, suc
 
 ## 5. Build it
 
-Build each motion with the animation library the project already uses, or with CSS transitions when it has none. A second animation library cites `reuse-one-standard`. Take every value from `motion`, reduced motion included, and the project's motion tokens where they exist.
+Build each motion with the animation library the project already uses, or with CSS transitions when it has none. A second animation library cites `reuse-one-library-per-job`. Take every value from `motion`, reduced motion included, and the project's motion tokens where they exist.
 
 ## 6. Show before and after
 
@@ -81,7 +81,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is motion added to a keyboard action or to a moment over 100 a day, or motion reported done with no recording. `MEDIUM` is a teleport left on a moment the gate kept, a motion that does not explain its change or delight past the budget. It is also motion reported done with no reduced motion clip. `LOW` is a moment with no frequency written, or a list that marks a moment without saying why. It is also a moment never interrupted mid-flight.
+**Severity.** `HIGH` is motion added to a keyboard action or to a moment over 100 a day, or motion reported done with no recording. `MEDIUM` is a teleport left on a moment the gate kept, a motion that does not explain its change or delight past the budget. It is also motion added before the list of moments, or motion reported done with no reduced motion clip. `LOW` is a moment with no frequency written, or a list that marks a moment without saying why. It is also a moment never interrupted mid-flight.
 
 **Format.** One finding per root cause, naming the moment and its frequency:
 

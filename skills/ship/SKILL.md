@@ -16,7 +16,7 @@ Checking the change itself runs in `verify` before this skill starts.
 
 ## 1. Check the tree
 
-Run `git status` and read every changed file. Name any file you did not change in this task and ask before committing it. Stage files by name with `git add <path>`, never `git add -A` or `git add .`, then read `git diff --cached`. Committing a stray file is `ship-flag-stray-files`.
+Run `git status` and read every changed file. Name any file you did not change in this task and ask before committing it. A scratch file you made yourself is deleted under `restraint`, never committed. Stage files by name with `git add <path>`, never `git add -A` or `git add .`, then read `git diff --cached`. Committing a stray file is `ship-flag-stray-files`.
 
 Search the staged diff for keys, tokens, passwords and `.env` files. Patterns such as `AKIA[0-9A-Z]{16}`, `gh[pousr]_[A-Za-z0-9]{36}`, `sk_live_` and `-----BEGIN [A-Z ]*PRIVATE KEY-----` catch the common ones. A committed secret is `ship-no-secrets`. A secret that was already pushed is compromised, so rotate it first and remove it second.
 
@@ -78,7 +78,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a committed secret, a stray file committed or a release with failing checks. It is also history rewritten over someone's work, or a hook or check bypassed to pass. `MEDIUM` is a bundled commit or pull request, an open issue after the fix or steps handed back that could have run. `LOW` is a message that is not a Conventional Commit, a missing screenshot, a description with no why or a branch left after merge.
+**Severity.** `HIGH` is a committed secret, a stray file committed or a push reported done while checks fail or still run. It is also history rewritten over someone's work, or a hook or check bypassed to pass. `MEDIUM` is a bundled commit or pull request, an open issue after the fix or steps handed back that could have run. It is also a release-bound change with no changeset, or "deployed" with no look at production. `LOW` is a message that is not a Conventional Commit, a missing screenshot, a description with no why or a branch left after merge.
 
 **Format.** One finding per root cause, citing the step when no file applies:
 

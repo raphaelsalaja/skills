@@ -81,7 +81,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a variant that does not run, or losing variants left after a pick. It is also a shared component edited for one variant, or a merged pick shipped with a named part missing. `MEDIUM` is placeholder data, unlabelled variants, variants that differ only in styling or a hand-built switcher. It is also a bar covering the variant's own work, an entrance judged from one load or variants fed different data. `LOW` is a page that was not opened for the user, a variant with no cost named or a second round that ignores the pick.
+**Severity.** `HIGH` is a variant that does not run, or losing variants left after a pick. It is also a shared component edited for one variant, or a merged pick shipped with a named part missing. `MEDIUM` is a mockup or placeholder data, unlabelled variants, variants that differ only in styling or a hand-built switcher. It is also variants split across routes, a bar covering the variant's own work, an entrance judged from one load or variants fed different data. `LOW` is a page that was not opened for the user, a variant with no cost named or a second round that ignores the pick. It is also both themes shown unasked.
 
 **Format.** One finding per root cause:
 

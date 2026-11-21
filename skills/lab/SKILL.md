@@ -32,7 +32,7 @@ Each entry renders from fixed props and fixture data, never a live request or th
 
 Render menus, popovers, tooltips and submenus open with their controlled props or `data-*` attributes. Hold hover and focus with `force` on the entry, such as `force="hover"`. A menu that needs a click to see is `lab-states-open`. Use the app's current theme unless the user asked for both. That is `lab-one-theme`.
 
-Forced overlays must not close or block each other. Opening a second `popover="auto"` closes the first, and a dialog opened with `showModal()` makes the rest of the lab inert. On the lab page only, open dialogs non-modally with `show()` and popovers as `popover="manual"`, through the component's own props where it has them. The component itself keeps its modal and its `auto`. Render portals into their own entry.
+Forced overlays must not close or block each other. Opening a second `popover="auto"` closes the first, and a dialog opened with `showModal()` makes the rest of the lab inert. On the lab page only, open dialogs non-modally with `show()` and popovers as `popover="manual"`, through the component's own props where it has them. The component itself keeps the modal, `auto` and `hint` behaviour `overlays` sets. Render portals into their own entry.
 
 After load, count `document.querySelectorAll(":popover-open, dialog[open]")` against the overlays you forced. One menu open where six were forced, or a lab that ignores clicks behind a modal, is `lab-overlays-stay-open`.
 
@@ -72,7 +72,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a lab built from copies, or a lab reachable in production. `MEDIUM` is a missing state, a state that still needs a click or a hand-written lab page. It is also a variant shown in fewer states than its siblings, or a forced overlay that closed another or made the lab inert. `LOW` is an unlabelled entry, or a lab that was not opened for the user. It is also an entry that reads a live request or the current time.
+**Severity.** `HIGH` is a lab built from copies, or a lab reachable in production. `MEDIUM` is a missing state, a state that still needs a click or a hand-written lab page. It is also a variant shown in fewer states than its siblings, or a forced overlay that closed another or made the lab inert. `LOW` is an unlabelled entry, or a lab that was not opened for the user. It is also an entry that reads a live request or the current time, or both themes shown unasked.
 
 **Format.** One finding per root cause:
 

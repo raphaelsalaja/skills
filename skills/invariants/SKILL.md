@@ -14,7 +14,7 @@ A rule counts only when a line relies on it, such as a read that breaks if the r
 
 The sweep covers interface state: component state, stores, context, refs, URL params and the server data the interface reads. Server code and databases are in scope only when the user names them.
 
-Showing each state on one page belongs to `lab`. The states of one animation belong to `deconstruct`. A fallback that hid a broken rule cites `restraint-no-fallbacks`. A fix that belongs in a shared component cites `reuse-fix-in-the-primitive`. Opening the result runs in `verify`.
+Showing each state on one page belongs to `lab`. Worst-case values on screen belong to `stress`. The states of one animation belong to `deconstruct`. A fallback that hid a broken rule cites `restraint-no-fallbacks`. A fix that belongs in a shared component cites `reuse-fix-in-the-primitive`. Opening the result runs in `verify`.
 
 ## 1. Group the flags that move together
 
@@ -100,7 +100,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is an impossible state a line can reach, or an assumption that crashes or loses work when broken. It is also an older response that can replace a newer one, or an ID that loses digits as a number. `MEDIUM` is an ungrouped set of flags, a status with many writers or a rule enforced only by a comment. It is also an input limit that differs from the storage limit. It is also a machine with no event table, a `switch` with a quiet `default` or a computed value kept in state. `LOW` is an impossible state no line reaches, or a guard repeated at every read.
+**Severity.** `HIGH` is an impossible state a line can reach, or an assumption that crashes or loses work when broken. It is also an older response that can replace a newer one, or an ID that loses digits as a number. `MEDIUM` is an ungrouped set of flags, separate flags where one status fits, a status with many writers or a rule enforced only by a comment. It is also an input limit that differs from the storage limit, or a machine with no event table. So is a `switch` with a quiet `default`, or a computed value kept in state. `LOW` is an impossible state no line reaches, or a guard repeated at every read. It is also a group with no count, a sweep done by eye or a finding with no line or no enforcer named.
 
 **Format.** One finding per root cause, numbered:
 

@@ -12,7 +12,7 @@ This skill runs a screen or component against the worst data it can receive. It 
 
 Each limit comes from the validation schema, the database column or the API contract. Where none of the three sets one, the map says "no limit found" and the longest case applies. The cases in the catalog are exact strings, so paste each one as written. Run it on any screen that shows data a person or another system writes.
 
-Longer translated and pseudo-localised interface text, mirrored layouts and the width set belong to `viewports`. Which states a screen shows, such as empty or failed, belong to `states`. Combinations the data should never hold belong to `invariants`. Opening the running result belongs to `verify`. A break another skill owns cites that skill's id, such as `viewports-no-clipped-text`.
+Longer translated and pseudo-localised interface text, other scripts, mirrored layouts and the width set belong to `viewports`. Which states a screen shows, such as empty or failed, belong to `states`. Combinations the data should never hold belong to `invariants`. Opening the running result belongs to `verify`. A break another skill owns cites that skill's id, such as `viewports-no-clipped-text`.
 
 ## 1. Map every value
 
@@ -27,7 +27,7 @@ progress       tasks API, done / total     0 to 100, not enforced
 due date       projects.due_at             timestamptz, nullable
 ```
 
-A fixture built before the map tests only the values someone remembered, and is `stress-map-every-value`. Note where two limits disagree, such as an input capped at 50 characters that saves to a 255-character column.
+A fixture built before the map tests only the values someone remembered, and is `stress-map-every-value`. Note where two limits disagree, such as an input capped at 50 characters that saves to a 255-character column. That mismatch is reported under `invariants`.
 
 When the user gives read access to real data, add the longest stored value of each text field beside its limit. Query lengths only, such as `SELECT max(length(title)) FROM projects`, and never copy a real value into the fixture. Never write to that database. A schema limit with the real longest value left unchecked is `stress-longest-real-value`.
 
@@ -82,7 +82,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is markup that runs, a crashed render, a value lost on save or a switch reachable in production. `MEDIUM` is text past its box, a clip with no way to read the rest, wrong initials, `NaN`, `Invalid Date` or a raw float. It is also a fixture typed into the markup, a case run outside its real container or a run with no value map. It is also a fixture that changes on reload, or a switch with no slow or failed response. `LOW` is a fixture deleted after the run, or a finding that does not name its case. It is also a limit left unmeasured against readable real data.
+**Severity.** `HIGH` is markup that runs, a crashed render, a value lost on save or a switch reachable in production. `MEDIUM` is text past its box, a clip with no way to read the rest, wrong initials, `NaN`, `Invalid Date` or a raw float. It is also a fixture typed into the markup, a catalog case skipped, a case run outside its real container or a run with no value map. So is a fixture that changes on reload, or a switch with no slow or failed response. `LOW` is a fixture deleted after the run, or a finding that does not name its case. It is also a limit left unmeasured against readable real data.
 
 **Format.** One finding per root cause, naming the case and the width:
 

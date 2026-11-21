@@ -16,9 +16,9 @@ const lineCues = [
   ["motion-no-scale-from-zero", /scale\(0\)|\bscale:\s*0\s*[,}]|\bscale-0\b/],
   ["motion-ease-by-direction", /(?<![\w-])ease-in(?![\w-])|ease:\s*["']easeIn["']/],
   ["motion-strong-ease-out", /(?<![\w-])ease-out(?![\w-])|ease:\s*["']easeOut["']/],
-  ["motion-no-scroll-reveals", /whileInView|data-aos|\banimate-fade/],
+  ["motion-no-scroll-reveals", /whileInView|data-aos|\banimate-fade|animation-timeline:\s*view\(/],
   ["motion-no-idle-loops", /animation:[^;\n]*\binfinite\b|\banimate-(pulse|ping|bounce)\b/, (match, line) => !/spin|load(ing|er)|skeleton/i.test(line)],
-  ["motion-short-stagger", /staggerChildren:\s*(0?\.[1-9]|[1-9])/],
+  ["motion-short-stagger", /staggerChildren:\s*(0?\.(0[5-9]|[1-9])|[1-9])/],
   ["motion-press-scale", /whileTap=\{\{\s*scale:\s*([\d.]+)/, (match) => Number(match[1]) < 0.95],
   ["motion-press-scale", /\bactive:scale-(\d+)\b/, (match) => Number(match[1]) < 95],
   ["motion-under-300ms", /duration:\s*(0?\.[5-9]\d*|[1-9](\.\d+)?)\s*[,}]|transition(?!-delay)[^;\n]*\b([5-9]\d{2}|\d{4,})ms|\bduration-([5-9]\d{2}|\d{4,})\b/],
@@ -29,7 +29,8 @@ const lineCues = [
   ["frames-no-inherited-variable", /setProperty\(\s*["'`]--|["']--[\w-]+["']\s*:\s*(?!(true|false|null|undefined)\b)[`A-Za-z_$(]/],
   ["defaults-allow-zoom", /maximum-scale\s*=\s*1(?![.\d])|user-scalable\s*=\s*no/],
   ["defaults-dynamic-viewport", /\b100vh\b|\bh-screen\b/],
-  ["defaults-focus-keyboard-only", /:focus(?![-\w])|outline:\s*(none|0)\b|\boutline-none\b|(?<![\w-])focus:(ring|outline|border|shadow)/],
+  ["defaults-focus-keyboard-only", /:focus(?![-\w])|(?<![\w-])focus:(ring|border|shadow|outline(?!-none))/],
+  ["defaults-focus-outline", /outline:\s*(none|0)\b|\boutline-none\b/, (match, line) => !/focus-visible:(outline|ring)/.test(line)],
   ["defaults-rounded-not-pill", /border-radius:\s*9{3,}px|\brounded-full\b/],
   ["forms-validate-on-submit", /disabled=\{\s*!\s*[\w.]*(valid|canSubmit)/i],
   ["forms-user-invalid", /(?<!user-):invalid\b|(?<![\w-])invalid:(?=[a-z[])/],
@@ -37,7 +38,7 @@ const lineCues = [
   ["defaults-sound-optional", /\.volume\s*=\s*1(\.0)?\b/],
   ["states-list-every-state", /if\s*\(\s*!\s*[\w.]*(data|items|rows|results|list)\s*\)\s*return\s+(null|<><\/>)/],
   ["keyboard-reach-every-control", /<(div|span|li)\b[^>]*\sonClick=/],
-  ["copy-no-ellipsis", /[A-Za-z](\.\.\.|\u2026)(?=["'`<\s]|$)/, (match, line) => !/placeholder/i.test(line)],
+  ["copy-no-ellipsis", /[A-Za-z]\.\.\.(?=["'`<\s]|$)|\b[A-Za-z]+ing\u2026/],
   ["copy-no-em-dash", /\u2014|&mdash;/],
   ["color-role-tokens", /(?<![\w-])(color|background|background-color|border-color|fill|stroke):\s*#[0-9a-fA-F]{3,8}\b|\b(text|bg|border|fill|stroke)-\[#[0-9a-fA-F]{3,8}\]|var\(--(gray|grey|neutral|slate|zinc|red|blue|green)-\d+\)/, (match, line, file) => !tokenFile.test(basename(file)) && !/^\s*--[\w-]+:/.test(line)],
   ["verify-no-weakened-checks", /\b(it|test|describe)\.(skip|only)\(|\bx(it|test|describe)\(|@ts-ignore\b|eslint-disable/],
@@ -66,6 +67,7 @@ const sameJob = [
   ["lodash", "lodash-es", "underscore", "ramda"],
   ["uuid", "nanoid", "cuid", "@paralleldrive/cuid2"],
   ["classnames", "clsx"],
+  ["framer-motion", "motion", "react-spring", "@react-spring/web", "gsap", "animejs"],
 ];
 const iconPackages = ["lucide-react", "@heroicons/react", "react-icons", "@tabler/icons-react", "@phosphor-icons/react", "phosphor-react", "@radix-ui/react-icons", "react-feather", "@iconify/react", "@mui/icons-material", "@fortawesome/react-fontawesome"];
 
@@ -99,7 +101,7 @@ function readPackage(path) {
   const manifest = JSON.parse(readFileSync(path, "utf8"));
   const names = Object.keys({ ...manifest.dependencies, ...manifest.devDependencies });
   const icons = iconPackages.filter((name) => names.includes(name));
-  if (icons.length > 1) add("reuse-one-standard", path, 1, `${icons.length} icon packages: ${icons.join(", ")}`);
+  if (icons.length > 1) add("reuse-one-library-per-job", path, 1, `${icons.length} icon packages: ${icons.join(", ")}`);
   for (const group of sameJob) {
     const present = group.filter((name) => names.includes(name));
     if (present.length > 1) add("reuse-one-library-per-job", path, 1, `${present.length} packages for one job: ${present.join(", ")}`);

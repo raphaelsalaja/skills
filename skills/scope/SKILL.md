@@ -11,7 +11,7 @@ This skill holds an edit to the request. It reads the smallest literal meaning, 
 
 A change outside the named element is a finding unless the user asked for a sweep. One short question before a broad change is not a finding. Press hardest on short messages that point at one element, on batched messages and on refactors.
 
-Deleting what nobody asked for belongs to `restraint`. Proving the change works belongs to `verify`.
+Deleting what nobody asked for belongs to `restraint`. Proving the change works belongs to `verify`. Writing a correction down as a rule belongs to `rule`.
 
 ## Every ask gets an answer
 
@@ -33,7 +33,7 @@ Ask about intent: which of two readings fits, or a value only the user knows. As
 
 ## Earlier instructions still stand
 
-Before editing, read the user's earlier corrections in the thread and the rules in the repository. Re-adding something they removed is `scope-remember-instructions`. A value they gave, such as `16px` of left padding, stays. Guessing a new one is `scope-keep-given-values`.
+Before editing, read the user's earlier corrections in the thread and the rules in `AGENTS.md`, `CLAUDE.md` and the editor rule folders. The rule file nearest the edited path wins, and the user's message outranks every file. Re-adding something they removed, or a pill button where a rule forbids pills, is `scope-remember-instructions`. A value they gave, such as `16px` of left padding, stays. Guessing a new one is `scope-keep-given-values`.
 
 When two of the user's instructions conflict, the later one wins. Say which earlier one it replaced. Applying the older one is `scope-later-wins`.
 
@@ -64,7 +64,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `scope-list-every-ask` | The first of four asks done, three dropped | Four numbered items, each reported |
 | `scope-smallest-reading` | "Fix the top bar" restyles the whole shell | Only the top bar changes |
 | `scope-search-before-asking` | "Which file renders the sidebar?" | `Sidebar.tsx` found by search, then "Collapse it on phones too? I would leave phones as they are." |
-| `scope-remember-instructions` | Dots the user removed come back | Earlier turns read before editing |
+| `scope-remember-instructions` | Dots the user removed come back, or a pill button in a repo whose rules forbid pills | Earlier turns and the rule files read before editing |
 | `scope-keep-given-values` | Left padding re-guessed as `12px` | The `16px` the user gave |
 | `scope-later-wins` | The `12px` from turn 2 applied after turn 5 said `16px` | `16px`, with "replaces the `12px` from earlier" |
 | `scope-say-the-substitution` | Asked for a CSS fix, a `ResizeObserver` shipped without a word | "CSS cannot read the content height here. Use a `ResizeObserver` instead?" |
@@ -76,7 +76,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a dropped feature, or an earlier instruction undone. `MEDIUM` is a change outside the named element, or an ask left unreported. It is also an older instruction applied over a later one, or a named approach swapped without a word. `LOW` is a question asked where one reading was plain, or one the repository already answered.
+**Severity.** `HIGH` is a dropped feature or property, an earlier instruction or written rule undone or a value the user gave replaced. `MEDIUM` is a change outside the named element, or an ask left unreported. It is also an older instruction applied over a later one, or a named approach swapped without a word. So is a "phase 2" list, a file edited during planning or a diff given where an explanation was asked. `LOW` is a question asked where one reading was plain, or one the repository already answered.
 
 **Format.** One finding per root cause, citing the request when no file applies:
 

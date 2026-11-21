@@ -83,7 +83,11 @@ Press I and O to loop one range, such as press to release. Onion Skin ghosts the
 
 ## 7. Hand back the data
 
-`timeline.js` is the hand-back: the state table and the tracks as one object. The rebuild imports that file rather than a copy, so the viewer and the shipped motion read the same values. A timeline that lives only in the reply is `deconstruct-timeline-as-data`. Copy Timeline writes the open page back into that object. Paste it over `timeline.js`. If the clipboard is blocked, the toast says Copy Failed. An edit left only in the open page is `deconstruct-copy-the-timeline`. Gate the viewer to development or delete it before release, and keep `timeline.js`.
+`timeline.js` is the hand-back: the state table and the tracks as one object. The rebuild imports that file rather than a copy, so the viewer and the shipped motion read the same values. A timeline that lives only in the reply is `deconstruct-timeline-as-data`.
+
+Copy Timeline writes the open page back into that object, and you paste it over `timeline.js`. If the clipboard is blocked, the toast says Copy Failed. An edit left only in the open page is `deconstruct-copy-the-timeline`.
+
+Gate the viewer to development or delete it before release, and keep `timeline.js`.
 
 ## The pair
 
@@ -108,7 +112,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a breakdown made without opening the source, or a missing state. `MEDIUM` is an estimated timing, a flattened curve, a viewer that cannot scrub, a hand-written viewer or an edit left only in the page. It is also a guessed timing where `getAnimations()` could read it, or keyframes folded into one segment. `LOW` is drift found and named at slow speed, or a timing finer than its capture's frame.
+**Severity.** `HIGH` is a breakdown made without opening the source, or a missing state. `MEDIUM` is an estimated timing, a flattened curve, a viewer that cannot scrub, a hand-written viewer or an edit left only in the page. It is also a guessed timing where `getAnimations()` could read it, or keyframes folded into one segment. So is motion told as a sentence instead of states, a preview not driven by one clock or a rebuild checked only at full speed. So is a timeline that lives only in the reply. `LOW` is drift found and named at slow speed, or a timing finer than its capture's frame. It is also a timing changed in the reply instead of on its segment.
 
 **Format.** One finding per root cause:
 

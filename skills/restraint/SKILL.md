@@ -11,7 +11,7 @@ This skill cuts a change down to the ask. It removes extra interface, options an
 
 An element, option or code path the user did not ask for is a finding unless the ask needs it to work. Work that has not shipped carries no backwards compatibility. A cut the user has not approved is a proposal, not an edit.
 
-Label wording belongs to `copy`. Reusing an existing part belongs to `reuse`. Which element a change may touch belongs to `scope`. Whether an animation should exist belongs to `motion`, and deleting one cleanly belongs here.
+Label wording belongs to `copy`. Reusing an existing part, a library or a native element belongs to `reuse`. Which element a change may touch belongs to `scope`. Staging and committing belong to `ship`. Whether an animation should exist belongs to `motion`, and deleting one cleanly belongs here.
 
 ## Nothing beside the ask
 
@@ -23,7 +23,7 @@ Do not add a toast or a dialog for an action whose result is already on screen. 
 
 ## The smallest build that works
 
-Use the native element before a custom one, one app before a monorepo and a fixed value before a setting. A custom video player where `<video controls>` works is `restraint-smallest-build`. A preference nobody will change is `restraint-no-needless-setting`.
+Build at the size the ask needs: local state before a store, one app before a monorepo and a fixed value before a setting. A global store added for one panel's toggle is `restraint-smallest-build`. A preference nobody will change is `restraint-no-needless-setting`.
 
 Write code inline until a third copy appears. A new helper, hook, wrapper or config object with one caller is `restraint-no-single-use-abstraction`. When `rg -w useRowFormatter` finds only the definition and one call, inline it.
 
@@ -33,7 +33,7 @@ A fix does not reformat, rename, reorder imports or upgrade packages around it. 
 
 ## No files nobody asked for
 
-Add no README, notes, summary, example page or script the task did not ask for. Delete scratch files made while working before you reply. A stray `NOTES.md` or `test-fix.js` is `restraint-no-unrequested-files`. `git status --short` marks every new file `??`, so read that list before replying.
+Add no README, notes, summary, example page or script the task did not ask for. Delete scratch files made while working before you reply. A stray `NOTES.md` or `test-fix.js` is `restraint-no-unrequested-files`. `git status --short` marks every new file `??`, so read that list before replying. This covers only files you made. A file someone else changed stays, and `ship` asks before committing it.
 
 ## No defensive code before release
 
@@ -69,7 +69,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | --- | --- | --- |
 | `restraint-no-unrequested-ui` | A count badge on every row | No badge |
 | `restraint-no-redundant-feedback` | A toast after a move the user can see | No toast |
-| `restraint-smallest-build` | A custom video player | `<video controls>` |
+| `restraint-smallest-build` | A global store added for one panel's open toggle | `useState` in the panel |
 | `restraint-no-needless-setting` | A preference for a gap nobody changes | A fixed `--gap` |
 | `restraint-no-single-use-abstraction` | A `useRowFormatter` hook with one caller | Its three lines inline |
 | `restraint-no-drive-by-changes` | A one-line fix with 300 lines of reformatting | The one line |
@@ -85,7 +85,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a feature, setting or code path nobody asked for, or a "removed" item that still exists. It is also an element left invisible by a deleted animation's start state. `MEDIUM` is a fallback, a legacy branch, a leftover variable or a single-use abstraction. It is also unasked churn, a file nobody asked for and any callback or timeout still waiting on a deleted animation. `LOW` is a narrating comment or a leftover debug line.
+**Severity.** `HIGH` is a feature, setting or code path nobody asked for, or a "removed" item that still exists. It is also an element left invisible by a deleted animation's start state. `MEDIUM` is a fallback, a legacy branch, a leftover variable or a single-use abstraction. It is also a toast for a result already on screen, or a build bigger than the ask. So is unasked churn, a file nobody asked for or a callback or timeout still waiting on a deleted animation. `LOW` is a narrating comment or a leftover debug line.
 
 **Format.** One finding per root cause:
 
