@@ -95,7 +95,7 @@ A theme switch turns transitions off for one frame. When it toggles a class, it 
 
 Use `:focus-visible` with a 2px solid `outline` at `outline-offset: 2px`. A ring on every click is `defaults-focus-keyboard-only`.
 
-Never remove the outline without drawing another. A `box-shadow` ring is no replacement, because forced-colours mode erases every shadow. Search for `outline: none`, `outline: 0` and Tailwind's `outline-none` with no `focus-visible:` ring beside it. Each one is `defaults-focus-outline`. Whether each ring shows in the running page, at a 3:1 change from unfocused, is checked by `keyboard`.
+Never remove the outline without drawing another. A `box-shadow` ring is no replacement, because forced-colours mode erases every shadow. Search for `outline: none`, `outline: 0` and Tailwind's `outline-none` with no `focus-visible:` outline beside it. Tailwind's `ring` is a `box-shadow` and does not count. Each one is `defaults-focus-outline`. Whether each ring shows in the running page, at a 3:1 change from unfocused, is checked by `keyboard`.
 
 ## Forced colours keep every edge and state
 

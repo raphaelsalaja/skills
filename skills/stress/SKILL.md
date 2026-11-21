@@ -35,11 +35,11 @@ When the user gives read access to real data, add the longest stored value of ea
 
 Build the worst-case fixture beside the demo data. Load it through the same boundary the demo data uses: the fixture file, the mock handler or the component's props. Text typed into the rendered markup or the DOM skips the code that formats, escapes and truncates it, and is `stress-change-the-data`.
 
-Write each fixture value literally, or generate it from a fixed seed. Pin "now" to one instant, such as `2025-06-15T12:00:00Z`, and set every date relative to it. `Math.random()`, an unseeded generator or `new Date()` gives new rows on each reload, so a break cannot be shown twice. That is `stress-fixed-fixture`.
+Write each fixture value literally, or generate it from a fixed seed. Pin "now" to one instant, such as `2025-06-15T12:00:00Z`, and set every date relative to it. Hand the screen's clock the same instant, through a `now` prop, the formatter's reference date or a development-only clock the switch sets. Otherwise the "Now" case reads "1 year ago". `Math.random()`, an unseeded generator or `new Date()` gives new rows on each reload, so a break cannot be shown twice. That is `stress-fixed-fixture`.
 
 Add one switch that picks the data set: Demo, Worst Case, Empty, One and 1,000 Rows. It reads and writes `?data=` in the URL as `demo`, `worst`, `empty`, `one` and `1000`, so a reload keeps the case. Build 1,000 Rows by cycling the catalog's cases, so no two neighbours match.
 
-The switch also carries the worst responses: Slow as `?data=slow` delays every response 3 seconds, and Failed as `?data=error` answers every request with a 500. What the screen shows then belongs to `states`. A switch that can only serve good data is `stress-slow-and-failed`.
+The switch also carries the worst responses. Slow as `?data=slow` delays every response 3 seconds and then serves the demo data. Failed as `?data=error` answers every request with a 500. What the screen shows then belongs to `states`. A switch that can only serve good data is `stress-slow-and-failed`.
 
 Build the switch with the project's own components. Render it in development only and gate the fixture loader the same way. A switch or fixture reachable in production is `stress-dev-only-switch`.
 

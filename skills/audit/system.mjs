@@ -32,7 +32,13 @@ const each = (text, pattern, fn) => {
 };
 
 function walk(path) {
-  if (statSync(path).isDirectory()) {
+  let stats;
+  try {
+    stats = statSync(path);
+  } catch {
+    return console.error(`Skipped ${path}: not found`);
+  }
+  if (stats.isDirectory()) {
     for (const name of readdirSync(path)) {
       if (!name.startsWith(".") && !skipped.has(name)) walk(join(path, name));
     }

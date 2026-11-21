@@ -35,8 +35,11 @@
     label     The slider label in Title Case. Defaults to the property name.
 
   Entries and tunes are direct children of <lab-page>. Entry content stays in the light DOM, so the app's own styles apply.
+  An open popover renders in the top layer. One that lands outside its entry, such as one the browser centres, moves under the entry's content.
   The chrome lives in shadow DOM and follows the app's `color-scheme` through `light-dark()`.
   Its text uses Inter when the app loads it. Copy Values (Shift+C) copies every moved value.
+
+  Plain HTML: load it with <script src="lab.js"></script>, anywhere on the page.
 
   React, Vue and Svelte pass these as attributes. Load the file in the browser only, after hydration:
 
@@ -1097,6 +1100,7 @@
       justify-content: center;
       min-height: 128px;
       padding: 24px;
+      padding-bottom: calc(24px + var(--lab-overlay-space, 0px));
       border-radius: 10px;
       box-shadow: inset 0 0 0 1px var(--lab-border-primary);
     }
@@ -1171,11 +1175,25 @@
 
   let warned = false;
 
+  const centreInside = (node, box) => {
+    const rect = node.getBoundingClientRect();
+    const outer = box.getBoundingClientRect();
+    const x = rect.left + rect.width / 2;
+    const y = rect.top + rect.height / 2;
+    return x >= outer.left && x <= outer.right && y >= outer.top && y <= outer.bottom;
+  };
+
+  const browserCentred = (popover) => {
+    const style = getComputedStyle(popover);
+    return style.position === "fixed" && ["top", "right", "bottom", "left"].every((side) => style[side] === "0px");
+  };
+
   class LabEntry extends HTMLElement {
     static observedAttributes = ["component", "state", "source", "force"];
 
     #state;
     #source;
+    #stage;
 
     constructor() {
       super();
@@ -1183,14 +1201,36 @@
       root.adoptedStyleSheets = [entrySheet];
       this.#state = h("span", { class: "state" });
       this.#source = h("a", { class: "source", hidden: "" });
-      root.append(
-        h(
-          "figure",
-          { class: "cell" },
-          h("figcaption", { class: "label text" }, this.#state, this.#source),
-          h("div", { class: "stage" }, h("slot")),
-        ),
+      this.#stage = h("div", { class: "stage" }, h("slot"));
+      root.append(h("figure", { class: "cell" }, h("figcaption", { class: "label text" }, this.#state, this.#source), this.#stage));
+    }
+
+    // An open popover renders in the top layer, outside the entry's box. One that lands outside its entry moves under the entry's content, and the stage grows to hold it.
+    placeOverlays() {
+      const popovers = [...this.querySelectorAll(":popover-open")].filter(
+        (popover) => "labPlaced" in popover.dataset || browserCentred(popover) || !centreInside(popover, this),
       );
+      this.style.removeProperty("--lab-overlay-space");
+      if (popovers.length === 0 || !this.checkVisibility()) return;
+      const gap = 8;
+      for (const popover of popovers) {
+        popover.dataset.labPlaced = "";
+        Object.assign(popover.style, { position: "absolute", inset: "auto", margin: "0" });
+      }
+      const flow = [...this.children].filter((child) => !popovers.includes(child) && child.getBoundingClientRect().height > 0);
+      const height = Math.max(...popovers.map((popover) => popover.offsetHeight));
+      const width = popovers.reduce((sum, popover) => sum + popover.offsetWidth, 0) + gap * (popovers.length - 1);
+      this.style.setProperty("--lab-overlay-space", `${height + (flow.length ? gap : 0)}px`);
+      const stage = this.#stage.getBoundingClientRect();
+      const top = flow.length
+        ? Math.max(...flow.map((child) => child.getBoundingClientRect().bottom)) + gap
+        : stage.top + (stage.height - height) / 2;
+      let left = stage.left + Math.max(0, (stage.width - width) / 2);
+      for (const popover of popovers) {
+        popover.style.left = `${left + scrollX}px`;
+        popover.style.top = `${top + scrollY}px`;
+        left += popover.offsetWidth + gap;
+      }
     }
 
     get component() {
@@ -1320,7 +1360,9 @@
       document.addEventListener("load", this.#onStyleLoad, true);
       document.addEventListener("scroll", this.#markStuck, { capture: true, passive: true });
       document.addEventListener("keydown", this.#onKeydown);
+      document.addEventListener("toggle", this.#placeOverlays, true);
       addEventListener("resize", this.#markStuck, { passive: true });
+      addEventListener("resize", this.#placeOverlays, { passive: true });
       for (const tune of this.#tunes.values()) if (tune.changed) this.#apply(tune);
       this.#renderTitle();
       this.#render();
@@ -1332,7 +1374,9 @@
       document.removeEventListener("load", this.#onStyleLoad, true);
       document.removeEventListener("scroll", this.#markStuck, { capture: true });
       document.removeEventListener("keydown", this.#onKeydown);
+      document.removeEventListener("toggle", this.#placeOverlays, true);
       removeEventListener("resize", this.#markStuck);
+      removeEventListener("resize", this.#placeOverlays);
       for (const tune of this.#tunes.values()) {
         if (tune.changed) document.documentElement.style.removeProperty(tune.property);
       }
@@ -1347,6 +1391,17 @@
     #forceIfNeeded() {
       if (this.#entries().some((entry) => entry.hasAttribute("force"))) forceStates();
     }
+
+    #placeQueued = false;
+
+    #placeOverlays = () => {
+      if (this.#placeQueued) return;
+      this.#placeQueued = true;
+      requestAnimationFrame(() => {
+        this.#placeQueued = false;
+        for (const entry of this.#entries()) entry.placeOverlays?.();
+      });
+    };
 
     #markStuck = () => {
       const stuck = this.#bar.getBoundingClientRect().top > this.#sentinel.getBoundingClientRect().bottom + 0.5;
@@ -1438,6 +1493,7 @@
       this.#renderTunes();
       this.#forceIfNeeded();
       this.#markStuck();
+      this.#placeOverlays();
     }
 
     #renderTunes() {
@@ -1487,6 +1543,7 @@
           tune.changed = true;
           this.#apply(tune);
           sync();
+          this.#placeOverlays();
           this.#copyButton.disabled = false;
         });
         sync();

@@ -36,7 +36,7 @@
 
   `easing` is kept as written: a cubic-bezier, linear() or steps() string, a keyword, or a spring. A spring is { stiffness, damping, mass } or { bounce, duration }, with duration in seconds as Motion takes it. A spring may leave out the segment `duration`.
 
-  A value is a number, a list such as [12, 0] for translate or a string that switches when its segment ends. `unit` follows each number. `template` wraps the value, such as "blur($)". `note` explains a track, such as the frame rate its timings were read at.
+  A value is a number, a list such as [12, 0] for translate or a string that switches when its segment ends. Every value is written to `property` as CSS, so a label or icon swap sets a custom property that CSS reads, such as property "--label" with from "\"Copy\"" and to "\"Copied\"", and `.label::after { content: var(--label) }` in the preview css. `unit` follows each number. `template` wraps the value, such as "blur($)". `note` explains a track, such as the frame rate its timings were read at.
 
   `notVerified` lists the fields of a segment that could not be read from the source, such as ["delay"]. `track.target` is a selector inside the preview.
 
@@ -1688,14 +1688,14 @@
       .dial,
       .line {
         display: grid;
-        grid-template-columns: 72px minmax(0, 1fr) 64px;
+        grid-template-columns: 80px minmax(0, 1fr) 64px;
         gap: 8px;
         align-items: center;
         height: 28px;
       }
 
       .line {
-        grid-template-columns: 72px minmax(0, 1fr);
+        grid-template-columns: 80px minmax(0, 1fr);
 
         &:not(:has(.row-name)) {
           grid-template-columns: minmax(0, 1fr);

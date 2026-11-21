@@ -87,9 +87,9 @@ The Vietnamese, Thai and Arabic names run here as user data through the fixture.
 
 | Case | Value | Passes when |
 | --- | --- | --- |
-| Now | the current time | It reads `Just now`, never `0 seconds ago` |
+| Now | the pinned now, with the screen's clock pinned to it | It reads `Just now`, never `0 seconds ago` |
 | A duration of zero | 0 seconds | It reads `0s` or `0:00`, never blank |
-| A future date | 3 days from now | It reads `in 3 days`, never `-3 days ago` |
+| A future date | 3 days after the pinned now | It reads `in 3 days`, never `-3 days ago` |
 | The zero date | `1970-01-01` | A real date shows as written, and a null cast to zero shows as missing |
 | A date with no time | `2024-02-29` | It reads 29 February 2024 in every time zone, never 28 February west of UTC, because `new Date("2024-02-29")` parses as UTC midnight |
 | Across a date line | `2025-12-31T23:30:00-08:00` | It reads 31 December 2025 at `-08:00` and 1 January 2026 in UTC, the year right in both |

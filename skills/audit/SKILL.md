@@ -32,7 +32,7 @@ Then run [system.mjs](system.mjs) with Node over the scope. It lists the tokens,
 
 ## 3. Scan for known breaks
 
-Run [scan.mjs](scan.mjs) with Node, passing the folders in scope. It prints each line that matches a known break, with the id of the rule it breaks. Each hit is a candidate. Open the line and drop any hit the code disproves, such as `rounded-full` on an avatar. A hit reported unread is `audit-confirm-each-hit`.
+Run [scan.mjs](scan.mjs) with Node, passing the files or folders in scope. It prints each line that matches a known break as `file:line - [rule-id] snippet`, then a count. A few checks read the whole scope, such as animation with no reduced-motion query anywhere, and point at the first line that shows it. A path it cannot read prints `Skipped`. Each hit is a candidate. Open the line and drop any hit the code disproves, such as `rounded-full` on an avatar. A hit reported unread is `audit-confirm-each-hit`.
 
 The scan finds patterns only, so a clean scan still runs every skill.
 

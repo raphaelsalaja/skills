@@ -2,11 +2,11 @@
   Prototype switcher. Copy this file into the app beside the prototype route, load it once and write the variants only.
 
   <prototype-switcher>
-    <section data-variant="Inline Filters" data-note="One row of pills above the grid">...</section>
-    <section data-variant="Sidebar List" data-note="Groups in a left column beside the grid">...</section>
+    <section data-variant="Inline Filters" data-note="Wins with under 6 filters. Costs a row above the grid.">...</section>
+    <section data-variant="Sidebar List" data-note="Wins with many filter groups. Costs 240px of width.">...</section>
   </prototype-switcher>
 
-  Each direct child with `data-variant` is one variant. The label is two or three words of Title Case that say how it differs. `data-note` is one optional line shown in Show All. Hidden variants stay mounted, so their state survives switching.
+  Each direct child with `data-variant` is one variant. The label is two or three words of Title Case that say how it differs. `data-note` says when the variant wins and what it costs, shown in Show All. Hidden variants stay mounted, so their state survives switching.
 
   Plain HTML, Svelte and Astro: load it with <script src="switcher.js"></script>, or import "./switcher.js" from a module.
 
@@ -18,7 +18,7 @@
     export default function FiltersPrototype() {
       return (
         <prototype-switcher>
-          <section data-variant="Inline Filters" data-note="One row of pills above the grid">
+          <section data-variant="Inline Filters" data-note="Wins with under 6 filters. Costs a row above the grid.">
             <InlineFilters />
           </section>
         </prototype-switcher>
