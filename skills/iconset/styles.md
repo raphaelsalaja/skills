@@ -1,10 +1,10 @@
 # Styles
 
-The directions, the signals and the questions that pick a set's style. Every value is a starting point on a 24 grid, and the stroke step settles the final one beside the product's type.
+The directions, the references, the signals and the questions that pick a set's style. Every value is a starting point on a 24 grid. The user's eye settles the final one, and the stroke step checks it beside the product's type.
 
 ## Directions
 
-Each direction is its own construction, not a filter over another. Offer only the 2 or 3 the signals support.
+Each direction is its own construction, not a filter over another. Offer only the 2 or 3 the references and the signals support. A reference the user loves that fits no row becomes its own direction, described in these columns.
 
 | Direction | Stroke | Corners outside / inside | Ends and joins | Angles and curves | Detail | Reads as |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -17,15 +17,90 @@ Each direction is its own construction, not a filter over another. Offer only th
 | Hand-drawn | 1.5–2, varying by up to 0.25 | Loose | Round ends | A slight wobble, lines that overshoot or stop short | Moderate | Human, crafted, informal |
 | Pixel | Whole pixels | 0 / 0 | Square | Stepped diagonals at 1:1 or 2:1 | Low | Retro, playful, nostalgic |
 
-Duotone is a fill, not a direction, and pairs with any line direction. Its second layer fills enclosed areas at one opacity for the whole set, from 0.3 to 0.4. The first layer reads alone, and duotone ships from 20px up only.
-
 A dimensional direction, such as soft 3D, clay or glass, is offered only for icons shown at 32px and up, such as pictograms and empty states. It faces straight on and never replaces the UI icons.
 
 A native app may stay close to its platform's own symbols. That direction takes the platform's weight scale, matched to the system font, and draws only what the platform lacks.
 
+## Duotone
+
+Duotone is a fill, not a direction, and pairs with any of them. It comes in two forms:
+
+| Form | Back layer | Front layer |
+| --- | --- | --- |
+| Line duo | The enclosed areas of a line icon, filled | The line icon, which reads alone |
+| Solid duo | One filled shape | Filled details in a second colour, which read alone |
+
+Mark the back layer `data-layer="back"` in the source, so the app can colour it on its own. It takes one opacity for the whole set, from 0.2 to 0.4, or a second colour. Where the layers overlap, the front cuts the back, so an overlap never reads darker.
+
+Duotone works at every size the set ships when its smallest size passes in real rows. At 12 and 16, the back layer keeps to large simple areas and drops thin details. Check it in both themes, since one opacity reads differently on light and dark.
+
+## The taste test
+
+Run it when the user has no references, or cannot say what they like. Show 6 to 8 open icon sets that span the directions: a sharp set, a neutral one, a soft one, a round one, a filled one, a duotone one, a hand-drawn one and a pixel one.
+
+Each set draws the same 6 concepts: a folder, a search, a gear, a bell, a user and an arrow. Put each set in its own row on the review page, beside labels in the product's font, in both themes.
+
+Ask which row feels closest and which feels furthest, then ask why in a free answer. The closest row is a starting point, not the answer. Write what the user liked about it as values in `style.md`.
+
+## Questions about feel
+
+Ask a few in plain words, and keep the answers in the user's own words before turning them into values.
+
+- What should someone feel the first time they see the sidebar?
+- What should the icons never feel like?
+- Which product's icons feel closest, and what would you change about them?
+- If the icons were a person, what would they wear?
+- Which current icon bothers you most, and why?
+- Where do icons sit most: dense lists, toolbars, navigation, empty states or marketing?
+
+## Sliders
+
+Ask these when the user has no references and the product has no type, brand or illustrations to read. Ask 3, each as one question with 4 positions and no middle.
+
+| Slider | The left leans | The right leans | But not |
+| --- | --- | --- | --- |
+| Serious to Playful | Technical, Neutral | Round, Chunky | Playful, but not childish |
+| Classic to Modern | Neutral, Soft | Technical, Flowing | Modern, but not cold |
+| Quiet to Loud | Neutral, a light stroke, line only | Chunky, filled or duotone | Loud, but not crowded |
+| Refined to Raw | Technical, Flowing | Hand-drawn, Pixel | Raw, but not careless |
+
+Keep the two marks furthest from the middle. Write each as "X, but not Y" in `style.md`, then judge every tile against the "but not" as well.
+
+## Feedback words
+
+A vague note names a feeling, not a fix. Show 2 or 3 variants that each change one property from its row, side by side, and let the user pick.
+
+| The user says | Try one of |
+| --- | --- |
+| Harsh, sharp, cold, clinical | A larger radius, round ends, round joins, a stroke one step lighter |
+| Soft, bubbly, toy-like, childish | A smaller radius, natural proportions instead of inflated ones, a stroke one step lighter |
+| Heavy, loud, dark | A lighter stroke, fewer parts, smaller filled areas, open junctions |
+| Thin, weak, faint, lost | A heavier stroke, filled when selected, a larger optical size |
+| Busy, cluttered, noisy | Fewer parts, inner detail dropped, wider gaps between parts |
+| Generic, boring, stock | One signature move from the voice, such as lines run on to the keyline, a cut corner or a shared notch |
+| Dated, old | Less detail, no gradients or depth, one stroke everywhere |
+| Inconsistent, messy | The parts register, the keyline each icon sits on, one angle for diagonals |
+| Off, wrong, with no word | Weight, size, alignment and angle against the neighbours, one at a time |
+
+When none of the variants lands, ask the user to point at one icon that feels most wrong and one that feels most right. The difference between them is the property.
+
+## Radius by part
+
+A radius in `style.json` is the largest a corner takes. Each corner takes less where its segments are short or its angle is sharp.
+
+| Corner | Radius |
+| --- | --- |
+| Both segments 8 or longer | The set radius |
+| Either segment shorter than 8 | A quarter of the shorter segment, up to the set radius |
+| An angle under 60° | Half of the above |
+| 3 or more lines meeting | None |
+| A pixel direction | None |
+
+After a radius change, reopen stars, bolts, arrowheads, chevrons and small badges first. They break before anything else.
+
 ## Reading the type
 
-Measure the interface typeface at body size, in the weight icons sit beside. The type decides more than any adjective.
+Measure the interface typeface at body size, in the weight icons sit beside. Measure only what changes a choice. The stem width almost always does, and the rest settles close calls between two directions.
 
 | Feature | How to measure | Icon setting |
 | --- | --- | --- |
@@ -40,7 +115,7 @@ Measure the interface typeface at body size, in the weight icons sit beside. The
 
 ## Radius, logo and platform
 
-The control radius sets the corners.
+The control radius suggests the corners.
 
 | Control radius | Directions |
 | --- | --- |
@@ -49,6 +124,8 @@ The control radius sets the corners.
 | 8px and up, or pills | Soft, Round, Flowing |
 
 The logo and illustrations narrow it further. Straight cuts lean Technical, circles lean Round, free curves lean Flowing, lettering by hand leans Hand-drawn and pixel marks lean Pixel. Icons beside existing illustrations share their corners and ends.
+
+A bold brand shape can overpower an interface at icon size. Where the logo is sharper or heavier than the type, the icons follow the type and borrow one detail from the logo.
 
 The platform sets the default fill.
 
@@ -60,25 +137,12 @@ The platform sets the default fill.
 
 Line and filled icons are recognised about as fast overall. Light line icons on dark read slightly slower, so a product that starts dark judges its tiles on dark first.
 
-## Sliders
-
-Ask these when the product has no type, brand or illustrations to read. Ask 3, each as one question with 4 positions and no middle.
-
-| Slider | The left leans | The right leans | But not |
-| --- | --- | --- | --- |
-| Serious to Playful | Technical, Neutral | Round, Chunky | Playful, but not childish |
-| Classic to Modern | Neutral, Soft | Technical, Flowing | Modern, but not cold |
-| Quiet to Loud | Neutral, a light stroke, line only | Chunky, filled or duotone | Loud, but not crowded |
-| Refined to Raw | Technical, Flowing | Hand-drawn, Pixel | Raw, but not careless |
-
-Keep the two marks furthest from the middle. Write each as "X, but not Y" in `style.md`, then judge every tile against the "but not" as well.
-
 ## The questions
 
-The direction question is single-select. The first option is the recommendation, and each option gives the direction, its key values and the signal behind it.
+The direction question is single-select. The first option is the recommendation, and each option gives the direction, its key values and the reference or signal behind it.
 
 ```
-Round (Recommended) - 2 stroke, round ends, 3 radius - matches the 10px controls and round terminals
+Round (Recommended) - 2 stroke, round ends, 3 radius - closest to the set you linked and the 10px controls
 Soft - 1.5 stroke, round ends, 2 radius - closer to the regular label weight
 Keep the old set's style - 1.25 stroke, butt ends, 1 radius - as measured in the audit
 ```
@@ -89,5 +153,5 @@ The fill question follows, with the platform's convention first.
 Line, filled when selected (Recommended) - the phone layout has bottom navigation
 Line only
 Filled throughout
-Duotone - 20px and up only
+Duotone - a translucent back layer under the line, coloured on its own
 ```

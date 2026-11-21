@@ -1,0 +1,1568 @@
+<!doctype html>
+<!--
+  Review page. Copy this file to .iconset/index.html, write review.js beside it and open the file from disk.
+  It never needs the product or a dev server running.
+
+  window.review = {
+    title: "Pond Icons",
+    step: "Style",
+    next: "Pick a direction. The seed set is drawn in it next.",
+    font: "Inter, sans-serif",
+    labelSize: 14,
+    sizes: [16, 24],
+    sections: [
+      { kind: "images", title: "Your References", note: "What you linked, loved and disliked.",
+        items: [{ name: "Linked set", src: "refs/linked.png", note: "Loved: soft corners" }] },
+      { kind: "options", title: "Directions", note: "The same hard icons in each direction.",
+        items: [{ name: "Round", note: "2 stroke, round ends, 3 radius", icons: [{ name: "Cloud", svg: "<svg ...>" }] }] },
+      { kind: "rows", title: "In Context", note: "Beside the product's own labels.",
+        items: [{ name: "Inbox", svg: "<svg ...>" }] },
+      { kind: "grid", title: "Seed", items: [{ name: "Folder", svg: "<svg ...>", new: true }] },
+      { kind: "pairs", title: "Migration", items: [{ name: "arrow-up", before: "<svg ...>", after: "<svg ...>", state: "Coupled" }] }
+    ]
+  };
+
+  review.js only assigns window.review. Wrap any helper it needs in a block, since the page declares $ and h.
+  font and labelSize are the product's own label type, so rows read as the product does.
+
+  Kinds: images shows screenshots of references, options compares whole cards (directions, a concept's candidates
+  or one-change variants), rows sets icons beside labels in the product's font, grid shows a set and pairs puts each
+  old icon beside its replacement. Any item may carry `source`, the set or page it came from.
+
+  The bar sets the theme (Both splits every section into light and dark), the size and live overrides for stroke,
+  caps and joins. Second Colour fills any element marked data-layer="back" with the accent. Clicking an item picks it.
+  Copy Feedback writes the picks, the overrides and the notes as one message for the agent. Radius and shape changes
+  need a redraw, so the page cannot preview them.
+-->
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#080808" media="(prefers-color-scheme: dark)" />
+    <title>Icon Review</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,400..600&display=swap"
+    />
+    <style>
+      :root {
+        /* kit:tokens */
+        --gray-1: light-dark(#ffffff, #080808);
+        --gray-2: light-dark(#fafafa, #111111);
+        --gray-3: light-dark(#f2f2f2, #1a1a1a);
+        --gray-4: light-dark(#ebebeb, #222222);
+        --gray-5: light-dark(#e3e3e3, #2a2a2a);
+        --gray-10: light-dark(#6b6b6b, #8f8f8f);
+        --gray-11: light-dark(#575757, #b4b4b4);
+        --gray-12: light-dark(#080808, #ffffff);
+        --blue: #02bbff;
+        --red: light-dark(#d93036, #ff6369);
+        --green: light-dark(#2b9a66, #3dd68c);
+        --accent: var(--blue);
+        --danger: var(--red);
+        --success: var(--green);
+        --text-primary: var(--gray-12);
+        --text-secondary: color-mix(in oklab, var(--gray-12) 80%, var(--gray-11));
+        --text-tertiary: var(--gray-11);
+        --text-quaternary: var(--gray-10);
+        --text-on-accent: light-dark(#ffffff, #080808);
+        --border-primary: color-mix(in oklab, var(--gray-12) 7%, transparent);
+        --border-secondary: color-mix(in oklab, var(--gray-12) 12%, transparent);
+        --background-primary: var(--gray-1);
+        --background-secondary: var(--gray-2);
+        --background-tertiary: light-dark(rgb(8 8 8 / 5%), rgb(255 255 255 / 8%));
+        --background-hover: light-dark(rgb(8 8 8 / 8%), rgb(255 255 255 / 13%));
+        --background-raised: light-dark(#ffffff, #1a1a1a);
+        --background-control: light-dark(#ffffff, #222222);
+        --background-overlay: light-dark(#ffffff, #111111);
+        --fill-hover: light-dark(rgb(8 8 8 / 4%), rgb(255 255 255 / 6%));
+        --shadow-border: 0 0 0 1px light-dark(rgb(0 0 0 / 7%), rgb(255 255 255 / 7%));
+        --shadow-default:
+          inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+          0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+          0 1px 1px -1px light-dark(rgb(0 0 0 / 10%), transparent),
+          0 1px 2px 0 light-dark(rgb(0 0 0 / 5%), transparent);
+        --shadow-large:
+          0 0 0 0.5px light-dark(oklab(0.802 0 0 / 0.297), transparent),
+          0 0 0 1px light-dark(transparent, oklab(0.463 0 0 / 0.303)),
+          0 2px 3px -2px light-dark(rgb(0 0 0 / 6.3%), rgb(0 0 0 / 15%)),
+          0 3px 12px -4px light-dark(rgb(0 0 0 / 10%), transparent),
+          0 4px 16px -8px light-dark(rgb(0 0 0 / 5%), transparent),
+          0 3px 8px -2px light-dark(transparent, rgb(0 0 0 / 40%)),
+          0 4px 12px -4px light-dark(transparent, rgb(0 0 0 / 50%));
+        --shadow-extra-large:
+          inset 0 0 0 0.5px light-dark(transparent, rgb(255 255 255 / 7%)),
+          0 0 0 0.5px light-dark(rgb(0 0 0 / 6%), transparent),
+          0 8px 40px 0 rgb(0 0 0 / 5%),
+          0 12px 32px -16px rgb(0 0 0 / 15%);
+        --font-sans: Inter, -apple-system, BlinkMacSystemFont, sans-serif;
+        --font-mono: ui-monospace, "SF Mono", Menlo, monospace;
+        --font-weight-400: "wght" 400, "opsz" 14;
+        --font-weight-500: "wght" 500, "opsz" 14;
+        --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+        --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
+        --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
+        --duration-snappy: 220ms;
+        --duration-exit: 160ms;
+        --radius-control: 8px;
+        --radius-menu: 12px;
+        --radius-panel: 16px;
+        /* kit:tokens end */
+      }
+
+      /* kit:page */
+      :root {
+        color-scheme: light dark;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      * {
+        padding: 0;
+        margin: 0;
+        font: inherit;
+        font-variation-settings: inherit;
+        color: inherit;
+        text-decoration: none;
+        border: 0;
+      }
+
+      ol,
+      ul {
+        list-style: none;
+      }
+
+      img,
+      svg,
+      canvas,
+      video {
+        display: block;
+        max-width: 100%;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      button {
+        cursor: pointer;
+        user-select: none;
+        background: none;
+      }
+
+      button,
+      a,
+      select {
+        touch-action: manipulation;
+      }
+
+      code {
+        font-family: var(--font-mono);
+        font-size: 0.9em;
+      }
+
+      html {
+        font-family: var(--font-sans);
+        font-size: 14px;
+        line-height: 20px;
+        font-variation-settings: var(--font-weight-400);
+        font-optical-sizing: none;
+        font-feature-settings: "calt", "ccmp", "locl", "kern", "cv01", "ss03";
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        -webkit-tap-highlight-color: transparent;
+        color: var(--text-primary);
+        background: var(--background-primary);
+        scroll-padding-block-start: var(--bar-height, 72px);
+      }
+
+      * {
+        scrollbar-width: none;
+      }
+
+      ::-webkit-scrollbar {
+        display: none;
+      }
+
+      ::selection {
+        background: color-mix(in oklab, var(--accent) 28%, transparent);
+      }
+
+      :focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+      }
+
+      h1,
+      h2,
+      h3 {
+        text-wrap: balance;
+      }
+
+      p {
+        text-wrap: pretty;
+      }
+
+      @media (width <= 640px) {
+        input:not([type="range"]),
+        textarea,
+        select {
+          font-size: 16px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after,
+        ::backdrop {
+          transition-duration: 0s !important;
+          transition-delay: 0s !important;
+        }
+      }
+      /* kit:page end */
+
+      /* kit:head */
+      .head {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        max-width: 640px;
+      }
+
+      .title {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .brief {
+        color: var(--text-tertiary);
+        overflow-wrap: anywhere;
+
+        a {
+          display: inline-flex;
+          gap: 4px;
+          align-items: center;
+          color: var(--text-secondary);
+
+          svg {
+            color: var(--text-quaternary);
+          }
+
+          &:active,
+          &:active svg {
+            color: var(--text-primary);
+          }
+        }
+
+        code {
+          color: var(--text-secondary);
+        }
+      }
+
+      @property --bar-line {
+        syntax: "<color>";
+        inherits: false;
+        initial-value: transparent;
+      }
+
+      .bar {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+        align-items: center;
+        padding: 16px 0;
+        border-image: linear-gradient(to top, var(--bar-line) 1px, var(--background-primary) 1px) fill 0 / / 0 100vw;
+        transition: --bar-line var(--duration-snappy) var(--ease-out);
+
+        &[data-stuck] {
+          --bar-line: var(--border-primary);
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .brief a:hover,
+        .brief a:hover svg {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:head end */
+
+      /* kit:controls */
+      .chip,
+      .action {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-tertiary);
+        white-space: nowrap;
+        border-radius: var(--radius-control);
+
+        &[aria-pressed="true"] {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &:active:not(:disabled) {
+          color: var(--text-primary);
+        }
+
+        &:disabled {
+          cursor: default;
+          opacity: 0.5;
+        }
+      }
+
+      .action {
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+
+        &:active:not(:disabled) {
+          background: var(--background-hover);
+        }
+      }
+
+      .icon-button,
+      .tool-button {
+        position: relative;
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        color: var(--text-tertiary);
+        border-radius: var(--radius-control);
+
+        &::before {
+          position: absolute;
+          inset: -4px;
+          content: "";
+        }
+
+        &:disabled {
+          cursor: default;
+          opacity: 0.4;
+        }
+      }
+
+      .icon-button {
+        background: var(--background-tertiary);
+
+        &:active:not(:disabled, [aria-pressed="true"]) {
+          color: var(--text-primary);
+          background: var(--background-hover);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-on-accent);
+          background: var(--accent);
+        }
+      }
+
+      .tool-button {
+        &:active:not(:disabled) {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        &[aria-pressed="true"]:active:not(:disabled) {
+          background: var(--background-hover);
+        }
+      }
+
+      .pick {
+        position: relative;
+        display: grid;
+        flex: none;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        color: var(--text-quaternary);
+        border-radius: var(--radius-control);
+        box-shadow: inset 0 0 0 1px var(--border-secondary);
+
+        &::before {
+          position: absolute;
+          inset: -6px;
+          content: "";
+        }
+
+        &:active:not([aria-pressed="true"]) {
+          color: var(--text-primary);
+        }
+
+        &[aria-pressed="true"] {
+          color: var(--text-on-accent);
+          background: var(--accent);
+          box-shadow: none;
+        }
+      }
+
+      .count {
+        color: var(--text-quaternary);
+        font-variant-numeric: tabular-nums;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .chip:hover:not(:disabled) {
+          color: var(--text-primary);
+        }
+
+        .action:hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
+        .icon-button:hover:not(:disabled, [aria-pressed="true"]) {
+          color: var(--text-primary);
+          background: var(--background-hover);
+        }
+
+        .tool-button:hover:not(:disabled) {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        .tool-button[aria-pressed="true"]:hover:not(:disabled) {
+          background: var(--background-hover);
+        }
+
+        .pick:hover:not([aria-pressed="true"]) {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:controls end */
+
+      /* kit:select */
+      .select {
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        min-width: 0;
+        max-width: 280px;
+        height: 28px;
+        padding: 0 28px 0 12px;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-primary);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        cursor: pointer;
+        appearance: none;
+        background: var(--background-tertiary) no-repeat right 11px center / 10px
+          url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='%236b6b6b' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
+        border-radius: var(--radius-control);
+
+        &:active {
+          background-color: var(--background-hover);
+        }
+      }
+
+      @supports (appearance: base-select) {
+        .select,
+        .select::picker(select) {
+          appearance: base-select;
+        }
+
+        .select {
+          padding-right: 12px;
+          background-image: none;
+
+          &::picker-icon {
+            width: 10px;
+            height: 10px;
+            content: "";
+            background: var(--text-quaternary);
+            mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 10 10' fill='none' stroke='black' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2.5 4l2.5 2.5L7.5 4'/%3E%3C/svg%3E");
+            transition: rotate var(--duration-snappy) var(--ease-out);
+          }
+
+          &:open::picker-icon {
+            rotate: 180deg;
+          }
+
+          selectedcontent {
+            overflow: hidden;
+            text-overflow: ellipsis;
+          }
+
+          &::picker(select) {
+            min-width: anchor-size(width);
+            max-height: min(400px, 60dvh);
+            scrollbar-width: none;
+            padding: 4px;
+            margin-block: 8px;
+            background: var(--background-raised);
+            border: 1px solid transparent;
+            border-radius: var(--radius-menu);
+            box-shadow: var(--shadow-large);
+            opacity: 0;
+            mask-image:
+              linear-gradient(
+                to bottom,
+                transparent,
+                rgb(0 0 0 / 0.36) calc(var(--fade-start) * 5 / 24),
+                rgb(0 0 0 / 0.64) calc(var(--fade-start) * 10 / 24),
+                rgb(0 0 0 / 0.84) calc(var(--fade-start) * 14 / 24),
+                rgb(0 0 0 / 0.96) calc(var(--fade-start) * 19 / 24),
+                black var(--fade-start),
+                black calc(100% - var(--fade-end)),
+                rgb(0 0 0 / 0.96) calc(100% - var(--fade-end) * 19 / 24),
+                rgb(0 0 0 / 0.84) calc(100% - var(--fade-end) * 14 / 24),
+                rgb(0 0 0 / 0.64) calc(100% - var(--fade-end) * 10 / 24),
+                rgb(0 0 0 / 0.36) calc(100% - var(--fade-end) * 5 / 24),
+                transparent
+              ),
+              linear-gradient(black, black),
+              linear-gradient(black, black);
+            mask-clip: border-box, border-box, no-clip;
+            mask-size: 100% 100%, 100% 100%, calc(100% + 128px) calc(100% + 128px);
+            mask-position: 0 0, 0 0, -64px -64px;
+            mask-repeat: no-repeat;
+            mask-composite: add, exclude;
+            animation: scroll-fade linear both;
+            animation-timeline: scroll(self);
+            transition:
+              opacity var(--duration-exit) var(--ease-out),
+              display var(--duration-exit) allow-discrete,
+              overlay var(--duration-exit) allow-discrete;
+          }
+
+          &:open::picker(select) {
+            opacity: 1;
+            transition-duration: var(--duration-snappy);
+
+            @starting-style {
+              opacity: 0;
+            }
+          }
+        }
+
+        .select option {
+          display: flex;
+          gap: 6px;
+          align-items: center;
+          height: 28px;
+          padding: 0 8px;
+          font-size: 13px;
+          font-variation-settings: var(--font-weight-500);
+          color: var(--text-tertiary);
+          white-space: nowrap;
+          cursor: pointer;
+          border-radius: var(--radius-control);
+
+          &:active {
+            color: var(--text-primary);
+            background: var(--fill-hover);
+          }
+
+          &:focus-visible {
+            color: var(--text-primary);
+            background: var(--background-tertiary);
+            outline: none;
+          }
+
+          &:checked {
+            color: var(--text-primary);
+          }
+
+          &::checkmark {
+            order: 1;
+            margin-left: auto;
+            padding-left: 16px;
+            color: var(--accent);
+          }
+        }
+      }
+
+      @media (width <= 640px) {
+        .select {
+          font-size: 16px;
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .select:hover {
+          background-color: var(--background-hover);
+        }
+
+        .select option:hover {
+          color: var(--text-primary);
+          background: var(--fill-hover);
+        }
+      }
+      /* kit:select end */
+
+      /* kit:inputs */
+      .input {
+        width: 100%;
+        min-width: 0;
+        height: 28px;
+        padding: 0 10px;
+        font-size: 13px;
+        color: var(--text-primary);
+        background: var(--background-tertiary);
+        border-radius: var(--radius-control);
+
+        &::placeholder {
+          color: var(--text-quaternary);
+        }
+
+        &:focus-visible {
+          outline-offset: 0;
+          border-radius: var(--radius-control);
+        }
+      }
+
+      textarea.input {
+        height: auto;
+        min-height: 72px;
+        padding: 8px 10px;
+        resize: vertical;
+      }
+
+      .search {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        min-width: 0;
+        height: 28px;
+        padding: 0 10px;
+        color: var(--text-quaternary);
+        background: var(--background-tertiary);
+        border-radius: var(--radius-control);
+
+        svg {
+          flex: none;
+        }
+
+        input {
+          flex: 1;
+          min-width: 0;
+          height: 100%;
+          font-size: 13px;
+          color: var(--text-primary);
+          background: none;
+          outline: none;
+
+          &::placeholder {
+            color: var(--text-quaternary);
+          }
+
+          &::-webkit-search-cancel-button {
+            appearance: none;
+          }
+        }
+
+        &:has(input:focus-visible) {
+          outline: 2px solid var(--accent);
+        }
+      }
+
+      .field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+
+      .field-label {
+        color: var(--text-tertiary);
+      }
+
+      .range {
+        display: inline-flex;
+        gap: 10px;
+        align-items: center;
+        height: 28px;
+        padding: 0 12px;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-tertiary);
+        white-space: nowrap;
+        background: var(--background-tertiary);
+        border-radius: var(--radius-control);
+
+        output {
+          min-width: 4ch;
+          color: var(--text-primary);
+          font-variant-numeric: tabular-nums;
+          text-align: right;
+        }
+
+        input {
+          --fill: 50%;
+          width: 88px;
+          height: 28px;
+          cursor: pointer;
+          appearance: none;
+          background: none;
+          outline: none;
+
+          &::-webkit-slider-runnable-track {
+            height: 4px;
+            background: linear-gradient(to right, var(--accent) var(--fill), var(--border-secondary) var(--fill));
+            border-radius: 999px;
+          }
+
+          &::-moz-range-track {
+            height: 4px;
+            background: linear-gradient(to right, var(--accent) var(--fill), var(--border-secondary) var(--fill));
+            border-radius: 999px;
+          }
+
+          &::-webkit-slider-thumb {
+            width: 14px;
+            height: 14px;
+            margin-top: -5px;
+            appearance: none;
+            background: var(--background-control);
+            border-radius: 999px;
+            box-shadow: var(--shadow-default);
+          }
+
+          &::-moz-range-thumb {
+            width: 14px;
+            height: 14px;
+            background: var(--background-control);
+            border: 0;
+            border-radius: 999px;
+            box-shadow: var(--shadow-default);
+          }
+        }
+
+        &:has(input:focus-visible) {
+          outline: 2px solid var(--accent);
+          outline-offset: 2px;
+        }
+      }
+
+      .segmented {
+        display: inline-flex;
+        padding: 2px;
+        background: var(--background-tertiary);
+        border-radius: 10px;
+
+        button {
+          height: 24px;
+          padding: 0 10px;
+          font-size: 13px;
+          font-variation-settings: var(--font-weight-500);
+          color: var(--text-tertiary);
+          white-space: nowrap;
+          border-radius: 8px;
+
+          &:active {
+            color: var(--text-primary);
+          }
+
+          &[aria-pressed="true"] {
+            color: var(--text-primary);
+            background: var(--background-control);
+            box-shadow: var(--shadow-default);
+          }
+        }
+      }
+
+      @media (width <= 640px) {
+        .input,
+        .search input {
+          font-size: 16px;
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .segmented button:hover {
+          color: var(--text-primary);
+        }
+      }
+      /* kit:inputs end */
+
+      /* kit:overlays */
+      .toast {
+        position: fixed;
+        inset: auto;
+        display: inline-flex;
+        align-items: center;
+        height: 32px;
+        padding: 0 12px;
+        margin: 0;
+        overflow: visible;
+        font-size: 13px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-primary);
+        white-space: nowrap;
+        pointer-events: none;
+        background: var(--background-raised);
+        border: 1px solid transparent;
+        border-radius: 10px;
+        box-shadow: var(--shadow-large);
+        opacity: 0;
+        translate: -50% 4px;
+        scale: 0.97;
+        transform-origin: bottom center;
+        transition:
+          opacity var(--duration-exit) var(--ease-out),
+          translate var(--duration-exit) var(--ease-out),
+          scale var(--duration-exit) var(--ease-out);
+
+        &[data-side="below"] {
+          translate: -50% -4px;
+          transform-origin: top center;
+        }
+
+        &[data-open] {
+          opacity: 1;
+          translate: -50% 0;
+          scale: 1;
+          transition-duration: var(--duration-snappy);
+        }
+
+        &:has(button) {
+          gap: 12px;
+          padding-right: 4px;
+          pointer-events: auto;
+        }
+
+        button {
+          height: 24px;
+          padding: 0 8px;
+          color: var(--accent);
+          border-radius: 6px;
+
+          &:active {
+            background: var(--background-hover);
+          }
+        }
+      }
+
+      .tip {
+        position: fixed;
+        inset: auto;
+        display: inline-flex;
+        gap: 6px;
+        align-items: center;
+        height: 24px;
+        padding: 0 8px;
+        margin: 0;
+        overflow: visible;
+        font-size: 12px;
+        font-variation-settings: var(--font-weight-500);
+        color: var(--text-primary);
+        white-space: nowrap;
+        pointer-events: none;
+        background: var(--background-raised);
+        border: 1px solid transparent;
+        border-radius: var(--radius-control);
+        box-shadow: var(--shadow-large);
+        translate: -50% 0;
+        transition:
+          opacity 125ms var(--ease-out),
+          translate 125ms var(--ease-out);
+
+        @starting-style {
+          opacity: 0;
+          translate: -50% 4px;
+        }
+
+        &[data-side="below"] {
+          @starting-style {
+            translate: -50% -4px;
+          }
+        }
+
+        &[data-instant] {
+          transition: none;
+        }
+
+        &:not(:popover-open) {
+          display: none;
+        }
+
+        kbd {
+          font: inherit;
+          color: var(--text-tertiary);
+        }
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .toast button:hover {
+          background: var(--background-hover);
+        }
+      }
+      /* kit:overlays end */
+
+      /* kit:section */
+      .section-head {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 12px;
+        align-items: baseline;
+        margin-bottom: 20px;
+
+        .count {
+          margin-left: auto;
+        }
+      }
+
+      .section-title {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .section-description {
+        color: var(--text-tertiary);
+      }
+
+      .rows > * + * {
+        border-top: 1px solid var(--border-primary);
+      }
+
+      .empty {
+        padding: 64px 0;
+        color: var(--text-tertiary);
+        text-align: center;
+      }
+      /* kit:section end */
+
+      .page {
+        display: flex;
+        flex-direction: column;
+        gap: 48px;
+        max-width: 1120px;
+        padding: 48px 24px 96px;
+        margin: 0 auto;
+      }
+
+      .bar {
+        margin-top: -32px;
+      }
+
+      .bar .action {
+        margin-left: auto;
+      }
+
+      .sections {
+        display: flex;
+        flex-direction: column;
+        gap: 48px;
+      }
+
+      .split {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(min(100%, 420px), 1fr));
+        gap: 16px;
+      }
+
+      .scheme {
+        min-width: 0;
+        padding: 20px;
+        color: var(--text-primary);
+        background: var(--background-primary);
+        border-radius: var(--radius-panel);
+        box-shadow: var(--shadow-border);
+      }
+
+      .scheme-name {
+        margin-bottom: 12px;
+        font-size: 12px;
+        color: var(--text-quaternary);
+      }
+
+      .glyph {
+        display: grid;
+        flex: none;
+        place-items: center;
+
+        svg {
+          width: var(--size);
+          height: var(--size);
+          overflow: visible;
+        }
+      }
+
+      :root[data-stroke] .glyph svg * {
+        stroke-width: var(--stroke);
+      }
+
+      :root[data-caps] .glyph svg * {
+        stroke-linecap: var(--caps);
+      }
+
+      :root[data-joins] .glyph svg * {
+        stroke-linejoin: var(--joins);
+      }
+
+      :root[data-duo] .glyph [data-layer="back"] {
+        color: var(--accent);
+        fill: var(--accent);
+      }
+
+      .item {
+        position: relative;
+        text-align: left;
+        border-radius: var(--radius-menu);
+        box-shadow: inset 0 0 0 1px transparent;
+
+        &[aria-pressed="true"] {
+          box-shadow: inset 0 0 0 2px var(--accent);
+        }
+      }
+
+      .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(88px, 1fr));
+        gap: 4px;
+
+        .item {
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+          align-items: center;
+          padding: 16px 4px 10px;
+        }
+      }
+
+      .name {
+        max-width: 100%;
+        overflow: hidden;
+        font-size: 12px;
+        color: var(--text-tertiary);
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+
+      .new {
+        position: absolute;
+        top: 8px;
+        right: 8px;
+        width: 6px;
+        height: 6px;
+        background: var(--accent);
+        border-radius: 999px;
+      }
+
+      .options {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 300px), 1fr));
+        gap: 12px;
+
+        .item {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          padding: 16px;
+          background: var(--background-secondary);
+        }
+      }
+
+      .option-head {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .option-name {
+        font-variation-settings: var(--font-weight-500);
+      }
+
+      .note,
+      .source {
+        color: var(--text-tertiary);
+      }
+
+      .source {
+        font-size: 12px;
+        color: var(--text-quaternary);
+      }
+
+      .option-icons {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      .option-rows {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+      }
+
+      .rows-list {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        max-width: 280px;
+      }
+
+      .product-row {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        min-width: 0;
+        min-height: max(32px, calc(var(--size) + 12px));
+        padding: 0 8px;
+        font-family: var(--product-font);
+        font-size: var(--label-size);
+        color: var(--text-secondary);
+        border-radius: var(--radius-control);
+
+        &:first-child {
+          color: var(--text-primary);
+          background: var(--background-tertiary);
+        }
+
+        span:last-child {
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+      }
+
+      .rows-list .item {
+        border-radius: var(--radius-control);
+      }
+
+      .images {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+        gap: 12px;
+
+        .item {
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+          padding: 8px;
+          background: var(--background-secondary);
+        }
+
+        img {
+          width: 100%;
+          border-radius: var(--radius-control);
+        }
+      }
+
+      .pairs {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 200px), 1fr));
+        gap: 4px;
+
+        .item {
+          display: grid;
+          grid-template-columns: auto auto 1fr;
+          gap: 12px;
+          align-items: center;
+          padding: 10px 12px;
+        }
+      }
+
+      .state {
+        justify-self: end;
+        font-size: 12px;
+        color: var(--text-tertiary);
+
+        &[data-state="Removed"] {
+          color: var(--danger);
+        }
+
+        &[data-state="To Do"] {
+          color: var(--accent);
+        }
+      }
+
+      .notes {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        max-width: 640px;
+      }
+
+      @media (hover: hover) and (pointer: fine) {
+        .item:hover:not([aria-pressed="true"]) {
+          box-shadow: inset 0 0 0 1px var(--border-secondary);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="page">
+      <header class="head">
+        <h1 class="title" id="title">Icon Review</h1>
+        <p class="brief" id="brief"></p>
+      </header>
+
+      <nav class="bar" id="bar" aria-label="View">
+        <select class="select" id="theme" aria-label="Theme">
+          <option value="both">Both Themes</option>
+          <option value="light dark">System Theme</option>
+          <option value="light">Light</option>
+          <option value="dark">Dark</option>
+        </select>
+        <div class="segmented" id="sizes" role="group" aria-label="Size"></div>
+        <label class="range">Stroke <input id="stroke" type="range" min="0.5" max="3" step="0.25" value="1.5" aria-label="Stroke" /> <output id="stroke-value">Set</output></label>
+        <div class="segmented" id="caps" role="group" aria-label="Caps">
+          <button type="button" aria-pressed="true" value="">Set Caps</button>
+          <button type="button" aria-pressed="false" value="butt">Butt</button>
+          <button type="button" aria-pressed="false" value="round">Round</button>
+          <button type="button" aria-pressed="false" value="square">Square</button>
+        </div>
+        <div class="segmented" id="joins" role="group" aria-label="Joins">
+          <button type="button" aria-pressed="true" value="">Set Joins</button>
+          <button type="button" aria-pressed="false" value="miter">Miter</button>
+          <button type="button" aria-pressed="false" value="round">Round</button>
+        </div>
+        <button class="chip" id="duo" type="button" aria-pressed="false">Second Colour</button>
+        <button class="chip" id="reset" type="button">Reset</button>
+        <button class="action" id="copy" type="button">Copy Feedback</button>
+      </nav>
+
+      <div class="sections" id="sections"></div>
+
+      <section class="notes">
+        <div class="section-head">
+          <h2 class="section-title">Notes</h2>
+          <p class="section-description">What feels off, in your own words. Copy Feedback sends it with your picks.</p>
+        </div>
+        <textarea class="input" id="notes" rows="4" aria-label="Notes" placeholder="Too harsh, the arrows feel heavier than the labels"></textarea>
+      </section>
+    </main>
+
+    <script src="review.js"></script>
+    <script>
+      // kit:h
+      const $ = (id) => document.getElementById(id);
+
+      function h(tag, props = {}, ...children) {
+        const node = document.createElement(tag);
+        for (const [key, value] of Object.entries(props)) {
+          if (key === "html") node.innerHTML = value;
+          else if (key.startsWith("on")) node.addEventListener(key.slice(2), value);
+          else node.setAttribute(key, value);
+        }
+        node.append(...children.filter((child) => child != null));
+        return node;
+      }
+
+      function letterKey(event, scope) {
+        if (event.ctrlKey || event.metaKey || event.altKey || event.shiftKey || !/^[a-z]$/i.test(event.key)) return "";
+        return event.composedPath().includes(scope) ? event.key.toLowerCase() : "";
+      }
+      // kit:h end
+
+      // kit:anchor
+      function anchorTo(popover, anchor) {
+        const rect = anchor.getBoundingClientRect();
+        const frame = (anchor.closest("[data-frame]") ?? anchor).getBoundingClientRect();
+        const half = popover.offsetWidth / 2;
+        const edge = document.documentElement.clientWidth - 8;
+        const below = frame.top < popover.offsetHeight + 16;
+        popover.style.left = `${Math.min(edge - half, Math.max(8 + half, rect.left + rect.width / 2))}px`;
+        popover.style.top = `${below ? frame.bottom + 8 : frame.top - 8 - popover.offsetHeight}px`;
+        popover.dataset.side = below ? "below" : "above";
+      }
+      // kit:anchor end
+
+      // kit:overlays
+      const toast = h("output", { class: "toast", popover: "manual" });
+      const tip = h("div", { class: "tip", popover: "manual", "aria-hidden": "true" });
+      document.body.append(toast, tip);
+
+      function hideToast() {
+        clearTimeout(toast.hide);
+        delete toast.dataset.open;
+        toast.hide = setTimeout(() => toast.hidePopover(), 200);
+      }
+
+      function showToast(anchor, message, action) {
+        clearTimeout(toast.hide);
+        hideTip();
+        delete toast.dataset.open;
+        if (!toast.matches(":popover-open")) toast.showPopover();
+        toast.replaceChildren(message, ...(action ? [action] : []));
+        anchorTo(toast, anchor);
+        toast.dataset.open = "";
+        toast.hide = setTimeout(hideToast, action ? 5000 : 1600);
+      }
+
+      async function copy(text, anchor) {
+        const tokens = Math.ceil(text.length / 4).toLocaleString();
+        const message = await navigator.clipboard.writeText(text).then(
+          () => `Copied · ~${tokens} tokens`,
+          () => "Copy Failed",
+        );
+        showToast(anchor, message);
+      }
+
+      let tipTimer;
+      let tipClosedAt = 0;
+
+      function showTip(button) {
+        clearTimeout(tipTimer);
+        const warm = tip.matches(":popover-open") || performance.now() - tipClosedAt < 300;
+        const open = () => {
+          const key = button.dataset.key;
+          tip.replaceChildren(button.dataset.tip || button.getAttribute("aria-label"), ...(key ? [h("kbd", {}, key)] : []));
+          tip.toggleAttribute("data-instant", warm);
+          if (!tip.matches(":popover-open")) tip.showPopover();
+          anchorTo(tip, button);
+        };
+        if (warm) open();
+        else tipTimer = setTimeout(open, 500);
+      }
+
+      function hideTip() {
+        clearTimeout(tipTimer);
+        if (!tip.matches(":popover-open")) return;
+        tipClosedAt = performance.now();
+        tip.hidePopover();
+      }
+
+      const tipped = (event) => event.target.closest?.("[data-tip]");
+      document.addEventListener("pointerover", (event) => {
+        const button = tipped(event);
+        if (button && event.pointerType === "mouse" && !button.contains(event.relatedTarget)) showTip(button);
+      });
+      document.addEventListener("pointerout", (event) => {
+        const button = tipped(event);
+        if (button && !button.contains(event.relatedTarget)) hideTip();
+      });
+      document.addEventListener("focusin", (event) => {
+        const button = tipped(event);
+        if (button?.matches(":focus-visible")) showTip(button);
+      });
+      document.addEventListener("focusout", (event) => tipped(event) && hideTip());
+      document.addEventListener("pointerdown", hideTip);
+      // kit:overlays end
+
+      // kit:bar
+      function stick(bar) {
+        const mark = () => bar.toggleAttribute("data-stuck", scrollY > 0 && bar.getBoundingClientRect().top <= 0);
+        addEventListener("scroll", mark, { passive: true });
+        mark();
+        new ResizeObserver(() => {
+          document.documentElement.style.setProperty("--bar-height", `${bar.offsetHeight + 8}px`);
+        }).observe(bar);
+      }
+      // kit:bar end
+
+      const review = window.review ?? { title: "Icon Review", sections: [] };
+      const root = document.documentElement;
+      const storeKey = `iconset-review:${review.title}`;
+      const saved = JSON.parse(localStorage.getItem(storeKey) ?? "{}");
+      const picks = new Set(saved.picks ?? []);
+      const sizes = review.sizes?.length ? review.sizes : [16, 24];
+      let theme = "both";
+
+      const save = () => localStorage.setItem(storeKey, JSON.stringify({ picks: [...picks], notes: $("notes").value }));
+
+      document.title = review.title;
+      $("title").textContent = review.title;
+      $("brief").textContent = [review.step && `Step: ${review.step}.`, review.next].filter(Boolean).join(" ");
+      root.style.setProperty("--product-font", review.font ?? "var(--font-sans)");
+      root.style.setProperty("--label-size", `${review.labelSize ?? 14}px`);
+      root.style.setProperty("--size", `${sizes[0]}px`);
+      $("notes").value = saved.notes ?? "";
+      $("notes").addEventListener("input", save);
+
+      function glyph(svg) {
+        return h("span", { class: "glyph", html: svg ?? "" });
+      }
+
+      function pickable(section, item, className, ...children) {
+        const key = `${section.title}: ${item.name}`;
+        const node = h("button", { class: `item ${className}`, type: "button", "aria-pressed": picks.has(key) }, ...children);
+        node.addEventListener("click", () => {
+          picks.has(key) ? picks.delete(key) : picks.add(key);
+          for (const twin of document.querySelectorAll(`[data-key="${CSS.escape(key)}"]`)) twin.setAttribute("aria-pressed", picks.has(key));
+          save();
+        });
+        node.dataset.key = key;
+        return node;
+      }
+
+      const source = (item) => (item.source ? h("span", { class: "source" }, item.source) : null);
+
+      const kinds = {
+        grid: (section) =>
+          h(
+            "div",
+            { class: "grid" },
+            ...section.items.map((item) =>
+              pickable(section, item, "", item.new ? h("span", { class: "new", "aria-label": "New" }) : null, glyph(item.svg), h("span", { class: "name" }, item.name)),
+            ),
+          ),
+        rows: (section) =>
+          h(
+            "div",
+            { class: "rows-list" },
+            ...section.items.map((item) => pickable(section, item, "product-row", glyph(item.svg), h("span", {}, item.label ?? item.name))),
+          ),
+        options: (section) =>
+          h(
+            "div",
+            { class: "options" },
+            ...section.items.map((item) =>
+              pickable(
+                section,
+                item,
+                "",
+                h("span", { class: "option-head" }, h("span", { class: "option-name" }, item.name), item.note ? h("span", { class: "note" }, item.note) : null, source(item)),
+                h("span", { class: "option-icons" }, ...(item.icons ?? [item]).map((icon) => glyph(icon.svg))),
+                item.icons
+                  ? h(
+                      "span",
+                      { class: "option-rows" },
+                      ...item.icons.slice(0, 3).map((icon) => h("span", { class: "product-row" }, glyph(icon.svg), h("span", {}, icon.label ?? icon.name))),
+                    )
+                  : null,
+              ),
+            ),
+          ),
+        images: (section) =>
+          h(
+            "div",
+            { class: "images" },
+            ...section.items.map((item) =>
+              pickable(section, item, "", h("img", { src: item.src, alt: item.name, loading: "lazy" }), h("span", { class: "option-name" }, item.name), item.note ? h("span", { class: "note" }, item.note) : null, source(item)),
+            ),
+          ),
+        pairs: (section) =>
+          h(
+            "div",
+            { class: "pairs" },
+            ...section.items.map((item) =>
+              pickable(
+                section,
+                item,
+                "",
+                glyph(item.before),
+                glyph(item.after),
+                h("span", { class: "state", "data-state": item.state ?? "To Do" }, `${item.name} · ${item.state ?? "To Do"}`),
+              ),
+            ),
+          ),
+      };
+
+      const body = (section) => (kinds[section.kind] ?? kinds.grid)(section);
+
+      function render() {
+        $("sections").replaceChildren(
+          ...review.sections.map((section) => {
+            const count = section.items?.length ?? 0;
+            const content =
+              theme === "both"
+                ? h(
+                    "div",
+                    { class: "split" },
+                    ...["light", "dark"].map((scheme) =>
+                      h("div", { class: "scheme", style: `color-scheme: ${scheme}` }, h("p", { class: "scheme-name" }, scheme === "light" ? "Light" : "Dark"), body(section)),
+                    ),
+                  )
+                : body(section);
+            return h(
+              "section",
+              {},
+              h(
+                "div",
+                { class: "section-head" },
+                h("h2", { class: "section-title" }, section.title),
+                section.note ? h("p", { class: "section-description" }, section.note) : null,
+                h("span", { class: "count" }, String(count)),
+              ),
+              content,
+            );
+          }),
+        );
+        if (!review.sections.length) $("sections").append(h("p", { class: "empty" }, "Nothing to review yet. Write review.js beside this file."));
+      }
+
+      function segmented(group, onPick) {
+        for (const button of group.children) {
+          button.addEventListener("click", () => {
+            for (const other of group.children) other.setAttribute("aria-pressed", other === button);
+            onPick(button.value);
+          });
+        }
+      }
+
+      $("sizes").append(...sizes.map((size, index) => h("button", { type: "button", "aria-pressed": index === 0, value: size }, `${size}px`)));
+      segmented($("sizes"), (size) => root.style.setProperty("--size", `${size}px`));
+
+      function setOverride(name, value) {
+        root.toggleAttribute(`data-${name}`, Boolean(value));
+        root.style.setProperty(`--${name}`, value || "initial");
+      }
+
+      segmented($("caps"), (value) => setOverride("caps", value));
+      segmented($("joins"), (value) => setOverride("joins", value));
+
+      $("stroke").addEventListener("input", (event) => {
+        const { value, min, max } = event.target;
+        event.target.style.setProperty("--fill", `${((value - min) / (max - min)) * 100}%`);
+        $("stroke-value").textContent = value;
+        setOverride("stroke", value);
+      });
+
+      $("duo").addEventListener("click", () => {
+        const on = $("duo").getAttribute("aria-pressed") !== "true";
+        $("duo").setAttribute("aria-pressed", on);
+        root.toggleAttribute("data-duo", on);
+      });
+
+      $("reset").addEventListener("click", () => {
+        for (const name of ["stroke", "caps", "joins"]) setOverride(name, "");
+        $("stroke-value").textContent = "Set";
+        for (const group of [$("caps"), $("joins")]) for (const button of group.children) button.setAttribute("aria-pressed", button.value === "");
+        showToast($("reset"), "Showing the Set's Own Values");
+      });
+
+      $("theme").addEventListener("change", (event) => {
+        theme = event.target.value;
+        root.style.colorScheme = theme === "both" ? "light dark" : theme;
+        render();
+      });
+
+      $("copy").addEventListener("click", () => {
+        const bySection = new Map();
+        for (const key of picks) {
+          const [section, ...rest] = key.split(": ");
+          if (!review.sections.some((entry) => entry.title === section)) continue;
+          bySection.set(section, [...(bySection.get(section) ?? []), rest.join(": ")]);
+        }
+        const tuned = [
+          root.hasAttribute("data-stroke") && `Stroke ${$("stroke").value} instead of the set's own`,
+          root.hasAttribute("data-caps") && `Caps ${root.style.getPropertyValue("--caps")}`,
+          root.hasAttribute("data-joins") && `Joins ${root.style.getPropertyValue("--joins")}`,
+          root.hasAttribute("data-duo") && "Second colour on",
+        ].filter(Boolean);
+        const lines = [
+          `Feedback on ${review.title}${review.step ? `, ${review.step}` : ""}`,
+          `Viewed at ${root.style.getPropertyValue("--size")}, ${theme === "both" ? "both themes" : theme}`,
+          ...[...bySection].map(([section, names]) => `${section}: picked ${names.join(", ")}`),
+          ...tuned,
+          $("notes").value.trim() && `Notes: ${$("notes").value.trim()}`,
+        ].filter(Boolean);
+        copy(lines.join("\n"), $("copy"));
+      });
+
+      stick($("bar"));
+      render();
+    </script>
+  </body>
+</html>
