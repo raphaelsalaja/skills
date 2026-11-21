@@ -40,8 +40,12 @@ Line, filled when selected
 ## Voice
 Must: closed shapes. Broken: a folder with an open top. Fixed: the folder closed along its tab.
 Must: one diagonal angle, 45°. Broken: a 40° arrow. Fixed: the arrow at 45°.
-Should: lines run on to the keyline. Bent in: bolt, which reads better at its own height.
+Should: lines run on to the keyline. Broken: a phone stopping short of the keyline. Fixed: the phone on the tall keyline. Bent in: bolt, which reads better at its own height.
 Standard: no icon takes more attention than the label beside it.
+
+## Stroke
+16: 1.25, beside the 14px regular labels (l stem 1.31). 1.5 outweighed them.
+24: 1.75, beside the 20px medium title (l stem 2.26). The stroke the user set; 2 drew the eye first.
 
 ## Changes
 First batch: "a bit harsh". Round ends picked over a larger radius and a lighter stroke.
@@ -86,6 +90,12 @@ export default ({ poly, starPoints }) =>
 
 `helpers.mjs` sits beside the icons. It scales 24-grid coordinates to each size, snaps anchors to the grid step and applies the radius table, so a script names only its shape.
 
+Snap what the helpers compute too: where a rounded corner's arc starts and ends, each corner radius, each curve's end point and each dot's radius. Unsnapped, a 45° corner lands at 10.563 and the seed fails the grid lint. Curve handles stay free.
+
+A named override is in 24-grid units and scales with the rest. A script may branch on `size` where a smaller drawing needs its own coordinates, such as loops kept a stroke apart at 16.
+
+`draw(script, size, style, { morph })` writes the morph form for icons marked Swaps. It turns lines, arcs, circles and `Z` into an `M` and explicit `C` segments, then pads to the pair's larger path and segment counts.
+
 `.iconset/render.mjs` draws every script with each direction's values, or with `style.json` once one is picked, and writes `review.js`. Run it after every change, because a page opened from disk cannot import modules or fetch JSON.
 
 ```js
@@ -99,6 +109,23 @@ const svg = { 16: draw(folder, 16, round), 24: draw(folder, 24, round) };
 
 The build runs the same scripts, so the scripts and the SVG tree never disagree.
 
+## Parts
+
+Each registered part is a script in `parts/` beside the icons. It draws at a fixed size and position and exports any anchor a badge needs. An icon script imports it, so a change to the part redraws every icon that uses it.
+
+```js
+// parts/folder.mjs
+export const centre = [12, 13.5];
+export default ({ poly }) => poly([[3, 5], [9, 5], [11.5, 7.5], [21, 7.5], [21, 19.5], [3, 19.5]], { closed: true });
+
+// src/folder-plus.mjs
+import folder, { centre } from "../parts/folder.mjs";
+import plus from "../parts/plus.mjs";
+export default (k) => [folder(k), plus(k, centre)];
+```
+
+The review page's Parts section reads the imports, so each part's overview lists exactly the icons built from it.
+
 ## Concepts
 
 `concepts.md` sits beside the icons. Each concept appears once and each icon answers one concept. The tags carry the synonyms, so they also feed the catalogue's search.
@@ -109,27 +136,35 @@ The build runs the same scripts, so the scripts and the SVG tree never disagree.
 | Agent | `sparkle` | ai, assistant, model | Contested: picked from 14 versions |
 | Search | `magnifying-glass` | search, find, lookup | |
 | Play | `play` | start, run, resume | Swaps with `pause` |
+| Expand | `chevron-down` | expand, open, disclosure | Swaps with `chevron-right`, Spins |
 | Billing | `banknote` | billing, payment, invoice | Local: no currency sign |
 | Parallel run | `lanes` | parallel, concurrent, fan out | Contested, new: 4 of 5 in testing |
 ```
 
-Marks records what the steps decided. Contested names the picture it came from, Swaps names its partner and Local names the neutral form or the locales. A new metaphor adds its test result.
+Marks records what the steps decided. Contested names the picture it came from, Swaps names its partner and Local names the neutral form or the locales. A new metaphor adds its test result. Spins marks a Swaps pair that is one drawing turned, which rotates and skips the morph form.
+
+Keep the table this shape, one row per concept, because the review page, the export and the catalogue all parse it.
 
 ## Migration
 
-`migration.json` holds one entry per old icon. `To Do` is unmapped. `Coupled` names the replacement and keeps the old codepoint. `Removed` records the reference count, which is 0 before the swap.
+`migration.json` holds one entry per old icon. `To Do` is unmapped. `Coupled` names the replacement and keeps the old codepoint where the set has codepoints. `Removed` records the reference count, which is 0 before the swap.
 
 ```json
 {
   "arrow-up": { "state": "Coupled", "to": "ArrowUp", "codepoint": "U+E001" },
+  "dollar": { "state": "Coupled", "to": "banknote", "references": 1 },
   "debug-alt": { "state": "Removed", "references": 0 },
   "git-fetch": { "state": "To Do" }
 }
 ```
 
+A set with no codepoints, such as a map of SVG strings, records each coupled icon's references instead. The swap moves each one to the new name.
+
 ## SVG tree
 
-One folder per icon, one file per drawn style and size. A combination never drawn has no file, so the generated type lists only the sizes that exist.
+One folder per icon, named as the project's icon API names it, and one file per drawn style and size. A combination never drawn has no file, so the generated type lists only the sizes that exist.
+
+Where the agent draws, the export renders each script at every size in `style.json` and Swaps icons in the morph form. It reads each concept and its tags from `concepts.md`. Where a designer draws, the design tool's export plugin writes the same tree.
 
 ```
 svg/
@@ -158,7 +193,7 @@ svg/
 }
 ```
 
-`REPORT.md` lists one miss per line with the source node or script to open. The build stops while it has any line:
+`REPORT.md` lists one miss per line with the source node or script to open. It also lists a migration entry still To Do or coupled to an icon that is not drawn. The build stops while it has any line:
 
 ```
 ArrowRight fill-24 - empty variant, node 412:1180

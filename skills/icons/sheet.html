@@ -14,7 +14,11 @@
   };
 
   Paste each icon's markup exactly as the project ships it. Names take Title Case. Mark drawn glyphs `new: true`
-  and logos `brand: true`. Brand marks are listed but never measured. `sizes` is optional.
+  and logos `brand: true`. Brand marks are listed but never measured. `sizes` is optional. Where concepts.md marks
+  icons Swaps, mark those `swaps: true` too: once any icon carries it, only those are held to the morph form.
+
+  An agent reads the results through the browser rather than the clipboard: window.__icons.specMarkdown() is Copy
+  Spec, window.__icons.findingsText() is Copy Findings and window.__icons.outliers lists existing icons off the spec.
 
   The sheet measures every existing icon, derives the spec from the whole set and lints each icon against it.
   An existing icon off the spec is an outlier, not a finding. New icons are also checked for the morph form and the
@@ -546,10 +550,33 @@
       function radiiOf(element) {
         const radii = [];
         if (element.tagName === "rect" && element.hasAttribute("rx")) radii.push(parseFloat(element.getAttribute("rx")));
-        if (element.tagName === "path") {
-          for (const segment of element.getAttribute("d").match(/a[^a-z]*/gi) ?? []) {
-            const values = (segment.slice(1).match(/-?(?:\d+\.?\d*|\.\d+)/g) ?? []).map(Number);
-            for (let index = 0; index < values.length; index += 7) radii.push(values[index]);
+        if (element.tagName !== "path") return radii;
+        // Only arcs that turn a corner count. A half circle, such as a bell's dome or a paperclip's bend, is a shape.
+        let at = [0, 0];
+        let start = [0, 0];
+        for (const segment of element.getAttribute("d").match(/[a-z][^a-z]*/gi) ?? []) {
+          const letter = segment[0];
+          const lower = letter.toLowerCase();
+          const relative = letter === lower;
+          const values = (segment.slice(1).match(NUMBER) ?? []).map(Number);
+          const arity = ARITY[lower] ?? 0;
+          if (lower === "z") {
+            at = start;
+            continue;
+          }
+          for (let index = 0; index + Math.max(arity, 1) <= values.length; index += Math.max(arity, 1)) {
+            const group = values.slice(index, index + arity);
+            const point = (x, y) => (relative ? [at[0] + x, at[1] + y] : [x, y]);
+            let next = at;
+            if (lower === "h") next = [relative ? at[0] + group[0] : group[0], at[1]];
+            else if (lower === "v") next = [at[0], relative ? at[1] + group[0] : group[0]];
+            else if (arity) next = point(group[arity - 2], group[arity - 1]);
+            if (lower === "a") {
+              const chord = Math.hypot(next[0] - at[0], next[1] - at[1]);
+              if (!group[3] && chord < 1.9 * group[0]) radii.push(group[0]);
+            }
+            if (lower === "m" && index === 0) start = next;
+            at = next;
           }
         }
         return radii;
@@ -681,6 +708,12 @@
         return voice;
       }
 
+      // A small unstroked fill, such as the dot of a question mark, keeps a line icon Outline.
+      function isDot(element, stroke) {
+        const box = element.getBBox();
+        return Math.max(box.width, box.height) <= stroke * 3;
+      }
+
       async function measure(icon) {
         const svg = sized(icon.svg, 16);
         workspace.append(svg);
@@ -691,6 +724,7 @@
         const strokes = painted.filter((element) => style(element, "stroke") !== "none");
         const fills = painted.filter((element) => style(element, "fill") !== "none");
         const stroke = strokes.length ? parseFloat(style(strokes[0], "stroke-width")) : 0;
+        const rootStroke = svg.getAttribute("stroke") && svg.getAttribute("stroke") !== "none" ? parseFloat(svg.getAttribute("stroke-width") || 1) : 0;
         const edges = { left: [Infinity], top: [Infinity], right: [-Infinity], bottom: [-Infinity] };
         for (const element of painted) {
           const box = element.getBBox();
@@ -715,7 +749,7 @@
         const result = {
           icon,
           viewBox: viewBox.join(" "),
-          kind: pixel ? "Pixel" : strokes.length ? (fills.length ? "Filled" : "Outline") : "Filled",
+          kind: pixel ? "Pixel" : (strokes.length || rootStroke) && fills.every((element) => !strokes.includes(element) && isDot(element, stroke || rootStroke)) ? "Outline" : "Filled",
           stroke,
           caps: ends.some((end) => end.open) ? style(strokes[0], "stroke-linecap") : null,
           joins: ends.some((end) => end.corners) ? style(strokes[0], "stroke-linejoin") : null,
@@ -756,7 +790,9 @@
         const base = existing.filter((entry) => entry.viewBox === viewBox);
         const outline = base.filter((entry) => entry.kind === "Outline");
         const insets = base.map((entry) => round(entry.inset, 0.25));
-        const padding = mode(insets.filter((value) => value >= 0)) ?? 0;
+        const bucket = mode(insets.filter((value) => value >= 0)) ?? 0;
+        const inBucket = base.filter((entry) => round(entry.inset, 0.25) === bucket).map((entry) => entry.inset);
+        const padding = inBucket.length ? round(Math.min(...inBucket), 0.001) : 0;
         const roundEdges = base.filter((entry) => entry.edge === "round" && entry.inset < padding);
         const overshoot = roundEdges.length ? Math.max(...roundEdges.map((entry) => padding - entry.inset)) : 0;
         const ranges = {};
@@ -774,7 +810,7 @@
           range[0] = Math.min(range[0], entry.voice.parts);
           range[1] = Math.max(range[1], entry.voice.parts);
         }
-        const drawn = measured.filter((entry) => entry.icon.new);
+        const drawn = measured.filter((entry) => morphs(entry.icon));
         const grid = gridOf(base);
         const rectangle = (long, short) => {
           const shaped = base.filter((entry) => entry.box[short] > 0 && entry.box[long] / entry.box[short] >= 1.2);
@@ -812,6 +848,9 @@
         };
       }
 
+      const swapping = sheet.icons.some((icon) => icon.swaps);
+      const morphs = (icon) => Boolean(icon.new) && (!swapping || Boolean(icon.swaps) || Boolean(icon.added));
+
       function lint(entry, spec) {
         const misses = [];
         const add = (rule, text) => misses.push({ rule, text });
@@ -825,8 +864,9 @@
         if (entry.hex) add("icons-on-the-grid", "a literal colour, not currentColor");
         if (blocked.length) add("icons-on-the-grid", `${blocked.join(", ")} element`);
         const floor = entry.edge === "round" ? spec.padding - spec.overshoot : spec.padding;
-        if (entry.inset < floor - 1e-6) add("icons-lint-the-spec", `ink ${format(entry.inset)} from the edge, the floor is ${format(floor)} for a ${entry.edge} edge`);
-        const strays = entry.radii.filter((value) => spec.radii.length && !spec.radii.includes(value));
+        if (entry.inset < floor - 0.01) add("icons-lint-the-spec", `ink ${format(entry.inset)} from the edge, the floor is ${format(floor)} for a ${entry.edge} edge`);
+        const [low, high] = [spec.radii[0], spec.radii.at(-1)];
+        const strays = entry.radii.filter((value) => spec.radii.length && !spec.radii.includes(value) && (value < low - spec.grid || value > high + spec.grid));
         if (strays.length) add("icons-lint-the-spec", `radius ${[...new Set(strays)].join(", ")}, the set uses ${spec.radii.join(", ")}`);
         const range = spec.ranges[entry.kind];
         if (range && entry.coverage != null && (entry.coverage < range[0] - 0.005 || entry.coverage > range[1] + 0.005)) {
@@ -835,7 +875,7 @@
         if (entry.decimals > 3) add("icons-lint-the-spec", `${entry.decimals} decimals, the limit is 3`);
         if (entry.transform) add("icons-lint-the-spec", "a transform");
         if (entry.ids || entry.masks) add("icons-lint-the-spec", "an id, class, style, mask or clip path");
-        if (entry.icon.new) {
+        if (morphs(entry.icon)) {
           const { others, slots, shapes } = entry.morph;
           const { slots: wanted, segments } = spec.morph;
           if (others.length) add("icons-morph-form", `${others.join(", ")} element, the morph form is paths only`);
@@ -935,15 +975,15 @@
           "",
           "## Voice",
           "",
-          "Each tendency the sheet cannot measure, with two icons from the set that show it.",
+          "Each tendency the sheet cannot measure, whether it is a must or a should, and two icons from the set that show it.",
           "",
-          "| Tendency | Shown by |",
-          "| --- | --- |",
-          "| Open or closed |  |",
-          "| Line length |  |",
-          "| Direction |  |",
-          "| Caps and small details |  |",
-          "| Detail |  |",
+          "| Tendency | Must or should | Shown by |",
+          "| --- | --- | --- |",
+          "| Open or closed |  |  |",
+          "| Line length |  |  |",
+          "| Direction |  |  |",
+          "| Caps and small details |  |  |",
+          "| Detail |  |  |",
           "",
         ].join("\n");
       }
@@ -2292,7 +2332,7 @@
       const VIEWS = { Icons: ["All", "New", "Issues", "Spec"], Review: ["Pixels", "Weight", "Context", "Morph"] };
 
       function morphPairs(results, spec) {
-        const ready = results.filter((result) => result.icon.new && !lint(result.entry, spec).some((miss) => miss.rule === "icons-morph-form"));
+        const ready = results.filter((result) => morphs(result.icon) && !lint(result.entry, spec).some((miss) => miss.rule === "icons-morph-form"));
         const pairs = new Map();
         for (const kind of new Set(ready.map((result) => result.entry.kind))) {
           const group = ready.filter((result) => result.entry.kind === kind);
@@ -2660,7 +2700,9 @@
           },
         };
         app = createApp($("app"), data);
-        window.__icons = { spec, measured, findings, specMarkdown: () => specMarkdown(spec, measured) };
+        const outliers = results.filter((result) => !result.icon.new && result.misses.length)
+          .flatMap((result) => result.misses.map((miss) => ({ ...miss, name: result.icon.name, file: result.icon.file })));
+        window.__icons = { spec, measured, findings, outliers, specMarkdown: () => specMarkdown(spec, measured), findingsText: () => findingsText(findings) };
       })();
     </script>
   </body>

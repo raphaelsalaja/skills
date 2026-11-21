@@ -30,7 +30,7 @@ Copy [review.html](review.html) to `.iconset/index.html`, an ignored folder, and
 
 Where the agent draws, `.iconset/render.mjs` runs the icon scripts and writes `review.js`, as [formats.md](formats.md#icon-scripts) shows. Keep `style.md`, `style.json` and `concepts.md` beside the icons, never in `.iconset/`, because they outlive the review.
 
-Every step adds its section: the audit, the contested pictures, the references, the directions, the seed, each batch and the migration map. Rows set icons beside the product's labels in its own font, and Both Themes shows light and dark side by side.
+Every step adds its section: the audit, the contested pictures, the references and the directions. Then come the voice, the strokes, the parts, the seed, each batch with its rows and the migration map. Rows set icons beside the product's labels in its own font, and Both Themes shows light and dark side by side.
 
 When the product's font is not installed, copy its files into `.iconset/fonts/` and load them in `review.js`, as the header shows. Rows in a fallback font judge the icons beside the wrong stems.
 
@@ -130,7 +130,9 @@ Mark each line must or should. A must holds everywhere, such as the stroke, the 
 
 ## 9. Pick each stroke beside the product's type
 
-Draw 3 seed icons at 3 candidate strokes from the picked direction's range, centred on the type's stem width. Set each in a real row of the product, beside its own font at its interface size. Pick the stroke that holds its own beside the text without outweighing it.
+Draw 3 icons from the picked tiles at 3 candidate strokes, centred on the stem width of the type each size sits beside. A stroke the user set in Copy Feedback is always one of the 3. Set each in a real row of the product, beside its own font at its interface size. Pick the stroke that holds its own beside the text without outweighing it.
+
+Give each size its own section with `size`, `labelSize` and `labelWeight`, as the review page's header shows. A 24 stroke judged beside 14px labels picks too light. Write each pick and why under `## Stroke` in `style.md`.
 
 A stroke picked on an empty artboard, or copied from another set, is `iconset-stroke-beside-text`. A filled direction picks its narrowest counter the same way, and a pixel direction picks its pixel step.
 
@@ -140,17 +142,21 @@ Each size gets its own drawing and its own stroke, such as 1.25 at 16 and 1.5 at
 
 ## 10. Register every recurring part
 
-List each part the concept table uses in more than one icon, such as files, folders, badges, slashes, dots, notches and eyes. Draw each once as a source, with its size and position. Build every icon that uses it from that source, so one change updates all of them. A folder redrawn by hand in its tenth icon is `iconset-register-parts`.
+List each part the concept table uses in more than one icon, such as files, folders, badges, slashes, dots, notches and eyes. Draw each once as a source, with its size and position, as [formats.md](formats.md#parts) shows. Build every icon that uses it from that source, so one change updates all of them. A folder redrawn by hand in its tenth icon is `iconset-register-parts`.
 
-Keep one overview per part, lining up every icon that uses it. A drifted badge or a deeper notch shows there before it ships.
+Keep one overview per part on the review page, lining up every icon that uses it. A drifted badge or a deeper notch shows there before it ships.
 
 Compose parts at the source and ship each icon flat. Parts composed at runtime cost about twice the bytes per icon and can shift artwork by a pixel. A runtime `badge` prop is `iconset-ship-flat`.
 
 ## 11. Draw a seed set and check it in the product
 
-Draw 12 to 20 seed icons before the bulk, starting from the picked tile and the registered parts. Cover each keyline, a diagonal, an arrow and every registered part.
+Draw 12 to 20 seed icons before the bulk, starting from the picked tile and the registered parts. Cover each keyline, a diagonal, an arrow and every registered part. Include the lightest glyph the set will need, such as a single-stroke chevron, and its densest.
 
-Load the seed into the sheet from `icons` as the set, then copy its spec to `icon-spec.md`. Copy the voice from `style.md` into its Voice table, naming two seed icons for each line. From then on that table is the voice, and every icon goes through `icons`.
+The seed sets the ink range the lint holds every later icon to. A seed with no single-stroke glyph fails every chevron and check in the bulk.
+
+Load the seed into the sheet from `icons` as the set, never as new icons, one sheet per size. The seed passes when the sheet lists no outliers. Then copy the spec to `icon-spec.md`, one property table per size.
+
+Copy the voice from `style.md` into its Voice table, with its must or should and two seed icons for each line. From then on that table is the voice, and every icon goes through `icons`.
 
 Drawing the bulk before the seed passes is `iconset-seed-first`.
 
@@ -158,15 +164,17 @@ Show the seed in real rows on the review page and, where the product runs, in th
 
 ## 12. Draw the bulk in batches
 
-Give each new or contested concept a row of at least 3 attempts at its shipped size. Pick beside its neighbours in the set, never alone, and keep the row so the next choice can see why. A new concept shipped from one attempt is `iconset-explore-in-rows`.
+A concept added after step 4, such as a screen the user asks for at the seed, goes through steps 3 and 4 first. Its pictures wait for the next checkpoint beside its row.
+
+Give each contested concept and each new metaphor a row of at least 3 attempts at its shipped size. Pick beside its neighbours in the set, never alone, and keep the row so the next choice can see why. A new concept shipped from one attempt is `iconset-explore-in-rows`.
 
 A variant composed from registered parts, such as a folder with a plus, needs one drawing and no row. A hand-drawn direction draws each icon at least 3 times and keeps the strongest, then evens out the weight.
 
 Draw in batches by family, such as every file icon together, so a part stays aligned across the family. Run each batch through `icons`, from the lint to the phone.
 
-Only the concepts marked Swaps take the morph form, and the sheet's morph findings on the rest are skipped. Padding every icon to the most complex one's path and segment counts multiplies the bytes for nothing. Morph form on icons that never swap is `iconset-morph-only-swaps`.
+Only the concepts marked Swaps take the morph form. Mark them `swaps: true` in the sheet, so it holds only those to the form. A Swaps pair marked Spins is one drawing turned and skips the form. Padding every icon to the most complex one's path and segment counts multiplies the bytes for nothing. Morph form on icons that never swap is `iconset-morph-only-swaps`.
 
-Set each group of icons the product shows together, such as the tab bar or an editor toolbar, at its shipped size. Blur the row by 1px as a squint. Two icons that blur into one shape are confused at a glance, so change the silhouette of one. A pair told apart only by an inner detail is `iconset-distinct-in-a-row`.
+Set each group of icons the product shows together, such as the tab bar or an editor toolbar, at its shipped size. Press Squint on the review page, which blurs every icon by 1px. Two icons that blur into one shape are confused at a glance, so change the silhouette of one. A pair told apart only by an inner detail is `iconset-distinct-in-a-row`.
 
 Show a concept only this product has to 5 people from its audience without its label. Ask what it shows, then what clicking it would do, naming only the kind of product. A question that uses a word from the label primes the answer.
 
@@ -176,13 +184,13 @@ Show the first batch, about 40 icons across several families, before drawing the
 
 ## 13. Map every old icon to its replacement
 
-Give every old icon one state: To Do, Coupled to its replacement or Removed. A coupled icon keeps its old name, or its codepoint under `icons-keep-codepoints`, so the swap breaks no reference. A removed icon is retired on purpose, and nothing in the code still uses it.
+Give every old icon one state: To Do, Coupled to its replacement or Removed. A coupled icon keeps its old codepoint under `icons-keep-codepoints`, so the swap breaks no reference. In a set with no codepoints, the swap moves every reference to the new name in the same change. A removed icon is retired on purpose, and nothing in the code still uses it.
 
 Swapping the set while any icon is To Do, or while a removed icon is still referenced, is `iconset-map-the-migration`. Show the map on the review page, each old icon beside its replacement. The map's format is in [formats.md](formats.md#migration). The swap is the fifth checkpoint.
 
 ## 14. Make the SVG files the contract
 
-The design source owns how an icon looks, and the repository owns all code made from it. Export one SVG per drawn variant into a fixed tree with a manifest, as [formats.md](formats.md#svg-tree) shows. Every file keeps its frame's fixed viewBox, with `overflow="visible"` where artwork passes the frame.
+The design source owns how an icon looks, and the repository owns all code made from it. Export one SVG per drawn variant into a fixed tree with a manifest, as [formats.md](formats.md#svg-tree) shows. Where the agent draws, the export is the first stage of step 15's command, run from the scripts and `concepts.md`. Every file keeps its frame's fixed viewBox, with `overflow="visible"` where artwork passes the frame.
 
 The export writes a report of missing, empty, duplicate and misaligned variants, each with its source node. Generating code while the report lists a miss is `iconset-svg-is-the-contract`.
 
@@ -194,7 +202,7 @@ A native app also exports each icon into the platform's own symbol template, so 
 
 One command reads the SVG tree and the manifest, then writes everything else. It generates the components, the sprite or font, the package index, the catalogue data and the counts the docs quote. It stops when the report lists a miss. A release that needs a manual step after the export is `iconset-one-command`.
 
-Ship SVG: components where the product renders with a framework, and one sprite where it serves plain pages. An icon font draws boxes or stray words when fonts are blocked, late or overridden by the reader. A new set shipped only as an icon font is `iconset-pick-the-format`.
+Ship SVG: components where the product renders with a framework, and one sprite where it serves plain pages. Where the product already has an icon API, such as a map of SVG strings, generate that instead. An icon font draws boxes or stray words when fonts are blocked, late or overridden by the reader. A new set shipped only as an icon font is `iconset-pick-the-format`.
 
 Build a font only where the product already ships one or a platform needs codepoints. It loads with `font-display: block` and holds only the icons the product uses.
 
@@ -202,7 +210,7 @@ The components follow `icons-match-the-api`, each style its own export and each 
 
 ## 16. Generate the catalogue from the manifest
 
-The same command builds a catalogue page in the project's own stack. It shows the set by size and style, searches the tags and copies an icon's SVG, name or codepoint on hover. It holds the concept table and a list of icons beside real labels at their shipped size.
+The same command builds a catalogue page in the project's own stack. It shows the set by size and style and searches the tags. Copy buttons for an icon's SVG, name and codepoint show on hover and on focus. It holds the concept table and a list of icons beside real labels at their shipped size.
 
 A catalogue kept by hand, or a docs page quoting last month's count, is `iconset-catalogue-from-manifest`.
 

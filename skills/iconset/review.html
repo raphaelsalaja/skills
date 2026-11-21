@@ -44,10 +44,13 @@
   first 3 icons when none has one.
 
   Any svg may be one string or one drawing per size, keyed like `sizes`. The size switch shows each size's own drawing
-  and scales a single string.
+  and scales a single string. A section with `size` always shows that size, and `labelSize` and `labelWeight` set its
+  rows' type, such as a stroke test at 24 beside a 20px medium title. A pairs item's `state` may be any word, such
+  as Must or Should for the voice.
 
   The bar sets the theme (Both splits every section into light and dark), the size and live overrides for stroke,
-  caps and joins. Second Colour fills any element marked data-layer="back" with the accent. Clicking an item picks it.
+  caps and joins. Second Colour fills any element marked data-layer="back" with the accent. Squint blurs every icon
+  by 1px, so two icons that blur into one shape show at a glance. Clicking an item picks it.
   Copy Feedback writes the picks, the overrides and the notes as one message for the agent. Picks and notes are kept
   per step, so a new checkpoint starts clean. Radius and shape changes need a redraw, so the page cannot preview them.
 -->
@@ -1026,6 +1029,10 @@
         stroke-linejoin: var(--joins);
       }
 
+      :root[data-squint] .glyph svg {
+        filter: blur(1px);
+      }
+
       :root[data-duo] .glyph [data-layer="back"] {
         color: var(--accent);
         fill: var(--accent);
@@ -1249,6 +1256,7 @@
           <button type="button" aria-pressed="false" value="round">Round</button>
         </div>
         <button class="chip" id="duo" type="button" aria-pressed="false">Second Colour</button>
+        <button class="chip" id="squint" type="button" aria-pressed="false">Squint</button>
         <button class="chip" id="reset" type="button">Reset</button>
         <button class="action" id="copy" type="button">Copy Feedback</button>
       </nav>
@@ -1499,6 +1507,8 @@
         $("sections").replaceChildren(
           ...review.sections.map((section) => {
             const count = section.items?.length ?? 0;
+            const shared = size;
+            size = section.size ?? shared;
             const content =
               theme === "both"
                 ? h(
@@ -1509,9 +1519,15 @@
                     ),
                   )
                 : body(section);
+            size = shared;
+            const own = [
+              section.size && `--size: ${section.size}px`,
+              section.labelSize && `--label-size: ${section.labelSize}px`,
+              section.labelWeight && `--label-weight: ${section.labelWeight}`,
+            ].filter(Boolean);
             return h(
               "section",
-              {},
+              own.length ? { style: own.join("; ") } : {},
               h(
                 "div",
                 { class: "section-head" },
@@ -1561,6 +1577,12 @@
         const on = $("duo").getAttribute("aria-pressed") !== "true";
         $("duo").setAttribute("aria-pressed", on);
         root.toggleAttribute("data-duo", on);
+      });
+
+      $("squint").addEventListener("click", () => {
+        const on = $("squint").getAttribute("aria-pressed") !== "true";
+        $("squint").setAttribute("aria-pressed", on);
+        root.toggleAttribute("data-squint", on);
       });
 
       $("reset").addEventListener("click", () => {

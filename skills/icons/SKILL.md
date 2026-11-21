@@ -33,6 +33,8 @@ Mark logos and brand marks `brand: true`. They are never measured, redrawn or re
 
 The sheet derives the spec from every existing icon on the most common viewBox. It records the stroke, caps, joins, radii, grid step, padding, round overshoot and ink coverage per kind. Copy Spec gives `icon-spec.md`, saved beside the icons.
 
+An agent driving the browser reads the same text from `window.__icons.specMarkdown()`, and the findings from `window.__icons.findingsText()`. Where `icon-spec.md` already exists, replace only its property table and keep its filled Voice table.
+
 Drawing before `icon-spec.md` exists, or from a spec measured by hand, from a sample or from memory, is `icons-measure-the-spec`. With fewer than 3 icons on one viewBox, stop and ask for the reference set. A set that does not exist yet is built with `iconset`.
 
 An existing icon off the spec shows as an outlier. List it in the report and leave it, because redrawing it is a separate ask under `scope`.
@@ -47,7 +49,7 @@ Straight segments run at the angles the set already uses, such as 0°, 45° and 
 
 A drawing holds from 0.75 to 1.25 times its grid, so a 16 grid serves 12–20px. Past that its stroke scales too, and a 1.25 stroke becomes 2.5 at 32px. A drawing shown outside its range is `icons-size-range`.
 
-When the set ships a separate drawing per size, draw every size and run one sheet per size. Each size takes the stroke its own sheet measures. The smaller drawing drops detail and the larger may add it, such as a keyhole on the 24 lock.
+When the set ships a separate drawing per size, draw every size and run one sheet per size. Each size takes the stroke its own sheet measures, and `icon-spec.md` keeps one property table per size. The smaller drawing drops detail and the larger may add it, such as a keyhole on the 24 lock.
 
 When the set's icons are only rects on whole pixels, the set is pixel-style. Draw each glyph as a text grid first, then convert that grid to rects. A pixel icon begun as smooth paths is `icons-pixel-grid-first`. Pixel sets skip step 7 and swap with the cross-fade in `motion`.
 
@@ -93,7 +95,7 @@ Every new icon animates and morphs into every other new icon of its kind. Each o
 
 The sheet sets both counts from the most complex new icon and shows them as Morph Form. Pad a shorter path with zero-length segments at its end.
 
-In a set whose `concepts.md` marks icons Swaps, only those take the morph form, and the sheet's morph findings on the rest are skipped.
+In a set whose `concepts.md` marks icons Swaps, only those take the morph form. Mark them `swaps: true` in `sheet.js`, and the sheet sets the counts and checks the form on those alone.
 
 Two icons that are one shape turned, such as back and forward, share one drawing. The swap rotates the whole icon instead of moving points, and the sheet marks the pair Spins.
 
@@ -129,7 +131,7 @@ Clicking an icon opens its dialog. Its Morph tab chains any icons under the stag
 
 A converted preview is the sheet's own guess, not the form that ships. Prompts copies the fix, the redraw or the morph-form request for the agent to apply.
 
-A sheet written from scratch, or icons checked one at a time, is `icons-one-sheet`. Fix every finding and reopen it until Findings is empty. The only exceptions are a free curve the concept needs and morph findings on icons that `concepts.md` does not mark Swaps.
+A sheet written from scratch, or icons checked one at a time, is `icons-one-sheet`. Fix every finding and reopen it until Findings is empty. The only exception is a free curve the concept needs.
 
 ## 11. Match the project's icon component
 

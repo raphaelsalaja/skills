@@ -118,7 +118,9 @@ Measure the interface typeface at body size, in the weight icons sit beside. Mea
 | Ink traps | Notches where strokes meet in `M` or `n` | Wider gaps at junctions, written into the voice |
 | x-height | x-height over cap height | A low x-height shortens arrowheads and shrinks badges; a high one widens counters |
 
-Measure `l`, never `H`. Capital stems run heavier, such as 1.4 against 1.26 at 14px, which moves the nearest quarter, and labels are mostly lowercase.
+Measure `l`, never `H`. Capital stems run heavier, such as 1.4 against 1.26 at 14px, which moves the nearest quarter, and labels are mostly lowercase. A row across the middle of `H` also runs along its bar and reads the whole letter's width.
+
+Measure each size beside the type it ships next to. A 24 icon beside a 20px medium title takes that title's stem, such as 2.26, not the 14px label's.
 
 ## Radius, logo and platform
 
