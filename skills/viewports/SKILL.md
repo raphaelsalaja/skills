@@ -9,15 +9,17 @@ This skill renders one page at a fixed set of widths and heights. It measures ea
 
 ## Every width rendered, none inferred
 
-The widths are exact: 320, 375, 768, 1024, 1440 and 2560, plus 1px either side of each project breakpoint. The short sizes are exact too: 812×375 for a phone held sideways and 320×256 for 400% zoom. A width reasoned from the media queries is a finding. Run it after any layout change and whenever the user names a phone or a width.
+The widths are exact: 320, 375, 768, 1024, 1440 and 2560, plus each project breakpoint and the width 1px below it. The short sizes are exact too: 812×375 for a phone held sideways and 320×256 for 400% zoom. A width reasoned from the media queries is a finding. Run it after any layout change and whenever the user names a phone or a width.
 
 Opening the result belongs to `verify`. Alignment inside one render belongs to `alignment`. Safe areas, hit areas and dynamic viewport units belong to `defaults`, and a failure there cites its id.
 
 ## 1. Read the breakpoints
 
-Read the breakpoints from the CSS, the Tailwind config or the tokens. Add 1px below and 1px above each one to the fixed widths. A sweep that skips the edges of a breakpoint is `viewports-cross-each-breakpoint`.
+Read the breakpoints from the CSS, the Tailwind config or the tokens. Add each one and the width 1px below it to the fixed widths. A sweep that skips the edges of a breakpoint is `viewports-cross-each-breakpoint`.
 
-Search the queries for a `max-width` 1px below another query's `min-width`. A `max-width: 767px` beside a `min-width: 768px` leaves 767.5px matching neither, and browser zoom or fractional display scaling lands there. That gap is `viewports-no-breakpoint-gap`. Write the pair in range syntax, `(width < 768px)` and `(width >= 768px)`.
+Run [overflow.js](overflow.js) once through the browser's evaluate call. Its `breakpoints` field reads every width query in the loaded stylesheets. It lists `widths`, the `edges` to render and the `gaps`. Queries set only from JavaScript, such as `matchMedia`, never show there.
+
+Each entry in `gaps` is a `max-width` up to 1px below another query's `min-width`. A `max-width: 767px` beside a `min-width: 768px` leaves 767.5px matching neither, and browser zoom or fractional display scaling lands there. That gap is `viewports-no-breakpoint-gap`. Write the pair in range syntax, `(width < 768px)` and `(width >= 768px)`.
 
 ## 2. Render each width
 
@@ -35,7 +37,7 @@ Run [overflow.js](overflow.js) through the browser's evaluate call at each width
 
 The page never scrolls sideways, though a box may scroll inside itself. A 40px sideways scroll at 320 is `viewports-no-sideways-scroll`.
 
-At 1440, set `window.__viewportsOptions = { scrollbar: true }` and run the script again. It draws the classic 15px scrollbar that macOS and touch emulation hide, and its `scrollbar` field reads 15 when that took effect. A `width: 100vw` band 15px wider than the page is `viewports-classic-scrollbar`. Search the CSS for `100vw` and use `width: 100%`. A centred column that jumps 15px between a short page and a long one cites `defaults-scrollbar-gutter`.
+At 1440, set `window.__viewportsOptions = { scrollbar: true }` and run the script again. It draws the classic 15px scrollbar that macOS and touch emulation hide, and its `scrollbar` field reads 15 when that took effect. Delete `window.__viewportsOptions` afterwards, or every later run draws it too. A `width: 100vw` band 15px wider than the page is `viewports-classic-scrollbar`. Search the CSS for `100vw` and use `width: 100%`. A centred column that jumps 15px between a short page and a long one cites `defaults-scrollbar-gutter`.
 
 Text is never cut by its box without an ellipsis or a clamp. A button label cut in half at 375 is `viewports-no-clipped-text`. A target under 24px cites `defaults-hit-area`.
 

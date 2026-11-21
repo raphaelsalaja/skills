@@ -1,6 +1,9 @@
 // Run in the page once per viewport (DevTools console, Runtime.evaluate or page.evaluate).
-// Returns { viewport, pageOverflow, scrollbar, findings } for sideways overflow, clipped text, small targets
-// and fixed or sticky bars that crowd a short screen.
+// Returns { viewport, pageOverflow, scrollbar, breakpoints, findings } for sideways overflow, clipped text,
+// small targets and fixed or sticky bars that crowd a short screen.
+// breakpoints is { widths, edges, gaps, unreadSheets }: every width query in the loaded stylesheets, each
+// breakpoint with the width 1px below it, and each max-width and min-width pair that leaves widths unmatched.
+// unreadSheets counts cross-origin stylesheets whose rules the page cannot read.
 // Options: set window.__viewportsOptions = { root, minTarget, scrollbar } before running.
 // scrollbar: true draws a classic 15px scrollbar in Chromium, which macOS and touch emulation hide.
 // The page ignores it when its root sets scrollbar-width or scrollbar-color, and the result's scrollbar reads 0.
@@ -21,7 +24,14 @@
 
   const width = document.documentElement.clientWidth;
   const height = document.documentElement.clientHeight;
-  const scrollbar = innerWidth - width;
+  // A probe tells classic scrollbars from overlay ones. Under touch emulation innerWidth grows to fit
+  // overflowing content, so innerWidth minus clientWidth only measures a scrollbar when the probe has one.
+  const probe = document.createElement("div");
+  probe.style.cssText = "position: absolute; top: -9999px; width: 100px; height: 100px; overflow: scroll";
+  document.body.append(probe);
+  const classic = probe.offsetWidth - probe.clientWidth > 0;
+  probe.remove();
+  const scrollbar = classic ? Math.max(0, innerWidth - width) : 0;
   const round = (value) => Math.round(value * 10) / 10;
   const px = (value) => Number.parseFloat(value) || 0;
 
@@ -156,6 +166,65 @@
     }
   }
 
+  // 5. Breakpoints: every viewport width query in the loaded stylesheets, and the widths none of them match.
+  // A breakpoint is the first whole width on the wider side of a query. Media query em and rem are 16px.
+  const bounds = [];
+  let unread = 0;
+  const toPx = (value, unit) => Number(value) * (unit === "px" ? 1 : 16);
+  const readMedia = (text) => {
+    const add = (kind, value, unit, inclusive) => bounds.push({ kind, value: toPx(value, unit), inclusive, query: text });
+    const num = "([\\d.]+)(px|em|rem)";
+    for (const m of text.matchAll(new RegExp(`\\((min|max)-width:\\s*${num}\\)`, "g"))) {
+      add(m[1] === "min" ? "lower" : "upper", m[2], m[3], true);
+    }
+    for (const m of text.matchAll(new RegExp(`width\\s*(<=|>=|<|>)\\s*${num}`, "g"))) {
+      add(m[1].startsWith(">") ? "lower" : "upper", m[2], m[3], m[1].endsWith("="));
+    }
+    for (const m of text.matchAll(new RegExp(`${num}\\s*(<=|>=|<|>)\\s*width`, "g"))) {
+      add(m[3].startsWith("<") ? "lower" : "upper", m[1], m[2], m[3].endsWith("="));
+    }
+  };
+  const readRules = (rules) => {
+    for (const rule of rules) {
+      if (rule instanceof CSSImportRule) {
+        if (rule.media?.mediaText) readMedia(rule.media.mediaText);
+        if (rule.styleSheet) readSheet(rule.styleSheet);
+        continue;
+      }
+      if (rule instanceof CSSMediaRule) readMedia(rule.media.mediaText);
+      if (rule.cssRules) readRules(rule.cssRules);
+    }
+  };
+  const readSheet = (sheet) => {
+    if (sheet.media?.mediaText) readMedia(sheet.media.mediaText);
+    try {
+      readRules(sheet.cssRules);
+    } catch {
+      unread += 1;
+    }
+  };
+  [...document.styleSheets].forEach(readSheet);
+  const breakpointOf = ({ kind, value, inclusive }) =>
+    kind === "lower" ? (inclusive ? Math.ceil(value) : Math.floor(value) + 1) : (inclusive ? Math.floor(value) + 1 : Math.ceil(value));
+  const breakpoints = [...new Set(bounds.map(breakpointOf))].sort((a, b) => a - b);
+  const gaps = [];
+  const seenGaps = new Set();
+  for (const upper of bounds.filter((bound) => bound.kind === "upper")) {
+    for (const lower of bounds.filter((bound) => bound.kind === "lower")) {
+      const span = lower.value - upper.value;
+      const open = span > 0 && span <= 1;
+      const touching = span === 0 && !upper.inclusive && !lower.inclusive;
+      const key = `${upper.query} ${lower.query}`;
+      if ((open || touching) && !seenGaps.has(key)) {
+        seenGaps.add(key);
+        gaps.push({
+          between: [upper.query, lower.query],
+          unmatched: span ? `between ${upper.value}px and ${lower.value}px` : `${lower.value}px`,
+        });
+      }
+    }
+  }
+
   window.__viewports = {
     findings,
     highlight() {
@@ -197,6 +266,7 @@
     viewport: { width, height },
     pageOverflow: Math.max(pageOverflow, 0),
     scrollbar,
+    breakpoints: { widths: breakpoints, edges: breakpoints.flatMap((value) => [value - 1, value]), gaps, unreadSheets: unread },
     findings: findings.map(({ element, ...finding }, index) => ({ id: index + 1, ...finding })),
   };
 })(window.__viewportsOptions);
