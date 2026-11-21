@@ -60,10 +60,14 @@
       observers = [];
       const supported = {
         longAnimationFrame: observe("long-animation-frame", (entry) => {
+          const end = entry.startTime + entry.duration;
           longFrames.push({
             at: round(entry.startTime - startedAt),
             duration: round(entry.duration),
             blocking: round(entry.blockingDuration),
+            // Time from the start of rendering, and of style and layout, to the end of the frame. Zero when the frame did not render.
+            render: entry.renderStart ? round(end - entry.renderStart) : 0,
+            styleAndLayout: entry.styleAndLayoutStart ? round(end - entry.styleAndLayoutStart) : 0,
             forcedLayout: round(
               entry.scripts.reduce((sum, script) => sum + script.forcedStyleAndLayoutDuration, 0),
             ),
@@ -71,6 +75,7 @@
               source: script.sourceURL,
               function: script.sourceFunctionName,
               invoker: script.invoker,
+              invokerType: script.invokerType,
               duration: round(script.duration),
               forcedLayout: round(script.forcedStyleAndLayoutDuration),
             })),

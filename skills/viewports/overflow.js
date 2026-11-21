@@ -1,12 +1,27 @@
 // Run in the page once per viewport (DevTools console, Runtime.evaluate or page.evaluate).
-// Returns { viewport, pageOverflow, findings } for sideways overflow, clipped text and small targets.
-// Options: set window.__viewportsOptions = { root, minTarget } before running.
-// Call window.__viewports.highlight() afterwards to draw numbered overlays.
+// Returns { viewport, pageOverflow, scrollbar, findings } for sideways overflow, clipped text, small targets
+// and fixed or sticky bars that crowd a short screen.
+// Options: set window.__viewportsOptions = { root, minTarget, scrollbar } before running.
+// scrollbar: true draws a classic 15px scrollbar in Chromium, which macOS and touch emulation hide.
+// The page ignores it when its root sets scrollbar-width or scrollbar-color, and the result's scrollbar reads 0.
+// Call window.__viewports.highlight() afterwards to draw numbered overlays, and clear() to remove them.
 ((options = {}) => {
   const root = options.root ?? document.body;
   const minTarget = options.minTarget ?? 24;
   const findings = [];
+
+  document.querySelectorAll("style[data-viewports-scrollbar]").forEach((node) => node.remove());
+  if (options.scrollbar) {
+    const style = document.createElement("style");
+    style.dataset.viewportsScrollbar = "";
+    style.textContent =
+      "::-webkit-scrollbar { width: 15px; height: 15px; } ::-webkit-scrollbar-thumb { background: #888; }";
+    document.head.append(style);
+  }
+
   const width = document.documentElement.clientWidth;
+  const height = document.documentElement.clientHeight;
+  const scrollbar = innerWidth - width;
   const round = (value) => Math.round(value * 10) / 10;
   const px = (value) => Number.parseFloat(value) || 0;
 
@@ -70,10 +85,12 @@
     });
     for (const el of culprits) {
       if (culprits.some((other) => other !== el && other.contains(el))) continue;
-      const right = el.getBoundingClientRect().right;
-      add("viewports-no-sideways-scroll", el,
-        `Ends ${round(right - width)}px past the ${width}px viewport`,
-        { right: round(right), viewport: width });
+      const rect = el.getBoundingClientRect();
+      // A box as wide as the window, scrollbar included, is a 100vw box.
+      const viewportWide = scrollbar > 0 && (Math.abs(rect.width - innerWidth) < 1 || Math.abs(rect.right - innerWidth) < 1);
+      add(viewportWide ? "viewports-classic-scrollbar" : "viewports-no-sideways-scroll", el,
+        `Ends ${round(rect.right - width)}px past the ${width}px viewport${viewportWide ? `, as wide as the window and its ${scrollbar}px scrollbar` : ""}`,
+        { right: round(rect.right), viewport: width, scrollbar });
     }
   }
 
@@ -116,6 +133,29 @@
     }
   }
 
+  // 4. Short screens: fixed and sticky bars pinned to the top or bottom edge cover at most a quarter
+  // of a height of 480px or less.
+  const bars = elements
+    .filter((el) => {
+      const position = getComputedStyle(el).position;
+      if (position !== "fixed" && position !== "sticky") return false;
+      const rect = el.getBoundingClientRect();
+      if (rect.width < width / 2 || rect.height >= height) return false;
+      return rect.top <= 1 || rect.bottom >= height - 1;
+    })
+    .filter((el, _, all) => !all.some((other) => other !== el && other.contains(el)));
+  const covered = bars.reduce((sum, el) => {
+    const rect = el.getBoundingClientRect();
+    return sum + Math.max(0, Math.min(rect.bottom, height) - Math.max(rect.top, 0));
+  }, 0);
+  if (height <= 480 && covered > height / 4) {
+    for (const el of bars) {
+      add("viewports-unstick-when-short", el,
+        `Fixed and sticky bars cover ${round(covered)}px of a ${height}px screen, over the ${round(height / 4)}px quarter`,
+        { covered: round(covered), height });
+    }
+  }
+
   window.__viewports = {
     findings,
     highlight() {
@@ -149,13 +189,14 @@
       });
     },
     clear() {
-      document.querySelectorAll("[data-viewports-overlay]").forEach((node) => node.remove());
+      document.querySelectorAll("[data-viewports-overlay], style[data-viewports-scrollbar]").forEach((node) => node.remove());
     },
   };
 
   return {
-    viewport: { width, height: document.documentElement.clientHeight },
+    viewport: { width, height },
     pageOverflow: Math.max(pageOverflow, 0),
+    scrollbar,
     findings: findings.map(({ element, ...finding }, index) => ({ id: index + 1, ...finding })),
   };
 })(window.__viewportsOptions);

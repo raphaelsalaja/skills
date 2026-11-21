@@ -1,5 +1,6 @@
 // Run in the page before walking it with the keyboard (DevTools console, Runtime.evaluate or page.evaluate).
-// Returns { unreachable, positiveTabindex } at once, then records every focus stop while keys are pressed.
+// Returns { unreachable, scrollers, positiveTabindex } at once, then records every focus stop while keys are pressed.
+// Each stop carries its outline thickness and whether other content covers it, measured a frame after focus scrolls it in.
 // Read window.__keyboard.stops after the walk. Call window.__keyboard.highlight() to number the stops on the page.
 (() => {
   window.__keyboard?.dispose();
@@ -38,10 +39,27 @@
 
   const roleOf = (el) => el.getAttribute("role") ?? el.tagName.toLowerCase();
 
-  const hasRing = (el) => {
+  const ringWidth = (el) => {
     const style = getComputedStyle(el);
-    const outline = style.outlineStyle !== "none" && Number.parseFloat(style.outlineWidth) > 0;
-    return outline || style.boxShadow !== "none";
+    return style.outlineStyle === "none" ? 0 : Number.parseFloat(style.outlineWidth) || 0;
+  };
+
+  const hasRing = (el) => ringWidth(el) > 0 || getComputedStyle(el).boxShadow !== "none";
+
+  // Samples the centre and four inset corners inside the viewport. "fully" when other content covers every one.
+  // A stop entirely off screen returns null here and false for onScreen.
+  const obscured = (el) => {
+    const rect = el.getBoundingClientRect();
+    if (!rect.width || !rect.height) return null;
+    const points = [[0.5, 0.5], [0.15, 0.15], [0.85, 0.15], [0.15, 0.85], [0.85, 0.85]]
+      .map(([fx, fy]) => [rect.left + rect.width * fx, rect.top + rect.height * fy])
+      .filter(([x, y]) => x >= 0 && y >= 0 && x < innerWidth && y < innerHeight);
+    if (!points.length) return null;
+    const covered = points.filter(([x, y]) => {
+      const top = document.elementFromPoint(x, y);
+      return Boolean(top) && top !== el && !el.contains(top) && !top.contains(el);
+    }).length;
+    return covered === points.length ? "fully" : covered ? "partly" : null;
   };
 
   const isVisible = (el) => {
@@ -55,27 +73,36 @@
 
   const stops = [];
 
+  const measure = (stop) => {
+    const rect = stop.element.getBoundingClientRect();
+    stop.onScreen = onScreen(rect);
+    stop.obscured = obscured(stop.element);
+    stop.rect = {
+      x: Math.round(rect.x + scrollX),
+      y: Math.round(rect.y + scrollY),
+      width: Math.round(rect.width),
+      height: Math.round(rect.height),
+    };
+  };
+
   const onFocusIn = (event) => {
     const el = event.target;
     if (!(el instanceof Element)) return;
-    const rect = el.getBoundingClientRect();
-    stops.push({
+    const stop = {
       stop: stops.length + 1,
       where: describe(el),
       role: roleOf(el),
       name: nameOf(el),
       tabIndex: el.tabIndex,
       ring: hasRing(el),
+      ringWidth: ringWidth(el),
       visible: isVisible(el),
-      onScreen: onScreen(rect),
-      rect: {
-        x: Math.round(rect.x + scrollX),
-        y: Math.round(rect.y + scrollY),
-        width: Math.round(rect.width),
-        height: Math.round(rect.height),
-      },
       element: el,
-    });
+    };
+    measure(stop);
+    stops.push(stop);
+    // Focus scrolls the element in; measure again once that has painted.
+    requestAnimationFrame(() => requestAnimationFrame(() => measure(stop)));
   };
 
   const onFocusOut = (event) => {
@@ -102,6 +129,20 @@
     })
     .map((el) => ({ where: describe(el), name: nameOf(el) }));
 
+  // Scroll containers with nothing inside that Tab reaches. Safari never focuses the container itself.
+  const scrolls = (style, axis, el) =>
+    /auto|scroll/.test(style[`overflow${axis}`]) &&
+    (axis === "Y" ? el.scrollHeight > el.clientHeight + 1 : el.scrollWidth > el.clientWidth + 1);
+  const scrollers = [...document.body.querySelectorAll("*")]
+    .filter((el) => {
+      if (!isVisible(el)) return false;
+      const style = getComputedStyle(el);
+      if (!scrolls(style, "X", el) && !scrolls(style, "Y", el)) return false;
+      if (el.hasAttribute("tabindex") && el.tabIndex >= 0) return false;
+      return ![...el.querySelectorAll(focusable)].some((child) => child.tabIndex >= 0 && isVisible(child));
+    })
+    .map((el) => ({ where: describe(el), role: el.getAttribute("role"), name: nameOf(el).slice(0, 40) }));
+
   const positiveTabindex = [...document.querySelectorAll("[tabindex]")]
     .filter((el) => el.tabIndex > 0)
     .map((el) => ({ where: describe(el), tabIndex: el.tabIndex }));
@@ -114,6 +155,7 @@
       document.querySelectorAll("[data-keyboard-overlay]").forEach((node) => node.remove());
       for (const stop of stops) {
         if (stop.lost) continue;
+        const color = stop.ring && !stop.obscured ? "#0a84ff" : "#ff2d55";
         const mark = document.createElement("div");
         mark.dataset.keyboardOverlay = "";
         Object.assign(mark.style, {
@@ -122,7 +164,7 @@
           top: `${stop.rect.y}px`,
           width: `${stop.rect.width}px`,
           height: `${stop.rect.height}px`,
-          outline: `1px solid ${stop.ring ? "#0a84ff" : "#ff2d55"}`,
+          outline: `1px solid ${color}`,
           zIndex: 2147483647,
           pointerEvents: "none",
           font: "600 11px/16px system-ui",
@@ -135,7 +177,7 @@
           top: "-16px",
           left: "-1px",
           padding: "0 4px",
-          background: stop.ring ? "#0a84ff" : "#ff2d55",
+          background: color,
         });
         mark.append(label);
         document.body.append(mark);
@@ -151,5 +193,5 @@
     },
   };
 
-  return { unreachable, positiveTabindex };
+  return { unreachable, scrollers, positiveTabindex };
 })();

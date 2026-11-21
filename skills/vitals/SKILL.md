@@ -10,13 +10,15 @@ This skill measures how a page loads. It records a cold load on a throttled netw
 
 ## A cold recording, never a warm guess
 
-The budgets are exact and measured at the throttle on a cold load. The largest contentful paint (LCP) lands under 2.5s and cumulative layout shift (CLS) stays under 0.1. Interaction to next paint (INP) stays under 200ms. "Loads fast for me" with no numbers is a finding. Run it on any page a visitor lands on, after any change to what that page loads first.
+The budgets are exact and measured at the throttle on a cold load. The largest contentful paint (LCP) lands at or under 2.5s and cumulative layout shift (CLS) stays at or under 0.1. Interaction to next paint (INP) stays at or under 200ms. Field data judges the same numbers at the 75th percentile of real visits, so report that beside the lab medians when the project has it. "Loads fast for me" with no numbers is a finding. Run it on any page a visitor lands on, after any change to what that page loads first.
 
 Frame budgets during motion and the response to each interaction belong to `frames`. Skeletons and loading delays belong to `defaults`. What a missing image shows belongs to `states`. Opening the running result belongs to `verify`.
 
 ## 1. Throttle a cold load
 
-Name the route and the viewport, 375×812 with touch unless the user names another. Through the browser's emulation calls, throttle the CPU 4× and the network to a 150ms round trip, 1.6Mbps down and 750kbps up. Disable the cache, unregister service workers and clear storage before each load. A load on a warm cache or an unthrottled connection is `vitals-cold-load`.
+Load a production build or a preview deployment, never the development server, whose unbundled modules and overlays inflate every number. [vitals.js](vitals.js) returns `devServer: true` when it finds development scripts. A recording from the development server is `vitals-production-build`.
+
+Name the route and the viewport, 375×812 with touch unless the user names another. Through the browser's emulation calls, throttle the CPU 4× and the network to a 150ms round trip, 1.6Mbps down and 750kbps up. When DevTools holds a calibrated mid-tier mobile preset, use its CPU rate instead and name it. Disable the cache, unregister service workers and clear storage before each load. A load on a warm cache or an unthrottled connection is `vitals-cold-load`.
 
 ## 2. Record three loads
 
@@ -24,13 +26,19 @@ Load the page, touch nothing and wait 5s after the load event. Run [vitals.js](v
 
 ## 3. Read the budget
 
-Compare the medians against the budgets. An LCP at or over 2.5s, or a CLS at or over 0.1, is `vitals-hold-the-budget`. Name where the LCP time went: time to first byte, load delay, load duration or render delay. The script lists interactions only when one happened, and tracing a slow one belongs to `frames`.
+Compare the medians against the budgets. An LCP over 2.5s, or a CLS over 0.1, is `vitals-hold-the-budget`. Name where the LCP time went: time to first byte, load delay, load duration or render delay.
+
+Load delay and render delay each stay under 10% of the LCP, because the image should start loading at once and paint as it arrives. An LCP of 2.3s with 900ms of render delay is `vitals-lcp-breakdown`. The script lists interactions only when one happened, and tracing a slow one belongs to `frames`.
 
 ## 4. Find the cause
 
 Read the LCP element, the sources of each shift and the scripts of each long task, then the code they point to.
 
 The LCP image loads first. It takes `fetchpriority="high"` and never `loading="lazy"`. At most two images on a page take high priority. A hero with `loading="lazy"`, or high priority on every card, is `vitals-lcp-priority`. An LCP image set as a CSS background is found late, so move it into an `<img>`.
+
+A `<script src>` in the `<head>` without `defer`, `async` or `type="module"` stops the parser until it downloads and runs. [vitals.js](vitals.js) lists each under `blockingScripts`. A synchronous analytics tag above the stylesheet is `vitals-no-render-blocking`.
+
+An image file is no wider than 1.5 times its drawn width times the device pixel ratio. Serve it from `srcset` with `sizes`, as AVIF or WebP, and find the rest under `media.oversized`. A 2400px JPEG drawn 400px wide on a 2x phone is `vitals-right-size-images`.
 
 Every image and video sets `width` and `height`, or an `aspect-ratio`, so its box exists before it loads. A bare `<video>` lays out at 300 by 150 until its metadata arrives. An `<img>` or `<video>` with neither is `vitals-size-media`.
 
@@ -44,7 +52,11 @@ Below the fold, each section of a long page skips rendering until it nears the s
 
 A task over 200ms during load holds a tap until it ends, which alone misses the INP budget. Split it, defer it past the largest paint or load that code on demand. A 400ms hydration task before the hero paints is `vitals-split-long-tasks`.
 
-## 5. Record the fix
+## 5. Go back
+
+Open a second page from this one, press Back and run [vitals.js](vitals.js) again. A page restored from the back/forward cache still reads `navigation: "navigate"`. A `back_forward` reading means it reloaded, and `notRestoredReasons` says why. An `unload` listener, or `Cache-Control: no-store` on a page with nothing private, is `vitals-bfcache`.
+
+## 6. Record the fix
 
 Load again three times with the same route, viewport and throttle. Report both sets of medians side by side. "Should load faster now" is `vitals-before-and-after`. Clear the throttles when done.
 
@@ -54,21 +66,26 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 | Rule | Broken | Replacement |
 | --- | --- | --- |
+| `vitals-production-build` | LCP 6.2s read from the development server | The same route on a preview deployment, `devServer: false` |
 | `vitals-cold-load` | Measured on a warm cache over office wifi | Cold, cache off, 4× CPU and a 150ms round trip at 1.6Mbps |
 | `vitals-recording-not-feel` | "The page loads fast" | "LCP 1.9s, CLS 0.02, longest task 140ms, median of three cold loads" |
 | `vitals-hold-the-budget` | LCP 3.8s on the hero image | LCP 2.1s |
+| `vitals-lcp-breakdown` | LCP 2.3s, 900ms of it render delay behind a hydration task | Render delay 120ms, under 10% of the LCP |
 | `vitals-lcp-priority` | `<img loading="lazy">` on the hero | `<img fetchpriority="high">` on the hero alone |
+| `vitals-no-render-blocking` | `<script src="/analytics.js">` in the `<head>` | `<script src="/analytics.js" defer>` |
+| `vitals-right-size-images` | A 2400px JPEG drawn 400px wide on a 2x phone | `srcset="hero-800.avif 800w, hero-1600.avif 1600w" sizes="100vw"` |
 | `vitals-size-media` | `<video src="demo.mp4">` | `<video src="demo.mp4" width="1280" height="720">` |
 | `vitals-video-not-gif` | `<img src="demo.gif">` | `<video src="demo.mp4" autoplay muted loop playsinline poster="demo.jpg">` |
 | `vitals-no-shift` | A promo banner inserted above the header after load | Its 48px reserved from the first paint |
 | `vitals-woff2-subset` | `src: url("brand.ttf")` | `src: url("brand-latin.woff2") format("woff2")` with `unicode-range: U+0000-00FF` |
 | `vitals-offscreen-visibility` | A 200-item feed rendered in full below the fold | `content-visibility: auto; contain-intrinsic-size: auto none auto 150px` on each feed section |
 | `vitals-split-long-tasks` | A 400ms hydration task before the hero paints | The below-the-fold widgets loaded after the largest paint |
+| `vitals-bfcache` | `window.addEventListener("unload", save)` | `window.addEventListener("pagehide", save)` |
 | `vitals-before-and-after` | "Should load faster now" | Before LCP 3.8s, after 2.1s, same throttle, three loads each |
 
 ## Reporting
 
-**Severity.** `HIGH` is a budget missed at the throttle, or a report of load speed with no recording. `MEDIUM` is a lazy or late LCP image, unsized media, a late element that shifts content or a load task over 200ms. It is also a load recorded warm or unthrottled, an animated GIF or a font shipped as `.ttf`, `.otf` or unsubset. `LOW` is a long section rendered in full below the fold, `content-visibility` above it or more than two high-priority images. It is also a fix reported without a second recording.
+**Severity.** `HIGH` is a budget missed at the throttle, or a report of load speed with no recording. `MEDIUM` is a lazy or late LCP image, unsized media, a late element that shifts content or a load task over 200ms. It is also a load recorded warm, unthrottled or from the development server, an animated GIF or a font shipped as `.ttf`, `.otf` or unsubset. It is also a parser-blocking script, an image over 1.5 times its drawn size or a page the back/forward cache refuses. `LOW` is a long section rendered in full below the fold, `content-visibility` above it or more than two high-priority images. It is also a passing LCP with a delay over 10% of it, or a fix reported without a second recording.
 
 **Format.** One finding per root cause, with the measured numbers:
 
@@ -76,4 +93,4 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 1. file:line - [rule-id] what is wrong (LCP, CLS, longest task, the element)
 ```
 
-Then a `Rule | Count | Severity` summary. `Block` when any `HIGH` remains, `Approve` otherwise. Mark a browser that reports no largest paint or layout shift entries as `Not verified` for those budgets.
+Then a `Rule | Count | Severity` summary. `Block` when any `HIGH` remains, `Approve` otherwise. Layout shift and long animation frame entries exist only in Chromium. Mark a recording from another engine `Not verified` for CLS and script attribution.

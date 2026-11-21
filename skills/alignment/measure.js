@@ -306,6 +306,49 @@
     }
   }
 
+  // Shared baseline: single-line text of two sizes side by side in a flex row that is not baseline-aligned.
+  for (const row of elements) {
+    const style = getComputedStyle(row);
+    if (!/flex/.test(style.display) || style.flexDirection.startsWith("column")) continue;
+    if (/baseline/.test(style.alignItems)) continue;
+    const texts = [...row.children]
+      .filter((kid) => isVisible(kid) && !hasSurface(kid) && !kid.matches("button, input, select, textarea, [role=button]"))
+      .map((kid) => {
+        const [node] = textNodes(kid);
+        const ink = node && textInk(node);
+        return ink && { kid, baseline: ink.bottom, size: Number.parseFloat(getComputedStyle(node.parentElement).fontSize) };
+      })
+      .filter(Boolean);
+    if (texts.length < 2) continue;
+    const sizes = texts.map((text) => text.size);
+    if (Math.max(...sizes) - Math.min(...sizes) < 2) continue;
+    const baselines = texts.map((text) => text.baseline);
+    const spread = Math.max(...baselines) - Math.min(...baselines);
+    if (spread >= 1) {
+      add("alignment-shared-baseline", row,
+        `Text at ${sizes.map(round).join(", ")}px in one row with baselines ${round(spread)}px apart`,
+        { sizes: sizes.map(round), spread: round(spread) });
+    }
+  }
+
+  // Whole pixels: a translated box off the pixel grid blurs its text and hairlines at 1x.
+  const offGrid = (value) => Math.abs(value - Math.round(value)) >= 0.25;
+  const fractional = elements.filter((el) => {
+    const transform = getComputedStyle(el).transform;
+    if (transform === "none") return false;
+    const matrix = new DOMMatrixReadOnly(transform);
+    if (matrix.a !== 1 || matrix.b !== 0 || matrix.c !== 0 || matrix.d !== 1) return false;
+    const rect = el.getBoundingClientRect();
+    return offGrid(rect.left + scrollX) || offGrid(rect.top + scrollY);
+  });
+  for (const el of fractional) {
+    if (fractional.some((other) => other !== el && other.contains(el))) continue;
+    const rect = el.getBoundingClientRect();
+    add("alignment-whole-pixels", el,
+      `Translated box at x ${round(rect.left + scrollX)}, y ${round(rect.top + scrollY)}, off the whole-pixel grid`,
+      { x: round(rect.left + scrollX), y: round(rect.top + scrollY), width: round(rect.width), height: round(rect.height) });
+  }
+
   // 7. Concentric radius: a nested surface's radius should be the outer radius minus the inset.
   for (const outer of elements.filter(hasSurface)) {
     const outerRadius = Number.parseFloat(getComputedStyle(outer).borderTopLeftRadius);

@@ -10,13 +10,13 @@ This skill measures whether an interaction stays smooth. It records the interact
 
 ## A trace, never a feeling
 
-The budgets are exact. Every frame lands within one refresh interval, 16.7ms at 60Hz, and no animation frame runs past 50ms while something moves. Every interaction paints its response within 200ms. "Feels smooth" with no numbers is a finding.
+The budgets are exact. Every frame lands within one refresh interval, 16.7ms at 60Hz and 8.3ms at 120Hz. No animation frame runs past 50ms while something moves. Every interaction paints its response within 200ms. "Feels smooth" with no numbers is a finding.
 
 What a motion's values should be belongs to `motion`. Taking a motion apart frame by frame belongs to `deconstruct`. Opening the running result belongs to `verify`.
 
 ## 1. Name the interaction
 
-Write the route, the steps and the moment that matters, such as "open the command palette and type three letters". Throttle the CPU 4× through the browser's emulation call, which stands in for a mid-range phone. A trace on an unthrottled laptop is `frames-throttle-the-cpu`.
+Write the route, the steps and the moment that matters, such as "open the command palette and type three letters". Throttle the CPU 4× through the browser's emulation call, which stands in for a mid-range phone. When DevTools holds a calibrated mid-tier mobile preset, use its rate instead and name it. A trace on an unthrottled laptop is `frames-throttle-the-cpu`.
 
 CPU throttling models a slow processor, not a weak GPU or small memory. Trace blur-heavy or layer-heavy motion on a real mid-range phone over remote debugging, or report it as `Not verified on device`. A blurred sheet traced only on a throttled laptop is `frames-gpu-on-device`.
 
@@ -30,13 +30,19 @@ Compare the recording against the budgets. Dropped frames or a long animation fr
 
 ## 4. Find the cause
 
-Read each long frame's scripts and their forced layout time, then the code they point to.
+Read each long frame's scripts with their forced layout time, then the frame's `render` and `styleAndLayout` time. Then open the code the scripts point to.
+
+An input shows its response before the handler's heavy work runs. Set the pressed state or the typed value, `await scheduler.yield()`, then run the work. A keystroke whose letter waits behind a 300ms filter is `frames-paint-first`.
 
 A layout property animated across a large subtree reflows every frame. `top` or `width` animated on a full-page panel is `frames-compositor-properties`. Move it to `transform` and `opacity`.
 
 Reading layout after writing a style forces the browser to lay out mid-frame. `offsetHeight` read inside a loop that sets `style.height` is `frames-no-forced-layout`. Read every value first, then write.
 
-A loop that runs past 50ms holds every key and click behind it. Yield to input every 50ms with `await scheduler.yield()`, falling back to `setTimeout(0)` where it is missing. Wait for scrolling to stop with the `scrollend` event, not a debounced `scroll` handler. A 5,000-row loop with no yield, or a debounced scroll handler, is `frames-yield-every-50ms`.
+A loop that runs past 50ms holds every key and click behind it. Yield to input every 50ms with `await scheduler.yield()`, falling back to `setTimeout(0)` where it is missing, as in Safari. Wait for scrolling to stop with the `scrollend` event, not a debounced `scroll` handler. A 5,000-row loop with no yield, or a debounced scroll handler, is `frames-yield-every-50ms`.
+
+A `touchstart`, `touchmove` or `wheel` listener on an element holds each scroll until it returns, in case it calls `preventDefault()`. Register it with `{ passive: true }`, and block gestures with `touch-action` instead. A `wheel` listener on a scrolling list without that flag is `frames-passive-listeners`.
+
+A `scroll` listener that writes a style on each event runs on the main thread and trails the scroll. Move the effect onto a CSS scroll timeline, built as `motion` sets out. A progress bar whose `width` a `scroll` listener writes is `frames-scroll-driven`.
 
 A list over about 1,000 rows is virtualized or paginated, and the report says which. Rendering 5,000 rows into one scroller is `frames-virtualize-long-lists`.
 
@@ -65,9 +71,12 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `frames-trace-not-feel` | "The drawer feels smooth" | "Drawer open: 0 dropped frames, worst gap 17ms at 4×" |
 | `frames-hold-the-budget` | 14 dropped frames while the sheet opens | 0 dropped, no animation frame over 50ms |
 | `frames-answer-in-200ms` | A keystroke painting after 340ms, 280ms of it processing | 90ms, with the filter moved off the keystroke |
+| `frames-paint-first` | `onInput` filtering 5,000 rows before the typed letter paints | The value set, `await scheduler.yield()`, then the filter |
 | `frames-compositor-properties` | `animate={{ width: 320 }}` on the full-page sidebar | `animate={{ x: 0 }}` with the width fixed |
 | `frames-no-forced-layout` | `el.style.height = el.scrollHeight + "px"` in a loop over rows | All heights read first, then all written |
 | `frames-yield-every-50ms` | A 5,000-row loop with no yield, and a debounced `scroll` handler | `await scheduler.yield()` every 50ms, and a `scrollend` listener |
+| `frames-passive-listeners` | `list.addEventListener("wheel", onWheel)` that never calls `preventDefault()` | `list.addEventListener("wheel", onWheel, { passive: true })` |
+| `frames-scroll-driven` | A `scroll` listener writing a progress bar's `width` | `animation-timeline: scroll()` driving `transform: scaleX()` on the bar |
 | `frames-virtualize-long-lists` | 5,000 rows rendered into one scroller | The visible rows virtualized, the report saying so |
 | `frames-animate-outside-render` | `setProgress(p)` on every frame | `progress.set(p)` on a motion value bound to `transform` |
 | `frames-no-inherited-variable` | `parent.style.setProperty("--y", d)` on each pointer move | ``el.style.transform = `translateY(${d}px)` `` |
@@ -78,7 +87,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is an interaction over 200ms at the throttle, or a report of smoothness with no recording. `MEDIUM` is dropped frames during motion, a layout property animated on a large subtree, forced layout or a state update per frame. It is also a custom property written on a parent per frame, a frame loop animating while the page is busy or a loop that never yields. It is also a list over 1,000 rows rendered whole, a trace taken without a throttle or blur-heavy motion neither traced on a device nor marked. `LOW` is a large repaint that still holds the budget, a `will-change` left set or a fix reported without a second recording.
+**Severity.** `HIGH` is an interaction over 200ms at the throttle, or a report of smoothness with no recording. `MEDIUM` is dropped frames during motion, a layout property animated on a large subtree, forced layout or a state update per frame. It is also a custom property written on a parent per frame, a frame loop animating while the page is busy or a loop that never yields. It is also heavy work before an input paints, a scroll-blocking listener or a style written from a `scroll` listener. It is also a list over 1,000 rows rendered whole, a trace taken without a throttle or blur-heavy motion neither traced on a device nor marked. `LOW` is a large repaint that still holds the budget, a `will-change` left set or a fix reported without a second recording.
 
 **Format.** One finding per root cause, with the measured numbers:
 
@@ -86,4 +95,4 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 1. file:line - [rule-id] what is wrong (dropped, worst gap, duration)
 ```
 
-Then a `Rule | Count | Severity` summary. `Block` when any `HIGH` remains, `Approve` otherwise. Mark a browser without long animation frame support as `Not verified` for script attribution.
+Then a `Rule | Count | Severity` summary. `Block` when any `HIGH` remains, `Approve` otherwise. Long animation frames exist only in Chromium. Mark a recording from another engine `Not verified` for script attribution.

@@ -1,6 +1,9 @@
 // Run in the page 5s after a cold load (DevTools console, Runtime.evaluate with awaitPromise, or page.evaluate).
-// Reads the load's buffered entries and resolves to { lcp, cls, longTasks, interactions, media, fonts }.
+// Reads the load's buffered entries and resolves to { devServer, navigation, lcp, cls, longTasks, interactions,
+// blockingScripts, media, fonts }.
 // Touch nothing before running it: shifts within 500ms of an input do not count, so a click hides them.
+// Run it again after Back: navigation reads "back_forward" only when the back/forward cache missed,
+// and notRestoredReasons says why.
 (async () => {
   const round = (value) => Math.round(value * 10) / 10;
 
@@ -145,6 +148,29 @@
     (el) => getComputedStyle(el).contentVisibility === "auto" && above(el),
   );
 
+  // Files more than 1.5 times wider than they draw at this pixel ratio. SVG scales freely.
+  const oversized = images
+    .filter((el) => el.complete && el.naturalWidth && !/\.svg(\?|#|$)/i.test(el.currentSrc))
+    .map((el) => ({ el, drawn: el.getBoundingClientRect().width }))
+    .filter(({ el, drawn }) => drawn > 0 && el.naturalWidth > drawn * devicePixelRatio * 1.5)
+    .map(({ el, drawn }) => ({
+      element: describe(el),
+      file: el.naturalWidth,
+      needed: Math.round(drawn * devicePixelRatio),
+    }));
+
+  // Classic scripts in the head that stop the parser until they download and run.
+  const blockingScripts = [...document.head.querySelectorAll("script[src]")]
+    .filter((el) => !el.async && !el.defer && el.type !== "module")
+    .map((el) => el.src);
+
+  // Signs of a development server: hot reload clients and framework development overlays.
+  const devServer = Boolean(
+    document.querySelector(
+      'script[src*="/@vite/client"], script[src*="react-refresh"], script[src*="webpack-hmr"], script[src*="turbopack"], nextjs-portal',
+    ) || window.__NEXT_DATA__?.buildId === "development",
+  );
+
   const fonts = resources
     .filter((entry) => entry.initiatorType === "css" && /\.(woff2?|ttf|otf)(\?|$)/.test(entry.name))
     .map((entry) => ({
@@ -155,6 +181,9 @@
 
   return {
     url: location.href,
+    devServer,
+    navigation: navigation?.type ?? null,
+    notRestoredReasons: navigation?.notRestoredReasons?.reasons?.map((entry) => entry.reason) ?? null,
     viewport: `${innerWidth}×${innerHeight}`,
     ttfb: round(ttfb),
     fcp: fcp === null ? null : round(fcp),
@@ -170,7 +199,9 @@
     interactions: [...interactions.values()]
       .sort((a, b) => b.duration - a.duration)
       .map((entry) => ({ name: entry.name, target: describe(entry.target), duration: round(entry.duration) })),
+    blockingScripts,
     media: {
+      oversized,
       highPriority: images.filter((el) => el.getAttribute("fetchpriority") === "high").map(describe),
       lazyAboveFold: images.filter((el) => el.loading === "lazy" && above(el)).map(describe),
       unsized: unsized.map(describe),

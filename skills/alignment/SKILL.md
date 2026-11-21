@@ -38,11 +38,15 @@ A surface's padding is never smaller than the gap between its children, on the a
 
 A button with a leading or trailing icon takes 2px less padding on the icon side than on the text side, because the icon's box carries its own empty edge. `padding: 0 12px` around a leading icon is `alignment-icon-side-padding`, and it takes `padding: 0 12px 0 10px`. That 2px is an optical offset, exempt from the scale.
 
+Boxes land on whole CSS pixels. Half a pixel stays sharp at 2x but blurs text and 1px borders at 1x. A dialog centred with `translate(-50%, -50%)` at a 301px width, sitting at x 489.5, is `alignment-whole-pixels`. Centre it with `display: grid; place-items: center` on a fixed `inset: 0` wrapper.
+
 ## 4. Check the centres
 
 Text in a control centres on its cap height and baseline, not its line box. Ink sitting 2px low in a button is `alignment-ink-centre`. Trim the box with `text-box: trim-both cap alphabetic` or balance the padding.
 
 An icon beside a label centres on the label's cap height. An icon centred on the line box and sitting 1px low is `alignment-icon-with-label`.
+
+Text of two sizes in one row shares a baseline. A 32px price centred beside its 14px `/month`, their baselines 6px apart, is `alignment-shared-baseline`. Set `align-items: baseline` on the row, and `align-self: center` on any button in it.
 
 Once text can wrap, the row top-aligns with `align-items: flex-start`. An avatar centred beside a three-line name drifts to the middle line, and that is `alignment-top-when-wrapping`.
 
@@ -80,8 +84,10 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `alignment-on-scale` | `padding: 6px` on a 4px scale | `padding: 8px` |
 | `alignment-padding-over-gap` | `padding: 8px` around rows `16px` apart | `padding: 16px` |
 | `alignment-icon-side-padding` | `padding: 0 12px` on a button with a leading icon | `padding: 0 12px 0 10px` |
+| `alignment-whole-pixels` | `left: 50%; transform: translate(-50%, -50%)` on a 301px dialog, landing at x 489.5 | `position: fixed; inset: 0; display: grid; place-items: center` on its wrapper |
 | `alignment-ink-centre` | Label ink 2px low in its button | `text-box: trim-both cap alphabetic` |
 | `alignment-icon-with-label` | Icon centred on the line box | Icon centred on the cap height |
+| `alignment-shared-baseline` | A 32px price and its 14px `/month` centred, baselines 6px apart | `align-items: baseline` on the row |
 | `alignment-top-when-wrapping` | `align-items: center` beside a three-line name | `align-items: flex-start`, the avatar level with the first line |
 | `alignment-optical-glyph` | Play icon centred by its box | Play icon nudged `1px` right, named |
 | `alignment-concentric-radius` | 16px panel in a 16px card at 8px inset | 8px panel radius |
@@ -92,7 +98,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a miss visible at 1x on a primary surface, such as a heading column or a primary button. `MEDIUM` is a 1–2px miss, uneven gaps, padding smaller than the gap, a radius mismatch, a weight imbalance or a hand-built report. It is also a row centred beside text that wraps, or a button padded the same on its icon side and its text side. It is also an inner radius under 2px inside a rounded surface. `LOW` is an off-scale value that still renders aligned.
+**Severity.** `HIGH` is a miss visible at 1x on a primary surface, such as a heading column or a primary button. `MEDIUM` is a 1–2px miss, uneven gaps, padding smaller than the gap, a radius mismatch, a weight imbalance or a hand-built report. It is also a row centred beside text that wraps, or a button padded the same on its icon side and its text side. It is also two text sizes off one baseline, or a box on half a pixel that blurs at 1x. It is also an inner radius under 2px inside a rounded surface. `LOW` is an off-scale value that still renders aligned.
 
 **Format.** One finding per root cause, numbered to match the overlay:
 
