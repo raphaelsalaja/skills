@@ -59,7 +59,7 @@ Ask 2 or 3 in plain words, and keep the answers in the user's own words before t
 
 ## Sliders
 
-Ask these at the first checkpoint when the request names no references and the product has no type, brand or illustrations to read. Ask 3, each as one question with 4 positions and no middle.
+Ask 3 at the first checkpoint, each as one question with 4 positions and no middle.
 
 | Slider | The left leans | The right leans | But not |
 | --- | --- | --- | --- |
@@ -98,8 +98,6 @@ A radius in `style.json` is the largest a corner takes. Each corner takes less w
 | An angle under 60° | Half of the above | A star point of 3.4 at 36° takes 0.425 |
 | 3 or more lines meeting | None | The centre of an asterisk |
 | A pixel direction | None | Every corner |
-
-An override the eye asks for goes in the icon's own script beside the corner it bends, as [formats.md](formats.md#icon-scripts) shows.
 
 After a radius change, reopen stars, bolts, arrowheads, chevrons and small badges first. They break before anything else.
 
@@ -162,8 +160,8 @@ Draw the Regular source first and get it right. Copy its paths into the Ultralig
 The direction question is single-select. The first option is the recommendation, and each option gives the direction, its key values and the reference or signal behind it.
 
 ```
-Round (Recommended) - 2 stroke, round ends, 3 radius - closest to the set you linked and the 10px controls
-Soft - 1.5 stroke, round ends, 2 radius - closer to the regular label weight
+Round (Recommended) - 2 stroke, round ends, 3 radius - matches the 10px controls and the circles in the logo
+Soft - 1.5 stroke, round ends, 2 radius - closest to the set you linked
 Keep the old set's style - 1.25 stroke, butt ends, 1 radius - as measured in the audit
 ```
 

@@ -26,8 +26,7 @@
   };
 
   review.js only assigns window.review. Wrap any helper it needs in a block, since the page declares $ and h.
-  Where the agent draws, .iconset/render.mjs writes review.js from the icon scripts, since a page opened from disk
-  cannot import modules or fetch JSON.
+  Where the agent draws, .iconset/render.mjs writes review.js from the icon scripts.
   font, labelSize and labelWeight are the product's own label type, so rows read as the product does. When that font is not
   installed, copy its files into .iconset/fonts/ and load them from review.js, so rows never fall back:
 

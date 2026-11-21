@@ -2,11 +2,24 @@
 
 The files an icon library keeps beside its drawings. The drawings read the variables, and the build command reads every file after them, so the code and the catalogue never drift.
 
-They sit in the icon source folder, such as `icons/`, and are committed. Only the review page and the unpicked directions live in the ignored `.iconset/`.
+Everything that outlives the review is committed in the icon source folder, such as `icons/`. The review lives in the ignored `.iconset/`. The scripts, `parts/` and `helpers.mjs` exist only where the agent draws.
+
+```
+icons/
+  style.md  style.json  concepts.md  migration.json  icon-spec.md
+  helpers.mjs
+  parts/                one script per registered part
+  src/                  one script per icon
+  svg/                  the exported tree, manifest.json and REPORT.md
+.iconset/
+  index.html  review.js  render.mjs
+  fonts/                the product's font files, when not installed
+  directions/<name>/    each direction's scripts and its own style.json
+```
 
 ## Style
 
-`style.md` sits beside the icons and records how the direction was picked. The voice and the stroke step start from it, and a later redraw reads why.
+`style.md` records how the direction was picked. The voice and the stroke step start from it, and a later redraw reads why.
 
 ```
 ## References
@@ -16,7 +29,7 @@ Disliked: the old set - butt ends and sharp corners. "Too harsh next to the roun
 Change first: tag, sparkle, settings
 
 ## Signals
-Type: humanist sans, stem 1.4 at 14px, contrast 1.1:1, open apertures, round terminals, x-height 0.53
+Type: humanist sans, l stem 1.26 at 14px, contrast 1.1:1, open apertures, round terminals, x-height 0.53
 Labels: 14px regular
 Radius: 10px controls, pill buttons
 Logo: circles and one free curve
@@ -35,7 +48,7 @@ Round, Soft, Keep the old set's style
 Round. Soft read thin beside the labels on a phone.
 
 ## Fill
-Line, filled when selected
+Line, filled when selected, duotone back layer at 0.3
 
 ## Voice
 Must: closed shapes. Broken: a folder with an open top. Fixed: the folder closed along its tab.
@@ -44,24 +57,22 @@ Should: lines run on to the keyline. Broken: a phone stopping short of the keyli
 Standard: no icon takes more attention than the label beside it.
 
 ## Stroke
-16: 1.25, beside the 14px regular labels (l stem 1.31). 1.5 outweighed them.
+16: 1.25, beside the 14px regular labels (l stem 1.26). 1.5 outweighed them.
 24: 1.75, beside the 20px medium title (l stem 2.26). The stroke the user set; 2 drew the eye first.
 
 ## Changes
 First batch: "a bit harsh". Round ends picked over a larger radius and a lighter stroke.
 ```
 
-Once the seed passes, the Voice section is copied into the Voice table of `icon-spec.md`, which owns it from then on. `style.md` keeps the history of why.
-
 ## Variables
 
-`style.json` holds the picked values every drawing reads. Change a value, regenerate the set and reopen the review page. `radius` is the largest a corner takes, and each corner takes less by the radius table in [styles.md](styles.md#radius-by-part).
+`style.json` holds the picked values every drawing reads. Change a value, regenerate the set and reopen the review page.
 
 ```json
 {
   "sizes": {
-    "16": { "stroke": 1.25, "radius": 1.5, "cut": 1.5 },
-    "24": { "stroke": 1.5, "radius": 2, "cut": 2 }
+    "16": { "stroke": 1.25, "radius": 2, "cut": 1.25 },
+    "24": { "stroke": 1.75, "radius": 3, "cut": 2 }
   },
   "caps": "round",
   "joins": "round",
@@ -70,13 +81,11 @@ Once the seed passes, the Voice section is copied into the Voice table of `icon-
 }
 ```
 
-`radius` is the path's own radius at the centre of the stroke. `cut` is the gap where a badge or slash clips a shape, and it is never narrower than that size's stroke. `duotone` is absent when the set has none, and `back` is `opacity` or `colour`.
-
-Before the pick, each direction keeps a `style.json` in this format in `.iconset/directions/<name>/`. The picked one moves beside the icons with the user's overrides.
+`radius` is the largest a corner takes, as [Radius by part](styles.md#radius-by-part) says. `cut` is the gap where a badge or slash clips a shape, and it is never narrower than that size's stroke. `duotone` is absent when the set has none, and `back` is `opacity` or `colour`.
 
 ## Icon scripts
 
-Where the agent draws, each icon is a script that returns its parts from shared helpers. The caller passes the size, the values and the helpers, so one script draws every size, direction and one-change variant. A correction the eye asks for is a named override beside the part it bends, so regenerating the set keeps it.
+Where the agent draws, each icon is a script that returns its parts from shared helpers. The caller passes the size, the values and the helpers, so one script draws every size, direction and one-change variant. A named override sits beside the part it bends, as the star's corners show.
 
 ```js
 // star.mjs
@@ -88,7 +97,7 @@ export default ({ poly, starPoints }) =>
   });
 ```
 
-`helpers.mjs` sits beside the icons. It scales 24-grid coordinates to each size, snaps anchors to the grid step and applies the radius table, so a script names only its shape.
+`helpers.mjs` scales 24-grid coordinates to each size, snaps anchors to the grid step and applies the radius table, so a script names only its shape.
 
 Snap what the helpers compute too: where a rounded corner's arc starts and ends, each corner radius, each curve's end point and each dot's radius. Unsnapped, a 45° corner lands at 10.563 and the seed fails the grid lint. Curve handles stay free.
 
@@ -111,7 +120,7 @@ The build runs the same scripts, so the scripts and the SVG tree never disagree.
 
 ## Parts
 
-Each registered part is a script in `parts/` beside the icons. It draws at a fixed size and position and exports any anchor a badge needs. An icon script imports it, so a change to the part redraws every icon that uses it.
+Each registered part is a script in `parts/`. It draws at a fixed size and position and exports any anchor a badge needs. An icon script imports it, so a change to the part redraws every icon that uses it.
 
 ```js
 // parts/folder.mjs
@@ -124,11 +133,11 @@ import plus from "../parts/plus.mjs";
 export default (k) => [folder(k), plus(k, centre)];
 ```
 
-The review page's Parts section reads the imports, so each part's overview lists exactly the icons built from it.
+`render.mjs` reads the imports to write the review page's Parts section, so each part's overview lists exactly the icons built from it.
 
 ## Concepts
 
-`concepts.md` sits beside the icons. Each concept appears once and each icon answers one concept. The tags carry the synonyms, so they also feed the catalogue's search.
+Each concept appears once and each icon answers one concept. The tags carry the synonyms, so they also feed the catalogue's search.
 
 ```
 | Concept | Icon | Tags | Marks |
@@ -152,19 +161,19 @@ Keep the table this shape, one row per concept, because the review page, the exp
 ```json
 {
   "arrow-up": { "state": "Coupled", "to": "ArrowUp", "codepoint": "U+E001" },
-  "dollar": { "state": "Coupled", "to": "banknote", "references": 1 },
+  "dollar": { "state": "Coupled", "to": "Banknote", "references": 1 },
   "debug-alt": { "state": "Removed", "references": 0 },
   "git-fetch": { "state": "To Do" }
 }
 ```
 
-A set with no codepoints, such as a map of SVG strings, records each coupled icon's references instead. The swap moves each one to the new name.
+A set with no codepoints, such as a map of SVG strings, records each coupled icon's references instead.
 
 ## SVG tree
 
-One folder per icon, named as the project's icon API names it, and one file per drawn style and size. A combination never drawn has no file, so the generated type lists only the sizes that exist.
+One folder per icon, its `concepts.md` name in the casing of the project's icon API, such as `arrow-right` as `ArrowRight`. Each drawn style and size gets one file. A combination never drawn has no file, so the generated type lists only the sizes that exist.
 
-Where the agent draws, the export renders each script at every size in `style.json` and Swaps icons in the morph form. It reads each concept and its tags from `concepts.md`. Where a designer draws, the design tool's export plugin writes the same tree.
+Where the agent draws, the export renders each script at every size in `style.json`, and the Swaps icons that do not spin in the morph form. It reads each concept and its tags from `concepts.md`. Where a designer draws, the design tool's export plugin writes the same tree.
 
 ```
 svg/

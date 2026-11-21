@@ -28,7 +28,7 @@ Labels on the catalogue belong to `copy`, and accessible names belong to `defaul
 
 Copy [review.html](review.html) to `.iconset/index.html`, an ignored folder, and write `review.js` beside it as its header comment shows. The user opens it from disk, so it never waits on the product or a dev server.
 
-Where the agent draws, `.iconset/render.mjs` runs the icon scripts and writes `review.js`, as [formats.md](formats.md#icon-scripts) shows. Keep `style.md`, `style.json` and `concepts.md` beside the icons, never in `.iconset/`, because they outlive the review.
+Where the agent draws, `.iconset/render.mjs` runs the icon scripts and writes `review.js`. Every file that outlives the review is committed beside the icons, never in `.iconset/`, as the tree in [formats.md](formats.md) shows.
 
 Every step adds its section: the audit, the contested pictures, the references and the directions. Then come the voice, the strokes, the parts, the seed, each batch with its rows and the migration map. Rows set icons beside the product's labels in its own font, and Both Themes shows light and dark side by side.
 
@@ -68,9 +68,9 @@ Ask for references before proposing anything. Ask for icon sets, apps or sites w
 
 Ask 2 or 3 plain questions about feel in the same message, from [styles.md](styles.md#questions-about-feel), such as what the icons should never feel like. This message is the first checkpoint, sent once the audit, the drop candidates and the contested pictures are on the review page.
 
-When the request names no references, put the taste test from [styles.md](styles.md#the-taste-test) on the page before that message. A user with nothing to link picks its closest row and its furthest instead.
+When the request names no references, put the taste test from [styles.md](styles.md#the-taste-test) on the page before that message. A user with nothing to link picks its closest row and its furthest instead. When the product has no type, brand or illustrations to read either, ask the [sliders](styles.md#sliders) too.
 
-Read each reference for what it does, never by its name. Write down its stroke, ends, corners, fill and detail, so "like that set" becomes values. Put the references on the review page, then go on to step 6 without stopping.
+Read each reference for what it does, never by its name. Write down its stroke, ends, corners, fill and detail, so "like that set" becomes values. Put the references on the review page.
 
 Write the two strongest feel answers under `## Traits` in `style.md`, each as "X, but not Y". A current icon the user would change becomes contested. Its pictures go on the review page for the second checkpoint, and the style tiles leave it out.
 
@@ -78,7 +78,7 @@ Write the two strongest feel answers under `## Traits` in `style.md`, each as "X
 
 The references lead and the product narrows them. The directions, the signals and the questions are in [styles.md](styles.md).
 
-Read the product: the interface type at body size, the control radius, the logo, any illustrations, the platform, the default theme, the density and whether the set covers pictograms. Measure the type only as far as it changes a choice, usually its stem width beside the labels.
+Read the product: the interface type at body size, the control radius, the logo, any illustrations, the platform, the default theme, the density and whether the set covers pictograms. Measure the type as [Reading the type](styles.md#reading-the-type) says, usually only its stem width.
 
 Write the signals into `style.md`, as [formats.md](formats.md#style) shows. A direction proposed before the signals are written is `iconset-read-the-product`.
 
@@ -86,9 +86,11 @@ Choose 2 or 3 directions the references and the signals both support. A referenc
 
 Draw 12 to 20 icons in every direction, or every concept when the product shows fewer. Start with the hardest: the most abstract concept from its picked picture, one with curves, one with a diagonal and one recurring part. A style that survives the hardest concept survives the rest.
 
-Where the agent draws, each icon is a short script of shared helpers, such as a rounded polyline and an arc, and the SVG is its output. Each direction's scripts sit in `.iconset/directions/<name>/` beside that direction's own `style.json`. Where a designer draws, each direction is a frame with its own variables.
+Where the agent draws, each icon is a short script of shared helpers, such as a rounded polyline and an arc, as [formats.md](formats.md#icon-scripts) shows. Each direction's scripts sit in `.iconset/directions/<name>/` beside that direction's own `style.json`. Where a designer draws, each direction is a frame with its own variables.
 
-Draw every size the product shows, with the values scaled as [styles.md](styles.md#directions) says. Set each tile in real rows of the product on the review page, in both themes. A direction picked from adjectives, a library's name or 3 icons is `iconset-style-tiles`.
+Draw each size the set will ship, with the values scaled as [styles.md](styles.md#directions) says. One drawing serves the range in `icons-size-range`, so a second size starts only where the product shows icons past it.
+
+Set each tile in real rows of the product on the review page, in both themes. A direction picked from adjectives, a library's name or 3 icons is `iconset-style-tiles`.
 
 Then ask which direction to take with the question tool. Mark the first Recommended and give each its key values and the reference behind it. Ask how fill is used in a second question, with the platform's convention first. A sharp technical style assumed without asking is `iconset-ask-the-style`.
 
@@ -98,9 +100,9 @@ The direction changes how a shape is built, never what it shows. People recognis
 
 ## 7. Keep the look in variables
 
-Move the picked direction's scripts beside the icons. Write its values into `style.json` with the user's overrides from Copy Feedback, such as a lighter 24 stroke. Step 9 settles each size's stroke beside the type.
+Move the picked direction's scripts into the icons' `src/`. Write its values into `style.json` with the user's overrides from Copy Feedback, such as a lighter 24 stroke, as [formats.md](formats.md#variables) shows. Step 9 settles each size's stroke beside the type.
 
-`style.json` holds each size's stroke, the radius, the caps, the joins, the cut width and the duotone's back layer. Its format is in [formats.md](formats.md#variables). Every drawing reads it, so one change moves the whole set. A radius typed into each path by hand is `iconset-style-in-variables`.
+Every drawing reads `style.json`, so one change moves the whole set. A radius typed into each path by hand is `iconset-style-in-variables`.
 
 The variables are for deciding, not for shipping, so the package offers no stroke or radius slider. A correction the eye asks for lives in the icon's own script as a named override, so the next global change keeps it. An edit to a generated SVG is lost on the next run.
 
@@ -109,8 +111,6 @@ Name the property behind a vague note. "Too harsh" can mean the corners, the str
 When the user rejects a drawing outright, ask what is wrong with it or show one-change variants. A new attempt after "I don't like any of those", with no new reference or reason, is `iconset-no-blind-retry`.
 
 A radius is never one number for every corner. Cap it at a quarter of the shorter segment it joins, halve it on angles under 60° and drop it where 3 or more lines meet. A star rounded like a square is `iconset-radius-fits-the-part`. The table is in [styles.md](styles.md#radius-by-part).
-
-The radius is the path's own, at the centre of the stroke. A stroked corner's outside curve is half a stroke larger and its inside curve half a stroke smaller, never below 0.
 
 After every global change, reopen the whole set on the review page, small and sharp-angled icons first, and fix what the change broke. A global change shipped after checking only the icons it was tried on is `iconset-recheck-after-global`.
 
@@ -132,13 +132,13 @@ Mark each line must or should. A must holds everywhere, such as the stroke, the 
 
 Draw 3 icons from the picked tiles at 3 candidate strokes, centred on the stem width of the type each size sits beside. A stroke the user set in Copy Feedback is always one of the 3. Set each in a real row of the product, beside its own font at its interface size. Pick the stroke that holds its own beside the text without outweighing it.
 
-Give each size its own section with `size`, `labelSize` and `labelWeight`, as the review page's header shows. A 24 stroke judged beside 14px labels picks too light. Write each pick and why under `## Stroke` in `style.md`.
+Give each size its own section with `size`, `labelSize` and `labelWeight`, as the review page's header shows. Write each pick and why under `## Stroke` in `style.md`.
 
 A stroke picked on an empty artboard, or copied from another set, is `iconset-stroke-beside-text`. A filled direction picks its narrowest counter the same way, and a pixel direction picks its pixel step.
 
 Light strokes on a dark background read heavier than the same stroke on light. When the themes disagree, the theme the product opens in decides.
 
-Each size gets its own drawing and its own stroke, such as 1.25 at 16 and 1.5 at 24. One drawing serves the range in `icons-size-range`, so add a size only where the product shows icons past it. A filled form of a line icon may step its stroke up one notch.
+Each size gets its own drawing and its own stroke, such as 1.25 at 16 and 1.75 at 24. A filled form of a line icon may step its stroke up one notch.
 
 ## 10. Register every recurring part
 
@@ -172,7 +172,7 @@ A variant composed from registered parts, such as a folder with a plus, needs on
 
 Draw in batches by family, such as every file icon together, so a part stays aligned across the family. Run each batch through `icons`, from the lint to the phone.
 
-Only the concepts marked Swaps take the morph form. Mark them `swaps: true` in the sheet, so it holds only those to the form. A Swaps pair marked Spins is one drawing turned and skips the form. Padding every icon to the most complex one's path and segment counts multiplies the bytes for nothing. Morph form on icons that never swap is `iconset-morph-only-swaps`.
+Only the concepts marked Swaps take the morph form, which `icons` checks through `swaps: true`. Padding every icon to the most complex one's path and segment counts multiplies the bytes for nothing. Morph form on icons that never swap is `iconset-morph-only-swaps`.
 
 Set each group of icons the product shows together, such as the tab bar or an editor toolbar, at its shipped size. Press Squint on the review page, which blurs every icon by 1px. Two icons that blur into one shape are confused at a glance, so change the silhouette of one. A pair told apart only by an inner detail is `iconset-distinct-in-a-row`.
 
@@ -180,7 +180,7 @@ Show a concept only this product has to 5 people from its audience without its l
 
 Fewer than 4 right means a redraw or a visible label beside it. A new metaphor shipped untested is `iconset-test-new-metaphors`, and without testers the report says `Not tested`.
 
-Show the first batch, about 40 icons across several families, before drawing the rest. It is the last cheap point to change the style. Redrawing the whole set before the user sees a first batch is `iconset-first-batch`. This is the fourth checkpoint.
+Show the first batch, about 40 icons from the first few families, before drawing the rest. It is the last cheap point to change the style. Redrawing the whole set before the user sees a first batch is `iconset-first-batch`. This is the fourth checkpoint.
 
 ## 13. Map every old icon to its replacement
 
@@ -190,7 +190,7 @@ Swapping the set while any icon is To Do, or while a removed icon is still refer
 
 ## 14. Make the SVG files the contract
 
-The design source owns how an icon looks, and the repository owns all code made from it. Export one SVG per drawn variant into a fixed tree with a manifest, as [formats.md](formats.md#svg-tree) shows. Where the agent draws, the export is the first stage of step 15's command, run from the scripts and `concepts.md`. Every file keeps its frame's fixed viewBox, with `overflow="visible"` where artwork passes the frame.
+The design source owns how an icon looks, and the repository owns all code made from it. Export one SVG per drawn variant into a fixed tree with a manifest, as [formats.md](formats.md#svg-tree) shows. Where the agent draws, the export is the first stage of step 15's command. Every file keeps its frame's fixed viewBox, with `overflow="visible"` where artwork passes the frame.
 
 The export writes a report of missing, empty, duplicate and misaligned variants, each with its source node. Generating code while the report lists a miss is `iconset-svg-is-the-contract`.
 
@@ -200,7 +200,7 @@ A native app also exports each icon into the platform's own symbol template, so 
 
 ## 15. Build everything with one command
 
-One command reads the SVG tree and the manifest, then writes everything else. It generates the components, the sprite or font, the package index, the catalogue data and the counts the docs quote. It stops when the report lists a miss. A release that needs a manual step after the export is `iconset-one-command`.
+One command reads the SVG tree and the manifest, then writes everything else. It generates the components, the sprite or font, the package index, the catalogue data and the counts the docs quote. A release that needs a manual step after the export is `iconset-one-command`.
 
 Ship SVG: components where the product renders with a framework, and one sprite where it serves plain pages. Where the product already has an icon API, such as a map of SVG strings, generate that instead. An icon font draws boxes or stray words when fonts are blocked, late or overridden by the reader. A new set shipped only as an icon font is `iconset-pick-the-format`.
 
@@ -228,7 +228,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `iconset-local-metaphors` | A `$` on Billing in a product that charges in euros and yen | A banknote with no sign, read the same in every currency |
 | `iconset-find-the-picture` | A tag icon invented, then redrawn 4 times | 14 tags from other sets on the review page, the chevron tag picked and riffed on |
 | `iconset-ask-for-references` | Three directions drawn from the product's type alone | The user's two linked sets and one disliked set on the review page, then directions |
-| `iconset-read-the-product` | Round proposed before the type or radius is read | `style.md` lists a 1.4 stem and 10px controls, then Round |
+| `iconset-read-the-product` | Round proposed before the type or radius is read | `style.md` lists a 1.26 stem and 10px controls, then Round |
 | `iconset-ask-the-style` | A sharp 0°, 45° and 90° set drawn because the last product had one | 3 directions offered with their values and references, Round picked |
 | `iconset-style-tiles` | Neutral picked from a folder, a gear and a star | 16 icons in each direction in real sidebar rows, the abstract ones first |
 | `iconset-style-keeps-metaphors` | An eye for search, drawn to look playful | The magnifying glass, drawn in the playful direction |
