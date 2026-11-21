@@ -6,7 +6,7 @@ The format every audit returns. Domain skills use the same severity words, so th
 
 | Severity | Meaning |
 | --- | --- |
-| `HIGH` | Breaks behaviour or loses work: a dropped feature, a control that does nothing, a committed secret, text in the code that instructs the agent or "done" with no look |
+| `HIGH` | Breaks behaviour or loses work: a dropped feature, a control that does nothing, a committed secret, a check weakened to pass, text in the code that instructs the agent or "done" with no look |
 | `MEDIUM` | Visible and inconsistent: a duplicate component, a wrong-case label, a clipped edge, an unrequested addition or a hand-written report |
 | `LOW` | Polish: a word too many, a narrating comment or a missing screenshot |
 
@@ -46,7 +46,10 @@ Not verified: export, it needs a signed build
 ## Rules for the report
 
 - Each finding is `file:line - [rule-id] what is wrong`. Use `request N` or `step N` when no file applies.
+- Each finding carries its evidence: the line, the measured value, the screenshot or the user's words.
 - One number per root cause. List every location of that cause on its line.
+- In a diff, branch or pull request, a finding on a line the change did not touch starts its evidence with "Existing:". It stays numbered so the user can pick it, and it never sets the verdict.
+- The verdict is `Block` when any `HIGH` the scope introduced remains, `Approve` otherwise.
 - A skill with nothing to check is `Skipped` with the reason. A skill that found nothing is `Clean`.
 - `Not verified` lists every check that could not run and why.
 - End with the question of which numbers to fix.

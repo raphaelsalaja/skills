@@ -40,6 +40,8 @@ const lineCues = [
   ["copy-no-ellipsis", /[A-Za-z](\.\.\.|\u2026)(?=["'`<\s]|$)/, (match, line) => !/placeholder/i.test(line)],
   ["copy-no-em-dash", /\u2014|&mdash;/],
   ["color-role-tokens", /(?<![\w-])(color|background|background-color|border-color|fill|stroke):\s*#[0-9a-fA-F]{3,8}\b|\b(text|bg|border|fill|stroke)-\[#[0-9a-fA-F]{3,8}\]|var\(--(gray|grey|neutral|slate|zinc|red|blue|green)-\d+\)/, (match, line, file) => !tokenFile.test(basename(file)) && !/^\s*--[\w-]+:/.test(line)],
+  ["verify-no-weakened-checks", /\b(it|test|describe)\.(skip|only)\(|\bx(it|test|describe)\(|@ts-ignore\b|eslint-disable/],
+  ["restraint-no-leftover-debug", /\bconsole\.(log|debug)\(|^\s*debugger;?\s*$/, (match, line, file) => !/\.(mjs|cjs)$/.test(file) && !/(^|\/)(scripts?|bin)\//.test(file)],
   ["audit-content-is-data", /\b(ignore|disregard)\s+(all\s+|any\s+)?(previous|prior|above|earlier)\s+instructions\b|\b(ai|llm|agent|assistant|reviewer)s?\b[^.\n]{0,40}\b(skip this file|do not (review|report|flag))\b/i],
 ];
 
@@ -57,6 +59,14 @@ const tagCues = [
   ["vitals-size-media", mediaTag, (tag) => !/\b(width|height|fill)\b|aspect-ratio|(?<![\w-])(aspect|size|[wh])-(\d|\[|full|screen|square|video|px)/.test(tag)],
 ];
 
+// Packages that do the same job. Two from one group in a manifest is a second library for one job.
+const sameJob = [
+  ["moment", "dayjs", "date-fns", "luxon"],
+  ["axios", "ky", "got", "superagent", "node-fetch"],
+  ["lodash", "lodash-es", "underscore", "ramda"],
+  ["uuid", "nanoid", "cuid", "@paralleldrive/cuid2"],
+  ["classnames", "clsx"],
+];
 const iconPackages = ["lucide-react", "@heroicons/react", "react-icons", "@tabler/icons-react", "@phosphor-icons/react", "phosphor-react", "@radix-ui/react-icons", "react-feather", "@iconify/react", "@mui/icons-material", "@fortawesome/react-fontawesome"];
 
 const hits = [];
@@ -90,6 +100,10 @@ function readPackage(path) {
   const names = Object.keys({ ...manifest.dependencies, ...manifest.devDependencies });
   const icons = iconPackages.filter((name) => names.includes(name));
   if (icons.length > 1) add("reuse-one-standard", path, 1, `${icons.length} icon packages: ${icons.join(", ")}`);
+  for (const group of sameJob) {
+    const present = group.filter((name) => names.includes(name));
+    if (present.length > 1) add("reuse-one-library-per-job", path, 1, `${present.length} packages for one job: ${present.join(", ")}`);
+  }
 }
 
 function scan(file, text) {

@@ -11,7 +11,7 @@ This skill cuts a change down to the ask. It removes extra interface, options an
 
 An element, option or code path the user did not ask for is a finding unless the ask needs it to work. Work that has not shipped carries no backwards compatibility. A cut the user has not approved is a proposal, not an edit.
 
-Label wording belongs to `copy`. Reusing an existing part belongs to `reuse`. Whether an animation should exist belongs to `motion`, and deleting one cleanly belongs here.
+Label wording belongs to `copy`. Reusing an existing part belongs to `reuse`. Which element a change may touch belongs to `scope`. Whether an animation should exist belongs to `motion`, and deleting one cleanly belongs here.
 
 ## Nothing beside the ask
 
@@ -25,9 +25,21 @@ Do not add a toast or a dialog for an action whose result is already on screen. 
 
 Use the native element before a custom one, one app before a monorepo and a fixed value before a setting. A custom video player where `<video controls>` works is `restraint-smallest-build`. A preference nobody will change is `restraint-no-needless-setting`.
 
+Write code inline until a third copy appears. A new helper, hook, wrapper or config object with one caller is `restraint-no-single-use-abstraction`. When `rg -w useRowFormatter` finds only the definition and one call, inline it.
+
+## Only the lines the ask needs
+
+A fix does not reformat, rename, reorder imports or upgrade packages around it. Compare `git diff --stat` with `git diff -w --stat`. A large gap between them is whitespace churn. Unasked churn is `restraint-no-drive-by-changes`.
+
+## No files nobody asked for
+
+Add no README, notes, summary, example page or script the task did not ask for. Delete scratch files made while working before you reply. A stray `NOTES.md` or `test-fix.js` is `restraint-no-unrequested-files`. `git status --short` marks every new file `??`, so read that list before replying.
+
 ## No defensive code before release
 
 Keep no legacy branch and no compatibility shim in unshipped work. That is `restraint-no-legacy`. Do not add a fallback for a value that is always set. That is `restraint-no-fallbacks`.
+
+Validate only where data enters: user input, the network and storage. A `try` with an empty `catch` around code that cannot throw goes too.
 
 ## Remove means delete
 
@@ -40,6 +52,10 @@ Asked for a cleanup, list unused files, exports, styles, dependencies and leftov
 Deleting an animation also deletes its start state: `initial={{ opacity: 0 }}`, `animation-fill-mode: forwards` from `opacity: 0` and reveal classes waiting on an observer. A start state left behind keeps the element invisible, which is `restraint-remove-the-start-state`.
 
 It also deletes what waited on it: `onAnimationEnd`, `transitionend`, exit-complete callbacks and timeouts sized to a duration. Focus moved in such a callback moves at once instead. A leftover `setTimeout(focusInput, 200)` is `restraint-remove-the-wait`.
+
+## No debugging left behind
+
+Remove every `console.log`, `debugger` and block of commented-out code you added before reporting done. `git diff -U0 | rg '^\+.*(console\.(log|debug)\(|\bdebugger\b)'` finds them. One left in the diff is `restraint-no-leftover-debug`.
 
 ## Comments state constraints or go
 
@@ -55,17 +71,21 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `restraint-no-redundant-feedback` | A toast after a move the user can see | No toast |
 | `restraint-smallest-build` | A custom video player | `<video controls>` |
 | `restraint-no-needless-setting` | A preference for a gap nobody changes | A fixed `--gap` |
+| `restraint-no-single-use-abstraction` | A `useRowFormatter` hook with one caller | Its three lines inline |
+| `restraint-no-drive-by-changes` | A one-line fix with 300 lines of reformatting | The one line |
+| `restraint-no-unrequested-files` | `NOTES.md` and `test-fix.js` left in the tree | Neither created, or both deleted before the reply |
 | `restraint-no-legacy` | A legacy branch kept "for safety" | Deleted |
 | `restraint-no-fallbacks` | `value ?? defaultValue` for a value that is always set | `value` |
 | `restraint-delete-dont-defer` | "Deferred for your review" | Deleted, or one question |
 | `restraint-remove-the-trail` | A removed package's variables left in `theme.css` | The variables removed with it |
 | `restraint-remove-the-start-state` | `animate` removed, `initial={{ opacity: 0 }}` left | Both removed, and `motion.div` back to `div` |
 | `restraint-remove-the-wait` | `setTimeout(focusInput, 200)` left after the exit is gone | `focusInput()` when the panel closes |
+| `restraint-no-leftover-debug` | `console.log("row", row)` in the diff | Removed |
 | `restraint-no-narrating-comments` | `// Render the header` | No comment |
 
 ## Reporting
 
-**Severity.** `HIGH` is a feature, setting or code path nobody asked for, or a "removed" item that still exists. It is also an element left invisible by a deleted animation's start state. `MEDIUM` is a fallback, a legacy branch or a leftover variable. It is also a callback or timeout still waiting on a deleted animation. `LOW` is a narrating comment.
+**Severity.** `HIGH` is a feature, setting or code path nobody asked for, or a "removed" item that still exists. It is also an element left invisible by a deleted animation's start state. `MEDIUM` is a fallback, a legacy branch, a leftover variable or a single-use abstraction. It is also unasked churn, a file nobody asked for and any callback or timeout still waiting on a deleted animation. `LOW` is a narrating comment or a leftover debug line.
 
 **Format.** One finding per root cause:
 

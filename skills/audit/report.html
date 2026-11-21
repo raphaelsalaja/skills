@@ -24,7 +24,7 @@
     notVerified: ["Export, it needs a signed build"]
   };
 
-  `verdict` is "Block" when any HIGH remains and "Approve" otherwise. `severity` is HIGH, MEDIUM or LOW. Number findings in rank order: severity, then reach. A location is file:line, or "request 2" when no file applies. Each skill has `checked` with what was inspected, or `skipped` with the reason. `notVerified` lists every check that could not run, or stays empty. Titles take Title Case, such as "Reset Does Nothing".
+  `verdict` is "Block" when any HIGH the scope introduced remains and "Approve" otherwise. In a diff scope, `evidence` for a break on an untouched line starts with "Existing:". `severity` is HIGH, MEDIUM or LOW. Number findings in rank order: severity, then reach. A location is file:line, or "request 2" when no file applies. Each skill has `checked` with what was inspected, or `skipped` with the reason. `notVerified` lists every check that could not run, or stays empty. Titles take Title Case, such as "Reset Does Nothing".
 -->
 <html lang="en">
   <head>
