@@ -5,13 +5,13 @@ description: Designs every state a screen can enter, from first run and filtered
 
 # States
 
-This skill holds what a screen shows when it is not full of good data. It covers empty screens, missing values, errors, retries, rollbacks, stale data, denied access, finished tasks and the end of a list.
+This skill holds what a screen shows when it is not full of good data. It covers empty screens, missing values, errors, retries, rollbacks, edit conflicts, stale data, denied access, finished tasks and the end of a list.
 
 ## Every state is designed or ruled out
 
 A surface is done when each state it can enter is designed, or ruled out in writing with a reason. A blank region, a raw `undefined` or a screen with no way forward is a finding in any style.
 
-Loading delays, skeletons, busy buttons, undo, omitted fields and live regions belong to `defaults`. How fields accept and check input belongs to `forms`. The words in each state belong to `copy`. Flags that allow impossible combinations belong to `invariants`. Showing every state on one page belongs to `lab`.
+Loading delays, skeletons, busy buttons, undo, omitted fields and live regions belong to `defaults`. How fields accept and check input belongs to `forms`, and so does the prompt before leaving a changed form. The words in each state belong to `copy`. Flags that allow impossible combinations belong to `invariants`. Showing every state on one page belongs to `lab`.
 
 ## List the states before building
 
@@ -63,6 +63,14 @@ A failure in the background, such as an autosave or a sync, leaves a marker that
 
 A 403, a 404 or a deleted record says what happened and offers a way out, such as back to the list. A blank page with only a status code is `states-no-dead-end`.
 
+## A crash stays in its region
+
+A rendering error in one region shows that region's failed state with Retry, and the rest of the page keeps working. Wrap each independent region in its own error boundary, or the framework's per-route equivalent. One boundary at the root that blanks the app over a broken chart is `states-contain-crashes`.
+
+## Each failure has its own way forward
+
+Reads retry on their own up to 3 times, at 1, 2 and 4 seconds, before any error shows. Writes retry on their own only with an idempotency key, so a payment never runs twice. After that, each kind of failure gets its own path. Offline waits and retries on the `online` event. A 5xx offers Retry. A 429 counts down its `Retry-After` seconds, then offers Retry. A 401 asks to sign in again and keeps the input. One "Something went wrong" for every failure is `states-failure-by-kind`.
+
 ## A failed part degrades quietly
 
 A count or badge whose data failed to load is hidden or marked Unavailable, never shown as `0`. One page shows at most 5 degraded-service messages and groups the rest into one, such as "3 more services are unavailable". An unread badge reading `0` because its request failed is `states-degrade-quietly`.
@@ -70,6 +78,8 @@ A count or badge whose data failed to load is hidden or marked Unavailable, neve
 ## Failure keeps the input and the layout
 
 A failed submit keeps everything the user typed. A form that clears on a server error is `states-keep-input`.
+
+Free text longer than a line, such as a comment or a post, saves as a draft while it is typed, to `localStorage` or the server. A reload, a crash or a closed tab brings it back with a quiet Draft Restored marker. The draft clears once it is sent. A half-written comment gone after an accidental reload is `states-draft-survives-reload`.
 
 An error appears without moving what sits around it. Reserve the line its message takes, so the submit button stays under the pointer. A button pushed down by an error message is `states-error-holds-layout`.
 
@@ -90,6 +100,10 @@ When an optimistic change fails, the value returns and keeps a failure marker wi
 The confirmed value renders the same as the optimistic one, so a server id or timestamp does not flicker in.
 
 A delete waits for the server, or keeps the row dimmed through its undo window. A row that vanishes, then returns when the request fails, is `states-no-optimistic-delete`.
+
+## Conflicts show, never overwrite
+
+A save on a record someone changed since it loaded never overwrites in silence. Send the version with the save, such as an `If-Match` header, and answer a 412 with who changed it and when. Offer Reload and Overwrite, never a silent merge. A teammate's edit lost to a later save is `states-show-conflicts`.
 
 ## Values that age say when
 
@@ -125,6 +139,8 @@ A completion page shows the reference number, what happens next and when, such a
 
 A list that has loaded everything says so at its end. A feed that stops loading with no end marker reads as broken, which is `states-list-terminus`.
 
+A next page that fails keeps every loaded item and shows Retry where the next items would start. A feed that falls back to a full-page error when page 4 fails is `states-next-page-retry`.
+
 A list holding exactly one page of items shows no empty page 2. "Showing 40 of 40" hides the pagination, and a list of one item still looks intentional. An empty page 2 after exactly 40 items is `states-page-boundary`.
 
 New items arriving above the viewport do not push the content down. Hold the scroll and offer a `3 New` button. A feed that jumps as items arrive is `states-no-push-from-above`.
@@ -152,14 +168,18 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `states-error-at-the-source` | A toast saying the list failed to load | The message and `Retry` inside the list |
 | `states-persistent-background-error` | "Autosave failed" in a toast that expires | A marker beside the title until the save succeeds |
 | `states-no-dead-end` | A blank page reading `404` | "This project was deleted" with `Back to Projects` |
+| `states-contain-crashes` | One `<ErrorBoundary>` around `<App />`, the whole page blank when a chart throws | A boundary per region, the chart's card showing its failure and `Retry` |
+| `states-failure-by-kind` | "Something went wrong" for an offline device, a 500 and a 429 alike | Offline retrying on `online`, `Retry` for the 500 and "Try again in 30s" for the 429 |
 | `states-degrade-quietly` | An unread badge reading `0` after its request failed | The badge hidden or marked Unavailable, and past 5 failures one grouped message |
 | `states-keep-input` | `reset()` in the submit's `catch` | The values kept and the error shown |
+| `states-draft-survives-reload` | A comment box held only in `useState` | The text saved to `localStorage` under the thread's id, restored on load and cleared on send |
 | `states-error-holds-layout` | The submit button pushed down by an error line | The error's line reserved below the field |
 | `states-offer-the-fix` | "Check the email domain" under `gmial.com` | "Did you mean gmail.com?" with the domain as a button |
 | `states-contained-retry` | Retry dropping the region back to a skeleton | The content kept, the indicator inside `Retry` |
 | `states-escalate-repeats` | The same error on the fifth try | A new message and another path on the third |
 | `states-visible-rollback` | A toggle flipping back with no message | The old value with a failure marker and `Retry` |
 | `states-no-optimistic-delete` | A row removed, then restored when the request fails | The row dimmed until the server confirms |
+| `states-show-conflicts` | `PUT /doc/42` overwriting a teammate's edit made a minute earlier | `If-Match: "v7"`, and on 412 "Sam Lee edited this 1 minute ago" with `Reload` and `Overwrite` |
 | `states-mark-stale` | A cached balance shown as current while offline | "Updated 30 minutes ago" beside the balance |
 | `states-offline-actions` | `Send` failing silently offline | `Send` queueing the message, marked "Not sent yet" |
 | `states-who-can-grant` | "You don't have access" | "Ask Sam Lee, an owner, for access" with `Request Access` |
@@ -170,14 +190,15 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `states-loading-ends` | A loading toast that spins forever when the request hangs | The toast ending in success or failure, failing after 30s |
 | `states-confirmation-next` | "Success!" alone, gone on reload | Order 4821, "We'll email you within 5 days", `Download PDF` and `View Orders`, at a URL that reloads |
 | `states-list-terminus` | A feed that stops with nothing at its end | An end marker after the last item |
+| `states-next-page-retry` | Page 4 failing and the feed replaced by an error screen | Pages 1–3 kept, `Retry` after the last loaded item |
 | `states-page-boundary` | An empty page 2 after exactly 40 items | "Showing 40 of 40" with no pagination |
 | `states-no-push-from-above` | A feed that jumps as new posts arrive | Scroll held, with a `3 New` button |
 
 ## Reporting
 
-**Severity.** `HIGH` loses data or the user's way forward. That is a filtered-to-zero screen offering creation, input cleared on failure, a dead end or a silent rollback. It is also a raw `undefined` or `NaN`, a background failure shown only in a toast, an offline action that fails silently or an approval hidden behind a spinner. It is also an empty screen during loading, user text rendered as HTML, a session that ends without warning or a loading indicator that never ends.
+**Severity.** `HIGH` loses data or the user's way forward. That is a filtered-to-zero screen offering creation, input cleared on failure, a dead end or a silent rollback. It is also a raw `undefined` or `NaN`, a background failure shown only in a toast, an offline action that fails silently or an approval hidden behind a spinner. It is also an empty screen during loading, user text rendered as HTML, a session that ends without warning or a loading indicator that never ends. It is also a crash in one region that blanks the page, a teammate's edit overwritten in silence or a typed draft lost to a reload.
 
-`MEDIUM` is a component with only its populated state, one screen for three empty states or a region that drops its frame. It is also an error away from its source, an error that moves the layout or a retry that collapses the region. It is also an error that never escalates, an optimistic delete, an unmarked stale value, a permission screen with no path, invented progress or a feed pushed from above. It is also a hidden tab, broken initials, a collapsed blank title, overflowing tags, actions offered on your own row, an uncounted long task or an empty last page. It is also a failed count shown as `0`, more than 5 degraded-service messages or a completion page with no reference, next step or reload.
+`MEDIUM` is a component with only its populated state, one screen for three empty states or a region that drops its frame. It is also an error away from its source, an error that moves the layout or a retry that collapses the region. It is also an error that never escalates, an optimistic delete, an unmarked stale value, a permission screen with no path, invented progress or a feed pushed from above. It is also a hidden tab, broken initials, a collapsed blank title, overflowing tags, actions offered on your own row, an uncounted long task or an empty last page. It is also a failed count shown as `0`, more than 5 degraded-service messages or a completion page with no reference, next step or reload. It is also one message for every kind of failure, or a failed next page that drops the loaded list.
 
 `LOW` is an image with no fallback, a list with no end, statuses never seen together or a known fix left to retyping.
 

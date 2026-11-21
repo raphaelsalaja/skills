@@ -25,7 +25,7 @@ Code for the defaults in `SKILL.md`. Swap the literal values for the project's t
 }
 ```
 
-For a horizontal scroller, use `to right`. Where content only ever scrolls one way, as in a chat log, fade only the end it scrolls toward.
+For a horizontal scroller, use `to right`. Where content only ever scrolls one way, as in a chat log, fade only the end it scrolls toward. Pad the scroller by the fade's 24px at each faded end, so nothing sits under the fade at rest.
 
 ## Room for shadows
 
@@ -55,7 +55,7 @@ The negative margin keeps the scroller's content aligned with its neighbours whi
 }
 ```
 
-Pair it with the scroll fade on the horizontal axis so the hidden scrollbar still reads as more content.
+Pair it with the scroll fade on the horizontal axis so the hidden scrollbar still reads as more content. A code block holding only text also needs a keyboard way in, which `keyboard` covers.
 
 ## Layered shadow
 
@@ -103,20 +103,32 @@ Without `content: ""` the pseudo-element never renders. Without `position: relat
 
 ```css
 .content-image {
-  outline: 1px solid rgba(0, 0, 0, 0.1);
+  outline: 1px solid light-dark(rgb(0 0 0 / 0.1), rgb(255 255 255 / 0.1));
   outline-offset: -1px;
-}
-
-@media (prefers-color-scheme: dark) {
-  .content-image {
-    outline-color: rgba(255, 255, 255, 0.1);
-  }
 }
 ```
 
-Use the project's dark-mode selector in place of the media query. Keep the outline pure black or pure white, because a tinted neutral shows as a coloured fringe.
+`light-dark()` follows the root's `color-scheme`, so the theme switch drives it with no second selector. Keep the outline pure black or pure white, because a tinted neutral shows as a coloured fringe.
 
 ## Theme switch
+
+```css
+:root {
+  color-scheme: light dark;
+  --surface: light-dark(#ffffff, #0a0a0a);
+  --text-primary: light-dark(#171717, #ededed);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+```
+
+Every token reads `color-scheme`, so the switch and the system setting reach the same place. With no `data-theme`, `light dark` follows the system.
 
 ```ts
 const themeColors = { light: "#ffffff", dark: "#0a0a0a" };
@@ -144,6 +156,25 @@ export function setTheme(choice: "system" | "light" | "dark") {
 ```
 
 Reading a computed style forces the new theme to apply before transitions return. Save the choice, and while it is `"system"`, call `setTheme` again when the media query changes. When the project uses a theme library, use its option for this instead.
+
+## Forced colours
+
+```css
+@media (forced-colors: active) {
+  .tab[aria-selected="true"],
+  .nav-item[aria-current="page"] {
+    outline: 2px solid Highlight;
+    outline-offset: -2px;
+  }
+
+  .mask-icon {
+    forced-color-adjust: none;
+    background-color: CanvasText;
+  }
+}
+```
+
+System colours such as `Highlight`, `CanvasText` and `ButtonText` are the only ones that survive. Keep the block to small fixes for marks that vanished, never a second design.
 
 ## Hit area
 
@@ -199,11 +230,32 @@ a,
 }
 
 .tab-bar {
-  padding-bottom: env(safe-area-inset-bottom, 0px);
+  padding-bottom: max(12px, env(safe-area-inset-bottom, 0px));
+  padding-inline: max(16px, env(safe-area-inset-left, 0px)) max(16px, env(safe-area-inset-right, 0px));
 }
 ```
 
-Match each `theme-color` to the top of the page, not the brand colour. Leave `user-select` and `-webkit-touch-callout` alone on links inside prose, where people copy the text and preview the link. Set `overscroll-behavior: none` only on apps, not on documents people read.
+Match each `theme-color` to the top of the page, not the brand colour. Safari 26 reads the colour from the fixed or sticky element touching each edge instead, so that element's `background-color` is opaque, with any blur on an inner layer. Leave `user-select` and `-webkit-touch-callout` alone on links inside prose, where people copy the text and preview the link. Set `overscroll-behavior: none` only on apps, not on documents people read.
+
+## Keyboard inset
+
+Where `interactive-widget` is ignored, the on-screen keyboard shrinks only the visual viewport. Lift a bottom-pinned composer by the difference.
+
+```ts
+const composer = document.querySelector<HTMLElement>(".composer");
+const viewport = window.visualViewport;
+
+function liftComposer() {
+  if (!composer || !viewport) return;
+  const covered = window.innerHeight - viewport.height - viewport.offsetTop;
+  composer.style.bottom = `${Math.max(0, covered)}px`;
+}
+
+viewport?.addEventListener("resize", liftComposer);
+viewport?.addEventListener("scroll", liftComposer);
+```
+
+Where `resizes-content` works, `innerHeight` shrinks with the keyboard, `covered` stays 0 and nothing doubles. Check it on a real iPhone with the composer focused.
 
 ## Hotkey guard
 

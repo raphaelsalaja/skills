@@ -36,9 +36,17 @@ dialog::backdrop {
   overflow: hidden;
   overscroll-behavior: contain;
 }
+
+html {
+  scrollbar-gutter: stable;
+}
+
+html:has(dialog:modal) {
+  overflow: hidden;
+}
 ```
 
-The backdrop stops wheel and touch scrolling from chaining to the page, so the root keeps its scrollbar and nothing shifts. Where a library still sets `overflow: hidden` on `body`, add `html { scrollbar-gutter: stable }` so the width holds.
+The backdrop stops wheel and touch scrolling from chaining to the page in Chrome 144 and Firefox 150 onward. Safari only honours `overscroll-behavior` on a box that can scroll, so the `:has()` rule locks the root there. The stable gutter keeps the width when the root's scrollbar goes. Test on an iPhone by scrolling over the backdrop and inside a short dialog.
 
 ## Dismissal
 
@@ -46,7 +54,7 @@ The backdrop stops wheel and touch scrolling from chaining to the page, so the r
 <dialog id="edit" closedby="closerequest">
   <form method="dialog">
     <textarea name="note"></textarea>
-    <button type="button" data-cancel>Cancel</button>
+    <button type="button" commandfor="edit" command="request-close" data-cancel>Cancel</button>
     <button value="save">Save</button>
   </form>
 </dialog>
@@ -66,14 +74,16 @@ dialog.addEventListener("cancel", (event) => {
   showDiscardBar();
 });
 
-dialog.querySelector("[data-cancel]").addEventListener("click", () => {
-  if (dialog.requestClose) return dialog.requestClose();
-  const cancel = new Event("cancel", { cancelable: true });
-  if (dialog.dispatchEvent(cancel)) dialog.close();
-});
+if (!("commandForElement" in HTMLButtonElement.prototype)) {
+  dialog.querySelector("[data-cancel]").addEventListener("click", () => {
+    if (dialog.requestClose) return dialog.requestClose();
+    const cancel = new Event("cancel", { cancelable: true });
+    if (dialog.dispatchEvent(cancel)) dialog.close();
+  });
+}
 ```
 
-`showDiscardBar` shows Discard and Keep Editing inside the dialog, never a second dialog. Escape and the Cancel button both pass through `cancel`, so the guard holds where `closedby` or `requestClose()` is missing.
+`command="request-close"` fires `cancel` before closing, so the Cancel button needs no script where commands exist. `showDiscardBar` shows Discard and Keep Editing inside the dialog, never a second dialog. Escape and the Cancel button both pass through `cancel`, so the guard holds where `closedby` is missing.
 
 ## Anchor positioning
 
@@ -96,4 +106,29 @@ dialog.querySelector("[data-cancel]").addEventListener("click", () => {
 }
 ```
 
-A popover is centred by default. Outside `@supports` it keeps that default, so a browser without anchor positioning still shows a usable menu.
+A popover is centred by default. Outside `@supports` it keeps that default, so an older browser without anchor positioning still shows a usable menu.
+
+## Tooltip
+
+```html
+<button aria-describedby="due-tip" data-tip="due-tip">Due 3 Dec</button>
+<div id="due-tip" popover="hint" role="tooltip">Thursday 3 December 2026, 17:00</div>
+```
+
+```js
+document.querySelectorAll("[data-tip]").forEach((trigger) => {
+  const tip = document.getElementById(trigger.dataset.tip);
+  const show = () => tip.showPopover({ source: trigger });
+  const hide = () => tip.hidePopover();
+
+  trigger.addEventListener("pointerenter", show);
+  trigger.addEventListener("focus", show);
+  trigger.addEventListener("pointerleave", hide);
+  trigger.addEventListener("blur", hide);
+  trigger.addEventListener("keydown", (event) => {
+    if (event.key === "Escape") hide();
+  });
+});
+```
+
+The tooltip adds detail the label lacks, so it describes the button rather than repeating its name. `source` makes the trigger its implicit anchor, so `position-area` places it with no `anchor-name`. Where `hint` is unsupported the popover falls back to `manual`, which these listeners already close. Hover content that must stay open while the pointer crosses onto it needs a short close delay, which belongs to `motion`.

@@ -25,6 +25,12 @@ Give a scroller enough padding that its children's shadows fit inside it. A shad
 
 Code blocks and data tables scroll sideways with a hidden scrollbar. A wrapping code line is `defaults-scroll-not-wrap`. See [recipes.md](recipes.md#sideways-scroll).
 
+A hidden scrollbar still needs a keyboard way in, and reaching a scroller that holds nothing focusable belongs to `keyboard`.
+
+## Scrollbars never shift the layout
+
+A scroller whose content can grow past its height sets `scrollbar-gutter: stable`, and so does the root of a site whose pages vary in length. A centred layout that jumps 15px between a short page and a long one is `defaults-scrollbar-gutter`.
+
 ## Scroll stays where it starts
 
 Inner scrollers such as drawers, menus, side panels and chat logs set `overscroll-behavior: contain`. A modal list whose end scrolls the page behind it is `defaults-contain-overscroll`.
@@ -79,13 +85,21 @@ Under `prefers-reduced-transparency: reduce`, translucent and blurred surfaces t
 
 A first visit follows `prefers-color-scheme`. The theme switch offers System, Light and Dark, with System as the default. A switch with only Light and Dark is `defaults-theme-follows-system`.
 
-The root sets `color-scheme: light dark` and the head carries `<meta name="color-scheme" content="light dark">`, so first paint, scrollbars and native controls follow the theme. A white flash or a light scrollbar on a dark page is `defaults-color-scheme`. Set one `theme-color` tag per colour scheme, matching the top of the page.
+The root sets `color-scheme: light dark` and the head carries `<meta name="color-scheme" content="light dark">`, so first paint, scrollbars and native controls follow the theme. A white flash or a light scrollbar on a dark page is `defaults-color-scheme`. Set one `theme-color` tag per colour scheme, matching the top of the page. Safari 26 ignores the tag and tints its bars from a fixed or sticky header touching the edge, so that header takes an opaque `background-color`.
+
+Dark styles key off one source the switch controls. Write colour tokens with `light-dark()`, which reads `color-scheme`, and let the switch set `color-scheme` on the root. A `@media (prefers-color-scheme: dark)` block that stays dark after the user picks Light is `defaults-theme-one-source`. See [recipes.md](recipes.md#theme-switch).
 
 A theme switch turns transitions off for one frame. When it toggles a class, it also sets `color-scheme` and updates `<meta name="theme-color">` in the same handler. Every colour fading at once as the theme changes is `defaults-quiet-theme-switch`. See [recipes.md](recipes.md#theme-switch).
 
 ## Focus rings for the keyboard only
 
-Use `:focus-visible` with `outline`. A ring on every click is `defaults-focus-keyboard-only`.
+Use `:focus-visible` with a 2px solid `outline` at `outline-offset: 2px`. A ring on every click is `defaults-focus-keyboard-only`.
+
+Never remove the outline without drawing another. A `box-shadow` ring is no replacement, because forced-colours mode erases every shadow. Search for `outline: none`, `outline: 0` and Tailwind's `outline-none` with no `focus-visible:` ring beside it. Each one is `defaults-focus-outline`.
+
+## Forced colours keep every edge and state
+
+Under `forced-colors: active` the browser repaints text, backgrounds and borders from a small system palette and drops every shadow. A state shown by a background fill alone vanishes there, so selected, checked and current items also take an outline, a border or an icon. Icons are inline SVG in `currentColor`. A `mask-image` icon painted by `background-color` turns the page colour and disappears. A selected tab marked only by its fill is `defaults-forced-colors`. Check it with forced-colours emulation in the browser's rendering tools. See [recipes.md](recipes.md#forced-colours).
 
 ## Targets are at least 24px
 
@@ -110,6 +124,10 @@ Status never rests on colour alone. Pair it with an icon or a word. A red dot as
 ## Hidden from screen readers means hidden from the keyboard
 
 Never set `aria-hidden="true"` on an element that can take focus or contains one, because the keyboard still lands where a screen reader hears nothing. Hide a region with `inert` instead. A marquee's duplicate row under `aria-hidden="true"`, its links still taking focus, is `defaults-no-hidden-focusable`.
+
+## Collapsed content stays findable
+
+Accordions, Show More panels and collapsed sections use `<details>` or `hidden="until-found"`, so find in page and a link to the section open them. An element under `hidden="until-found"` never takes `display: none`, which stops the reveal. A collapsed FAQ answer that find in page never reaches is `defaults-findable-collapsed`.
 
 ## Images say what they are for
 
@@ -163,7 +181,7 @@ Never set `maximum-scale=1` or `user-scalable=no` in the viewport tag. A page th
 
 Set `-webkit-tap-highlight-color: transparent` once on the root, and give every tappable element its own `:active` state. A grey flash on tap is `defaults-no-tap-highlight`.
 
-Buttons and links set `touch-action: manipulation`, so a tap fires without waiting for a second tap. A tap that lands 300ms late is `defaults-fast-tap`. See [recipes.md](recipes.md#mobile-baseline).
+Buttons and links set `touch-action: manipulation`. A tap then stays instant after the user zooms, and two quick taps on a stepper never zoom the page. A `+` button whose second quick tap zooms the page is `defaults-fast-tap`. See [recipes.md](recipes.md#mobile-baseline).
 
 Links and images used as controls set `-webkit-touch-callout: none`, so a long press opens no preview. A tile that pops a link preview on a long press is `defaults-no-touch-callout`.
 
@@ -175,11 +193,11 @@ Wrap hover-only styles in `@media (hover: hover) and (pointer: fine)`, or a tap 
 
 An app shell or a bottom-pinned bar uses `100dvh`, and a first screen uses `min-height: 100svh`. A `100vh` shell whose bottom button hides under the URL bar is `defaults-dynamic-viewport`.
 
-The viewport tag carries `interactive-widget=resizes-content`, so `100dvh` layouts and bottom-pinned inputs follow the on-screen keyboard. A message composer hidden behind the keyboard is `defaults-keyboard-resizes`.
+The viewport tag carries `interactive-widget=resizes-content`, so `100dvh` layouts and bottom-pinned inputs follow the on-screen keyboard. Chrome and Firefox on Android honour it, and Safari before 27.3 ignores it. There, a bottom-pinned composer follows `visualViewport` resize events instead. A message composer hidden behind the keyboard is `defaults-keyboard-resizes`. See [recipes.md](recipes.md#keyboard-inset).
 
 ## Content clears the notch
 
-Add `viewport-fit=cover` to the viewport tag, then pad fixed headers, tab bars, toasts and sheets with `env(safe-area-inset-*)`. A bottom bar under the home indicator is `defaults-safe-areas`.
+Add `viewport-fit=cover` to the viewport tag, then pad fixed headers, tab bars, toasts and sheets with `env(safe-area-inset-*)`. Wrap the inset in `max()` with the bar's own padding, such as `max(12px, env(safe-area-inset-bottom))`, so a phone without a home indicator keeps its 12px. In landscape the notch sits at the side, so full-width bars pad their inline ends too. A bottom bar under the home indicator is `defaults-safe-areas`.
 
 ## Controls are not selectable
 
@@ -246,6 +264,8 @@ Running text stops at `max-width: 65ch`. Buttons, navigation and table cells are
 ## Sizes come from the type scale
 
 Font sizes come from the project's type scale tokens. Where a size seems missing, the nearest step wins over a new value. A one-off `font-size: 13.5px` between two steps is `defaults-type-from-scale`.
+
+The scale is in `rem`, and the root never sets a font size in `px`, so the browser's own text-size setting still scales the page. `html { font-size: 14px }` is `defaults-rem-sizes`.
 
 ## Leading tightens as type grows
 
@@ -320,6 +340,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `defaults-fade-not-cut` | `overflow: auto` with a hard cut | A `mask-image` fade at both ends |
 | `defaults-no-clipped-shadow` | A card shadow cut by `overflow: hidden` | `padding: 8px` on the scroller |
 | `defaults-scroll-not-wrap` | A code line wrapping to two lines | `white-space: nowrap` and `overflow-x: auto` |
+| `defaults-scrollbar-gutter` | A centred layout jumping 15px as a route grows past the window | `html { scrollbar-gutter: stable }` |
 | `defaults-contain-overscroll` | A drawer list that scrolls the page at its end | `overscroll-behavior: contain` on the drawer |
 | `defaults-no-page-overscroll` | Pull-to-refresh firing while a sheet is dragged | `html, body { overscroll-behavior: none }` |
 | `defaults-sticky-border` | A sticky header with no edge | `border-bottom: 1px solid var(--gray-a4)` |
@@ -336,8 +357,11 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `defaults-reduced-transparency` | `backdrop-filter: blur(20px)` over `rgba(255, 255, 255, 0.6)` in every mode | An opaque surface under `prefers-reduced-transparency: reduce` |
 | `defaults-theme-follows-system` | A theme switch with only Light and Dark | System, Light and Dark, with System as the default |
 | `defaults-color-scheme` | A white flash and light scrollbars on a dark page | `color-scheme: light dark` on the root and in a `color-scheme` meta tag |
+| `defaults-theme-one-source` | `@media (prefers-color-scheme: dark) { :root { --surface: #0a0a0a } }` beside a Light, Dark and System switch | `--surface: light-dark(#ffffff, #0a0a0a)` with the switch setting `color-scheme` on the root |
 | `defaults-quiet-theme-switch` | Every colour transition firing on a theme switch | Transitions off for one frame, `theme-color` updated in the handler |
-| `defaults-focus-keyboard-only` | `.button:focus { box-shadow: 0 0 0 2px var(--accent) }` | `.button:focus-visible { outline: 2px solid var(--accent) }` |
+| `defaults-focus-keyboard-only` | `.button:focus { box-shadow: 0 0 0 2px var(--accent) }` | `.button:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px }` |
+| `defaults-focus-outline` | `className="focus:outline-none"` and no other ring | `focus-visible:outline-2 focus-visible:outline-offset-2` |
+| `defaults-forced-colors` | `.tab[aria-selected="true"] { background: var(--gray-a3) }` as the only mark | The same fill plus `outline: 2px solid Highlight` under `forced-colors: active` |
 | `defaults-hit-area` | A 16px icon button with a 16px hit box | `inset: -12px` on its `::before`, a 40px target |
 | `defaults-target-spacing` | Two 16px icon buttons 4px apart | 24px between their visible edges |
 | `defaults-act-on-release` | `onPointerDown={deleteRow}` | `onClick={deleteRow}` with the pressed style on `:active` |
@@ -346,6 +370,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `defaults-expose-state` | `<button onClick={toggle}>Filters</button>` | `<button aria-expanded={open} aria-controls="filters">Filters</button>` |
 | `defaults-not-color-alone` | A red dot as the only error cue | The dot with an icon or the word `Failed` |
 | `defaults-no-hidden-focusable` | `aria-hidden="true"` on a marquee's duplicate row of links | `inert` on the duplicate row |
+| `defaults-findable-collapsed` | An FAQ answer toggled with `display: none` | `<details><summary>` around the answer, or `hidden="until-found"` on the panel |
 | `defaults-alt-by-purpose` | `<img alt="logo.png">` inside the home link | `<img alt="Home">` |
 | `defaults-caption-media` | A talking-head video with no captions | `<track kind="captions" src="talk.vtt">` |
 | `defaults-autoplay-controls` | `<video autoplay loop>` with sound and no pause | `<video autoplay muted loop>` with a visible `Pause` button |
@@ -364,12 +389,12 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `defaults-selected-not-left-bar` | `border-left: 2px solid var(--accent)` as the only mark on the current nav item | `background: var(--gray-a3)` with `color: var(--text-primary)` on the current item |
 | `defaults-allow-zoom` | `maximum-scale=1, user-scalable=no` | `width=device-width, initial-scale=1` |
 | `defaults-no-tap-highlight` | The browser's grey flash on every tap | `-webkit-tap-highlight-color: transparent` and an `:active` style |
-| `defaults-fast-tap` | A button that responds 300ms after the tap | `touch-action: manipulation` |
+| `defaults-fast-tap` | Two quick taps on a `+` stepper zooming the page | `touch-action: manipulation` on the stepper's buttons |
 | `defaults-no-touch-callout` | A link preview popping on a long-pressed tile | `-webkit-touch-callout: none` on the tile |
 | `defaults-hover-capable-only` | `.card:hover { transform: translateY(-2px) }` | The same rule inside `@media (hover: hover) and (pointer: fine)` |
 | `defaults-dynamic-viewport` | `height: 100vh` on the app shell | `height: 100dvh` |
-| `defaults-keyboard-resizes` | A composer hidden behind the on-screen keyboard | `interactive-widget=resizes-content` in the viewport tag |
-| `defaults-safe-areas` | A tab bar under the home indicator | `padding-bottom: env(safe-area-inset-bottom)` with `viewport-fit=cover` |
+| `defaults-keyboard-resizes` | A composer hidden behind the on-screen keyboard | `interactive-widget=resizes-content` in the viewport tag, and the composer following `visualViewport` on iOS |
+| `defaults-safe-areas` | A tab bar under the home indicator, or `padding-bottom: env(safe-area-inset-bottom)` leaving 0px elsewhere | `padding-bottom: max(12px, env(safe-area-inset-bottom))` with `viewport-fit=cover` |
 | `defaults-controls-not-selectable` | A long press selecting a tab's label | `user-select: none` on the tab |
 | `defaults-keys-ignore-inputs` | `J` moves the selection while typing in search | Hotkeys skip `input`, `textarea` and `[contenteditable]` |
 | `defaults-single-key-off-switch` | `J` and `K` bound on `window` | Scoped to the focused list, or a `Keyboard Shortcuts` toggle |
@@ -390,6 +415,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `defaults-no-justify` | `text-align: justify` on a paragraph | `text-align: start` |
 | `defaults-line-length` | A paragraph across a 1440px window | `max-width: 65ch` |
 | `defaults-type-from-scale` | `font-size: 13.5px` on a label | `font-size: var(--text-sm)` |
+| `defaults-rem-sizes` | `html { font-size: 14px }` | No root size, and `--text-sm: 0.875rem` |
 | `defaults-leading-by-size` | `line-height: 1` on a three-line description | `line-height: 1.4` |
 | `defaults-tracking-by-size` | A 48px heading at the font's default tracking | `letter-spacing: -0.02em` |
 | `defaults-real-faces` | `font-weight: 600` with only the 400 face loaded | The 600 face in `@font-face` |
@@ -413,11 +439,11 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` breaks use or access. That is a clipped shadow, a hard scroll cut, hotkeys that fire while typing, a target under 24px or a silent wait. It is also sound with no visual twin or off switch. It is also media that plays sound with no pause or speaks with no captions. It is also an unnamed icon button, a name that does not start with its visible label, hidden control state or status in colour alone. It is also blocked zoom, a route with no link, an action fired on press or a lone-key shortcut with no off switch. It is also a truncated value with no way back or a destructive action with no undo or confirmation. It is also content pushed off screen by a long value or a bar under the home indicator. It is also controls hidden behind a `100vh` shell or the on-screen keyboard. It is also an image with no `alt` or a focusable element under `aria-hidden`. It is also a busy button that drops focus to the body, or tabular data built from `div` elements.
+**Severity.** `HIGH` breaks use or access. That is a clipped shadow, a hard scroll cut, hotkeys that fire while typing, a target under 24px or a silent wait. It is also sound with no visual twin or off switch. It is also media that plays sound with no pause or speaks with no captions. It is also an unnamed icon button, a name that does not start with its visible label, hidden control state or status in colour alone. It is also blocked zoom, a route with no link, an action fired on press or a lone-key shortcut with no off switch. It is also a truncated value with no way back or a destructive action with no undo or confirmation. It is also content pushed off screen by a long value or a bar under the home indicator. It is also controls hidden behind a `100vh` shell or the on-screen keyboard. It is also an image with no `alt` or a focusable element under `aria-hidden`. It is also a busy button that drops focus to the body, or tabular data built from `div` elements. It is also a focus outline removed with nothing in its place.
 
-`MEDIUM` is a pill button, a click focus ring or a hover stuck on touch. It is also proportional figures in data, sound on a frequent action, scroll leaking out of a scroller, state lost on refresh or a flickering skeleton. It is also a busy button with no indicator, an unannounced update, a focused element left covered or a card inside a card. It is also a tap flash or tap delay, a selectable control label, a page that bounces or an unformatted number or plural. It is also alt text naming the file rather than the purpose, headings built from styled `div` elements, a shared page title or a missing `lang`. It is also a centred number column, a long table with no sticky header, a sort with no `aria-sort` or row controls that shift columns. It is also a wide table whose first column scrolls away, a long table with no count or a link in prose shown by colour alone. It is also a paragraph past `65ch`, wrapped text under 1.4 leading, a browser-drawn bold or a weight under 400. It is also a theme that ignores the system, translucency that ignores the user's setting, a stretched image or controls crowded closer than their spacing. It is also a list that loses its place on Back or results that jump on a filter change. It is also an undo with no visible result, a relative time past its edges or an unclamped meter. It is also a routine update announced as an alert, or a weight change that shifts its siblings.
+`MEDIUM` is a pill button, a click focus ring or a hover stuck on touch. It is also proportional figures in data, sound on a frequent action, scroll leaking out of a scroller, state lost on refresh or a flickering skeleton. It is also a busy button with no indicator, an unannounced update, a focused element left covered or a card inside a card. It is also a tap flash or a double tap that zooms, a selectable control label, a page that bounces or an unformatted number or plural. It is also alt text naming the file rather than the purpose, headings built from styled `div` elements, a shared page title or a missing `lang`. It is also a centred number column, a long table with no sticky header, a sort with no `aria-sort` or row controls that shift columns. It is also a wide table whose first column scrolls away, a long table with no count or a link in prose shown by colour alone. It is also a paragraph past `65ch`, wrapped text under 1.4 leading, a browser-drawn bold or a weight under 400. It is also a theme that ignores the system, translucency that ignores the user's setting, a stretched image or controls crowded closer than their spacing. It is also a list that loses its place on Back or results that jump on a filter change. It is also an undo with no visible result, a relative time past its edges or an unclamped meter. It is also a routine update announced as an alert, or a weight change that shifts its siblings. It is also a theme switch the styles ignore or a state lost in forced colours. It is also collapsed text that find in page misses or a root font size in `px`.
 
-`LOW` is an opaque border beside a shadow, a decorative glow, a single harsh shadow or a transitioned `box-shadow`. It is also unbalanced headings, justified text, a missing image outline or a borderless sticky header. It is also a light scrollbar or white flash on a dark page, a smeared theme switch or missing root font smoothing. It is also full-size inline code, a placeholder dash for an empty field or a long-press preview on a control. It is also a border on every table cell, display type at default tracking, a linked last breadcrumb or help links that move between pages. It is also a product name or code open to page translation, or an underline through descenders. It is also an ad hoc `z-index`, a font size off the type scale or a selected item marked by a left bar alone.
+`LOW` is an opaque border beside a shadow, a decorative glow, a single harsh shadow or a transitioned `box-shadow`. It is also unbalanced headings, justified text, a missing image outline or a borderless sticky header. It is also a light scrollbar or white flash on a dark page, a smeared theme switch or missing root font smoothing. It is also full-size inline code, a placeholder dash for an empty field or a long-press preview on a control. It is also a border on every table cell, display type at default tracking, a linked last breadcrumb or help links that move between pages. It is also a product name or code open to page translation, or an underline through descenders. It is also an ad hoc `z-index`, a font size off the type scale or a selected item marked by a left bar alone. It is also a layout that shifts as a scrollbar appears.
 
 **Format.** One finding per root cause:
 
