@@ -12,11 +12,15 @@ This skill turns an object into a small living character. It draws one flat silh
 
 The gaze, eye and blink values in [face.js](face.js) are measured off reference footage and are exact. The moods past idle are tuned starting points. A character whose eyes move while its body holds still is a finding.
 
-Gathering references belongs to `gather`. Taking a reference animation apart frame by frame belongs to `deconstruct`. Offering silhouette variants belongs to `prototype`. Interface motion and its 300ms budget belong to `motion`, not a character's body. Frame cost belongs to `frames`. Opening the result belongs to `verify`.
+Gathering references belongs to `gather`. Taking a reference animation apart frame by frame belongs to `deconstruct`. Offering silhouette variants belongs to `prototype`. Interface motion, its 300ms budget and its ban on idle loops belong to `motion` and do not bind the character's body, which the user asked to live. Frame cost belongs to `frames`. Opening the result belongs to `verify`.
 
 ## 1. Ask, then study the reference
 
-Before drawing, ask in one round: which object, where it ships and at what size, and a character whose life the user likes. Ask what the object does that a blob cannot, such as a lid that lifts, for step 5. Offer 28px and "No reference" as defaults. Drawing before the object and its place are known is `avatar-ask-the-character`.
+Before drawing, ask in one round: which object, where it ships and at what size. Ask for one character whose life the user likes, one they dislike and why for each. Ask what the object does that a blob cannot, such as a lid that lifts, for step 5.
+
+Offer 28px, "No reference" and "Suggest one" as defaults, so the question never blocks. Drawing before the object and its place are known is `avatar-ask-the-character`.
+
+Read the disliked character for the trait to avoid, such as hops that fly too high, and keep it out of the moods and reactions.
 
 When the user names a reference character, open its source and step its recording at 10fps. Measure eye size, tilt, spacing and blink timing off the frames. A character drawn from one glance at the reference is `avatar-measure-the-reference`.
 
@@ -42,15 +46,15 @@ Cut a hole only for a real opening, such as a mug handle or a ring, and wind it 
 
 Keep toy proportions. No part is thinner than an eye is wide, every corner is rounded and every taper ends in a soft tip. An organic part, like a leaf or a flame, keeps its curve and direction. A hairline, a sharp point or a leaf flattened into an oval is `avatar-toy-proportions`.
 
-Centre the mass and sit it on a flat or gently rounded base. Then look at the whole shape at 28px, at rest and mid-lean. If it reads as another object or a broken one, rebalance the parts or change the view, even when every rule above holds.
+Centre the mass and sit it on a flat or gently rounded base. Then look at the whole shape at its shipped size, at rest and mid-lean. If it reads as another object or a broken one, rebalance the parts or change the view, even when every rule above holds.
 
 Colour comes from two variables, `--avatar-body` and `--avatar-eyes`, checked in both themes. A fill written into the path is `avatar-colour-variables`.
 
-Show 3 silhouettes that differ in view or part balance, each at 28px and at 4× with the resting eyes. Lay them out with `prototype`. Animating a silhouette the user never picked is `avatar-pick-the-silhouette`.
+Show 3 silhouettes that differ in view or part balance, each at its shipped size and at 4× with the resting eyes. Lay them out as `prototype` variants in the spot where the character ships. Animating a silhouette the user never picked is `avatar-pick-the-silhouette`.
 
-A lukewarm "it's cute, I guess" is not a pick. Ask which one comes closest and what it lacks. Treating faint praise as a pick is `avatar-lukewarm-is-not-a-pick`.
+A lukewarm reply, such as "it's cute, I guess", is not a pick. Ask which one comes closest and what it lacks. Treating faint praise as a pick is `avatar-lukewarm-is-not-a-pick`.
 
-Name the property behind a vague note before redrawing. "Looks off" is usually the view, "cramped" the face part, "clunky" a secondary part's size and "spiky" the proportions. A new silhouette after "not quite", with no part named, is `avatar-no-blind-redraw`.
+When the user rejects all three, ask which came closest and what was off. Name the property behind that answer, or any vague note, before redrawing. "Looks off" is usually the view, "cramped" the face part, "clunky" a secondary part's size and "spiky" the proportions. A new silhouette after "not quite", with no part named, is `avatar-no-blind-redraw`.
 
 ## 3. Put the eyes on a sphere
 
@@ -128,7 +132,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `avatar-holes-are-openings` | A cut-out slot for a coin or a button | Holes only where the object is open, such as the handle |
 | `avatar-toy-proportions` | A hairline stem and a sharp leaf tip | Parts at least an eye wide, rounded corners, soft tips |
 | `avatar-colour-variables` | `fill="#c27a3e"` in the path | `fill="var(--avatar-body)"`, set per theme |
-| `avatar-pick-the-silhouette` | One silhouette drawn and animated straight away | Three silhouettes at 28px and 4×, one picked by the user |
+| `avatar-pick-the-silhouette` | One silhouette drawn and animated straight away | Three silhouettes at shipped size and 4×, one picked by the user |
 | `avatar-lukewarm-is-not-a-pick` | "It's cute, I guess" read as a yes | "Which comes closest, and what does it lack?" |
 | `avatar-no-blind-redraw` | "Not quite" answered with three new silhouettes | "Is it the view, the face part or the handle?", then that part redrawn |
 | `avatar-eyes-on-a-sphere` | `translate(dx, dy)` on both eyes | `drawEyes(face, gaze, lid, head)` from yaw, pitch and roll |
@@ -146,7 +150,13 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a body that never moves, eyes escaping the silhouette or motion under reduced motion. `MEDIUM` is flat sliding eyes, a fixed blink, swapped mood drawings, an offscreen loop, a missing reaction or proof from one screenshot. A view that does not name the object, a cramped face or an oversized secondary part is also `MEDIUM`. So is a character drawn before the object and its place were asked, an unpicked silhouette animated, faint praise taken as a pick or a blind redraw. `LOW` is a rounded measurement, a fill in the path, a rest pose that pops in or a character with no move of its own. A sliver at a join, a decorative hole or a hairline part is also `LOW`.
+**Severity.** `HIGH` is a body that never moves, eyes escaping the silhouette or motion under reduced motion.
+
+`MEDIUM` is a character drawn before the object and its place were asked, or eyes placed from one glance at the reference. It is also an outline, shading or a mouth, a view that does not name the object, a cramped face or an oversized secondary part. So is an unpicked silhouette animated, faint praise taken as a pick or a blind redraw.
+
+`MEDIUM` also covers flat sliding eyes, a gaze parked between events, a fixed blink or swapped mood drawings. So is an offscreen loop, a missing reaction or proof from one screenshot.
+
+`LOW` is a rounded measurement, a fill in the path, a rest pose that pops in or a character with no move of its own. A sliver at a join, a decorative hole or a hairline part is also `LOW`.
 
 **Format.** One finding per root cause:
 

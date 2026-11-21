@@ -22,7 +22,7 @@ Only the Bots the user picked go on the site. A Bot added because it looked good
 
 Wait for the JSON array it returns. When the user pastes setups directly instead, read those the same way.
 
-While the round runs, ask where the pile sits and what the org chart page is called. Offer the home page and Team as defaults. Below, the org chart page is the Team page, whatever the user names it. A page name or spot assumed without asking is `bots-ask-the-placement`.
+While the round runs, ask where the pile sits and what the org chart page is called. Offer the home page and Team as defaults. Ask too for any clip of a Bot at work, which is optional. Below, the org chart page is the Team page, whatever the user names it. A page name or spot assumed without asking is `bots-ask-the-placement`.
 
 ## 2. Strip what is private
 
@@ -44,13 +44,13 @@ The areas are the user's own sidebar sections in Grok, named and ordered as they
 
 Shape and colour come from each Bot's published page, as [grok.md](grok.md) describes. A shape or colour picked by eye from a screenshot is `bots-page-marks`.
 
-Show every entry as one table before building: title, area, line, does, routines, tools, shape, colour and link. Wait for a yes. A lukewarm "looks fine, I guess" gets one question: which entry reads wrong? Building from entries the user never saw is `bots-approve-the-entries`.
+Show every entry as one table before building: title, area, line, does, routines, tools, shape, colour and link. Wait for a yes. A lukewarm reply, such as "looks fine, I guess", is not a yes. Ask which entry reads wrong. Building from entries the user never saw is `bots-approve-the-entries`.
 
 ## 4. Draw each Bot in its own mark
 
 Copy [marks.js](marks.js) beside the components. Each Bot is drawn in the shape and colour it has in Grok, from `MARKS[shape].path` and `markEyes(shape)`, with fills from `MARK_COLORS`. A generic avatar or an initial in a circle is `bots-real-marks`.
 
-Black takes the page's text colour for the body and its background for the eyes, so it flips with the theme. Give the eyes life with `avatar`.
+Black takes the page's text colour for the body and its background for the eyes, so it flips with the theme. Give the eyes life with `avatar` from its step 3 on, since the mark is already the silhouette.
 
 ## 5. Build the pile
 
@@ -96,7 +96,7 @@ Register the page wherever the site lists pages, such as the sitemap, the naviga
 
 Open the pile's page and the Team page in both themes, then shake, drag and tap the pile.
 
-Finish with three lists: the files created or changed, every detail stripped or left out as unsure, and the Bots still missing a link. Under that last list, give the Grok steps that make a link. Ending on "done" with none of these is `bots-list-what-is-missing`.
+Finish with three lists: the files created or changed, every detail stripped or left out as unsure and the Bots still missing a link. Under that last list, give the Grok steps that make a link. Ending on "done" with none of these is `bots-list-what-is-missing`.
 
 ## The pair
 
@@ -129,7 +129,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is a private detail on the page or in a clip, a Bot the user did not pick or a link that was not copied from Grok. `MEDIUM` is a frozen pile while dragging, a shake that loses Bots, a Bot turning inside out, motion under reduced motion or a dead copy button. Circle bodies, a loop that never sleeps, sound before a touch, a flat grid instead of the chart or a missing finish list is also `MEDIUM`. So is a clip published unwatched or entries built before the user saw them. `LOW` is a long description, a guessed shape or colour, a lone corner button or a name that opens on a drag. So is a page name or placement assumed.
+**Severity.** `HIGH` is a private detail on the page or in a clip, a Bot the user did not pick or a link that was not copied from Grok. `MEDIUM` is a frozen pile while dragging, a shake that loses Bots, a Bot turning inside out, motion under reduced motion or a dead copy button. Circle bodies, a loop that never sleeps, sound before a touch, a flat grid instead of the chart or a missing finish list is also `MEDIUM`. So is a clip published unwatched or entries built before the user saw them. So is Bot copy spread across components, or a generic avatar in place of the Bot's mark. `LOW` is a long description, a guessed shape or colour, a lone corner button or a name that opens on a drag. So is a page name or placement assumed.
 
 **Format.** One finding per root cause:
 

@@ -24,9 +24,9 @@ Read the framework, the styling, the animation library, the tokens and the fonts
 
 Read `sketchbook/taste.md` at the project root before choosing the batch. When the summary exists, the next batch leans further toward the kept tiles. A batch that ignores a file already there is `sketchbook-read-taste`.
 
-When the file is missing, ask one round before building. Ask for 1–3 interactions or products whose feel the user likes, one they dislike and why. Add a multi-select of the ten kinds in step 3, plus "Surprise me".
+When the file is missing, ask one round before building. Ask for 1–3 interactions or products whose feel the user likes, one they dislike and why for each. Offer "None" so the question never blocks. Add a multi-select of the ten kinds in step 3, plus "Surprise me".
 
-Write the answers into a new taste file as its first Summary. A first batch built with no question asked is `sketchbook-ask-on-first-run`.
+Read each answer for what it does, never by its name, so "the toggle in my notes app" becomes "Easing: springs, bounce under 0.2". Write the answers into a new taste file as its first Summary, each dislike as a "no" on its line. A first batch built with no question asked is `sketchbook-ask-on-first-run`.
 
 Skip any interaction already listed under Kept or Killed. A repeat is `sketchbook-never-repeat`.
 
@@ -58,11 +58,13 @@ Start the dev server, open `/sketchbook` and play every tile once. A path in the
 
 ## 6. Read the choice
 
-A lukewarm reply, such as "it's fine", "maybe" or "cool I guess", is neither Keep nor Kill. Ask what would make it a keep. Change one property, such as speed, easing, size or colour, and replay it in the gallery. Recording a shrug as a choice is `sketchbook-lukewarm-is-not-a-keep`.
+The user answers by pasting Copy Choices or in their own words.
 
-Killed lines carry the user's own reason, and Kept lines carry one when given. When a Kill comes with none, ask once with likely reasons as options: too slow, too busy, seen it, wrong feel or broken. A reason the agent supplied is `sketchbook-reason-from-the-user`.
+A lukewarm reply, such as "it's fine", "maybe" or "cool I guess", is neither Keep nor Kill. Ask what would make it a keep, then change the one property the answer points at, such as speed, easing, size or colour. Replay it in the gallery. Recording a shrug as a choice is `sketchbook-lukewarm-is-not-a-keep`.
 
-When the user kills every tile or says none land, ask which came closest and what was off. A fresh batch after "none of these", with no new reason, is `sketchbook-no-blind-batch`.
+Killed lines carry the user's own reason, and Kept lines carry one when given. When a Kill comes with none, ask once with likely reasons as options: too slow, too busy, seen it, wrong feel or broken. When the user skips it, write `no reason given`. A reason the agent supplied is `sketchbook-reason-from-the-user`.
+
+When the user kills every tile or says none land, ask which came closest and what was off. Write the answer into the Summary before building again. A fresh batch after "none of these", with no new reason, is `sketchbook-no-blind-batch`.
 
 ## 7. Save the choice
 
@@ -82,13 +84,13 @@ When the user keeps or kills a tile, update `sketchbook/taste.md` in the same tu
 ## Summary
 
 - Easing: springs, bounce under 0.2
-- Speed: 150–250ms, nothing over 400ms
+- Speed: 150–250ms, nothing over 300ms
 - Density: one moving part per tile
 - Playfulness: small surprises on release, no idle loops
 - Colour: the accent only on the part that moves
 ```
 
-The summary covers easing, speed, density, playfulness and colour use. Rewrite it so the next batch leans further toward the kept tiles. A missing update, a killed line with no reason or any other shape is `sketchbook-save-the-taste`.
+The summary covers easing, speed, density, playfulness and colour use. Rewrite it so the next batch leans further toward the kept tiles. A missing update or any other shape is `sketchbook-save-the-taste`.
 
 Write each summary line as values, such as "springs, bounce under 0.2". "Playful but refined" steers nothing, and a summary of adjectives is `sketchbook-taste-in-values`.
 
@@ -135,7 +137,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 **Severity.** `HIGH` is a mock-up batch, a kept component deleted or a gallery reachable in production.
 
-`MEDIUM` is a count outside 6–9, a missing wildcard, an unread taste file or a repeated experiment. It is also a choice left in the reply, a kept tile left on the route, killed code left behind or a gallery left after sorting. So is a first run with no question, a shrug recorded as a choice, an invented reason or a blind batch after "none of these". So is a summary of adjectives.
+`MEDIUM` is a batch started before the stack was read, a count outside 6–9, a missing wildcard, an unread taste file or a repeated experiment. It is also a route per tile, a tile with no Keep and Kill or a choice left in the reply. So is a kept tile left on the route, killed code left behind or a gallery left after sorting. So is a first run with no question, a shrug recorded as a choice, an invented reason or a blind batch after "none of these". So is a summary of adjectives.
 
 `LOW` is a gallery that was not opened, or a review with no clip suggestion. So is a first batch of one kind, an unmarked wildcard or a one-shot tile with no Replay.
 

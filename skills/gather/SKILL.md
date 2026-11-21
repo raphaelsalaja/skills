@@ -97,9 +97,9 @@ The board copies two prompts. Copy Picks returns the picks with the user's notes
 
 Sum the picks up as one line of what to take and one of what to avoid, then ask the user to confirm it. Picks handed on as a list of links is `gather-sum-up-the-picks`.
 
-A lukewarm reply, such as "these are fine" or "nothing really pops", is not a direction. Ask which one or two come closest and what each lacks, naming the brief's parts. Building from a shrug is `gather-lukewarm-is-not-a-pick`.
+A lukewarm reply, such as "these are fine" or "nothing really pops", is not a pick. Ask which one or two come closest and what each lacks, naming the brief's parts. Building from a shrug is `gather-lukewarm-is-not-a-pick`.
 
-When the user rejects the whole board, ask which reference is closest and which is furthest. Add what the furthest does to `Not:` and seed image searches from the closest. A second board on the same queries after "none of these" is `gather-no-blind-retry`.
+When the user rejects the whole board, ask which reference came closest and which came furthest. Add what the furthest does to `Not:` and seed image searches from the closest. A second board on the same queries after "none of these" is `gather-no-blind-retry`.
 
 For More Like This, seed an image search from that reference and keep to its group, with every url on the board left out. A text search on its title is `gather-more-from-the-pick`.
 
@@ -152,7 +152,11 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 **Severity.** `HIGH` is a whole look copied when one part was asked for, items saved twice or under the wrong name, or saves rewritten in the user's library.
 
-`MEDIUM` is the wrong platform, one source only, sources searched in turn, a board with no links or a hand-written board or build script. It is also a search that skipped the source question or the user's own saves, or searched a source the user left out. So is a site searched without the user's saves there, or the reverse. So is a reference kept unseen, a close call settled by the agent or a concept shown as shipped. So is a Mobbin call after its usage warning, or a board reached around Pond while Pond holds its saves. So is a search with no references asked for, a lukewarm reply built on or a second board after "none of these" on the same queries.
+`MEDIUM` is a search with no brief, the wrong platform, references in the thread left unread or no references asked for. It is also a skipped source question, a source searched that the user left out or a board reached around Pond while Pond holds its saves.
+
+`MEDIUM` also covers one source only, sources searched in turn or the user's own saves missing. So is a site searched without the user's saves there, or the reverse. So is a Mobbin call after its usage warning, or a login worked around.
+
+Links pasted in chat, a board with no links and a hand-written board or build script are `MEDIUM` too. So is a reference kept unseen, a close call settled by the agent or a concept shown as shipped. So is a lukewarm reply built on, or a second board after "none of these" on the same queries.
 
 `LOW` is one long query, text search where an image search fits or a gallery thumbnail of a live site. So is a reference with no note, a long group name, repeats under "more" or More Like This searched by title. So is one shot shown twice, a repin kept over its maker or picks handed on without a summary.
 

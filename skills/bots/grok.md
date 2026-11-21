@@ -67,6 +67,6 @@ A Bot the user did not pick is never in the array.
 
 Each link opens a public page at `https://x.ai/bot/<id>`. Its server-rendered data holds the template's `botName`, `description`, `shape` and `color`, with the colour as a hex from `MARK_COLORS`.
 
-Fetch every page and take shape and colour from it, over what the Bot said. Use the page's description as the source for the card's line and its `does` items. Ask the user only when a page will not load.
+Fetch every page and take shape and colour from it, over what the Bot said. Use the page's description as the source for the card's line and its `does` items. Ask the user only when a page will not load. A Bot with no link yet has no page, so it keeps the shape and colour it reported. Ask the user for any `null`.
 
 When the primary Bot has run out of usage or lost its round 3 replies, the pages alone fill each entry. Routines and tools then stay empty rather than guessed.
