@@ -15,7 +15,7 @@ Run it for `draw an icon for`, `we need a ... icon`, `custom icons` or `the set 
 
 Building or redrawing a whole set belongs to `iconset`. Which glyphs to draw belongs to `scope`. Searching the set first belongs to `reuse`. Optical nudges belong to `alignment`. The curve, duration and reduced-motion fallback of any icon animation belong to `motion`. Accessible names belong to `defaults`. Visible labels belong to `copy`. Contrast belongs to `color`. Mirroring a directional icon in right-to-left layouts belongs to `viewports`.
 
-A set built with `iconset` keeps its values in `style.json` and its decisions in `concepts.md`. Where those files exist, a new glyph reads its stroke, radius and cut from them.
+A set built with `iconset` keeps its values in `style.json` and its decisions in `concepts.md`. Where those files exist, a new glyph reads its stroke, radius and cut from them. Where the set's icons are scripts beside `helpers.mjs`, a new glyph is a script too, so the next global change moves it.
 
 ## 1. Draw only what the set lacks
 

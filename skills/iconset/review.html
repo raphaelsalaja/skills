@@ -9,21 +9,26 @@
     next: "Pick a direction. The seed set is drawn in it next.",
     font: "Inter, sans-serif",
     labelSize: 14,
+    labelWeight: 400,
     sizes: [16, 24],
     sections: [
       { kind: "images", title: "Your References", note: "What you linked, loved and disliked.",
         items: [{ name: "Linked set", src: "refs/linked.png", note: "Loved: soft corners" }] },
       { kind: "options", title: "Directions", note: "The same hard icons in each direction.",
-        items: [{ name: "Round", note: "2 stroke, round ends, 3 radius", icons: [{ name: "Cloud", svg: "<svg ...>" }] }] },
+        items: [{ name: "Round", note: "2 stroke, round ends, 3 radius",
+          icons: [{ name: "Folder", label: "Projects", svg: { 16: "<svg viewBox=\"0 0 16 16\" ...>", 24: "<svg ...>" } }] }] },
       { kind: "rows", title: "In Context", note: "Beside the product's own labels.",
         items: [{ name: "Inbox", svg: "<svg ...>" }] },
+      { kind: "grid", title: "Audit", items: [{ name: "directory", svg: "<svg ...>", note: "Duplicate of folder" }] },
       { kind: "grid", title: "Seed", items: [{ name: "Folder", svg: "<svg ...>", new: true }] },
       { kind: "pairs", title: "Migration", items: [{ name: "arrow-up", before: "<svg ...>", after: "<svg ...>", state: "Coupled" }] }
     ]
   };
 
   review.js only assigns window.review. Wrap any helper it needs in a block, since the page declares $ and h.
-  font and labelSize are the product's own label type, so rows read as the product does. When that font is not
+  Where the agent draws, .iconset/render.mjs writes review.js from the icon scripts, since a page opened from disk
+  cannot import modules or fetch JSON.
+  font, labelSize and labelWeight are the product's own label type, so rows read as the product does. When that font is not
   installed, copy its files into .iconset/fonts/ and load them from review.js, so rows never fall back:
 
   {
@@ -34,12 +39,17 @@
 
   Kinds: images shows screenshots of references, options compares whole cards (directions, a concept's candidates
   or one-change variants), rows sets icons beside labels in the product's font, grid shows a set and pairs puts each
-  old icon beside its replacement. Any item may carry `source`, the set or page it came from.
+  old icon beside its replacement. Any item may carry `source`, the set or page it came from, and a grid item may
+  carry `note`, such as why the audit flags it. An option card sets its icons with a `label` in product rows, or its
+  first 3 icons when none has one.
+
+  Any svg may be one string or one drawing per size, keyed like `sizes`. The size switch shows each size's own drawing
+  and scales a single string.
 
   The bar sets the theme (Both splits every section into light and dark), the size and live overrides for stroke,
   caps and joins. Second Colour fills any element marked data-layer="back" with the accent. Clicking an item picks it.
-  Copy Feedback writes the picks, the overrides and the notes as one message for the agent. Radius and shape changes
-  need a redraw, so the page cannot preview them.
+  Copy Feedback writes the picks, the overrides and the notes as one message for the agent. Picks and notes are kept
+  per step, so a new checkpoint starts clean. Radius and shape changes need a redraw, so the page cannot preview them.
 -->
 <html lang="en">
   <head>
@@ -1127,6 +1137,10 @@
         padding: 0 8px;
         font-family: var(--product-font);
         font-size: var(--label-size);
+        font-weight: var(--label-weight);
+        font-feature-settings: normal;
+        font-variation-settings: normal;
+        font-optical-sizing: auto;
         color: var(--text-secondary);
         border-radius: var(--radius-control);
 
@@ -1370,11 +1384,12 @@
 
       const review = window.review ?? { title: "Icon Review", sections: [] };
       const root = document.documentElement;
-      const storeKey = `iconset-review:${review.title}`;
+      const storeKey = `iconset-review:${review.title}:${review.step ?? ""}`;
       const saved = JSON.parse(localStorage.getItem(storeKey) ?? "{}");
       const picks = new Set(saved.picks ?? []);
       const sizes = review.sizes?.length ? review.sizes : [16, 24];
       let theme = "both";
+      let size = sizes[0];
 
       const save = () => localStorage.setItem(storeKey, JSON.stringify({ picks: [...picks], notes: $("notes").value }));
 
@@ -1383,12 +1398,14 @@
       $("brief").textContent = [review.step && `Step: ${review.step}.`, review.next].filter(Boolean).join(" ");
       root.style.setProperty("--product-font", review.font ?? "var(--font-sans)");
       root.style.setProperty("--label-size", `${review.labelSize ?? 14}px`);
+      root.style.setProperty("--label-weight", review.labelWeight ?? 400);
       root.style.setProperty("--size", `${sizes[0]}px`);
       $("notes").value = saved.notes ?? "";
       $("notes").addEventListener("input", save);
 
       function glyph(svg) {
-        return h("span", { class: "glyph", html: svg ?? "" });
+        const drawn = typeof svg === "object" && svg ? (svg[size] ?? Object.values(svg)[0]) : svg;
+        return h("span", { class: "glyph", html: drawn ?? "" });
       }
 
       function pickable(section, item, className, ...children) {
@@ -1411,7 +1428,15 @@
             "div",
             { class: "grid" },
             ...section.items.map((item) =>
-              pickable(section, item, "", item.new ? h("span", { class: "new", "aria-label": "New" }) : null, glyph(item.svg), h("span", { class: "name" }, item.name)),
+              pickable(
+                section,
+                item,
+                "",
+                item.new ? h("span", { class: "new", "aria-label": "New" }) : null,
+                glyph(item.svg),
+                h("span", { class: "name" }, item.name),
+                item.note ? h("span", { class: "name source" }, item.note) : null,
+              ),
             ),
           ),
         rows: (section) =>
@@ -1435,7 +1460,9 @@
                   ? h(
                       "span",
                       { class: "option-rows" },
-                      ...item.icons.slice(0, 3).map((icon) => h("span", { class: "product-row" }, glyph(icon.svg), h("span", {}, icon.label ?? icon.name))),
+                      ...(item.icons.some((icon) => icon.label) ? item.icons.filter((icon) => icon.label) : item.icons.slice(0, 3)).map((icon) =>
+                        h("span", { class: "product-row" }, glyph(icon.svg), h("span", {}, icon.label ?? icon.name)),
+                      ),
                     )
                   : null,
               ),
@@ -1509,7 +1536,11 @@
       }
 
       $("sizes").append(...sizes.map((size, index) => h("button", { type: "button", "aria-pressed": index === 0, value: size }, `${size}px`)));
-      segmented($("sizes"), (size) => root.style.setProperty("--size", `${size}px`));
+      segmented($("sizes"), (value) => {
+        size = Number(value);
+        root.style.setProperty("--size", `${size}px`);
+        render();
+      });
 
       function setOverride(name, value) {
         root.toggleAttribute(`data-${name}`, Boolean(value));
@@ -1553,7 +1584,7 @@
           bySection.set(section, [...(bySection.get(section) ?? []), rest.join(": ")]);
         }
         const tuned = [
-          root.hasAttribute("data-stroke") && `Stroke ${$("stroke").value} instead of the set's own`,
+          root.hasAttribute("data-stroke") && `Stroke ${$("stroke").value} at ${size}px instead of the set's own`,
           root.hasAttribute("data-caps") && `Caps ${root.style.getPropertyValue("--caps")}`,
           root.hasAttribute("data-joins") && `Joins ${root.style.getPropertyValue("--joins")}`,
           root.hasAttribute("data-duo") && "Second colour on",

@@ -16,7 +16,7 @@ The look is judged by eye, the user's first. The style is the user's pick from d
 
 Run every step in order without asking whether to go on. Stop only at 5 checkpoints: the references, the style, the seed, the first batch and the swap. A question a step raises waits for the next checkpoint, such as which unused icons to drop.
 
-At each checkpoint, say what changed, where to see it and what comes next. Stopping after a step to ask whether to continue is `iconset-run-every-step`.
+Each checkpoint asks all its questions in one message, so it costs the user one reply. Stopping after a step to ask whether to continue is `iconset-run-every-step`.
 
 Run it when the user asks for a new icon set, a redraw of the whole set or a replacement for an inherited library. A missing glyph in a set that already exists belongs to `icons`.
 
@@ -27,6 +27,8 @@ Labels on the catalogue belong to `copy`, and accessible names belong to `defaul
 ## 1. Open one review page
 
 Copy [review.html](review.html) to `.iconset/index.html`, an ignored folder, and write `review.js` beside it as its header comment shows. The user opens it from disk, so it never waits on the product or a dev server.
+
+Where the agent draws, `.iconset/render.mjs` runs the icon scripts and writes `review.js`, as [formats.md](formats.md#icon-scripts) shows. Keep `style.md`, `style.json` and `concepts.md` beside the icons, never in `.iconset/`, because they outlive the review.
 
 Every step adds its section: the audit, the contested pictures, the references, the directions, the seed, each batch and the migration map. Rows set icons beside the product's labels in its own font, and Both Themes shows light and dark side by side.
 
@@ -52,11 +54,11 @@ Mark a concept Swaps when its icon changes in place to another, such as play and
 
 Check each concept for what changes across the product's languages and regions. A letter, a currency sign, a regional object such as a postbox or a gendered figure gets a neutral metaphor or one drawing per locale. A `$` drawn for Billing in a product that charges in euros is `iconset-local-metaphors`. A product in one language and currency checks only the figures.
 
-Mark a concept contested when other sets draw it many ways, the user disliked its old icon or only this product has it. Step 4 finds its picture before anything draws it, the style tiles included.
+Mark a concept contested when other sets draw it many ways, the request says its old icon is disliked or only this product has it. Step 4 finds its picture before anything draws it, the style tiles included.
 
 ## 4. Find each contested concept's picture
 
-Collect 10 to 20 versions of each contested concept from other icon sets, products and image searches. Put them on the review page as options, from the literal to the abstract, for the first checkpoint.
+Collect 10 to 20 versions of each contested concept from other icon sets, products and image searches. Order them from the literal to the abstract for the first checkpoint. SVG from open sets goes in an options section, and a product screenshot in an images section.
 
 The user picks the version closest to right, and every later drawing of that concept riffs on it. A contested concept drawn from imagination is `iconset-find-the-picture`.
 
@@ -64,13 +66,13 @@ The user picks the version closest to right, and every later drawing of that con
 
 Ask for references before proposing anything. Ask for icon sets, apps or sites whose icons the user likes, ones they dislike and the current icons they would change. Ask why for each. A style proposed before the user is asked for references is `iconset-ask-for-references`.
 
-A current icon the user would change becomes contested. Its pictures go on the review page for the second checkpoint, and the style tiles leave it out.
+Ask 2 or 3 plain questions about feel in the same message, from [styles.md](styles.md#questions-about-feel), such as what the icons should never feel like. This message is the first checkpoint, sent once the audit, the drop candidates and the contested pictures are on the review page.
 
-Ask a few plain questions about feel, from [styles.md](styles.md#questions-about-feel), such as what the icons should never feel like. Write the two strongest answers as "X, but not Y" in `style.md`.
+When the request names no references, put the taste test from [styles.md](styles.md#the-taste-test) on the page before that message. A user with nothing to link picks its closest row and its furthest instead.
 
-When the user has no references, run the taste test in [styles.md](styles.md#the-taste-test). The user picks the closest set and the furthest, and both go into `style.md`.
+Read each reference for what it does, never by its name. Write down its stroke, ends, corners, fill and detail, so "like that set" becomes values. Put the references on the review page, then go on to step 6 without stopping.
 
-Read each reference for what it does, never by its name. Write down its stroke, ends, corners, fill and detail, so "like that set" becomes values. Put every reference on the review page beside the contested pictures and the drop candidates. This is the first checkpoint.
+Write the two strongest feel answers under `## Traits` in `style.md`, each as "X, but not Y". A current icon the user would change becomes contested. Its pictures go on the review page for the second checkpoint, and the style tiles leave it out.
 
 ## 6. Pick the style with the user
 
@@ -80,23 +82,25 @@ Read the product: the interface type at body size, the control radius, the logo,
 
 Write the signals into `style.md`, as [formats.md](formats.md#style) shows. A direction proposed before the signals are written is `iconset-read-the-product`.
 
-Ask with the question tool. Offer 2 or 3 directions the references and the signals both support, the first marked Recommended, each with its key values and the reference behind it. A reference's own style is a direction too, described in the table's columns.
+Choose 2 or 3 directions the references and the signals both support. A reference's own style is a direction too, described in the table's columns. In a redraw, the old set's measured style counts as one, tiled with the old icons themselves. A native app may count staying close to the platform's symbols as one.
 
-A redraw also offers the old set's measured style, and a native app offers staying close to the platform's symbols. Ask how fill is used in a second question, with the platform's convention first. A sharp technical style assumed without asking is `iconset-ask-the-style`.
+Draw 12 to 20 icons in every direction, or every concept when the product shows fewer. Start with the hardest: the most abstract concept from its picked picture, one with curves, one with a diagonal and one recurring part. A style that survives the hardest concept survives the rest.
 
-Draw 12 to 20 icons in every offered direction, hardest first: the most abstract concept from its picked picture, one with curves, one with a diagonal and one recurring part. A style that survives the hardest concept survives the rest.
+Where the agent draws, each icon is a short script of shared helpers, such as a rounded polyline and an arc, and the SVG is its output. Each direction's scripts sit in `.iconset/directions/<name>/` beside that direction's own `style.json`. Where a designer draws, each direction is a frame with its own variables.
 
-Set each tile in real rows of the product on the review page, at interface size, in both themes. A direction picked from adjectives, a library's name or 3 icons is `iconset-style-tiles`.
+Draw every size the product shows, with the values scaled as [styles.md](styles.md#directions) says. Set each tile in real rows of the product on the review page, in both themes. A direction picked from adjectives, a library's name or 3 icons is `iconset-style-tiles`.
 
-A lukewarm yes, such as "that's fine", is not a pick. Ask what is missing, change one property and show the tile again. Record the pick and why in `style.md`. This is the second checkpoint.
+Then ask which direction to take with the question tool. Mark the first Recommended and give each its key values and the reference behind it. Ask how fill is used in a second question, with the platform's convention first. A sharp technical style assumed without asking is `iconset-ask-the-style`.
+
+These questions are the second checkpoint. The answer is the pick, and Copy Feedback adds the user's overrides and notes to it. A lukewarm yes, such as "that's fine", is not a pick. Ask what is missing, change one property and show the tile again. Record the pick and why in `style.md`.
 
 The direction changes how a shape is built, never what it shows. People recognise and like familiar metaphors most, so search stays a magnifying glass in every direction. An eye drawn for search to look on-brand is `iconset-style-keeps-metaphors`.
 
 ## 7. Keep the look in variables
 
-Write the picked values into `style.json`: each size's stroke, the radius, the caps, the joins, the cut width and the duotone's back layer. Its format is in [formats.md](formats.md#variables). Every drawing reads them, so one change moves the whole set. A radius typed into each path by hand is `iconset-style-in-variables`.
+Move the picked direction's scripts beside the icons. Write its values into `style.json` with the user's overrides from Copy Feedback, such as a lighter 24 stroke. Step 9 settles each size's stroke beside the type.
 
-Where the agent draws, each icon is a short script of shared helpers, such as a rounded polyline, a rounded rect and an arc, and the SVG is its output. Where a designer draws, the values are the design file's variables.
+`style.json` holds each size's stroke, the radius, the caps, the joins, the cut width and the duotone's back layer. Its format is in [formats.md](formats.md#variables). Every drawing reads it, so one change moves the whole set. A radius typed into each path by hand is `iconset-style-in-variables`.
 
 The variables are for deciding, not for shipping, so the package offers no stroke or radius slider. A correction the eye asks for lives in the icon's own script as a named override, so the next global change keeps it. An edit to a generated SVG is lost on the next run.
 

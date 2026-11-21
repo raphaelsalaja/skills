@@ -2,6 +2,8 @@
 
 The files an icon library keeps beside its drawings. The drawings read the variables, and the build command reads every file after them, so the code and the catalogue never drift.
 
+They sit in the icon source folder, such as `icons/`, and are committed. Only the review page and the unpicked directions live in the ignored `.iconset/`.
+
 ## Style
 
 `style.md` sits beside the icons and records how the direction was picked. The voice and the stroke step start from it, and a later redraw reads why.
@@ -66,24 +68,36 @@ Once the seed passes, the Voice section is copied into the Voice table of `icon-
 
 `radius` is the path's own radius at the centre of the stroke. `cut` is the gap where a badge or slash clips a shape, and it is never narrower than that size's stroke. `duotone` is absent when the set has none, and `back` is `opacity` or `colour`.
 
+Before the pick, each direction keeps a `style.json` in this format in `.iconset/directions/<name>/`. The picked one moves beside the icons with the user's overrides.
+
 ## Icon scripts
 
-Where the agent draws, each icon is a script that reads `style.json` and returns the SVG. A correction the eye asks for is a named override beside the part it bends, so regenerating the set keeps it.
+Where the agent draws, each icon is a script that returns its parts from shared helpers. The caller passes the size, the values and the helpers, so one script draws every size, direction and one-change variant. A correction the eye asks for is a named override beside the part it bends, so regenerating the set keeps it.
 
 ```js
-import style from "../style.json" with { type: "json" };
-import { polygon, starPoints } from "../helpers.js";
-
-export default (size) =>
-  polygon(starPoints(size), {
-    stroke: style.sizes[size].stroke,
-    radius: style.sizes[size].radius,
+// star.mjs
+export default ({ poly, starPoints }) =>
+  poly(starPoints(), {
+    closed: true,
     // 36° points: a quarter of 3.4, halved for the angle.
     corners: { points: 0.425 },
   });
 ```
 
-The build runs every script, so the scripts and the SVG tree never disagree.
+`helpers.mjs` sits beside the icons. It scales 24-grid coordinates to each size, snaps anchors to the grid step and applies the radius table, so a script names only its shape.
+
+`.iconset/render.mjs` draws every script with each direction's values, or with `style.json` once one is picked, and writes `review.js`. Run it after every change, because a page opened from disk cannot import modules or fetch JSON.
+
+```js
+import { readFileSync } from "node:fs";
+import { draw } from "../icons/helpers.mjs";
+import folder from "./directions/round/folder.mjs";
+
+const round = JSON.parse(readFileSync(new URL("directions/round/style.json", import.meta.url)));
+const svg = { 16: draw(folder, 16, round), 24: draw(folder, 24, round) };
+```
+
+The build runs the same scripts, so the scripts and the SVG tree never disagree.
 
 ## Concepts
 

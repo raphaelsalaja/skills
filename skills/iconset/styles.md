@@ -19,6 +19,8 @@ Each direction is its own construction, not a filter over another. Offer only th
 
 The radius is the path's own, the value `style.json` keeps. A stroke adds half its width outside the corner and takes half inside, never below 0, which the brackets show. A filled direction rounds its shapes by the radius directly.
 
+For another size, scale a value by the size over 24 and round it to the nearest quarter. A 2 stroke becomes 1.25 at 16, and a 3 radius becomes 2.
+
 A dimensional direction, such as soft 3D, clay or glass, is offered only for icons shown at 32px and up, such as pictograms and empty states. It faces straight on and never replaces the UI icons.
 
 A native app may stay close to its platform's own symbols. That direction takes the platform's weight scale, matched to the system font, and draws only what the platform lacks. Its icons ship through the templates under [Radius, logo and platform](#radius-logo-and-platform).
@@ -38,7 +40,7 @@ Duotone works at every size the set ships when its smallest size passes in real 
 
 ## The taste test
 
-Run it when the user has no references, or cannot say what they like. Show 6 to 8 open icon sets that span the directions. Pick from a sharp set, a neutral one, a soft one, a round one, a filled one, a duotone one, a hand-drawn one and a pixel one.
+Put it on the review page before the first checkpoint when the request names no references. Show 6 to 8 open icon sets that span the directions. Pick from a sharp set, a neutral one, a soft one, a round one, a filled one, a duotone one, a hand-drawn one and a pixel one.
 
 Each set draws the same 6 concepts: a folder, a search, a gear, a bell, a user and an arrow. Put each set in its own row on the review page, beside labels in the product's font, in both themes.
 
@@ -46,7 +48,7 @@ Ask which row feels closest and which feels furthest, then ask why in a free ans
 
 ## Questions about feel
 
-Ask a few in plain words, and keep the answers in the user's own words before turning them into values.
+Ask 2 or 3 in plain words, and keep the answers in the user's own words before turning them into values.
 
 - What should someone feel the first time they see the sidebar?
 - What should the icons never feel like?
@@ -57,7 +59,7 @@ Ask a few in plain words, and keep the answers in the user's own words before tu
 
 ## Sliders
 
-Ask these when the user has no references and the product has no type, brand or illustrations to read. Ask 3, each as one question with 4 positions and no middle.
+Ask these at the first checkpoint when the request names no references and the product has no type, brand or illustrations to read. Ask 3, each as one question with 4 positions and no middle.
 
 | Slider | The left leans | The right leans | But not |
 | --- | --- | --- | --- |
@@ -107,7 +109,7 @@ Measure the interface typeface at body size, in the weight icons sit beside. Mea
 
 | Feature | How to measure | Icon setting |
 | --- | --- | --- |
-| Stem width | The vertical stroke of `l` or `H` at body size, in pixels | The stroke at that size, to the nearest quarter |
+| Stem width | The stem of a lowercase `l` at body size, in pixels: draw it at 100px on a canvas, measure the dark run across its middle and scale by body size over 100 | The stroke at the icon's shipped size, to the nearest quarter |
 | Label weight | The weight of labels beside icons | A heavier label takes the heavier end of the range |
 | Contrast | The thickest stroke of `o` over its thinnest | Above about 1.5:1, the light end of the range |
 | Apertures | How far `c`, `e` and `a` open | Open apertures open arrowheads and break closed outlines; closed ones keep shapes closed |
@@ -115,6 +117,8 @@ Measure the interface typeface at body size, in the weight icons sit beside. Mea
 | Corners | Where strokes meet in `M`, `N` and `V` | Round joins or miter joins to match |
 | Ink traps | Notches where strokes meet in `M` or `n` | Wider gaps at junctions, written into the voice |
 | x-height | x-height over cap height | A low x-height shortens arrowheads and shrinks badges; a high one widens counters |
+
+Measure `l`, never `H`. Capital stems run heavier, such as 1.4 against 1.26 at 14px, which moves the nearest quarter, and labels are mostly lowercase.
 
 ## Radius, logo and platform
 
@@ -136,6 +140,7 @@ The platform sets the default fill.
 | --- | --- |
 | Bottom navigation on Android and the web | Line when unselected, filled when selected, heavier where no filled form exists |
 | Tab bar in a native iOS app | Filled on every tab, the selected one marked by tint |
+| Sidebar navigation beside labels | Line, the selected row marked by its background or tint |
 | Toolbars, lists and rows beside text | Line |
 
 Line and filled icons are recognised about as fast overall. Light line icons on dark read slightly slower, so a product that starts dark judges its tiles on dark first.
