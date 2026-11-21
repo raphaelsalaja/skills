@@ -26,11 +26,17 @@ For each group, write the states it can rest in as a table of state, entered on 
 
 Every combination no state names is an impossible state. Give each one the line that produces it, such as an error handler that never clears `isLoading`. One that no line reaches is still listed, marked unreachable.
 
+Then cross every state with every event the group receives, such as `open`, `close`, `Escape` and a response arriving. Each cell names the next state or says `ignored`. A blank cell is where impossible states come from, such as `open` pressed during `closing`. A table of states with no events is `invariants-every-event-in-every-state`.
+
 ## 3. Collapse each group into one status
 
 Replace the group with one discriminated union or reducer, so an impossible state cannot be written. `isLoading`, `isError` and `data` kept side by side is `invariants-one-status`.
 
 Transitions live in one place: the reducer, or the events that call it. A status set directly from five components is `invariants-one-writer`.
+
+Every `switch` over a status ends in a `never` check, so adding a state fails to compile until each branch handles it. `default: return null` on a union hides the next state someone adds, and is `invariants-exhaustive-switch`. Without TypeScript, the `default` throws in development.
+
+Store the source and compute the rest. A value that can be computed from props or other state is computed during render, never kept in state of its own. `selectedItem` copied out of `items` goes stale on the next edit, so store `selectedId` and find the item. A copy kept in sync by an effect is `invariants-derive-not-store`.
 
 ## 4. Find what the code assumes
 
@@ -47,6 +53,13 @@ Run each search across the scope and list every hit. Reading files by eye for as
 | One of a kind | "only one", "should never" and "always" in comments |
 | Default hiding a gap | `?? []`, `?? ""` and `?? 0` on values that are always set |
 | Limits that must match | `maxLength` and `.max(` beside the column or schema that stores the field |
+| A quiet default | `default:` in a `switch` over a union, returning anything but a `never` check |
+| Copied state | `useState(props.`, and an effect whose only line calls a setter |
+| Responses that race | `fetch(` or an awaited call inside an effect with no `AbortController` and no ignore flag in its cleanup |
+| Stored data read blind | `JSON.parse(localStorage`, `searchParams.get(` and `params.` read with no parse |
+| IDs as numbers | `Number(id)`, `parseInt(` and `+id` on an ID, which lose digits past `9007199254740991` |
+
+The screen shows the answer to the latest request. A search effect with no cleanup lets the response for `hel` land after `hello` and replace it. Abort the old request, or ignore its result in the effect's cleanup. A data library that keys each request by its query already does this. A hand-written fetch effect with no cleanup is `invariants-latest-request-wins`.
 
 A field's input limit matches its storage limit. A 50-character input saving to a 255-character column means longer values will still arrive from imports or the API. Give both one limit, or render for the larger one. `maxLength={50}` over a `varchar(255)` is `invariants-matching-limits`. When the storage is out of scope, mark the limit `Not verified`.
 
@@ -72,9 +85,13 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | --- | --- | --- |
 | `invariants-group-the-flags` | `isOpen` and `isClosing` reported as two findings | One group: `isOpen`, `isClosing` and `isAnimating` |
 | `invariants-count-the-combinations` | "These flags look related" | "3 flags, 8 combinations, 4 named states, 4 impossible" |
+| `invariants-every-event-in-every-state` | A list of four states, nothing on what `open` does during `closing` | The `closing` row: `open` goes to `opening`, `Escape` is ignored |
 | `invariants-one-status` | `isLoading`, `isError` and `data` side by side | `{ status: "error", error }` or `{ status: "done", data }` |
 | `invariants-one-writer` | `setStatus("closing")` called from five components | One `close` event handled in the reducer |
+| `invariants-exhaustive-switch` | `default: return null` in `switch (state.status)` | `default: { const unhandled: never = state; throw new Error(unhandled) }` |
+| `invariants-derive-not-store` | `useEffect(() => setSelectedItem(items.find(...)), [items])` | `selectedId` in state, `items.find((item) => item.id === selectedId)` in render |
 | `invariants-search-every-shape` | Files read by eye for assumptions | Every search in the table run, hits listed |
+| `invariants-latest-request-wins` | `fetch(url).then(setResults)` in an effect with no cleanup | The effect's cleanup aborts the request, so the `hel` results never replace `hello` |
 | `invariants-matching-limits` | `maxLength={50}` on a name stored as `varchar(255)` | One limit of 50 on both, or the card laid out for 255 characters |
 | `invariants-name-the-enforcer` | "IDs are probably unique" | "`rows.tsx:40` keys on `id`, nothing enforces it" |
 | `invariants-enforce-at-the-edge` | `if (!items.length) return` in six components | The schema at `api.ts:12` rejects an empty list |
@@ -83,7 +100,7 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 
 ## Reporting
 
-**Severity.** `HIGH` is an impossible state a line can reach, or an assumption that crashes or loses work when broken. `MEDIUM` is an ungrouped set of flags, a status with many writers or a rule enforced only by a comment. It is also an input limit that differs from the storage limit. `LOW` is an impossible state no line reaches, or a guard repeated at every read.
+**Severity.** `HIGH` is an impossible state a line can reach, or an assumption that crashes or loses work when broken. It is also an older response that can replace a newer one, or an ID that loses digits as a number. `MEDIUM` is an ungrouped set of flags, a status with many writers or a rule enforced only by a comment. It is also an input limit that differs from the storage limit. It is also a machine with no event table, a `switch` with a quiet `default` or a computed value kept in state. `LOW` is an impossible state no line reaches, or a guard repeated at every read.
 
 **Format.** One finding per root cause, numbered:
 
