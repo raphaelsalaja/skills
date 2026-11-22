@@ -25,7 +25,7 @@ The user's edits to code the agent wrote count as corrections: a `duration: 400`
 
 State the rule in one sentence, then the broken line and the line that replaces it. A rule with no example is `rule-write-the-pair`.
 
-Write always or never with the exact value. "Try to", "consider", "where possible" and shouting such as "IMPORTANT" are `rule-no-hedges`. `rg -n -i 'try to|consider|where possible|important:'` finds them in the rule files.
+Write always or never with the exact value. "Try to", "consider", "where possible" and shouting such as "IMPORTANT" are `rule-no-hedges`. `rg -n -i '\b(try to|consider|where possible)\b|important:'` finds them in the rule files.
 
 ## 4. Keep it short
 
@@ -43,32 +43,32 @@ A preference about the user's own machine, editor or habits goes in their person
 
 ## 6. Ship a check
 
-When matching code can find a violation, the rule ships with a check: a lint pattern, a token restriction or a test. Run it once and report its hit count before fixing anything. A matchable rule written as prose alone is `rule-check-when-matchable`.
+When matching code can find a violation, the rule ships with a check: a lint pattern, a token restriction or a test. Run it once and report its hit count before fixing anything. When the project forbids running checks locally, write the check and leave it for CI. A matchable rule written as prose alone is `rule-check-when-matchable`.
 
 ## 7. Sweep the code
 
-Search for code that breaks the new rule, fix it and list the files. A rule written with old violations left in place is `rule-sweep-existing`.
+Search for code that breaks the new rule and list every hit. Fix the hits in files the change already touches, then ask once before fixing the rest. A rule written with old violations left unlisted is `rule-sweep-existing`.
 
 ## The pair
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `rule-read-silent-edits` | The user's `duration: 200` set back to `400` on the next pass | `200` read from the diff and written as the rule |
-| `rule-write-the-pair` | "Use good casing" | "Labels take Title Case. `Add to library` becomes `Add to Library`" |
-| `rule-no-hedges` | "IMPORTANT: try to keep buttons consistent" | "Buttons use `Button`. `<button className="btn">` becomes `<Button>`" |
-| `rule-keep-it-short` | A paragraph of reasoning | One sentence and a pair |
-| `rule-one-home` | One rule in three files | One file, the others point at it |
-| `rule-resolve-conflicts` | "Use borders" beside "never use borders" | The old rule replaced, the change noted |
-| `rule-scope-to-the-path` | "API handlers validate with the shared schemas" in the root file | The line in `src/api/AGENTS.md` |
-| `rule-personal-stays-personal` | "Never run builds on my laptop" committed to `AGENTS.md` | The line in the user's personal rules, the repository file unchanged |
-| `rule-check-when-matchable` | "Never use `#hex` in components" as prose alone | A lint pattern for `#[0-9a-f]{3,8}` in `components/`, run once: 14 hits |
-| `rule-sweep-existing` | The rule added, twelve violations left | The violations fixed and listed |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `rule-read-silent-edits` | The user's `duration: 200` set back to `400` on the next pass | `200` read from the diff and written as the rule | `HIGH` |
+| `rule-write-the-pair` | "Use good casing" | "Labels take Title Case. `Add to library` becomes `Add to Library`" | `MEDIUM` |
+| `rule-no-hedges` | "IMPORTANT: try to keep buttons consistent" | "Buttons use `Button`. `<button className="btn">` becomes `<Button>`" | `LOW` |
+| `rule-keep-it-short` | A paragraph of reasoning | One sentence and a pair | `LOW` |
+| `rule-one-home` | One rule in three files | One file, the others point at it | `MEDIUM` |
+| `rule-resolve-conflicts` | "Use borders" beside "never use borders" | The old rule replaced, the change noted | `HIGH` |
+| `rule-scope-to-the-path` | "API handlers validate with the shared schemas" in the root file | The line in `src/api/AGENTS.md` | `LOW` |
+| `rule-personal-stays-personal` | "Never run builds on my laptop" committed to `AGENTS.md` | The line in the user's personal rules, the repository file unchanged | `MEDIUM` |
+| `rule-check-when-matchable` | "Never use `#hex` in components" as prose alone | A lint pattern for `#[0-9a-f]{3,8}` in `components/`, run once: 14 hits | `MEDIUM` |
+| `rule-sweep-existing` | The rule added, twelve violations left unlisted | Twelve hits listed, the three in touched files fixed, "Fix the other nine?" | `MEDIUM` |
 
 ## Reporting
 
-**Severity.** `HIGH` is two rules that contradict. `MEDIUM` is a rule with no pair, old violations left after a new rule, a user's edit left unrecorded or a matchable rule with no check. It is also one rule copied into a second file, or a personal preference committed to the shared file. `LOW` is a rule longer than it needs, a hedged rule or a folder's rule kept at the root.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why.
 
 **Format.** One finding per root cause:
 

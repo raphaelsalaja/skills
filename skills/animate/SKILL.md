@@ -10,7 +10,7 @@ This skill finds where an interface changes with no motion and adds it. It lists
 
 ## Motion that explains, never decorates
 
-Each motion added answers one question: where did this come from, where did it go or what changed. A motion that answers none is a finding. The frequency gates are exact: over 100 a day gets nothing, 10–100 a day gets functional motion and under 10 a day may take delight. Run it when the user asks for motion or polish on a flow.
+Each motion added answers one question: where did this come from, where did it go or what changed. A motion that answers none is a finding. The frequency gates in step 2 are exact. Run it when the user asks for motion or polish on a flow.
 
 Every easing, duration, spring and stagger value belongs to `motion`, and a break there cites its id. Whether the motion holds its frame budget belongs to `frames`. Taking an existing motion apart belongs to `deconstruct`. Opening the running result belongs to `verify`.
 
@@ -32,14 +32,14 @@ Motion added before this list exists, such as a fade on every card, is `animate-
 
 ## 2. Gate by frequency
 
-Write beside each moment how often a regular user triggers it in a day. Strike every moment over 100 a day and every moment started from the keyboard. A motion left on a struck moment cites `motion-no-motion-on-repeat`. Moments from 10 to 100 a day get functional motion only. A moment built with no frequency beside it is `animate-gate-by-frequency`. Take counts from the project's analytics where it has them, and mark every other count as an estimate.
+Write beside each moment how often a regular user triggers it in a day. Strike every moment over 100 a day, and every moment started by typing, a shortcut or keyboard navigation. A motion left on a struck moment cites `motion-no-motion-on-repeat`. Moments from 10 to 100 a day get functional motion only, and moments under 10 a day may also take delight. A moment built with no frequency beside it is `animate-gate-by-frequency`. Take counts from the project's analytics where it has them, and mark every other count as an estimate.
 
 ## 3. Explain the change
 
 Pick the smallest motion that shows what happened. An element opened by a control grows from that control. Siblings of an added, removed or reordered item move to their new places as a layout animation. A container that changes size animates its size. Content swapped in place cross-fades. An item that moves between two places travels there as one shared element. A slide, bounce or flip where a cross-fade explains the swap is `animate-explain-the-change`.
 
 | Change | With a motion library | In CSS |
-| --- | --- | --- |
+| --- | --- | --- | --- |
 | Opened by a control | `initial` and `animate`, with `transformOrigin` at the trigger | `@starting-style` on the open state, with `transform-origin` at the trigger |
 | Siblings of an added, removed or reordered item | `layout` on each item | `view-transition-name: match-element` on each item, the change inside `startViewTransition()` |
 | A container changes size | The outer node animated to the inner node's measured size | `interpolate-size: allow-keywords` and `block-size: auto` |
@@ -47,11 +47,11 @@ Pick the smallest motion that shows what happened. An element opened by a contro
 | An item moves between two places | One `layoutId` on both | One `view-transition-name` on both |
 | Page to page in a multi-page site | None | `@view-transition { navigation: auto; }` on both pages |
 
-Each technique's values and limits sit in `motion`.
+Each technique's values and limits sit in `motion`, including where `match-element` and `interpolate-size` fall short.
 
 ## 4. Spend the delight budget
 
-A flow gets at most one delight moment, and only on a moment under 10 a day, such as a first project created or an inbox cleared. Delight sits on top of the functional motion, such as a checkmark that draws itself. Delight on a routine save, or on two moments in one flow, is `animate-delight-budget`. A scroll reveal or an idle loop is never the delight, and cites `motion-no-scroll-reveals` or `motion-no-idle-loops`.
+A flow gets at most one delight moment, only where the gate allows it, such as a first project created or an inbox cleared. Delight sits on top of the functional motion, such as a checkmark that draws itself. Delight on a routine save, or on two moments in one flow, is `animate-delight-budget`. A scroll reveal or an idle loop is never the delight, and cites `motion-no-scroll-reveals` or `motion-no-idle-loops`.
 
 ## 5. Build it
 
@@ -69,19 +69,19 @@ Trigger each moment twice within 100ms, and reverse it halfway through. The moti
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `animate-find-teleports` | A fade added to every card unasked | A list of moments, each with what jumps and its trigger |
-| `animate-gate-by-frequency` | Motion on row hover with no count beside it | "Row hover: about 300 a day, struck" |
-| `animate-explain-the-change` | Tab content sliding in with a bounce | The panel cross-fading while the tab indicator moves to the new tab |
-| `animate-delight-budget` | Confetti on every save | One drawn checkmark when the first project is created |
-| `animate-before-and-after` | "Added motion to the list" | Clips of the row delete before and after, at 1× and 0.25× |
-| `animate-reduced-motion-clip` | Clips at 1× and 0.25× only | A third clip of each moment with `prefers-reduced-motion: reduce` emulated |
-| `animate-interrupt-check` | Each moment triggered once from rest | The filter panel closed halfway open, and the delete pressed twice within 100ms |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `animate-find-teleports` | A fade added to every card unasked | A list of moments, each with what jumps and its trigger | `MEDIUM` |
+| `animate-gate-by-frequency` | Motion on row hover with no count beside it | "Row hover: about 300 a day, struck" | `LOW` |
+| `animate-explain-the-change` | Tab content sliding in with a bounce | The panel cross-fading while the tab indicator moves to the new tab | `MEDIUM` |
+| `animate-delight-budget` | Confetti on every save | One drawn checkmark when the first project is created | `MEDIUM` |
+| `animate-before-and-after` | "Added motion to the list" | Clips of the row delete before and after, at 1× and 0.25× | `HIGH` |
+| `animate-reduced-motion-clip` | Clips at 1× and 0.25× only | A third clip of each moment with `prefers-reduced-motion: reduce` emulated | `MEDIUM` |
+| `animate-interrupt-check` | Each moment triggered once from rest | The filter panel closed halfway open, and the delete pressed twice within 100ms | `LOW` |
 
 ## Reporting
 
-**Severity.** `HIGH` is motion added to a keyboard action or to a moment over 100 a day, or motion reported done with no recording. `MEDIUM` is a teleport left on a moment the gate kept, a motion that does not explain its change or delight past the budget. It is also motion added before the list of moments, or motion reported done with no reduced motion clip. `LOW` is a moment with no frequency written, or a list that marks a moment without saying why. It is also a moment never interrupted mid-flight.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why. A motion left on a struck moment is `HIGH` here, whatever its level in `motion`.
 
 **Format.** One finding per root cause, naming the moment and its frequency:
 

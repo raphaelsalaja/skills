@@ -20,9 +20,11 @@ Open the page at the viewport it ships at, with a device scale factor of 2. Chec
 
 ## 2. Run the measurement
 
-Read the spacing scale from the project's tokens first. Run [measure.js](measure.js) in the page through the browser's evaluate call, passing the scale as `window.__alignmentOptions = { scale }`.
+Read the spacing scale from the project's tokens first. Set `window.__alignmentOptions = { scale }`, then pass the contents of [measure.js](measure.js) to the browser tool's evaluate call.
 
 It returns findings with a rule, the element, the measured values and a rectangle. Treat each as a candidate until step 3 confirms it.
+
+The script checks the shared edge, even gaps, the scale, padding over gap, icon-side padding, ink centring, icons with labels and the optical glyph. It also checks shared baselines, whole pixels, concentric radii and the radius floor. Top alignment beside wrapping text and visual weight are judged by eye.
 
 ## 3. Check the lines
 
@@ -30,15 +32,15 @@ Crop each candidate from the 2x screenshot and count the pixels. Drop any findin
 
 Text, icons and controls that start a column share one x. A title 2px right of its description is `alignment-shared-edge`.
 
-Repeated siblings sit at one gap. A list spaced 8, 8 then 12px is `alignment-even-gaps`. A deliberate group break is at least twice the gap.
+Repeated siblings sit at one gap. A list spaced 8, 8 then 12px is `alignment-even-gaps`. A gap at least twice the usual one is a deliberate group break.
 
 Every padding, gap and margin is a step on the project's scale. A 6px padding on a 4px scale is `alignment-on-scale`.
 
 A surface's padding is never smaller than the gap between its children, on the axis that gap separates. A card at 8px padding around rows 16px apart is `alignment-padding-over-gap`. Tables and full-bleed lists are exempt.
 
-A button with a leading or trailing icon takes 2px less padding on the icon side than on the text side, because the icon's box carries its own empty edge. `padding: 0 12px` around a leading icon is `alignment-icon-side-padding`, and it takes `padding: 0 12px 0 10px`. That 2px is an optical offset, exempt from the scale.
+A button with a leading or trailing icon takes 2px less padding on the icon side, because the icon's box carries its own empty edge. Equal padding around a leading icon is `alignment-icon-side-padding`. That 2px is an optical offset, exempt from the scale.
 
-Boxes land on whole CSS pixels. Half a pixel stays sharp at 2x but blurs text and 1px borders at 1x. A dialog centred with `translate(-50%, -50%)` at a 301px width, sitting at x 489.5, is `alignment-whole-pixels`. Centre it with `display: grid; place-items: center` on a fixed `inset: 0` wrapper.
+Boxes land on whole CSS pixels. Half a pixel stays sharp at 2x but blurs text and 1px borders at 1x. The script reads both `transform` and `translate`. A dialog centred with `translate(-50%, -50%)` at a 301px width, sitting at x 489.5, is `alignment-whole-pixels`.
 
 ## 4. Check the centres
 
@@ -46,15 +48,15 @@ Text in a control centres on its cap height and baseline, not its line box. Ink 
 
 An icon beside a label centres on the label's cap height. An icon centred on the line box and sitting 1px low is `alignment-icon-with-label`.
 
-Text of two sizes in one row shares a baseline. A 32px price centred beside its 14px `/month`, their baselines 6px apart, is `alignment-shared-baseline`. Set `align-items: baseline` on the row, and `align-self: center` on any button in it.
+Text of two sizes in one row shares a baseline. A 32px price centred beside its 14px `/month`, their baselines 6px apart, is `alignment-shared-baseline`. Set `align-self: center` on any button in that row.
 
-Once text can wrap, the row top-aligns with `align-items: flex-start`. An avatar centred beside a three-line name drifts to the middle line, and that is `alignment-top-when-wrapping`.
+Once text can wrap, the row top-aligns. An avatar centred beside a three-line name drifts to the middle line, and that is `alignment-top-when-wrapping`.
 
-Play icons, arrows and triangles carry their weight on one side. A play icon centred by its box that looks shifted left is `alignment-optical-glyph`. Nudge it and name the value, such as `--play-nudge: 1px`.
+Play icons, arrows and triangles carry their weight on one side, so centring their ink box makes them look shifted. A play icon whose ink box sits dead centre in its button is `alignment-optical-glyph`. Nudge it toward its light side and name the value, such as `--play-nudge: 1px`. The script finds the weight from points along the outline, and passes an icon already nudged.
 
 A nested surface's radius is the outer radius minus the inset. A 16px panel inside a 16px card at 8px inset is `alignment-concentric-radius`, and it takes 8px.
 
-When that subtraction falls below 2px, the inner radius holds at 2px, or at 0 when the outer corner is square. A panel at 0 or 1px inside a rounded card reads as a mistake, and is `alignment-concentric-floor`.
+When that subtraction falls below 2px, the inner radius holds at 2px. A panel at 0 or 1px inside a rounded card reads as a mistake, and is `alignment-concentric-floor`.
 
 ## 5. Judge the weight
 
@@ -76,29 +78,29 @@ The report is the deliverable. When the user asks for fixes, change the token or
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `alignment-measure-the-render` | "The flex container centres it" | Measured in the running page at 2x |
-| `alignment-shared-edge` | Title inset 2px from its description | Both start on one ink line |
-| `alignment-even-gaps` | Rows at 8, 8 and 12px | Rows at 8, 8 and 8px |
-| `alignment-on-scale` | `padding: 6px` on a 4px scale | `padding: 8px` |
-| `alignment-padding-over-gap` | `padding: 8px` around rows `16px` apart | `padding: 16px` |
-| `alignment-icon-side-padding` | `padding: 0 12px` on a button with a leading icon | `padding: 0 12px 0 10px` |
-| `alignment-whole-pixels` | `left: 50%; transform: translate(-50%, -50%)` on a 301px dialog, landing at x 489.5 | `position: fixed; inset: 0; display: grid; place-items: center` on its wrapper |
-| `alignment-ink-centre` | Label ink 2px low in its button | `text-box: trim-both cap alphabetic` |
-| `alignment-icon-with-label` | Icon centred on the line box | Icon centred on the cap height |
-| `alignment-shared-baseline` | A 32px price and its 14px `/month` centred, baselines 6px apart | `align-items: baseline` on the row |
-| `alignment-top-when-wrapping` | `align-items: center` beside a three-line name | `align-items: flex-start`, the avatar level with the first line |
-| `alignment-optical-glyph` | Play icon centred by its box | Play icon nudged `1px` right, named |
-| `alignment-concentric-radius` | 16px panel in a 16px card at 8px inset | 8px panel radius |
-| `alignment-concentric-floor` | A square panel in a 6px card at 8px inset | `border-radius: max(var(--card-radius) - 8px, 2px)`, a 2px panel radius |
-| `alignment-visual-weight` | 2px icon stroke beside 1.5px stems | Stroke matched to the text weight |
-| `alignment-shipped-report` | Crops cut by hand into a page written from scratch | `report.html` copied, only `report.js` written |
-| `alignment-annotated-proof` | "The button looks a bit off" | Finding 3, 1.8px low, with the crop |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `alignment-measure-the-render` | "The flex container centres it" | Measured in the running page at 2x | `MEDIUM` |
+| `alignment-shared-edge` | Title inset 2px from its description | Both start on one ink line | `MEDIUM` |
+| `alignment-even-gaps` | Rows at 8, 8 and 12px | Rows at 8, 8 and 8px | `MEDIUM` |
+| `alignment-on-scale` | `padding: 6px` on a 4px scale | `padding: 8px` | `LOW` |
+| `alignment-padding-over-gap` | `padding: 8px` around rows `16px` apart | `padding: 16px` | `MEDIUM` |
+| `alignment-icon-side-padding` | `padding: 0 12px` on a button with a leading icon | `padding: 0 12px 0 10px` | `MEDIUM` |
+| `alignment-whole-pixels` | `left: 50%; transform: translate(-50%, -50%)` on a 301px dialog, landing at x 489.5 | `position: fixed; inset: 0; display: grid; place-items: center` on its wrapper | `MEDIUM` |
+| `alignment-ink-centre` | Label ink 2px low in its button | `text-box: trim-both cap alphabetic` | `MEDIUM` |
+| `alignment-icon-with-label` | Icon centred on the line box | Icon centred on the cap height | `MEDIUM` |
+| `alignment-shared-baseline` | A 32px price and its 14px `/month` centred, baselines 6px apart | `align-items: baseline` on the row | `MEDIUM` |
+| `alignment-top-when-wrapping` | `align-items: center` beside a three-line name | `align-items: flex-start`, the avatar level with the first line | `MEDIUM` |
+| `alignment-optical-glyph` | Play icon centred by its ink box | Play icon nudged `1px` right, named | `MEDIUM` |
+| `alignment-concentric-radius` | 16px panel in a 16px card at 8px inset | 8px panel radius | `MEDIUM` |
+| `alignment-concentric-floor` | A square panel in a 6px card at 8px inset | `border-radius: max(var(--card-radius) - 8px, 2px)`, a 2px panel radius | `MEDIUM` |
+| `alignment-visual-weight` | 2px icon stroke beside 1.5px stems | Stroke matched to the text weight | `MEDIUM` |
+| `alignment-shipped-report` | Crops cut by hand into a page written from scratch | `report.html` copied, only `report.js` written | `MEDIUM` |
+| `alignment-annotated-proof` | "The button looks a bit off" | Finding 3, 1.8px low, with the crop | `LOW` |
 
 ## Reporting
 
-**Severity.** `HIGH` is a miss visible at 1x on a primary surface, such as a heading column or a primary button. `MEDIUM` is a 1–2px miss, uneven gaps, padding smaller than the gap, a radius mismatch, a weight imbalance or a hand-built report. It is also a row centred beside text that wraps, or a button padded the same on its icon side and its text side. It is also two text sizes off one baseline, or a box on half a pixel that blurs at 1x. It is also an inner radius under 2px inside a rounded surface, or a check reasoned from the CSS rather than measured. `LOW` is an off-scale value that still renders aligned, or a finding with no measurement and no rect.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why. A miss visible at 1x on a primary surface, such as a heading column or a primary button, rises to `HIGH`.
 
 **Format.** One finding per root cause, numbered to match the overlay:
 

@@ -5,14 +5,12 @@ Code for the overlays in `SKILL.md`. Swap the literal values for the project's t
 ## Top layer
 
 ```html
-<button command="show-modal" commandfor="rename">Rename</button>
+<button command="show-modal" commandfor="shortcuts">Shortcuts</button>
 
-<dialog id="rename" closedby="any">
-  <form method="dialog">
-    <label>Name <input name="name" /></label>
-    <button value="cancel" formnovalidate>Cancel</button>
-    <button value="save">Save</button>
-  </form>
+<dialog id="shortcuts" closedby="any" aria-labelledby="shortcuts-title">
+  <h2 id="shortcuts-title">Keyboard Shortcuts</h2>
+  <dl>…</dl>
+  <button command="close" commandfor="shortcuts">Close</button>
 </dialog>
 
 <button popovertarget="sort-menu">Sort</button>
@@ -23,7 +21,7 @@ Code for the overlays in `SKILL.md`. Swap the literal values for the project's t
 </ul>
 ```
 
-`dialog.showModal()` from script does what `command="show-modal"` does. A `popover` with no value is `auto`, so opening another one closes it, and an outside click or Escape dismisses it. Toasts take `popover="manual"`, so opening a menu leaves them alone.
+`dialog.showModal()` from script does what `command="show-modal"` does. The dialog holds nothing to lose, so `closedby="any"` lets an outside click close it. A form dialog takes `closedby="closerequest"` instead, as in [Dismissal](#dismissal). A `popover` with no value is `auto`, so opening another one closes it, and an outside click or Escape dismisses it. Toasts take `popover="manual"`, so opening a menu leaves them alone.
 
 ## Scroll lock
 
@@ -46,7 +44,7 @@ html:has(dialog:modal) {
 }
 ```
 
-The backdrop stops wheel and touch scrolling from chaining to the page in Chrome 144 and Firefox 150 onward. Safari only honours `overscroll-behavior` on a box that can scroll, so the `:has()` rule locks the root there. The stable gutter keeps the width when the root's scrollbar goes. Test on an iPhone by scrolling over the backdrop and inside a short dialog.
+The backdrop stops wheel and touch scrolling from chaining to the page in Chrome 144 and Firefox 150 onward. Safari only honours `overscroll-behavior` on a box that can scroll, so the `:has()` rule locks the root there. The stable gutter, which `defaults` owns, keeps the width when the root's scrollbar goes. Test on an iPhone by scrolling over the backdrop and inside a short dialog.
 
 ## Dismissal
 
@@ -83,7 +81,7 @@ if (!("commandForElement" in HTMLButtonElement.prototype)) {
 }
 ```
 
-`command="request-close"` fires `cancel` before closing, so the Cancel button needs no script where commands exist. `showDiscardBar` shows Discard and Keep Editing inside the dialog, never a second dialog. Escape and the Cancel button both pass through `cancel`, so the guard holds where `closedby` is missing.
+`command="request-close"` fires `cancel` before closing, so the Cancel button needs no script where commands exist. Chrome honours `preventDefault()` on `cancel` only once per user activation, so a second Escape closes the dialog. Keep the draft on `close` too, so that Escape loses nothing. `showDiscardBar` shows Discard and Keep Editing inside the dialog, never a second dialog. Escape and the Cancel button both pass through `cancel`, so the guard holds where `closedby` is missing.
 
 ## Anchor positioning
 
@@ -95,16 +93,20 @@ if (!("commandForElement" in HTMLButtonElement.prototype)) {
 .sort-menu {
   position-anchor: --sort;
   position-area: block-end span-inline-end;
-  position-try-fallbacks: flip-block, flip-inline;
+  position-try-fallbacks: flip-block, flip-inline, flip-block flip-inline;
+  max-block-size: calc(100dvh - 16px);
+  overflow-y: auto;
 }
 
 @supports (position-area: block-end) {
   .sort-menu {
     inset: auto;
-    margin: 0;
+    margin: 8px 0;
   }
 }
 ```
+
+Each fallback flips the menu to a side where it fits. When none fits, `position-area` shifts it along the edge to stay inside the viewport. `max-block-size` caps it so it always fits and scrolls inside. The block margin keeps 8px from the trigger and from the top and bottom of the viewport.
 
 A popover is centred by default. Outside `@supports` it keeps that default, so an older browser without anchor positioning still shows a usable menu.
 
@@ -115,20 +117,60 @@ A popover is centred by default. Outside `@supports` it keeps that default, so a
 <div id="due-tip" popover="hint" role="tooltip">Thursday 3 December 2026, 17:00</div>
 ```
 
+```css
+[role="tooltip"] {
+  overflow: visible;
+}
+
+[role="tooltip"]::before {
+  content: "";
+  position: absolute;
+  inset: -8px;
+}
+```
+
 ```js
+let timer;
+let closedAt = 0;
+let current = null;
+
+function hide() {
+  clearTimeout(timer);
+  if (!current) return;
+  current.hidePopover();
+  current = null;
+  closedAt = performance.now();
+}
+
 document.querySelectorAll("[data-tip]").forEach((trigger) => {
   const tip = document.getElementById(trigger.dataset.tip);
-  const show = () => tip.showPopover({ source: trigger });
-  const hide = () => tip.hidePopover();
+  const open = () => {
+    current = tip;
+    if (!tip.matches(":popover-open")) tip.showPopover({ source: trigger });
+  };
+  const show = () => {
+    clearTimeout(timer);
+    const warm = current !== null || performance.now() - closedAt < 300;
+    if (warm) open();
+    else timer = setTimeout(open, 500);
+  };
+  const leave = (event) => {
+    if (trigger.contains(event.relatedTarget) || tip.contains(event.relatedTarget)) return;
+    hide();
+  };
 
   trigger.addEventListener("pointerenter", show);
   trigger.addEventListener("focus", show);
-  trigger.addEventListener("pointerleave", hide);
+  trigger.addEventListener("pointerleave", leave);
+  tip.addEventListener("pointerleave", leave);
   trigger.addEventListener("blur", hide);
-  trigger.addEventListener("keydown", (event) => {
-    if (event.key === "Escape") hide();
-  });
+});
+
+document.addEventListener("keydown", (event) => {
+  if (event.key === "Escape") hide();
 });
 ```
 
-The tooltip adds detail the label lacks, so it describes the button rather than repeating its name. `source` makes the trigger its implicit anchor, so `position-area` places it with no `anchor-name`. Where `hint` is unsupported the popover falls back to `manual`, which these listeners already close. Hover content that must stay open while the pointer crosses onto it bridges the gap with a transparent `::before` that spans it, so leaving the trigger never means leaving the overlay. No close delay is needed.
+The tooltip adds detail the label lacks, so it describes the button rather than repeating its name. `source` makes the trigger its implicit anchor, so `position-area` places it with no `anchor-name`.
+
+The first tooltip opens after 500ms. While one is open, or closed under 300ms ago, the next opens at once. The `::before` spans the gap to the trigger, and `relatedTarget` keeps the tooltip open while the pointer is over either, so no close delay is needed. Escape closes it from anywhere. Where `hint` is unsupported the popover falls back to `manual`, which these listeners already close.

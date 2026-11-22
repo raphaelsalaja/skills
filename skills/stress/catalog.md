@@ -59,9 +59,9 @@ The Vietnamese, Thai and Arabic names run here as user data through the fixture.
 | Case | Value | Passes when |
 | --- | --- | --- |
 | A newline in a single-line field | `"Line one\nLine two"` | Rows and titles show one line, and the edit form keeps the break |
-| Empty title | `""` | The screen's fallback for a missing title shows |
-| Whitespace title | `"   "` | It is treated as empty and shows the same fallback |
-| Zero-width title | `"\u200B"` | It is treated as empty and shows the same fallback |
+| Empty title | `""` | It shows the fallback `states-blank-strings` sets |
+| Whitespace title | `"   "` | It shows the fallback `states-blank-strings` sets |
+| Zero-width title | `"\u200B"` | It counts as blank and shows the fallback `states-blank-strings` sets |
 | A real title of the fallback word | `Untitled` | It shows as the user typed it and is never treated as missing |
 
 ## Numbers out of range
@@ -99,7 +99,7 @@ The Vietnamese, Thai and Arabic names run here as user data through the fixture.
 
 | Case | Value | Passes when |
 | --- | --- | --- |
-| None | 0 rows | The designed empty state shows |
+| None | 0 rows | The empty state `states` sets shows |
 | One | 1 row | Labels are singular, such as `1 item` |
 | Exactly one page | the page size, such as 25 | No next-page control leads to nothing |
 | One past a page | the page size + 1 | The last row is reachable |
@@ -108,8 +108,8 @@ The Vietnamese, Thai and Arabic names run here as user data through the fixture.
 | Same ID | two rows sharing one `id` | Both rows render, and editing one leaves the other unchanged |
 | Many tags | 12 tags on one row | They wrap to a set number of lines or end in a `+N` count |
 | One wide tag | `Customer success escalations (EMEA)` | It truncates inside its own chip |
-| Every status | each enum value once in one list | Each has a label and a colour, and none shows a raw key such as `IN_REVIEW` |
-| The current user | the signed-in user as a row | The row is marked as theirs, and actions that cannot apply to it are hidden |
+| Every status | each enum value once in one list | It passes `states-every-status-at-once` |
+| The current user | the signed-in user as a row | It passes `states-current-user` |
 
 ## Extreme images
 
@@ -123,7 +123,7 @@ The Vietnamese, Thai and Arabic names run here as user data through the fixture.
 
 ## Responses
 
-Slow and Failed run from the switch. Run the rest by changing one mock handler at a time.
+Slow and Failed run as data sets from step 2. Run the rest by changing one route handler at a time.
 
 | Case | Value | Passes when |
 | --- | --- | --- |

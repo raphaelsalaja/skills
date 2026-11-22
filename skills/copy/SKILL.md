@@ -1,21 +1,25 @@
 ---
 name: copy
-description: Writes interface labels in Title Case, short and plain, with one-line descriptions and no em dashes.
+description: Writes interface labels, errors, confirm dialogs and statuses, short and plain, in the project's casing or Title Case when it has none.
 ---
 
 # Copy
 
 This skill writes and reviews the words inside an interface. It covers labels, placeholders, descriptions, errors, status text and the punctuation they use.
 
-## Casing and punctuation are exact
+## Casing follows the project, Title Case by default
 
-A label in sentence case is a finding. An em dash is a finding. A label that could lose a word is a finding only when the shorter label still says what happens.
+Match the casing the project's interface already uses. Title Case applies only when the project has none, and then a sentence-case label is a finding. Em dashes and ellipses work the same way: the project's convention first, the bans below when it has none.
+
+These rules cover interface text. A label that could lose a word is a finding only when the shorter label still says what happens.
 
 Extra interface beyond the words belongs to `restraint`. Which state a message appears in, such as filtered to zero, belongs to `states`. Where a field error sits and how it ties to its field belong to `forms`.
 
 ## Labels take Title Case
 
-Buttons, menu items, tabs, headings and setting names use Title Case. Articles, coordinating conjunctions and prepositions of three letters or fewer stay lowercase unless they come first or last. That is a, an, the, and, but, or, nor, for, so, yet, as, at, by, in, of, off, on, per, to and via. Prepositions of four letters or more, such as With, From and Into, take a capital, and so do short verbs and pronouns such as Is, It and Be. "Add to library" or "Import from CSV" is `copy-title-case`.
+In a project with no casing of its own, buttons, menu items, tabs, headings and setting names use Title Case. Articles, coordinating conjunctions and prepositions of three letters or fewer stay lowercase unless first or last. That is a, an, the, and, but, or, nor, for, so, yet, as, at, by, in, of, off, on, per, to and via.
+
+A particle that belongs to a phrasal verb takes a capital, as in `Log In`, `Turn Off` and `Back Up`, while `to` in `Add to Library` stays lowercase. Prepositions of four letters or more, such as With and From, take a capital, and so do short verbs and pronouns such as Is and It. "Add to library", "Import from CSV" or a label off the project's own casing is `copy-title-case`.
 
 ## Verbs keep their space
 
@@ -43,7 +47,7 @@ The last step of a stepped flow names what it does, such as `Create Workspace`, 
 
 An error says how to fix the problem in plain words, with no blame and no exclamation mark. "Invalid name" or "Oops! Something went wrong." is `copy-errors-say-the-fix`.
 
-A field error is a sentence in sentence case, an instruction to the user that reuses the label's words. Empty reads "Enter your full name", too long reads "Summary must be 400 characters or less" and a wrong format reads "Enter a date like 27 3 2026". "Please", "sorry", "oops", "valid", "invalid" and "you forgot" never appear, so "Please enter a valid name" is `copy-error-by-kind`.
+A field error is a sentence in sentence case, an instruction to the user that reuses the label's words. Empty reads "Enter your full name", too long reads "Summary must be 400 characters or less" and a wrong format reads "Enter a date like 11 Oct 2026". "Please", "sorry", "oops", "valid", "invalid" and "you forgot" never appear, so "Please enter a valid name" is `copy-error-by-kind`.
 
 ## Links make sense alone
 
@@ -95,48 +99,50 @@ A non-breaking space keeps a number with its unit, a key with the next key and a
 
 Negative numbers and decrements take the minus sign `−`, U+2212. Dimensions and multipliers take `×`, U+00D7, as in `1920 × 1080` and `2×`. A hyphen in `-12` or a letter x in `1920x1080` is `copy-true-symbols`. Values meant to be copied as code keep the hyphen.
 
-## No em dashes, ellipses only for more input
+## Em dashes and ellipses follow the project
 
-Use a comma or a full stop where an em dash would go. That is `copy-no-em-dash`. Use an ellipsis only in a search placeholder or on a menu item that needs more input before it runs, such as `Export…` or `Rename…`. Wherever it is allowed, the ellipsis is the single character `…`, never three periods. A loading label drops it entirely. "Loading..." or `Export...` is `copy-no-ellipsis`.
+Where the project's interface has no convention, a comma or a full stop replaces an em dash. An em dash there is `copy-no-em-dash`. Posts and other text around the interface belong to `prose`.
+
+Where the project has no convention, an ellipsis appears only in a search placeholder or on a menu item that needs more input, such as `Export…` or `Rename…`. A loading label drops it. Wherever an ellipsis appears, it is the single character `…`, never three periods. "Loading..." or `Export...` is `copy-no-ellipsis`.
 
 ## The pair
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `copy-title-case` | `Add to library` and `Import from CSV` | `Add to Library` and `Import From CSV` |
-| `copy-phrasal-verbs` | `Login` and `Setup` on buttons | `Log In` and `Set Up`, with `Login Settings` as the page |
-| `copy-fewest-words` | `Start Download` on the download screen | `Start` |
-| `copy-number-not-noun` | `12 items` | `12` |
-| `copy-key-word-first` | `Manage Users`, `Manage Billing`, `Manage Teams` | `Users`, `Billing`, `Teams` |
-| `copy-verb-first` | `OK` on a save dialog | `Save` |
-| `copy-confirm-names-the-action` | `Yes` under "Delete this project?" | `Delete Project` |
-| `copy-confirm-names-the-target` | "Are you sure?" above a delete | "Delete Q3 Roadmap and its 12 files?" |
-| `copy-last-step-names-action` | `Next` on the final step of a workspace setup | `Create Workspace` |
-| `copy-errors-say-the-fix` | `Oops! Something went wrong.` | `Couldn't save. Check your connection and try again.` |
-| `copy-error-by-kind` | `Please enter a valid name` | `Enter your full name` |
-| `copy-link-text` | Two `Learn More` links on one page | `Learn More About Exports` |
-| `copy-not-by-place` | "Click the green button on the right" | "Select Continue" |
-| `copy-toggle-on-state` | `Don't Send Read Receipts` | `Send Read Receipts` |
-| `copy-whole-sentences` | `"You have " + count + " new messages"` | `t("inbox.new", { count })` holding the whole sentence |
-| `copy-plain-words` | `PDP` | `Product Page` |
-| `copy-display-names` | `instagram_graph` | `Instagram` |
-| `copy-one-point-of-view` | `My Projects` in the sidebar, `Your Projects` as the page title | `Your Projects` in both |
-| `copy-one-name-per-action` | `Remove`, `Delete` and `Trash` for one action | `Delete` everywhere |
-| `copy-create-vs-add` | `Add Project` on a button that makes a blank project | `Create Project`, with `Add to Folder` for an existing one |
-| `copy-one-line-description` | Two lines under a setting | One line, the optional rest in a tooltip |
-| `copy-placeholder-example` | `placeholder="Enter your email"` under an Email label | `placeholder="name@example.com"`, or none |
-| `copy-state-tense` | `Searched` while running | `Searching`, then `Searched` |
-| `copy-status-names-the-change` | `Success!` after a delete | `Q3 Roadmap deleted` |
-| `copy-nbsp-units` | `10 MB` breaking between `10` and `MB` | `10&nbsp;MB` |
-| `copy-true-symbols` | `-12` and `1920x1080` | `−12` and `1920 × 1080` |
-| `copy-no-em-dash` | `Synced &mdash; 2 minutes ago` | `Synced 2 minutes ago` |
-| `copy-no-ellipsis` | `Loading...` and `Export...` | `Loading` and `Export…` |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `copy-title-case` | `Add to library` and `Import from CSV` in a Title Case interface | `Add to Library` and `Import From CSV` | `MEDIUM` |
+| `copy-phrasal-verbs` | `Login` and `Setup` on buttons | `Log In` and `Set Up`, with `Login Settings` as the page | `LOW` |
+| `copy-fewest-words` | `Start Download` on the download screen | `Start` | `LOW` |
+| `copy-number-not-noun` | `12 items` | `12` | `LOW` |
+| `copy-key-word-first` | `Manage Users`, `Manage Billing`, `Manage Teams` | `Users`, `Billing`, `Teams` | `LOW` |
+| `copy-verb-first` | `OK` on a save dialog | `Save` | `MEDIUM` |
+| `copy-confirm-names-the-action` | `Yes` under "Delete this project?" | `Delete Project` | `HIGH` |
+| `copy-confirm-names-the-target` | "Are you sure?" above a delete | "Delete Q3 Roadmap and its 12 files?" | `HIGH` |
+| `copy-last-step-names-action` | `Next` on the final step of a workspace setup | `Create Workspace` | `MEDIUM` |
+| `copy-errors-say-the-fix` | `Oops! Something went wrong.` | `Couldn't save. Check your connection and try again.` | `MEDIUM` |
+| `copy-error-by-kind` | `Please enter a valid name` | `Enter your full name` | `MEDIUM` |
+| `copy-link-text` | Two `Learn More` links on one page | `Learn More About Exports` | `MEDIUM` |
+| `copy-not-by-place` | "Click the green button on the right" | "Select Continue" | `MEDIUM` |
+| `copy-toggle-on-state` | `Don't Send Read Receipts` | `Send Read Receipts` | `MEDIUM` |
+| `copy-whole-sentences` | `"You have " + count + " new messages"` | `t("inbox.new", { count })` holding the whole sentence | `MEDIUM` |
+| `copy-plain-words` | `PDP` | `Product Page` | `HIGH` |
+| `copy-display-names` | `instagram_graph` | `Instagram` | `HIGH` |
+| `copy-one-point-of-view` | `My Projects` in the sidebar, `Your Projects` as the page title | `Your Projects` in both | `LOW` |
+| `copy-one-name-per-action` | `Remove`, `Delete` and `Trash` for one action | `Delete` everywhere | `MEDIUM` |
+| `copy-create-vs-add` | `Add Project` on a button that makes a blank project | `Create Project`, with `Add to Folder` for an existing one | `LOW` |
+| `copy-one-line-description` | Two lines under a setting | One line, the optional rest in a tooltip | `MEDIUM` |
+| `copy-placeholder-example` | `placeholder="Enter your email"` under an Email label | `placeholder="name@example.com"`, or none | `LOW` |
+| `copy-state-tense` | `Searched` while running | `Searching`, then `Searched` | `MEDIUM` |
+| `copy-status-names-the-change` | `Success!` after a delete | `Q3 Roadmap deleted` | `MEDIUM` |
+| `copy-nbsp-units` | `10 MB` breaking between `10` and `MB` | `10&nbsp;MB` | `LOW` |
+| `copy-true-symbols` | `-12` and `1920x1080` | `−12` and `1920 × 1080` | `LOW` |
+| `copy-no-em-dash` | `Synced &mdash; 2 minutes ago` in an interface with no em dash convention | `Synced 2 minutes ago` | `MEDIUM` |
+| `copy-no-ellipsis` | `Loading...` and `Export...` | `Loading` and `Export…` | `LOW` |
 
 ## Reporting
 
-**Severity.** `HIGH` is an id or internal jargon shown to the user, or a status that says the wrong thing. It is also a confirm button that does not name its action, or a confirm body that does not name its target. `MEDIUM` is a label in the wrong case, a two-line description or an em dash. It is also a button with no verb, an error with no fix, a link that means nothing alone, a negative toggle or a sentence joined from fragments. It is also an instruction that points by colour or place, or one action under two names. It is also a field error that pleads, blames or says "invalid", or `Next` on a flow's last step. It is also a status that does not say what changed. `LOW` is a label one word longer than it needs, a noun the context already names beside a number or siblings that open on the same word. It is also Add for something new, a unit wrapped away from its number or three periods for an ellipsis. It is also a hyphen for a minus sign, or a letter x for a times sign. It is also a joined verb such as `Login` on a button, two possessives for one user or a placeholder that repeats its label.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why.
 
 **Format.** One finding per root cause:
 

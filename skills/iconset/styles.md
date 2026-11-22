@@ -1,10 +1,10 @@
 # Styles
 
-The directions, the references, the signals and the questions that pick a set's style. Every value is a starting point on a 24 grid. The user's eye settles the final one, and the stroke step checks it beside the product's type.
+The values that turn the user's description into a set's style. Every value is a starting point on a 24 grid, and the sample row settles the final one.
 
 ## Directions
 
-Each direction is its own construction, not a filter over another. Offer only the 2 or 3 the references and the signals support. A reference the user loves that fits no row becomes its own direction, described in these columns.
+Each direction is its own construction, not a filter over another. Map the description onto one row, so "rounded and friendly" reads as Round and "precise" as Technical. A description that fits no row becomes its own direction, described in these columns.
 
 | Direction | Stroke | Radius (outside / inside) | Ends and joins | Angles and curves | Detail | Reads as |
 | --- | --- | --- | --- | --- | --- | --- |
@@ -23,52 +23,30 @@ For another size, scale a value by the size over 24 and round it to the nearest 
 
 A dimensional direction, such as soft 3D, clay or glass, is offered only for icons shown at 32px and up, such as pictograms and empty states. It faces straight on and never replaces the UI icons.
 
-A native app may stay close to its platform's own symbols. That direction takes the platform's weight scale, matched to the system font, and draws only what the platform lacks. Its icons ship through the templates under [Radius, logo and platform](#radius-logo-and-platform).
+A native app may stay close to its platform's own symbols. That direction takes the platform's weight scale, matched to the system font, and draws only what the platform lacks. Its icons ship through the [Platform templates](#platform-templates).
 
-## Duotone
+## Fills
 
-Duotone is a fill, not a direction, and pairs with any of them. It comes in two forms:
+A fill is not a direction, and pairs with any of them. A set ships up to four: outline, fill, outline duo and fill duo. A set that ships a fill at a size draws it for every concept at that size.
 
-| Form | Back layer | Front layer |
+| Fill | Built from | The second colour marks |
 | --- | --- | --- |
-| Line duo | The enclosed areas of a line icon, filled | The line icon, which reads alone |
-| Solid duo | One filled shape | Filled details in a second colour, which read alone |
+| Outline | The skeleton, stroked | The accent part, such as a bell's clapper or a folder's tab |
+| Fill | The outline's outer edge, filled | The same accent part |
+| Outline duo | The outline over a soft back fill | The back fill |
+| Fill duo | The fill's own paths, the accent kept at full and the rest soft | The soft part |
 
-Mark the back layer `data-layer="back"` in the source, so the app can colour it on its own. It takes one opacity for the whole set, from 0.2 to 0.4, or a second colour. Where the layers overlap, the front cuts the back, so an overlap never reads darker.
+The fill's edge sits where the outline's stroke ended, so swapping outline for fill on selection keeps the icon's size. A shape whose meaning is its emptiness stays open in the fill, such as a lens, a ring or a frame.
 
-Duotone works at every size the set ships when its smallest size passes in real rows. At 12 and 16, the back layer keeps to large simple areas and drops thin details. Check it in both themes, since one opacity reads differently on light and dark.
+Outline duo is redrawn wherever the outline leaves a gap, since a fill needs a closed edge. A trash body that stops short of its lid runs up to it. The back covers the one or two main shapes, never every enclosed area, so a gear's hub stays empty. Its edge sits under the stroke, between the centreline and the stroke's inner edge, so it never shows past the line.
 
-## The taste test
+Fill duo needs no new drawing. It takes the fill's paths, keeps the accent part at full and drops the rest to the soft opacity.
 
-Put it on the review page before the first checkpoint when the request names no references. Show 6 to 8 open icon sets that span the directions. Pick from a sharp set, a neutral one, a soft one, a round one, a filled one, a duotone one, a hand-drawn one and a pixel one.
+Mark the accent `data-layer="accent"` in outline and fill, and the soft part `data-layer="back"` in both duo fills. One selector, `[data-layer]`, then takes the app's second colour in every fill. Merge back shapes into one path, so one opacity never reads darker where two overlap.
 
-Each set draws the same 6 concepts: a folder, a search, a gear, a bell, a user and an arrow. Put each set in its own row on the review page, beside labels in the product's font, in both themes.
+Each duo fill takes one opacity for the whole set: 0.3 behind an outline and 0.4 in a fill duo, which carries the silhouette with no line. A second colour may replace the opacity.
 
-Ask which row feels closest and which feels furthest, then ask why in a free answer. The closest row is a starting point, not the answer. Write what the user liked about it as values in `style.md`.
-
-## Questions about feel
-
-Ask 2 or 3 in plain words, and keep the answers in the user's own words before turning them into values.
-
-- What should someone feel the first time they see the sidebar?
-- What should the icons never feel like?
-- Which product's icons feel closest, and what would you change about them?
-- If the icons were a person, what would they wear?
-- Which current icon bothers you most, and why?
-- Where do icons sit most: dense lists, toolbars, navigation, empty states or marketing?
-
-## Sliders
-
-Ask 3 at the first checkpoint, each as one question with 4 positions and no middle.
-
-| Slider | The left leans | The right leans | But not |
-| --- | --- | --- | --- |
-| Serious to Playful | Technical, Neutral | Round, Chunky | Playful, but not childish |
-| Classic to Modern | Neutral, Soft | Technical, Flowing | Modern, but not cold |
-| Quiet to Loud | Neutral, a light stroke, line only | Chunky, filled or duotone | Loud, but not crowded |
-| Refined to Raw | Technical, Flowing | Hand-drawn, Pixel | Raw, but not careless |
-
-Keep the two marks furthest from the middle. Write each as "X, but not Y" in `style.md`, then judge every tile against the "but not" as well.
+A duo fill ships only at sizes where it passes in real rows. The smallest size usually ships outline and fill alone, since its back layer has no room. Check every fill in both themes, since one opacity reads differently on light and dark.
 
 ## Feedback words
 
@@ -81,7 +59,7 @@ A vague note names a feeling, not a fix. Show 2 or 3 variants that each change o
 | Heavy, loud, dark | A lighter stroke, fewer parts, smaller filled areas, open junctions |
 | Thin, weak, faint, lost | A heavier stroke, filled when selected, a larger optical size |
 | Busy, cluttered, noisy | Fewer parts, inner detail dropped, wider gaps between parts |
-| Generic, boring, stock | One signature move from the voice, such as lines run on to the keyline, a cut corner or a shared notch |
+| Generic, boring, stock | One signature move across the set, such as lines run on to the keyline, a cut corner or a shared notch |
 | Dated, old | Less detail, no gradients or depth, one stroke everywhere |
 | Inconsistent, messy | The parts register, the keyline each icon sits on, one angle for diagonals |
 | Off, wrong, with no word | Weight, size, alignment and angle against the neighbours, one at a time |
@@ -98,31 +76,20 @@ A radius in `style.json` is the largest a corner takes. Each corner takes less w
 | An angle under 60° | Half of the above | A star point of 3.4 at 36° takes 0.425 |
 | 3 or more lines meeting | None | The centre of an asterisk |
 | A line that ended on a corner now rounded | The line stops on the arc, along its own direction | A cube's back edge meets the rounded outer corner instead of poking past it |
-| A silhouette or duotone back layer | The outline's radius plus the offset outside, minus it inside | A 2.5 corner under a 0.625 offset takes 3.125 |
+| A fill or a duo back layer | The outline's radius plus the offset outside, minus it inside | A fill sits half the stroke outside, so a 2.5 corner under a 1.25 stroke takes 3.125 |
 | A pixel direction | None | Every corner |
 
 After a radius change, reopen stars, bolts, arrowheads, chevrons and small badges first. They break before anything else.
 
-## Reading the type
+## Reading the product
 
-Measure the interface typeface at body size, in the weight icons sit beside. Measure only what changes a choice. The stem width almost always does, and the rest settles close calls between two directions.
+Read these only for what the user's answers left open, and never ask about them.
 
-| Feature | How to measure | Icon setting |
-| --- | --- | --- |
-| Stem width | The stem of a lowercase `l` at body size, in pixels: draw it at 100px on a canvas, measure the dark run across its middle and scale by body size over 100 | The stroke at the icon's shipped size, to the nearest quarter |
-| Label weight | The weight of labels beside icons | A heavier label takes the heavier end of the range |
-| Contrast | The thickest stroke of `o` over its thinnest | Above about 1.5:1, the light end of the range |
-| Apertures | How far `c`, `e` and `a` open | Open apertures open arrowheads and break closed outlines; closed ones keep shapes closed |
-| Terminals | How the strokes of `t`, `r` and `a` end | Round terminals take round ends; flat or angled cuts take butt ends |
-| Corners | Where strokes meet in `M`, `N` and `V` | Round joins or miter joins to match |
-| Ink traps | Notches where strokes meet in `M` or `n` | Wider gaps at junctions, written into the voice |
-| x-height | x-height over cap height | A low x-height shortens arrowheads and shrinks badges; a high one widens counters |
+The stroke comes from the type. Draw a lowercase `l` of the interface font at 100px on a canvas and measure the dark run across its middle. Scale it by the label size over 100 and round to the nearest quarter.
 
-Measure `l`, never `H`. Capital stems run heavier, such as 1.4 against 1.26 at 14px, which moves the nearest quarter, and labels are mostly lowercase. A row across the middle of `H` also runs along its bar and reads the whole letter's width.
+Measure `l`, never `H`, since capital stems run heavier. Measure each size beside the type it ships next to, so a 24 icon beside a 20px medium title takes that title's stem.
 
-Measure each size beside the type it ships next to. A 24 icon beside a 20px medium title takes that title's stem, such as 2.26, not the 14px label's.
-
-## Radius, logo and platform
+Round terminals on `t`, `r` and `a` take round ends, and flat cuts take butt ends.
 
 The control radius suggests the corners.
 
@@ -132,7 +99,7 @@ The control radius suggests the corners.
 | 4–8px | Neutral, Soft |
 | 8px and up, or pills | Soft, Round, Flowing |
 
-The logo and illustrations narrow it further. Straight cuts lean Technical, circles lean Round, free curves lean Flowing, lettering by hand leans Hand-drawn and pixel marks lean Pixel. Icons beside existing illustrations share their corners and ends.
+The logo and illustrations narrow it further. Straight cuts lean Technical, circles lean Round, free curves lean Flowing, lettering by hand leans Hand-drawn and pixel marks lean Pixel.
 
 A bold brand shape can overpower an interface at icon size. Where the logo is sharper or heavier than the type, the icons follow the type and borrow one detail from the logo.
 
@@ -145,7 +112,9 @@ The platform sets the default fill.
 | Sidebar navigation beside labels | Line, the selected row marked by its background or tint |
 | Toolbars, lists and rows beside text | Line |
 
-Line and filled icons are recognised about as fast overall. Light line icons on dark read slightly slower, so a product that starts dark judges its tiles on dark first.
+Light line icons on dark read slightly slower, so a product that opens dark judges its sample on dark first.
+
+## Platform templates
 
 A native app ships its custom icons in the platform's own template, so they follow the system's weights, scales and text.
 
@@ -157,21 +126,3 @@ A native app ships its custom icons in the platform's own template, so they foll
 
 Draw the Regular source first and get it right. Copy its paths into the Ultralight and Black sources, then only move points, since an added or removed point breaks interpolation.
 
-## The questions
-
-The direction question is single-select. The first option is the recommendation, and each option gives the direction, its key values and the reference or signal behind it.
-
-```
-Round (Recommended) - 2 stroke, round ends, 3 radius - matches the 10px controls and the circles in the logo
-Soft - 1.5 stroke, round ends, 2 radius - closest to the set you linked
-Keep the old set's style - 1.25 stroke, butt ends, 1 radius - as measured in the audit
-```
-
-The fill question follows, with the platform's convention first.
-
-```
-Line, filled when selected (Recommended) - the phone layout has bottom navigation
-Line only
-Filled throughout
-Duotone - a translucent back layer under the line, coloured on its own
-```

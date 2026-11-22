@@ -45,7 +45,7 @@ Run each search across the scope and list every hit. Reading files by eye for as
 | Shape | Search |
 | --- | --- |
 | Non-null assertion | `\w!\.` and `\w!\)` |
-| Cast past the type | ` as [A-Z]` and `as unknown as` |
+| Cast past the type | `rg -nP '^(?!\s*import\b)(?!\s*export\b).* as [A-Z]'` and `as unknown as`, dropping hits inside a multi-line `import` or `export` |
 | First item read blind | `\[0\]` and `.at(0)` |
 | Find used as found | `.find(` with no check before the next read |
 | Keys that must be unique | `key={` on a field nothing dedupes |
@@ -65,7 +65,7 @@ A field's input limit matches its storage limit. A 50-character input saving to 
 
 ## 5. Name where each rule is enforced
 
-For each hit, write the rule in one sentence, the line that relies on it and the line that enforces it. Enforcement is a type, a parse where the data enters, an assertion or a single writer. A comment is not enforcement. "IDs are probably unique" with no lines is `invariants-name-the-enforcer`.
+For each hit, write the rule in one sentence, the line that relies on it and the line that enforces it. Enforcement is a type, a parse where the data enters, an assertion or a single writer. A comment is not enforcement. A hit that never says what enforces it, or that none does, is `invariants-name-the-enforcer`.
 
 ## 6. Enforce once, at the edge
 
@@ -73,7 +73,7 @@ Put each rule where the data enters: a type the compiler checks, a schema parse 
 
 ## 7. Number the findings
 
-Number machines and invariants in one list, ranked by severity, then by reach. Each finding gives its rule, both lines and the fix. A finding with no line is `invariants-numbered-report`.
+Number machines and invariants in one list, ranked by severity, then by reach. Each finding gives its rule, both lines and the fix. A rule with no line is not a finding, so list it under `Not verified`. A report in unnumbered prose is `invariants-numbered-report`.
 
 Change nothing until the user picks numbers, as `audit-fix-what-was-picked` requires.
 
@@ -81,26 +81,26 @@ Change nothing until the user picks numbers, as `audit-fix-what-was-picked` requ
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `invariants-group-the-flags` | `isOpen` and `isClosing` reported as two findings | One group: `isOpen`, `isClosing` and `isAnimating` |
-| `invariants-count-the-combinations` | "These flags look related" | "3 flags, 8 combinations, 4 named states, 4 impossible" |
-| `invariants-every-event-in-every-state` | A list of four states, nothing on what `open` does during `closing` | The `closing` row: `open` goes to `opening`, `Escape` is ignored |
-| `invariants-one-status` | `isLoading`, `isError` and `data` side by side | `{ status: "error", error }` or `{ status: "done", data }` |
-| `invariants-one-writer` | `setStatus("closing")` called from five components | One `close` event handled in the reducer |
-| `invariants-exhaustive-switch` | `default: return null` in `switch (state.status)` | `default: { const unhandled: never = state; throw new Error(unhandled) }` |
-| `invariants-derive-not-store` | `useEffect(() => setSelectedItem(items.find(...)), [items])` | `selectedId` in state, `items.find((item) => item.id === selectedId)` in render |
-| `invariants-search-every-shape` | Files read by eye for assumptions | Every search in the table run, hits listed |
-| `invariants-latest-request-wins` | `fetch(url).then(setResults)` in an effect with no cleanup | The effect's cleanup aborts the request, so the `hel` results never replace `hello` |
-| `invariants-matching-limits` | `maxLength={50}` on a name stored as `varchar(255)` | One limit of 50 on both, or the card laid out for 255 characters |
-| `invariants-name-the-enforcer` | "IDs are probably unique" | "`rows.tsx:40` keys on `id`, nothing enforces it" |
-| `invariants-enforce-at-the-edge` | `if (!items.length) return` in six components | The schema at `api.ts:12` rejects an empty list |
-| `invariants-enforce-in-code` | `// never empty` | `items: [Item, ...Item[]]` |
-| `invariants-numbered-report` | "State handling is fragile" | "3. `menu.tsx:18`, open and closing both true after Escape" |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `invariants-group-the-flags` | `isOpen` and `isClosing` reported as two findings | One group: `isOpen`, `isClosing` and `isAnimating` | `MEDIUM` |
+| `invariants-count-the-combinations` | "These flags look related" | "3 flags, 8 combinations, 4 named states, 4 impossible" | `LOW` |
+| `invariants-every-event-in-every-state` | A list of four states, nothing on what `open` does during `closing` | The `closing` row: `open` goes to `opening`, `Escape` is ignored | `MEDIUM` |
+| `invariants-one-status` | `isLoading`, `isError` and `data` side by side | `{ status: "error", error }` or `{ status: "done", data }` | `MEDIUM` |
+| `invariants-one-writer` | `setStatus("closing")` called from five components | One `close` event handled in the reducer | `MEDIUM` |
+| `invariants-exhaustive-switch` | `default: return null` in `switch (state.status)` | `default: { const unhandled: never = state; throw new Error(unhandled) }` | `MEDIUM` |
+| `invariants-derive-not-store` | `useEffect(() => setSelectedItem(items.find(...)), [items])` | `selectedId` in state, `items.find((item) => item.id === selectedId)` in render | `MEDIUM` |
+| `invariants-search-every-shape` | Files read by eye for assumptions | Every search in the table run, hits listed | `LOW` |
+| `invariants-latest-request-wins` | `fetch(url).then(setResults)` in an effect with no cleanup | The effect's cleanup aborts the request, so the `hel` results never replace `hello` | `HIGH` |
+| `invariants-matching-limits` | `maxLength={50}` on a name stored as `varchar(255)` | One limit of 50 on both, or the card laid out for 255 characters | `MEDIUM` |
+| `invariants-name-the-enforcer` | "`rows.tsx:40` keys on `id`", with nothing on what enforces it | "`rows.tsx:40` keys on `id`, nothing enforces it" | `LOW` |
+| `invariants-enforce-at-the-edge` | `if (!items.length) return` in six components | The schema at `api.ts:12` rejects an empty list | `LOW` |
+| `invariants-enforce-in-code` | `// never empty` | `items: [Item, ...Item[]]` | `MEDIUM` |
+| `invariants-numbered-report` | "State handling is fragile" | "3. `menu.tsx:18`, open and closing both true after Escape" | `LOW` |
 
 ## Reporting
 
-**Severity.** `HIGH` is an impossible state a line can reach, or an assumption that crashes or loses work when broken. It is also an older response that can replace a newer one, or an ID that loses digits as a number. `MEDIUM` is an ungrouped set of flags, separate flags where one status fits, a status with many writers or a rule enforced only by a comment. It is also an input limit that differs from the storage limit, or a machine with no event table. So is a `switch` with a quiet `default`, or a computed value kept in state. `LOW` is an impossible state no line reaches, or a guard repeated at every read. It is also a group with no count, a sweep done by eye or a finding with no line or no enforcer named.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why. A reachable impossible state or an ID that loses digits is `HIGH` under any rule.
 
 **Format.** One finding per root cause, numbered:
 

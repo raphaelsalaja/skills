@@ -50,11 +50,11 @@ Show every entry as one table before building: title, area, line, does, routines
 
 Copy [marks.js](marks.js) beside the components. Each Bot is drawn in the shape and colour it has in Grok, from `MARKS[shape].path` and `markEyes(shape)`, with fills from `MARK_COLORS`. A generic avatar or an initial in a circle is `bots-real-marks`.
 
-Black takes the page's text colour for the body and its background for the eyes, so it flips with the theme. Give the eyes life with `avatar` from its step 3 on, since the mark is already the silhouette.
+Black takes the page's text colour for the body and its background for the eyes, so it flips with the theme. The mark is already the silhouette, so take only the eyes and their idle life from `avatar`.
 
 ## 5. Build the pile
 
-The page the user picked, the home page by default, gets a section titled "Grok Bots" holding one card. Inside it sits a 300px stage, 340px under 480px wide, and every Bot as an absolutely placed piece. Shuffle the order with a seeded random so the server and client agree.
+The page the user picked, the home page by default, gets a section titled "Grok Bots" holding one card. Inside it sits a 300px stage, 340px under 480px wide, and every Bot as an absolutely placed piece. `pile.js` watches the stage size and rebuilds its walls when it changes. Shuffle the order with a seeded random so the server and client agree.
 
 Copy [pile.js](pile.js) beside the component and add `matter-js`. Call `createPile` once the pieces mount and `destroy` on unmount.
 
@@ -72,7 +72,7 @@ A tap shows the Bot's title as a pill linking to its card, above the Bot or belo
 
 The loop runs only while the stage is on screen and something still moves or wobbles. A loop that keeps running once the pile sleeps is `bots-sleep-when-still`.
 
-Under reduced motion, `pile.js` runs the drop offline and draws the settled pile once. A shake reshuffles instantly. A pile that still tumbles is `bots-settle-when-reduced`.
+Under reduced motion, `pile.js` runs the drop offline and draws the settled pile once. A shake reshuffles instantly, and turning the setting on mid-visit settles the pile at once. A pile that still tumbles is `bots-settle-when-reduced`.
 
 Under the stage sit two equal buttons: Shake Bots on a quiet grey surface and View Bots in the solid primary style, linking to the Team page. A lone icon button in the stage corner is `bots-two-actions`.
 
@@ -102,34 +102,34 @@ Finish with three lists: the files created or changed, every detail stripped or 
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `bots-user-picks` | All 25 Bots added because the list was there | Only the Bots the user named in round 1 |
-| `bots-ask-the-placement` | A new Team page on a site that lists its people under Studio | "Where should the pile sit, and what is the page called?", asked during the round |
-| `bots-strip-private` | "Books calls with Sarah at Acme" | "Books calls" |
-| `bots-check-the-clip` | A clip with an inbox notification sliding in at 0:04 | The clip watched through every transition and re-recorded clean |
-| `bots-real-links` | `https://x.ai/bot/sleep-coach`, built by hand | The link the user copied after Publish |
-| `bots-one-file` | Bot copy inlined in three components | One entry per Bot in `data/bots.ts` |
-| `bots-entry-shape` | A 90-word description from the Bot's instructions | "Guards a steady bedtime and a calm wind-down." |
-| `bots-real-marks` | An initial in a grey circle | The Bot's own shape and colour from `marks.js` |
-| `bots-page-marks` | `shape: "clover"` guessed from a sidebar icon | `shape: "cloud"` read from the Bot's x.ai page |
-| `bots-approve-the-entries` | `data/bots.ts` written straight from the JSON | Every entry shown as one table and confirmed first |
-| `bots-hull-bodies` | `Bodies.circle` for every Bot | `Body.create({ vertices })` from `markHull(shape)` |
-| `bots-drag-pushes` | `if (dragging) return` before `Engine.update` | A spring `Constraint` and the world still stepping |
-| `bots-jelly-keeps-area` | `scale(1.4, 0.8)` that grows the Bot | The matrix clamped and divided by its determinant's root |
-| `bots-shake-stays-in` | `y: -(8 + Math.random() * 10)` | `y: -(3 + Math.random() * 4)` |
-| `bots-quiet-until-touched` | A thud on the first drop at page load | Sound only once a grab has unlocked audio |
-| `bots-tap-names` | A drag that ends with the name open | Names on taps under 6px of travel |
-| `bots-sleep-when-still` | `requestAnimationFrame` forever | The loop stopped once every body sleeps and nothing wobbles |
-| `bots-settle-when-reduced` | Bots tumbling under reduced motion | The settled pile drawn once, shakes reshuffle instantly |
-| `bots-two-actions` | A shuffle icon in the stage corner | Shake Bots and View Bots, side by side |
-| `bots-no-dead-copy` | A disabled Link Coming Soon button | No button until the link exists |
-| `bots-org-chart` | Three stacked grids of cards | The lead on top, a line to each area, Bots beneath |
-| `bots-list-what-is-missing` | "Added the Bots page" | Files, stripped details and Bots missing links |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `bots-user-picks` | All 25 Bots added because the list was there | Only the Bots the user named in round 1 | `HIGH` |
+| `bots-ask-the-placement` | A new Team page on a site that lists its people under Studio | "Where should the pile sit, and what is the page called?", asked during the round | `LOW` |
+| `bots-strip-private` | "Books calls with Sarah at Acme" | "Books calls" | `HIGH` |
+| `bots-check-the-clip` | A clip with an inbox notification sliding in at 0:04 | The clip watched through every transition and re-recorded clean | `MEDIUM` |
+| `bots-real-links` | `https://x.ai/bot/sleep-coach`, built by hand | The link the user copied after Publish | `HIGH` |
+| `bots-one-file` | Bot copy inlined in three components | One entry per Bot in `data/bots.ts` | `MEDIUM` |
+| `bots-entry-shape` | A 90-word description from the Bot's instructions | "Guards a steady bedtime and a calm wind-down." | `LOW` |
+| `bots-real-marks` | An initial in a grey circle | The Bot's own shape and colour from `marks.js` | `MEDIUM` |
+| `bots-page-marks` | `shape: "clover"` guessed from a sidebar icon | `shape: "cloud"` read from the Bot's x.ai page | `LOW` |
+| `bots-approve-the-entries` | `data/bots.ts` written straight from the JSON | Every entry shown as one table and confirmed first | `MEDIUM` |
+| `bots-hull-bodies` | `Bodies.circle` for every Bot | `Body.create({ vertices })` from `markHull(shape)` | `MEDIUM` |
+| `bots-drag-pushes` | `if (dragging) return` before `Engine.update` | A spring `Constraint` and the world still stepping | `MEDIUM` |
+| `bots-jelly-keeps-area` | `scale(1.4, 0.8)` that grows the Bot | The matrix clamped and divided by its determinant's root | `MEDIUM` |
+| `bots-shake-stays-in` | `y: -(8 + Math.random() * 10)` | `y: -(3 + Math.random() * 4)` | `MEDIUM` |
+| `bots-quiet-until-touched` | A thud on the first drop at page load | Sound only once a grab has unlocked audio | `MEDIUM` |
+| `bots-tap-names` | A drag that ends with the name open | Names on taps under 6px of travel | `LOW` |
+| `bots-sleep-when-still` | `requestAnimationFrame` forever | The loop stopped once every body sleeps and nothing wobbles | `MEDIUM` |
+| `bots-settle-when-reduced` | Bots tumbling under reduced motion | The settled pile drawn once, shakes reshuffle instantly | `MEDIUM` |
+| `bots-two-actions` | A shuffle icon in the stage corner | Shake Bots and View Bots, side by side | `LOW` |
+| `bots-no-dead-copy` | A disabled Link Coming Soon button | No button until the link exists | `MEDIUM` |
+| `bots-org-chart` | Three stacked grids of cards | The lead on top, a line to each area, Bots beneath | `MEDIUM` |
+| `bots-list-what-is-missing` | "Added the Bots page" | Files, stripped details and Bots missing links | `MEDIUM` |
 
 ## Reporting
 
-**Severity.** `HIGH` is a private detail on the page or in a clip, a Bot the user did not pick or a link that was not copied from Grok. `MEDIUM` is a frozen pile while dragging, a shake that loses Bots, a Bot turning inside out, motion under reduced motion or a dead copy button. Circle bodies, a loop that never sleeps, sound before a touch, a flat grid instead of the chart or a missing finish list is also `MEDIUM`. So is a clip published unwatched or entries built before the user saw them. So is Bot copy spread across components, or a generic avatar in place of the Bot's mark. `LOW` is a long description, a guessed shape or colour, a lone corner button or a name that opens on a drag. So is a page name or placement assumed.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why. A private detail found in an unwatched clip is `HIGH`.
 
 **Format.** One finding per root cause:
 

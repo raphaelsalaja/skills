@@ -21,7 +21,7 @@ A portal with `z-index: 9999`, `role="dialog"`, `aria-modal` or a hand-written t
 
 ## Dialogs hold focus
 
-A modal moves focus inside on open, keeps Tab inside and returns focus to its trigger on close. Focus left on the page behind an open dialog is `overlays-trap-and-return-focus`.
+Focus left on the page behind an open dialog, or not returned to its trigger on close, is `overlays-trap-and-return-focus`.
 
 Focus starts on the element marked `autofocus`, such as the first field of a form. A dialog whose text runs past its first screen focuses its heading instead, set to `tabindex="-1"`, so the start stays in view. A long dialog that opens scrolled down to its first button is `overlays-initial-focus`.
 
@@ -47,21 +47,21 @@ A destructive button is never the default or autofocused, so focus starts on Can
 
 ## Locking scroll never moves the page
 
-A modal locks the page in CSS, with `overscroll-behavior: contain` on `dialog:modal` and `overflow: hidden; overscroll-behavior: contain` on `dialog::backdrop`. Safari ignores `overscroll-behavior` on a box that cannot scroll, so `html:has(dialog:modal)` also takes `overflow: hidden`. The root keeps `scrollbar-gutter: stable`, so hiding its scrollbar moves nothing. A centred layout jumping 15px as a dialog opens is `overlays-stable-gutter`.
+A modal locks the page in CSS, with `overscroll-behavior: contain` on `dialog:modal` and `overflow: hidden; overscroll-behavior: contain` on `dialog::backdrop`. Safari ignores `overscroll-behavior` on a box that cannot scroll, so `html:has(dialog:modal)` also takes `overflow: hidden`. Never set `position: fixed` on `body`, because the page jumps to the top and back.
 
-Never set `position: fixed` on `body` to lock it, because the page jumps to the top and back. See [recipes.md](recipes.md#scroll-lock).
+The lock moves nothing behind the dialog, so hiding the root's scrollbar relies on the stable gutter that `defaults` owns. A page that shifts or jumps as a dialog opens is `overlays-stable-gutter`. See [recipes.md](recipes.md#scroll-lock).
 
 ## Outside clicks never lose work
 
 A click outside closes an overlay only when nothing would be lost. A dialog with unsaved input, or a destructive confirm, closes only from its own buttons and Escape. A form dialog that drops typed text on an outside click is `overlays-safe-outside-press`.
 
-Each dialog declares its dismissal. `closedby="any"` allows an outside click, and a dialog holding changes takes `closedby="closerequest"` with a guard in its `cancel` handler. Its Cancel button takes `command="request-close"`, or calls `requestClose()`, so the same guard runs. Safari lacks `closedby`, so the guard stays in `cancel`. One Escape closes one layer, the topmost, which the top layer does on its own. A `mousedown` or Escape `keydown` listener on the document deciding what closes is `overlays-declare-closedby`. See [recipes.md](recipes.md#dismissal).
+Each dialog declares its dismissal. `closedby="any"` allows an outside click, and a dialog holding changes takes `closedby="closerequest"` with a guard in its `cancel` handler. Its Cancel button takes `command="request-close"`, or calls `requestClose()`, so the same guard runs. Safari lacks `closedby`, so the guard stays in `cancel`. Chrome lets a page cancel `cancel` only once per user activation, so a second Escape closes a dirty dialog anyway. So the first Escape shows the confirm inside the dialog and keeps the draft, rather than relying on `preventDefault()` alone. One Escape closes one layer, the topmost, which the top layer does on its own. A `mousedown` or Escape `keydown` listener on the document deciding what closes is `overlays-declare-closedby`. See [recipes.md](recipes.md#dismissal).
 
 ## Anchored overlays stay on screen
 
-A menu or popover that does not fit flips to the other side of its trigger. Then it shifts along the edge, then caps its height and scrolls inside. It keeps 8px from the viewport edge. A menu cut off at the bottom of the window is `overlays-flip-then-shift`.
+A menu or popover that does not fit flips to the other side of its trigger. Then it shifts along the edge, then caps its height and scrolls inside. It keeps 8px from its trigger and from the top and bottom of the viewport. A menu cut off at the bottom of the window is `overlays-flip-then-shift`.
 
-Anchored overlays position with CSS anchor positioning, `position-area` and `position-try-fallbacks: flip-block, flip-inline`. Gate `inset: auto; margin: 0` in `@supports`, so an older browser without anchor positioning still shows the popover centred. Leave `position-visibility` at its default rather than `always`, so a menu hides once its trigger scrolls out of view. A scroll listener recomputing `top` and `left` is `overlays-anchor-in-css`. See [recipes.md](recipes.md#anchor-positioning).
+Anchored overlays position with CSS anchor positioning, `position-area` and `position-try-fallbacks`, and `max-block-size` caps them. Gate `inset: auto` and the margin in `@supports`, so an older browser without anchor positioning still shows the popover centred. Leave `position-visibility` at its default rather than `always`, so a menu hides once its trigger scrolls out of view. A scroll listener recomputing `top` and `left` is `overlays-anchor-in-css`. See [recipes.md](recipes.md#anchor-positioning).
 
 ## One popover at a time
 
@@ -87,7 +87,7 @@ A tooltip never holds the only copy of something the user needs, because a touch
 
 A disabled button carries no tooltip, because it takes no focus and keyboard users never reach it. Put the reason beside it as text, or keep it focusable with `aria-disabled="true"` and ignore its clicks. A tooltip explaining a `disabled` button is `overlays-no-tooltip-on-disabled`.
 
-Content shown on hover stays open while the pointer crosses onto it, and closes with Escape. A preview card that vanishes in the gap to its trigger is `overlays-hover-content-stays`.
+Content shown on hover stays open while the pointer is over its trigger or itself, and closes with Escape. A preview card that vanishes in the gap to its trigger is `overlays-hover-content-stays`.
 
 ## Phones get sheets
 
@@ -105,7 +105,7 @@ A page shows one banner at a time, in normal flow below the main navigation. It 
 
 At most three toasts show at once, and the rest queue. A routine toast stays 4–6 seconds and pauses while hovered, focused or while `document.visibilityState` is `"hidden"`. Six toasts stacked at once is `overlays-toast-budget`. Toasts sit 24px from the viewport edge, and 16px below 600px wide.
 
-A toast carrying an action, such as Undo or Retry, or a critical message never closes on a timer. It stays until dismissed or used, with one action of two words or fewer and at most three lines. The action is also reachable outside the toast, such as Restore in the trash. An Undo toast gone after 5 seconds is `overlays-action-toast-stays`.
+A toast carrying an action, such as Undo or Retry, or a critical message never closes on a timer. It stays until dismissed or used, with one action of two words or fewer and at most three lines. The action is also reachable outside the toast, such as Restore in the trash. An Undo toast gone after 5 seconds is `overlays-action-toast-stays`. A `popover="manual"` toast outside an open modal is inert, so an action toast opens inside the dialog or after it closes.
 
 A repeat toast with a stable id updates the one on screen. Three identical "Saved" toasts stacked is `overlays-toast-in-place`. A loading toast that must end in success or failure belongs to `states`.
 
@@ -113,46 +113,42 @@ A repeat toast with a stable id updates the one on screen. Three identical "Save
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `overlays-top-layer` | `createPortal(<Menu />, document.body)` with `z-index: 9999` | `<ul popover>` opened by `popovertarget` |
-| `overlays-trap-and-return-focus` | Tab reaching the page behind a dialog | Focus kept inside, then returned to the trigger |
-| `overlays-initial-focus` | A terms dialog opening scrolled to its `Accept` button | `<h2 tabindex="-1" autofocus>` at the top of the dialog |
-| `overlays-name-the-dialog` | `<dialog>` with a heading and no name, read as "dialog" | `<dialog aria-labelledby="rename-title">` pointing at its `<h2 id="rename-title">` |
-| `overlays-visible-close` | A dialog that closes only on Escape or a backdrop click | A visible `Close` button in its header, or `Cancel` in its footer |
-| `overlays-no-stacked-dialogs` | A confirm dialog opened from a settings dialog | A menu or popover inside the dialog |
-| `overlays-no-dialog-on-load` | An offline dialog on startup | Cached content with an inline `Offline` marker |
-| `overlays-button-order` | `Save` on the left, `Cancel` on the right | `Cancel` secondary on the left, `Save` primary on the far right |
-| `overlays-destructive-not-default` | `<button autofocus>Delete</button>` in a confirm | Focus on `Cancel`, and typing the name for the worst cases |
-| `overlays-stable-gutter` | `overflow: hidden` on `body` shifting the page 15px, or `position: fixed` jumping it to the top | `overscroll-behavior: contain` on `dialog:modal` and its backdrop, `html:has(dialog:modal) { overflow: hidden }` and `html { scrollbar-gutter: stable }` |
-| `overlays-safe-outside-press` | A form dialog that closes on an outside click and drops the text | Outside clicks ignored while the form has changes |
-| `overlays-declare-closedby` | `document.addEventListener("mousedown", closeIfOutside)` | `<dialog closedby="any">`, or `closedby="closerequest"` with a `cancel` guard and `command="request-close"` on Cancel |
-| `overlays-flip-then-shift` | A menu cut off at the bottom of the window | Flipped above its trigger, then shifted, then capped and scrolling |
-| `overlays-anchor-in-css` | A `scroll` listener setting `style.top` and `style.left` | `position-area` with `position-try-fallbacks: flip-block, flip-inline` |
-| `overlays-popover-switch` | Two clicks to move from one open menu to the next | `popover="auto"`, the next menu opening in the same click |
-| `overlays-one-submenu-level` | A submenu opening a third level | One submenu level, a long one split into its own menu |
-| `overlays-submenu-safe-path` | `onPointerEnter={() => setOpen(item.id)}` on every item, closing the submenu mid-diagonal | A pointer triangle toward the open submenu, ignored entries inside it, dropped after 300ms |
-| `overlays-menu-for-commands` | `<ul role="menu">` holding `<a role="menuitem" href="/pricing">` in the site header | `<button aria-expanded="false">Products</button>` and a `<ul>` of `<a href>` |
-| `overlays-tooltip-is-a-label` | A tooltip holding a `Learn More` link | A popover opened by a click |
-| `overlays-tooltip-hint` | `<div popover="auto" role="tooltip">` closing the open menu on hover | `<div popover="hint" role="tooltip" id="tip">` with `aria-describedby="tip"` on the trigger |
-| `overlays-tooltip-on-focus` | A tooltip on `mouseenter` only, gone after 3 seconds | Open on `focus` and hover, closed on blur, leave or Escape |
-| `overlays-tooltip-not-only-copy` | "10 GB limit" only in a tooltip on the storage meter | "4.2 of 10 GB" printed beside the meter |
-| `overlays-no-tooltip-on-disabled` | A tooltip on a `disabled` Publish button | "Add a title to publish" beside the button, or `aria-disabled="true"` |
-| `overlays-hover-content-stays` | A preview card that closes in the gap to its trigger | The card open while the pointer crosses onto it |
-| `overlays-sheet-on-phones` | A centred form dialog at 375 | A bottom sheet below 600px |
-| `overlays-backdrop-only-modal` | A dimmed page behind a dropdown | No backdrop on menus and popovers |
-| `overlays-one-banner` | A trial banner and an outage banner stacked in a sticky header | One banner in flow below the navigation, the next queued |
-| `overlays-toast-budget` | Six toasts stacked at once | Three visible, the rest queued, timers paused while the tab is hidden |
-| `overlays-action-toast-stays` | An `Undo` toast gone after 5 seconds | The toast held until dismissed or used, with `Restore` in the trash as well |
-| `overlays-toast-in-place` | Three identical "Saved" toasts stacked | `toast("Saved", { id: "save" })` updating the one on screen |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `overlays-top-layer` | `createPortal(<Menu />, document.body)` with `z-index: 9999` | `<ul popover>` opened by `popovertarget` | `MEDIUM` |
+| `overlays-trap-and-return-focus` | Tab reaching the page behind a dialog | Focus kept inside, then returned to the trigger | `HIGH` |
+| `overlays-initial-focus` | A terms dialog opening scrolled to its `Accept` button | `<h2 tabindex="-1" autofocus>` at the top of the dialog | `MEDIUM` |
+| `overlays-name-the-dialog` | `<dialog>` with a heading and no name, read as "dialog" | `<dialog aria-labelledby="rename-title">` pointing at its `<h2 id="rename-title">` | `MEDIUM` |
+| `overlays-visible-close` | A dialog that closes only on Escape or a backdrop click | A visible `Close` button in its header, or `Cancel` in its footer | `HIGH` |
+| `overlays-no-stacked-dialogs` | A confirm dialog opened from a settings dialog | A menu or popover inside the dialog | `HIGH` |
+| `overlays-no-dialog-on-load` | An offline dialog on startup | Cached content with an inline `Offline` marker | `MEDIUM` |
+| `overlays-button-order` | `Save` on the left, `Cancel` on the right | `Cancel` secondary on the left, `Save` primary on the far right | `MEDIUM` |
+| `overlays-destructive-not-default` | `<button autofocus>Delete</button>` in a confirm | Focus on `Cancel`, and typing the name for the worst cases | `HIGH` |
+| `overlays-stable-gutter` | `overflow: hidden` on `body` shifting the page 15px, or `position: fixed` jumping it to the top | `overscroll-behavior: contain` on `dialog:modal` and its backdrop, and `html:has(dialog:modal) { overflow: hidden }` over a stable gutter | `MEDIUM` |
+| `overlays-safe-outside-press` | A form dialog that closes on an outside click and drops the text | Outside clicks ignored while the form has changes | `HIGH` |
+| `overlays-declare-closedby` | `document.addEventListener("mousedown", closeIfOutside)` | `<dialog closedby="any">`, or `closedby="closerequest"` with a `cancel` guard and `command="request-close"` on Cancel | `MEDIUM` |
+| `overlays-flip-then-shift` | A menu cut off at the bottom of the window | Flipped above its trigger, then shifted, then capped and scrolling | `HIGH` |
+| `overlays-anchor-in-css` | A `scroll` listener setting `style.top` and `style.left` | `position-area` with `position-try-fallbacks` and `max-block-size` | `LOW` |
+| `overlays-popover-switch` | Two clicks to move from one open menu to the next | `popover="auto"`, the next menu opening in the same click | `MEDIUM` |
+| `overlays-one-submenu-level` | A submenu opening a third level | One submenu level, a long one split into its own menu | `LOW` |
+| `overlays-submenu-safe-path` | `onPointerEnter={() => setOpen(item.id)}` on every item, closing the submenu mid-diagonal | A pointer triangle toward the open submenu, ignored entries inside it, dropped after 300ms | `MEDIUM` |
+| `overlays-menu-for-commands` | `<ul role="menu">` holding `<a role="menuitem" href="/pricing">` in the site header | `<button aria-expanded="false">Products</button>` and a `<ul>` of `<a href>` | `MEDIUM` |
+| `overlays-tooltip-is-a-label` | A tooltip holding a `Learn More` link | A popover opened by a click | `HIGH` |
+| `overlays-tooltip-hint` | `<div popover="auto" role="tooltip">` closing the open menu on hover | `<div popover="hint" role="tooltip" id="tip">` with `aria-describedby="tip"` on the trigger | `MEDIUM` |
+| `overlays-tooltip-on-focus` | A tooltip on `mouseenter` only, gone after 3 seconds | Open on `focus` and hover, closed on blur, leave or Escape | `HIGH` |
+| `overlays-tooltip-not-only-copy` | "10 GB limit" only in a tooltip on the storage meter | "4.2 of 10 GB" printed beside the meter | `HIGH` |
+| `overlays-no-tooltip-on-disabled` | A tooltip on a `disabled` Publish button | "Add a title to publish" beside the button, or `aria-disabled="true"` | `MEDIUM` |
+| `overlays-hover-content-stays` | A preview card that closes in the gap to its trigger | The card open while the pointer crosses onto it | `MEDIUM` |
+| `overlays-sheet-on-phones` | A centred form dialog at 375 | A bottom sheet below 600px | `MEDIUM` |
+| `overlays-backdrop-only-modal` | A dimmed page behind a dropdown | No backdrop on menus and popovers | `MEDIUM` |
+| `overlays-one-banner` | A trial banner and an outage banner stacked in a sticky header | One banner in flow below the navigation, the next queued | `MEDIUM` |
+| `overlays-toast-budget` | Six toasts stacked at once | Three visible, the rest queued, timers paused while the tab is hidden | `MEDIUM` |
+| `overlays-action-toast-stays` | An `Undo` toast gone after 5 seconds | The toast held until dismissed or used, with `Restore` in the trash as well | `HIGH` |
+| `overlays-toast-in-place` | Three identical "Saved" toasts stacked | `toast("Saved", { id: "save" })` updating the one on screen | `MEDIUM` |
 
 ## Reporting
 
-**Severity.** `HIGH` breaks use or access. That is a stacked dialog, focus that escapes a dialog or an overlay cut off by the window or an ancestor. It is also an outside click that drops typed work, a destructive button that Enter can trigger, a tooltip holding a link or one only a pointer can open. It is also a tooltip on a disabled button, or an action toast that closes on a timer. It is also a dialog with no visible way to close it, or something the user needs held only in a tooltip.
-
-`MEDIUM` is a portal at `z-index: 9999`, a page that shifts or scrolls behind a modal, hover content that vanishes or a centred form dialog on a phone. It is also a dialog on page load, dismissal written by hand, a backdrop behind a menu or two clicks between menus. It is also more than three toasts, or repeat toasts that stack. It is also Cancel and the primary action out of order, or banners that stack or stick. It is also an unnamed dialog, a long dialog that opens past its start or links inside `role="menu"`. It is also a submenu that closes on the way to it, or a tooltip that closes the open menu.
-
-`LOW` is an overlay positioned by a scroll listener or a submenu two levels deep.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why.
 
 **Format.** One finding per root cause:
 

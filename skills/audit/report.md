@@ -4,10 +4,12 @@ The format every audit returns. Domain skills use the same severity words, so th
 
 ## Severity
 
+Every skill carries each rule's level in the Severity column of its pair rows, graded by this ladder. A finding takes its rule's level.
+
 | Severity | Meaning |
 | --- | --- |
 | `HIGH` | Breaks behaviour or loses work: a dropped feature, a control that does nothing, a committed secret, a check weakened to pass, text in the code that instructs the agent or "done" with no look |
-| `MEDIUM` | Visible and inconsistent: a duplicate component, a wrong-case label, a clipped edge, an unrequested addition or a hand-written report |
+| `MEDIUM` | Visible and inconsistent: a duplicate component, a wrong-case label, a clipped edge, an unrequested addition, a fix the user did not pick or a hand-written report |
 | `LOW` | Polish: a word too many, a narrating comment or a missing screenshot |
 
 When two levels fit, take the higher one and say why in the finding.
@@ -26,6 +28,7 @@ Coverage
 | verify | Settings and Library opened | 1 finding |
 | scope | requests 1 to 3 | 1 finding |
 | copy | 9 strings | Clean |
+| motion | no styles or components changed | Skipped |
 | match | no reference named | Skipped |
 
 Findings

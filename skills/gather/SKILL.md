@@ -9,9 +9,9 @@ This skill collects inspiration before a design is built or reworked. It searche
 
 ## Evidence for a choice, not a style to copy
 
-A reference shows how one part could work. Taking a whole app's look when the user asked for its top bar is a finding. With no number given, gather at least 20 references from at least three sources.
+A reference shows how one part could work. With no number given, gather at least 20 references from at least three sources.
 
-Use it when the user asks for inspiration, references or "inspo", or says a screen looks bad and asks how to improve it. Building variants from the board belongs to `prototype`. Rebuilding one reference value for value belongs to `match`.
+Use it when the user asks for inspiration, references or "inspo", or says a screen looks bad and asks how to improve it. Building variants from the board belongs to `prototype`. Rebuilding one reference value for value belongs to `match`, which also owns copying only the named part.
 
 ## 1. Name the brief
 
@@ -79,13 +79,13 @@ Open each downloaded file and look at the part the brief names. A reference kept
 
 Cut only clear misses, by adding their url to `cut` in `board.json`. When two references sit close, both stay and the user decides. A close call settled by the agent is `gather-cut-clear-misses`.
 
-Each reference gets one note naming the part to take, such as "the top bar". A reference with no note is `gather-name-the-part`. Each keeps its source link. An image with no link is `gather-link-every-reference`.
+Each reference gets one note naming the part to take, such as "the top bar". A reference with no note is `gather-name-the-part`.
+
+Each keeps its source link and names its maker under `Creator` in `details`, with their profile as a `url` when the source shows it. An image with no link or a shown maker left unnamed is `gather-link-every-reference`.
 
 The same shot often lands from Pinterest, Pond and the maker's own page. Keep the copy closest to its maker, following a repin's link or an image search to find it. Cut the rest. Two tiles of one image, or a repin kept over the maker's shot, is `gather-one-copy-per-shot`.
 
 Mark each reference `Shipped` or `Concept` under `Kind` in its `details`. A concept shot shown as a shipped product is `gather-concept-or-shipped`.
-
-Name the creator under `Creator`, with their profile as a `url` when the source shows it.
 
 Name each group in two or three words of Title Case, such as "Agent Activity", and put the detail in its description. A group named like a sentence is `gather-short-group-names`.
 
@@ -113,52 +113,44 @@ Check for each item before adding it. A second copy of a saved item is `gather-n
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `gather-name-the-brief` | "Searching settings pages" | "Desktop settings page, looking for grouping and density" |
-| `gather-split-the-brief` | `query: "desktop settings page with grouped dense options"` | `"settings groups"`, `"preferences list"`, `"dense settings"` |
-| `gather-same-platform` | iOS screens for a desktop app | `platform: "web"` and desktop apps |
-| `gather-start-with-given` | A Mobbin search while the user's tabs are open | The open tabs read first |
-| `gather-ask-for-references` | A Mobbin search started on "settings page" alone | "Which apps do settings well, and which do you dislike?", asked with the sources |
-| `gather-ask-which-sources` | Six sources offered while Savee and Refero go unlisted | Every source in `sources.md` as its own option, marked connected or not |
-| `gather-boards-through-pond` | "Are.na's API blocks scripted requests, so I'll search it in the browser" while Pond is connected | Pond searched with `source: "arena"`, `"cosmos"` and `"pinterest"` |
-| `gather-parallel-sources` | Pond, then Mobbin, then Cosmos, one after another | One agent per source, started together |
-| `gather-stop-at-usage-limit` | Mobbin searched again after "your monthly usage is high" | "Mobbin says monthly usage is high, so I've stopped searching it" |
-| `gather-saves-and-site` | Mobbin searched while the user's Mobbin collections go unread | `get_collection_contents` with `id: "all-saved"`, then `search_screens` |
-| `gather-own-library-first` | A board of Mobbin screens while Pond holds matches | The user's saves first in each group |
-| `gather-go-wide` | Twenty screens from one app | The user's saves and three sites |
-| `gather-search-by-image` | Text queries while the user's screenshot sits in the thread | `search_library` with `visual` seeded from it |
-| `gather-capture-live` | A Land-book thumbnail of linear.app | A screenshot of the live top bar, linked to linear.app |
-| `gather-enough-to-choose` | "50 more" returns the first 20 again | 50 new references, earlier urls left out |
-| `gather-one-board` | Twenty links pasted in chat | `.gather/settings/` served and opened, grouped by idea |
-| `gather-read-only-library` | Saves compressed in place for the board | Copies in `img/`, originals untouched |
-| `gather-shipped-collector` | A `build.mjs` written for this run | `node collect.mjs .gather/settings --serve` |
-| `gather-look-at-every-image` | A screen kept on its title or a preview | The downloaded file opened and the top bar looked at |
-| `gather-cut-clear-misses` | Two close references, one cut by the agent | Both on the board for the user |
-| `gather-name-the-part` | A screenshot with no note | "Take the grouped list, not the colours" |
-| `gather-link-every-reference` | An image with no source | The image linked to its original |
-| `gather-one-copy-per-shot` | One shot twice, as a Pinterest repin and a Dribbble post | The Dribbble post kept, linked to its maker |
-| `gather-concept-or-shipped` | A Dribbble concept shown as a product | `details: { Kind: "Concept" }` |
-| `gather-short-group-names` | "Activity: thinking, tool calls and steps" | "Agent Activity" |
-| `gather-sum-up-the-picks` | Six links passed to `prototype` | "Take: grouped rows and quiet colour. Avoid: cards. Right?" |
-| `gather-lukewarm-is-not-a-pick` | "These are fine" read as approval | "Which two come closest, and what does each lack?" |
-| `gather-no-blind-retry` | "None of these" answered with 20 more from the same queries | The closest seeding an image search, the furthest's trait under `Not:` |
-| `gather-more-from-the-pick` | More Like This searched as "Linear settings" | An image search seeded from the picked screen |
-| `gather-match-the-naming` | A new channel named "FW 26 🔥" | `fashion / inspiration / 2026 / fall winter` |
-| `gather-no-duplicates` | The same pin added twice | Existing items checked and skipped |
-| `gather-ask-at-login` | A login worked around | "Pinterest needs you to sign in" |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `gather-name-the-brief` | "Searching settings pages" | "Desktop settings page, looking for grouping and density" | `MEDIUM` |
+| `gather-split-the-brief` | `query: "desktop settings page with grouped dense options"` | `"settings groups"`, `"preferences list"`, `"dense settings"` | `LOW` |
+| `gather-same-platform` | iOS screens for a desktop app | `platform: "web"` and desktop apps | `MEDIUM` |
+| `gather-start-with-given` | A Mobbin search while the user's tabs are open | The open tabs read first | `MEDIUM` |
+| `gather-ask-for-references` | A Mobbin search started on "settings page" alone | "Which apps do settings well, and which do you dislike?", asked with the sources | `MEDIUM` |
+| `gather-ask-which-sources` | Six sources offered while Savee and Refero go unlisted | Every source in `sources.md` as its own option, marked connected or not | `MEDIUM` |
+| `gather-boards-through-pond` | "Are.na's API blocks scripted requests, so I'll search it in the browser" while Pond is connected | Pond searched with `source: "arena"`, `"cosmos"` and `"pinterest"` | `MEDIUM` |
+| `gather-parallel-sources` | Pond, then Mobbin, then Cosmos, one after another | One agent per source, started together | `MEDIUM` |
+| `gather-stop-at-usage-limit` | Mobbin searched again after "your monthly usage is high" | "Mobbin says monthly usage is high, so I've stopped searching it" | `MEDIUM` |
+| `gather-saves-and-site` | Mobbin searched while the user's Mobbin collections go unread | `get_collection_contents` with `id: "all-saved"`, then `search_screens` | `MEDIUM` |
+| `gather-own-library-first` | A board of Mobbin screens while Pond holds matches | The user's saves first in each group | `MEDIUM` |
+| `gather-go-wide` | Twenty screens from one app | The user's saves and three sites | `MEDIUM` |
+| `gather-search-by-image` | Text queries while the user's screenshot sits in the thread | `search_library` with `visual` seeded from it | `LOW` |
+| `gather-capture-live` | A Land-book thumbnail of linear.app | A screenshot of the live top bar, linked to linear.app | `LOW` |
+| `gather-enough-to-choose` | "50 more" returns the first 20 again | 50 new references, earlier urls left out | `LOW` |
+| `gather-one-board` | Twenty links pasted in chat | `.gather/settings/` served and opened, grouped by idea | `MEDIUM` |
+| `gather-read-only-library` | Saves compressed in place for the board | Copies in `img/`, originals untouched | `HIGH` |
+| `gather-shipped-collector` | A `build.mjs` written for this run | `node collect.mjs .gather/settings --serve` | `MEDIUM` |
+| `gather-look-at-every-image` | A screen kept on its title or a preview | The downloaded file opened and the top bar looked at | `MEDIUM` |
+| `gather-cut-clear-misses` | Two close references, one cut by the agent | Both on the board for the user | `MEDIUM` |
+| `gather-name-the-part` | A screenshot with no note | "Take the grouped list, not the colours" | `LOW` |
+| `gather-link-every-reference` | An image with no source or maker | The image linked to its original, its maker under `Creator` | `MEDIUM` |
+| `gather-one-copy-per-shot` | One shot twice, as a Pinterest repin and a Dribbble post | The Dribbble post kept, linked to its maker | `LOW` |
+| `gather-concept-or-shipped` | A Dribbble concept shown as a product | `details: { Kind: "Concept" }` | `MEDIUM` |
+| `gather-short-group-names` | "Activity: thinking, tool calls and steps" | "Agent Activity" | `LOW` |
+| `gather-sum-up-the-picks` | Six links passed to `prototype` | "Take: grouped rows and quiet colour. Avoid: cards. Right?" | `LOW` |
+| `gather-lukewarm-is-not-a-pick` | "These are fine" read as approval | "Which two come closest, and what does each lack?" | `MEDIUM` |
+| `gather-no-blind-retry` | "None of these" answered with 20 more from the same queries | The closest seeding an image search, the furthest's trait under `Not:` | `MEDIUM` |
+| `gather-more-from-the-pick` | More Like This searched as "Linear settings" | An image search seeded from the picked screen | `LOW` |
+| `gather-match-the-naming` | A new channel named "FW 26 🔥" | `fashion / inspiration / 2026 / fall winter` | `HIGH` |
+| `gather-no-duplicates` | The same pin added twice | Existing items checked and skipped | `HIGH` |
+| `gather-ask-at-login` | A login worked around | "Pinterest needs you to sign in" | `MEDIUM` |
 
 ## Reporting
 
-**Severity.** `HIGH` is a whole look copied when one part was asked for, items saved twice or under the wrong name, or saves rewritten in the user's library.
-
-`MEDIUM` is a search with no brief, the wrong platform, references in the thread left unread or no references asked for. It is also a skipped source question, a source searched that the user left out or a board reached around Pond while Pond holds its saves.
-
-`MEDIUM` also covers one source only, sources searched in turn or the user's own saves missing. So is a site searched without the user's saves there, or the reverse. So is a Mobbin call after its usage warning, or a login worked around.
-
-Links pasted in chat, a board with no links and a hand-written board or build script are `MEDIUM` too. So is a reference kept unseen, a close call settled by the agent or a concept shown as shipped. So is a lukewarm reply built on, or a second board after "none of these" on the same queries.
-
-`LOW` is one long query, text search where an image search fits or a gallery thumbnail of a live site. So is a reference with no note, a long group name, repeats under "more" or More Like This searched by title. So is one shot shown twice, a repin kept over its maker or picks handed on without a summary.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why.
 
 **Format.** One finding per root cause, citing the request when no file applies:
 

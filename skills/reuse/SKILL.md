@@ -21,7 +21,7 @@ Spacing and radius come from the project's tokens. A raw `16px` where `--space-4
 
 ## Shipped components stay as shipped
 
-Use a component's variants and `data-*` attributes. Restyling it with a local `className` is `reuse-no-local-restyle`.
+Use a component's variants and `data-*` attributes. A local `className` may place it: margin, width and grid or flex placement are fine. Overriding how it looks, such as its colour, radius, border or inner padding, is `reuse-no-local-restyle`.
 
 ## One style per kind of thing
 
@@ -29,7 +29,7 @@ Keep one menu, one table and one dialog shell. A second dropdown style is `reuse
 
 ## Fix it once, in the primitive
 
-When a fix applies to every instance, make it inside the shared component. Patching five call sites is `reuse-fix-in-the-primitive`. Then search for every sibling, remove its local fix and list the files. Fixing only the cited line is `reuse-sweep-siblings`.
+When a fix applies to every instance, make it inside the shared component. Patching five call sites is `reuse-fix-in-the-primitive`. Then search for every sibling carrying its own local fix. List the hits with file and line and ask once before editing files outside the change. Leaving the siblings unlisted is `reuse-sweep-siblings`.
 
 ## Then a library or the platform
 
@@ -43,7 +43,7 @@ Read `package.json` before installing. A library for a job an installed one alre
 
 Take the package name from the library's own documentation, never from memory. A remembered name may not exist, or may be a look-alike someone published to catch that guess. Installing a name nobody checked is `reuse-confirm-the-package`.
 
-Then run `npm view <name> deprecated time.modified repository.url`. Install it only when it is not deprecated, its repository is not archived and it released within 12 months. A small finished utility may stay quiet longer when its issues get answers. When it fails, port the pattern instead of installing it. That is `reuse-no-stale-dependency`.
+Then run `npm view <name> deprecated dist-tags.latest repository.url`. That version's key in `npm view <name> time --json` is its publish date. Never read `time.modified`, which moves on any metadata edit. `gh repo view <owner/repo> --json isArchived` shows whether the repository is archived. Install it only when it is not deprecated or archived and its latest version shipped within 12 months. A small finished utility may stay quiet longer when its issues get answers. When it fails, port the pattern instead of installing it. That is `reuse-no-stale-dependency`.
 
 ## Read the docs before the props
 
@@ -57,24 +57,24 @@ Use the project's icon set at the size it was drawn for. A generated SVG, or an 
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `reuse-house-component-first` | `<input className={styles.search} />` | The project's `<Input />` |
-| `reuse-tokens-not-values` | `padding: 16px` in a project with `--space-4: 16px` | `padding: var(--space-4)` |
-| `reuse-no-local-restyle` | `.menu { border-radius: 6px }` beside the shared `Menu` | `Menu` as shipped |
-| `reuse-one-standard` | Three dropdown styles on three screens | One `Menu` |
-| `reuse-fix-in-the-primitive` | A scroll fade added at five call sites | The fade inside `ScrollArea` |
-| `reuse-sweep-siblings` | The cited line fixed, its siblings left | Every sibling fixed, files listed |
-| `reuse-library-before-custom` | A hand-written relative date formatter | `Intl.RelativeTimeFormat` |
-| `reuse-one-library-per-job` | `dayjs` installed beside `date-fns` | The formatter `date-fns` already ships |
-| `reuse-confirm-the-package` | `npm install` of a name typed from memory | The name copied from the library's docs, `npm view` showing its repository |
-| `reuse-no-stale-dependency` | A package installed whose repository is archived | Its pattern ported into the project |
-| `reuse-read-the-docs` | `render={<button />}` on a trigger that is already a button | The prop the docs for the installed version describe, or none |
-| `reuse-icon-set-native-size` | An `18px` icon at `width: 12px` | The `12px` icon from the set |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `reuse-house-component-first` | `<input className={styles.search} />` | The project's `<Input />` | `HIGH` |
+| `reuse-tokens-not-values` | `padding: 16px` in a project with `--space-4: 16px` | `padding: var(--space-4)` | `MEDIUM` |
+| `reuse-no-local-restyle` | `.menu { border-radius: 6px }` beside the shared `Menu` | `Menu` as shipped, with `margin-top` only where the layout needs it | `MEDIUM` |
+| `reuse-one-standard` | Three dropdown styles on three screens | One `Menu` | `MEDIUM` |
+| `reuse-fix-in-the-primitive` | A scroll fade added at five call sites | The fade inside `ScrollArea` | `MEDIUM` |
+| `reuse-sweep-siblings` | The fade moved into `ScrollArea`, four local copies left unmentioned | "Four call sites still add their own fade, listed below. Remove them?" | `MEDIUM` |
+| `reuse-library-before-custom` | A hand-written relative date formatter | `Intl.RelativeTimeFormat` | `MEDIUM` |
+| `reuse-one-library-per-job` | `dayjs` installed beside `date-fns` | The formatter `date-fns` already ships | `MEDIUM` |
+| `reuse-confirm-the-package` | `npm install` of a name typed from memory | The name copied from the library's docs, `npm view` showing its repository | `HIGH` |
+| `reuse-no-stale-dependency` | A package installed whose repository is archived | Its pattern ported into the project | `LOW` |
+| `reuse-read-the-docs` | `render={<button />}` on a trigger that is already a button | The prop the docs for the installed version describe, or none | `MEDIUM` |
+| `reuse-icon-set-native-size` | An `18px` icon at `width: 12px` | The `12px` icon from the set | `MEDIUM` |
 
 ## Reporting
 
-**Severity.** `HIGH` is a duplicate of an existing shared component, or a hand-built control a primitive covers. It is also a package installed under a name nobody checked. `MEDIUM` is a local restyle, a second style for one kind of thing or a shared fix applied at one call site. It is also a raw value beside its token, a second library for one job or custom code a library or the platform covers. So is a prop guessed from an older version, or an icon from outside the set or off its drawn size. `LOW` is a library chosen without checking that it is maintained.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why.
 
 **Format.** One finding per root cause:
 

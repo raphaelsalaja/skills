@@ -22,7 +22,7 @@ Offer 28px, "No reference" and "Suggest one" as defaults, so the question never 
 
 Read the disliked character for the trait to avoid, such as hops that fly too high, and keep it out of the moods and reactions.
 
-When the user names a reference character, open its source and step its recording at 10fps. Measure eye size, tilt, spacing and blink timing off the frames. A character drawn from one glance at the reference is `avatar-measure-the-reference`.
+When the user names a reference character, open its source and step its recording at 60fps or more. Coarser steps cannot tell a 180ms blink from a 200ms one. Measure eye size, tilt, spacing and blink timing off the frames. A character drawn from one glance at the reference is `avatar-measure-the-reference`.
 
 Keep measured values as measured. Rounding a `15.5°` eye spacing to `15°` or a `180ms` blink to `200ms` is `avatar-keep-the-measurements`. With no reference named, start from `face.js`.
 
@@ -70,11 +70,11 @@ Nothing holds still. The gaze drifts on layered sine waves and glances to a new 
 
 Blinks take 180ms and close in the first 45% of it. They land 1.9–4.6s apart, and 18% are doubles. A blink on a fixed interval is `avatar-irregular-blinks`.
 
-The body breathes 1.2% on a 3.4s cycle, floats slightly and leans toward its gaze a beat late. Eyes settle in about 60ms and the body in 220ms. Eyes moving inside a frozen body is `avatar-whole-body`.
+The body breathes 1.2% on a 3.4s cycle, floats slightly and leans toward its gaze a beat late. Eyes follow on a 60ms time constant and the body on 220ms. Each reaches 95% of its target in about three time constants. Eyes moving inside a frozen body is `avatar-whole-body`.
 
 ## 5. Make moods from eye shapes
 
-A mood is one row of numbers: eye width, height, tilt, spacing, openness and a gaze offset. Moods blend over about 90ms on an exponential ease-out and never overshoot. A separate drawing swapped in per mood is `avatar-moods-as-numbers`.
+A mood is one row of numbers: eye width, height, tilt, spacing, openness and a gaze offset. Moods blend on an exponential ease-out with a 90ms time constant, about 270ms to 95%, and never overshoot. A separate drawing swapped in per mood is `avatar-moods-as-numbers`.
 
 Start from idle, attentive, excited, happy, sleepy and asleep. Add one or two moves only this object can make, such as a lid that lags behind a hop. A character with no move of its own is `avatar-object-move`.
 
@@ -89,7 +89,7 @@ Each reaction answers one input from the page:
 
 Clamp the followed gaze to ±45° of yaw so the eyes stay on the face, and ignore `pointerType === "touch"` for following. A character that ignores the page around it is `avatar-react-to-the-page`.
 
-When the character is the main toy on its page, it may also react to distance. It turns curious inside 640px, wary inside 260px and recoils inside 100px. A poked eye shuts while the other stays open.
+`face.js` ships only these reactions, and `poke()` only hops. When the character is the main toy on its page, the agent may build distance reactions: curious inside 640px, wary inside 260px and recoil inside 100px. Each is a new `FACES` row picked in `mood()`. A poked eye that shuts alone is a row with one eye's `open` at 0.
 
 ## 7. Run it from one loop
 
@@ -119,44 +119,38 @@ Finish with the character at its shipped size in both themes, then call `window.
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `avatar-ask-the-character` | A mug drawn from "make me a mascot" | "Which object, where does it sit and at what size?", asked first |
-| `avatar-measure-the-reference` | Eyes placed from one look at the reference | Size, tilt, spacing and blinks measured off frames at 10fps |
-| `avatar-keep-the-measurements` | `split: 15`, rounded to look tidy | `split: 15.5`, as measured |
-| `avatar-flat-silhouette` | A cup with an outline, shading and a smile | One solid shape and two eyes |
-| `avatar-iconic-view` | A watering can from the front, which reads as a box | The side view, where the spout and handle name it |
-| `avatar-face-part-leads` | A slab stuck on the mug to hold the eyes, or eyes at half size | The cup widened until the head and its margin fit |
-| `avatar-size-by-outline` | A thin handle loop as tall as the cup | A compact handle, clearly smaller than the cup |
-| `avatar-clean-joins` | A lid edge 0.3 units past the cup, leaving a sliver | A step of half an eye width, or edges matched exactly |
-| `avatar-holes-are-openings` | A cut-out slot for a coin or a button | Holes only where the object is open, such as the handle |
-| `avatar-toy-proportions` | A hairline stem and a sharp leaf tip | Parts at least an eye wide, rounded corners, soft tips |
-| `avatar-colour-variables` | `fill="#c27a3e"` in the path | `fill="var(--avatar-body)"`, set per theme |
-| `avatar-pick-the-silhouette` | One silhouette drawn and animated straight away | Three silhouettes at shipped size and 4×, one picked by the user |
-| `avatar-lukewarm-is-not-a-pick` | "It's cute, I guess" read as a yes | "Which comes closest, and what does it lack?" |
-| `avatar-no-blind-redraw` | "Not quite" answered with three new silhouettes | "Is it the view, the face part or the handle?", then that part redrawn |
-| `avatar-eyes-on-a-sphere` | `translate(dx, dy)` on both eyes | `drawEyes(face, gaze, lid, head)` from yaw, pitch and roll |
-| `avatar-clip-to-the-body` | An eye hanging past the outline on a wide glance | Eyes inside a `clipPath` of the body path |
-| `avatar-never-still` | Eyes parked at rest between blinks | Layered drift and a glance every 1.5–4s |
-| `avatar-irregular-blinks` | `animation: blink 5s infinite` | 180ms blinks 1.9–4.6s apart, 18% doubles |
-| `avatar-whole-body` | Only the eyes move | The body breathes, floats and leans 220ms behind the gaze |
-| `avatar-moods-as-numbers` | `{happy ? <HappyFace /> : <Face />}` | `happy: { eyes: pair(0.522, 0.217, 18) }`, blended over 90ms |
-| `avatar-object-move` | A cup that moves like any blob | The lid lifting a beat behind the hop |
-| `avatar-react-to-the-page` | One idle loop whatever the pointer does | Spin on enter, follow, widen on hover, hop on press, sleep when left |
-| `avatar-pause-offscreen` | A loop running below the fold | The loop started and stopped by an `IntersectionObserver` |
-| `avatar-render-the-rest` | Eyes appearing after hydration | `restingEyes(head)` in the server HTML |
-| `avatar-still-when-reduced` | Glancing and hopping under reduced motion | The resting pose and no loop |
-| `avatar-contact-sheet` | One screenshot of the idle pose | A `sheet.js` sheet through every mood, then shipped size in both themes |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `avatar-ask-the-character` | A mug drawn from "make me a mascot" | "Which object, where does it sit and at what size?", asked first | `MEDIUM` |
+| `avatar-measure-the-reference` | Eyes placed from one look at the reference | Size, tilt, spacing and blinks measured off frames at 60fps | `MEDIUM` |
+| `avatar-keep-the-measurements` | `split: 15`, rounded to look tidy | `split: 15.5`, as measured | `LOW` |
+| `avatar-flat-silhouette` | A cup with an outline, shading and a smile | One solid shape and two eyes | `MEDIUM` |
+| `avatar-iconic-view` | A watering can from the front, which reads as a box | The side view, where the spout and handle name it | `MEDIUM` |
+| `avatar-face-part-leads` | A slab stuck on the mug to hold the eyes, or eyes at half size | The cup widened until the head and its margin fit | `MEDIUM` |
+| `avatar-size-by-outline` | A thin handle loop as tall as the cup | A compact handle, clearly smaller than the cup | `MEDIUM` |
+| `avatar-clean-joins` | A lid edge 0.3 units past the cup, leaving a sliver | A step of half an eye width, or edges matched exactly | `LOW` |
+| `avatar-holes-are-openings` | A cut-out slot for a coin or a button | Holes only where the object is open, such as the handle | `LOW` |
+| `avatar-toy-proportions` | A hairline stem and a sharp leaf tip | Parts at least an eye wide, rounded corners, soft tips | `LOW` |
+| `avatar-colour-variables` | `fill="#c27a3e"` in the path | `fill="var(--avatar-body)"`, set per theme | `LOW` |
+| `avatar-pick-the-silhouette` | One silhouette drawn and animated straight away | Three silhouettes at shipped size and 4×, one picked by the user | `MEDIUM` |
+| `avatar-lukewarm-is-not-a-pick` | "It's cute, I guess" read as a yes | "Which comes closest, and what does it lack?" | `MEDIUM` |
+| `avatar-no-blind-redraw` | "Not quite" answered with three new silhouettes | "Is it the view, the face part or the handle?", then that part redrawn | `MEDIUM` |
+| `avatar-eyes-on-a-sphere` | `translate(dx, dy)` on both eyes | `drawEyes(face, gaze, lid, head)` from yaw, pitch and roll | `MEDIUM` |
+| `avatar-clip-to-the-body` | An eye hanging past the outline on a wide glance | Eyes inside a `clipPath` of the body path | `HIGH` |
+| `avatar-never-still` | Eyes parked at rest between blinks | Layered drift and a glance every 1.5–4s | `MEDIUM` |
+| `avatar-irregular-blinks` | `animation: blink 5s infinite` | 180ms blinks 1.9–4.6s apart, 18% doubles | `MEDIUM` |
+| `avatar-whole-body` | Only the eyes move | The body breathes, floats and leans behind the gaze on a 220ms time constant | `HIGH` |
+| `avatar-moods-as-numbers` | `{happy ? <HappyFace /> : <Face />}` | `happy: { eyes: pair(0.522, 0.217, 18) }`, blended on a 90ms time constant | `MEDIUM` |
+| `avatar-object-move` | A cup that moves like any blob | The lid lifting a beat behind the hop | `LOW` |
+| `avatar-react-to-the-page` | One idle loop whatever the pointer does | Spin on enter, follow, widen on hover, hop on press, sleep when left | `MEDIUM` |
+| `avatar-pause-offscreen` | A loop running below the fold | The loop started and stopped by an `IntersectionObserver` | `MEDIUM` |
+| `avatar-render-the-rest` | Eyes appearing after hydration | `restingEyes(head)` in the server HTML | `LOW` |
+| `avatar-still-when-reduced` | Glancing and hopping under reduced motion | The resting pose and no loop | `HIGH` |
+| `avatar-contact-sheet` | One screenshot of the idle pose | A `sheet.js` sheet through every mood, then shipped size in both themes | `MEDIUM` |
 
 ## Reporting
 
-**Severity.** `HIGH` is a body that never moves, eyes escaping the silhouette or motion under reduced motion.
-
-`MEDIUM` is a character drawn before the object and its place were asked, or eyes placed from one glance at the reference. It is also an outline, shading or a mouth, a view that does not name the object, a cramped face or an oversized secondary part. So is an unpicked silhouette animated, faint praise taken as a pick or a blind redraw.
-
-`MEDIUM` also covers flat sliding eyes, a gaze parked between events, a fixed blink or swapped mood drawings. So is an offscreen loop, a missing reaction or proof from one screenshot.
-
-`LOW` is a rounded measurement, a fill in the path, a rest pose that pops in or a character with no move of its own. A sliver at a join, a decorative hole or a hairline part is also `LOW`.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why.
 
 **Format.** One finding per root cause:
 

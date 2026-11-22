@@ -14,54 +14,26 @@ icons/
 .iconset/
   index.html  review.js  render.mjs
   fonts/                the product's font files, when not installed
-  directions/<name>/    each direction's scripts and its own style.json
+  refs/                 pictures the user sent
 ```
 
 ## Style
 
-`style.md` records how the direction was picked. The voice and the stroke step start from it, and a later redraw reads why.
+`style.md` records where the run stands, what the user asked for and what the sample settled, so a later redraw reads why.
 
 ```
-## References
-Loved: the linked set - 1.5 stroke, round ends, 2 radius, closed shapes. "Calm, nothing shouts"
-Loved: the user's notes app - filled when selected, duotone back layer at 0.3
-Disliked: the old set - butt ends and sharp corners. "Too harsh next to the rounded buttons"
-Change first: tag, sparkle, settings
+## Progress
+Step 3, the full set. Last checkpoint passed: the sample, 1 of 2.
 
-## Signals
-Type: humanist sans, l stem 1.26 at 14px, contrast 1.1:1, open apertures, round terminals, x-height 0.53
-Labels: 14px regular
-Radius: 10px controls, pill buttons
-Logo: circles and one free curve
-Platform: web and iOS, bottom navigation on phones
-Theme: light first
-Tiers: UI icons, plus pictograms on empty states
-
-## Traits
-Calm, but not sleepy
-Friendly, but not childish
-
-## Offered
-Round, Soft, Keep the old set's style
+## Description
+"Rounded, friendly line icons, nothing that shouts"
+Fill: outline, fill when selected
+Sizes: 16 and 24
 
 ## Picked
-Round. Soft read thin beside the labels on a phone.
-
-## Fill
-Line, filled when selected, duotone back layer at 0.3
-
-## Voice
-Must: closed shapes. Broken: a folder with an open top. Fixed: the folder closed along its tab.
-Must: one diagonal angle, 45°. Broken: a 40° arrow. Fixed: the arrow at 45°.
-Should: lines run on to the keyline. Broken: a phone stopping short of the keyline. Fixed: the phone on the tall keyline. Bent in: bolt, which reads better at its own height.
-Standard: no icon takes more attention than the label beside it.
-
-## Stroke
-16: 1.25, beside the 14px regular labels (l stem 1.26). 1.5 outweighed them.
-24: 1.75, beside the 20px medium title (l stem 2.26). The stroke the user set; 2 drew the eye first.
-
-## Changes
-First batch: "a bit harsh". Round ends picked over a larger radius and a lighter stroke.
+Round: round ends and joins, 3 radius, from the 10px controls.
+Stroke: 1.25 at 16 from the 14px labels' 1.26 stem, 1.75 at 24 beside the 20px title.
+Sample: "a bit harsh". Round ends kept, the radius raised from 2 to 3.
 ```
 
 ## Variables
@@ -71,21 +43,27 @@ First batch: "a bit harsh". Round ends picked over a larger radius and a lighter
 ```json
 {
   "sizes": {
-    "16": { "stroke": 1.25, "radius": 2, "cut": 1.25 },
-    "24": { "stroke": 1.75, "radius": 3, "cut": 2 }
+    "16": { "stroke": 1.25, "radius": 2, "cut": 1.25, "fills": ["outline", "fill"] },
+    "24": { "stroke": 1.75, "radius": 3, "cut": 2, "fills": ["outline", "fill", "outline-duo"] }
   },
   "caps": "round",
   "joins": "round",
-  "fill": "line, filled when selected",
-  "duotone": { "back": "opacity", "opacity": 0.3 }
+  "selected": "fill",
+  "duo": { "back": "opacity", "outline": 0.3, "fill": 0.4 }
 }
 ```
 
-`radius` is the largest a corner takes, as [Radius by part](styles.md#radius-by-part) says. `cut` is the gap where a badge or slash clips a shape, and it is never narrower than that size's stroke. `duotone` is absent when the set has none, and `back` is `opacity` or `colour`.
+`radius` is the largest a corner takes, as [Radius by part](styles.md#radius-by-part) says. `cut` is the gap where a badge or slash clips a shape, and it is never narrower than that size's stroke. `fills` lists what each size ships, from [Fills](styles.md#fills). `selected` is the fill a selected icon swaps to, absent when none. `duo` is absent when no size ships a duo fill, and `back` is `opacity` or `colour`.
 
 ## Icon scripts
 
-Where the agent draws, each icon is a script that returns its parts from shared helpers. The caller passes the size, the values and the helpers, so one script draws every size, direction and one-change variant. A named override sits beside the part it bends, as the star's corners show.
+Where the agent draws, it writes two files in the project at step 2, before the sample. This skill ships neither, and each stays a few dozen lines:
+
+- `icons/helpers.mjs` exports `poly(points, { closed, corners })`, `arc` and `circle`, each returning path data on the 24 grid. It also exports any point generator a script needs, such as `starPoints`.
+- `helpers.mjs` also exports `draw(script, size, style, { morph })`. It calls the script with the helpers, scales to `size`, snaps as below and returns one `<svg>` with that size's stroke, caps, joins and `currentColor`.
+- `.iconset/render.mjs` calls `draw` on every script at every size, with `style.json` or a one-change copy of it. It writes the result into `review.js` as `window.review`.
+
+Each icon is then a script that returns its parts from those helpers. The caller passes the size, the values and the helpers, so one script draws every size and one-change variant. A named override sits beside the part it bends, as the star's corners show.
 
 ```js
 // star.mjs
@@ -97,23 +75,23 @@ export default ({ poly, starPoints }) =>
   });
 ```
 
-`helpers.mjs` scales 24-grid coordinates to each size, snaps anchors to the grid step and applies the radius table, so a script names only its shape.
+`draw` snaps anchors to the grid step and applies the radius table, so a script names only its shape.
 
-Snap what the helpers compute too: where a rounded corner's arc starts and ends, each corner radius, each curve's end point and each dot's radius. Unsnapped, a 45° corner lands at 10.563 and the seed fails the grid lint. Curve handles stay free.
+Snap what the helpers compute too: where a rounded corner's arc starts and ends, each corner radius, each curve's end point and each dot's radius. Unsnapped, a 45° corner lands at 10.563 and the sample fails the grid lint. Curve handles stay free.
 
 A named override is in 24-grid units and scales with the rest. A script may branch on `size` where a smaller drawing needs its own coordinates, such as loops kept a stroke apart at 16.
 
-`draw(script, size, style, { morph })` writes the morph form for icons marked Swaps. It turns lines, arcs, circles and `Z` into an `M` and explicit `C` segments, then pads to the pair's larger path and segment counts.
+`morph: true` is passed only for icons marked Swaps. `draw` then writes each line as a cubic with its handles on its ends and each arc as cubics of at most a quarter turn. It drops `Z` and pads to the pair's larger path and segment counts.
 
-`.iconset/render.mjs` draws every script with each direction's values, or with `style.json` once one is picked, and writes `review.js`. Run it after every change, because a page opened from disk cannot import modules or fetch JSON.
+Run `render.mjs` after every change, because a page opened from disk cannot import modules or fetch JSON.
 
 ```js
 import { readFileSync } from "node:fs";
 import { draw } from "../icons/helpers.mjs";
-import folder from "./directions/round/folder.mjs";
+import folder from "../icons/src/folder.mjs";
 
-const round = JSON.parse(readFileSync(new URL("directions/round/style.json", import.meta.url)));
-const svg = { 16: draw(folder, 16, round), 24: draw(folder, 24, round) };
+const style = JSON.parse(readFileSync(new URL("../icons/style.json", import.meta.url)));
+const svg = { 16: draw(folder, 16, style), 24: draw(folder, 24, style) };
 ```
 
 The build runs the same scripts, so the scripts and the SVG tree never disagree.
@@ -142,15 +120,14 @@ Each concept appears once and each icon answers one concept. The tags carry the 
 ```
 | Concept | Icon | Tags | Marks |
 | --- | --- | --- | --- |
-| Agent | `sparkle` | ai, assistant, model | Contested: picked from 14 versions |
+| Agent | `sparkle` | ai, assistant, model | |
 | Search | `magnifying-glass` | search, find, lookup | |
 | Play | `play` | start, run, resume | Swaps with `pause` |
 | Expand | `chevron-down` | expand, open, disclosure | Swaps with `chevron-right`, Spins |
 | Billing | `banknote` | billing, payment, invoice | Local: no currency sign |
-| Parallel run | `lanes` | parallel, concurrent, fan out | Contested, new: 4 of 5 in testing |
 ```
 
-Marks records what the steps decided. Contested names the picture it came from, Swaps names its partner and Local names the neutral form or the locales. A new metaphor adds its test result. Spins marks a Swaps pair that is one drawing turned, which rotates and skips the morph form.
+Marks records what the steps decided. Swaps names its partner and Local names the neutral form or the locales. Spins marks a Swaps pair that is one drawing turned, which rotates and skips the morph form.
 
 Keep the table this shape, one row per concept, because the review page, the export and the catalogue all parse it.
 
@@ -180,6 +157,7 @@ svg/
   ArrowRight/
     outline-16.svg
     outline-24.svg
+    outline-duo-24.svg
     fill-16.svg
   manifest.json
   REPORT.md
@@ -196,6 +174,7 @@ svg/
     "variants": [
       { "style": "outline", "size": 16, "file": "ArrowRight/outline-16.svg" },
       { "style": "outline", "size": 24, "file": "ArrowRight/outline-24.svg" },
+      { "style": "outline-duo", "size": 24, "file": "ArrowRight/outline-duo-24.svg" },
       { "style": "fill", "size": 16, "file": "ArrowRight/fill-16.svg" }
     ]
   }

@@ -42,18 +42,29 @@ The negative margin keeps the scroller's content aligned with its neighbours whi
 ## Sideways scroll
 
 ```css
-.code,
-.table {
+pre.code {
+  white-space: pre;
+}
+
+pre.code,
+.table-scroll {
   overflow-x: auto;
-  white-space: nowrap;
   scrollbar-width: none;
 }
 
-.code::-webkit-scrollbar,
-.table::-webkit-scrollbar {
+pre.code::-webkit-scrollbar,
+.table-scroll::-webkit-scrollbar {
   display: none;
 }
 ```
+
+```html
+<div class="table-scroll">
+  <table>...</table>
+</div>
+```
+
+`white-space: pre` keeps every newline and indent, where `nowrap` would collapse the block onto one line. The table's cells keep wrapping, so a long value breaks inside its cell, and the wrapper scrolls only once the columns reach their minimum widths. Short values such as amounts and dates may take `white-space: nowrap` on their own cells.
 
 Pair it with the scroll fade on the horizontal axis so the hidden scrollbar still reads as more content. A code block holding only text also needs a keyboard way in, which `keyboard` covers.
 
@@ -128,34 +139,53 @@ Without `content: ""` the pseudo-element never renders. Without `position: relat
 }
 ```
 
-Every token reads `color-scheme`, so the switch and the system setting reach the same place. With no `data-theme`, `light dark` follows the system.
+Every token reads `color-scheme`, so the switch and the system setting reach the same place. With no `data-theme`, `light dark` follows the system, so System is the absence of the attribute.
+
+A blocking script at the top of `<head>`, before any stylesheet, applies a saved choice before first paint. It is inline and carries no `defer`, `async` or `type="module"`.
+
+```html
+<script>
+  try {
+    const theme = localStorage.getItem("theme");
+    if (theme === "light" || theme === "dark") {
+      document.documentElement.dataset.theme = theme;
+      const meta = document.createElement("meta");
+      meta.name = "theme-color";
+      meta.content = theme === "dark" ? "#0a0a0a" : "#ffffff";
+      document.head.prepend(meta);
+    }
+  } catch {}
+</script>
+```
 
 ```ts
 const themeColors = { light: "#ffffff", dark: "#0a0a0a" };
 
 export function setTheme(choice: "system" | "light" | "dark") {
-  const theme =
-    choice === "system"
-      ? matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light"
-      : choice;
-
   const style = document.createElement("style");
   style.textContent = "*, *::before, *::after { transition: none !important; }";
-  document.head.appendChild(style);
+  document.head.append(style);
 
   const root = document.documentElement;
-  root.dataset.theme = theme;
-  root.style.colorScheme = theme;
-  document
-    .querySelectorAll('meta[name="theme-color"]')
-    .forEach((meta) => meta.setAttribute("content", themeColors[theme]));
-  void window.getComputedStyle(document.body).opacity;
+  document.querySelector('meta[name="theme-color"]:not([media])')?.remove();
+  if (choice === "system") {
+    delete root.dataset.theme;
+    localStorage.removeItem("theme");
+  } else {
+    root.dataset.theme = choice;
+    localStorage.setItem("theme", choice);
+    const meta = document.createElement("meta");
+    meta.name = "theme-color";
+    meta.content = themeColors[choice];
+    document.head.prepend(meta);
+  }
+  void getComputedStyle(document.body).opacity;
 
   requestAnimationFrame(() => style.remove());
 }
 ```
 
-Reading a computed style forces the new theme to apply before transitions return. Save the choice, and while it is `"system"`, call `setTheme` again when the media query changes. When the project uses a theme library, use its option for this instead.
+The browser uses the first `theme-color` tag whose media matches, so the unscoped tag prepended for a picked theme wins. System removes it and leaves the two media-scoped tags to follow the setting, with no listener needed. Reading a computed style forces the new theme to apply before transitions return. When the project uses a theme library, use its option for this instead.
 
 ## Forced colours
 
@@ -220,6 +250,12 @@ button,
 a,
 [role="button"] {
   touch-action: manipulation;
+}
+
+button,
+[role="button"],
+[role="tab"],
+.tab-bar a {
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -235,7 +271,7 @@ a,
 }
 ```
 
-Match each `theme-color` to the top of the page, not the brand colour. Safari 26 reads the colour from the fixed or sticky element touching each edge instead, so that element's `background-color` is opaque, with any blur on an inner layer. Leave `user-select` and `-webkit-touch-callout` alone on links inside prose, where people copy the text and preview the link. Set `overscroll-behavior: none` only on apps, not on documents people read.
+Match each `theme-color` to the top of the page, not the brand colour. Safari 26 reads the colour from the fixed or sticky element touching each edge instead, so that element's `background-color` is opaque, with any blur on an inner layer. The second rule covers app controls only, with `.tab-bar a` standing for links that act as controls. Links in prose keep `user-select` and `-webkit-touch-callout`, so people can copy the text and preview the link. Set `overscroll-behavior: none` only on apps, not on documents people read.
 
 ## Keyboard inset
 
@@ -332,25 +368,37 @@ A response faster than `delay` never shows the skeleton. One that crosses it kee
 Playback from files:
 
 ```ts
-const cues = {
-  success: new Audio("/sounds/success.mp3"),
+const sources = {
+  success: "/sounds/success.mp3",
 };
+type Cue = keyof typeof sources;
 
-Object.values(cues).forEach((audio) => audio.load());
+const cues = new Map<Cue, HTMLAudioElement>();
 
-export function playCue(
-  cue: keyof typeof cues,
-  settings: { enabled: boolean; volume: number },
-) {
+function cueAudio(cue: Cue) {
+  let audio = cues.get(cue);
+  if (!audio) {
+    audio = new Audio(sources[cue]);
+    audio.preload = "auto";
+    cues.set(cue, audio);
+  }
+  return audio;
+}
+
+export function preloadCues() {
+  (Object.keys(sources) as Cue[]).forEach((cue) => cueAudio(cue).load());
+}
+
+export function playCue(cue: Cue, settings: { enabled: boolean; volume: number }) {
   if (!settings.enabled) return;
-  const audio = cues[cue];
+  const audio = cueAudio(cue);
   audio.volume = settings.volume;
   audio.currentTime = 0;
-  void audio.play();
+  audio.play().catch(() => {});
 }
 ```
 
-Preload at startup and reset `currentTime` so a second trigger is heard. A cue lasts about as long as its action, near 50ms for a press. A toggle gets a soft click, a purchase a short chime and an error a quiet cue, never a buzzer.
+Nothing touches `Audio` at module scope, so the file imports safely during server rendering. Call `preloadCues()` from a client-side effect, and reset `currentTime` so a second trigger is heard. A blocked autoplay rejects `play()`, and the catch keeps that rejection out of the console while the visible twin still carries the message. A cue lasts about as long as its action, near 50ms for a press. A toggle gets a soft click, a purchase a short chime and an error a quiet cue, never a buzzer.
 
 A synthesized click:
 

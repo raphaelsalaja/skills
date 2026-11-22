@@ -25,7 +25,7 @@ Do not add a toast or a dialog for an action whose result is already on screen. 
 
 Build at the size the ask needs: local state before a store, one app before a monorepo and a fixed value before a setting. A global store added for one panel's toggle is `restraint-smallest-build`. A preference nobody will change is `restraint-no-needless-setting`.
 
-Write code inline until a third copy appears. A new helper, hook, wrapper or config object with one caller is `restraint-no-single-use-abstraction`. When `rg -w useRowFormatter` finds only the definition and one call, inline it.
+Write code inline until a second caller needs it. A new helper, hook, wrapper or config object with one caller is `restraint-no-single-use-abstraction`, and two callers are fine. When `rg -w useRowFormatter` finds only the definition and one call, inline it.
 
 ## Only the lines the ask needs
 
@@ -55,7 +55,7 @@ It also deletes what waited on it: `onAnimationEnd`, `transitionend`, exit-compl
 
 ## No debugging left behind
 
-Remove every `console.log`, `debugger` and block of commented-out code you added before reporting done. `git diff -U0 | rg '^\+.*(console\.(log|debug)\(|\bdebugger\b)'` finds them. One left in the diff is `restraint-no-leftover-debug`.
+Remove every debug `console` call, `debugger` and block of commented-out code you added before reporting done. `git diff -U0 | rg '^\+.*(console\.(log|warn|info|table|debug|trace)\(|\bdebugger\b)'` finds them. One left in the diff is `restraint-no-leftover-debug`.
 
 ## Comments state constraints or go
 
@@ -65,27 +65,27 @@ Delete comments that narrate the code. Keep one only when it states a constraint
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `restraint-no-unrequested-ui` | A count badge on every row | No badge |
-| `restraint-no-redundant-feedback` | A toast after a move the user can see | No toast |
-| `restraint-smallest-build` | A global store added for one panel's open toggle | `useState` in the panel |
-| `restraint-no-needless-setting` | A preference for a gap nobody changes | A fixed `--gap` |
-| `restraint-no-single-use-abstraction` | A `useRowFormatter` hook with one caller | Its three lines inline |
-| `restraint-no-drive-by-changes` | A one-line fix with 300 lines of reformatting | The one line |
-| `restraint-no-unrequested-files` | `NOTES.md` and `test-fix.js` left in the tree | Neither created, or both deleted before the reply |
-| `restraint-no-legacy` | A legacy branch kept "for safety" | Deleted |
-| `restraint-no-fallbacks` | `value ?? defaultValue` for a value that is always set | `value` |
-| `restraint-delete-dont-defer` | "Deferred for your review" | Deleted, or one question |
-| `restraint-remove-the-trail` | A removed package's variables left in `theme.css` | The variables removed with it |
-| `restraint-remove-the-start-state` | `animate` removed, `initial={{ opacity: 0 }}` left | Both removed, and `motion.div` back to `div` |
-| `restraint-remove-the-wait` | `setTimeout(focusInput, 200)` left after the exit is gone | `focusInput()` when the panel closes |
-| `restraint-no-leftover-debug` | `console.log("row", row)` in the diff | Removed |
-| `restraint-no-narrating-comments` | `// Render the header` | No comment |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `restraint-no-unrequested-ui` | A count badge on every row | No badge | `MEDIUM` |
+| `restraint-no-redundant-feedback` | A toast after a move the user can see | No toast | `MEDIUM` |
+| `restraint-smallest-build` | A global store added for one panel's open toggle | `useState` in the panel | `MEDIUM` |
+| `restraint-no-needless-setting` | A preference for a gap nobody changes | A fixed `--gap` | `HIGH` |
+| `restraint-no-single-use-abstraction` | A `useRowFormatter` hook with one caller | Its three lines inline | `MEDIUM` |
+| `restraint-no-drive-by-changes` | A one-line fix with 300 lines of reformatting | The one line | `MEDIUM` |
+| `restraint-no-unrequested-files` | `NOTES.md` and `test-fix.js` left in the tree | Neither created, or both deleted before the reply | `MEDIUM` |
+| `restraint-no-legacy` | A legacy branch kept "for safety" | Deleted | `MEDIUM` |
+| `restraint-no-fallbacks` | `value ?? defaultValue` for a value that is always set | `value` | `MEDIUM` |
+| `restraint-delete-dont-defer` | "Deferred for your review" | Deleted, or one question | `HIGH` |
+| `restraint-remove-the-trail` | A removed package's variables left in `theme.css` | The variables removed with it | `MEDIUM` |
+| `restraint-remove-the-start-state` | `animate` removed, `initial={{ opacity: 0 }}` left | Both removed, and `motion.div` back to `div` | `HIGH` |
+| `restraint-remove-the-wait` | `setTimeout(focusInput, 200)` left after the exit is gone | `focusInput()` when the panel closes | `MEDIUM` |
+| `restraint-no-leftover-debug` | `console.log("row", row)` in the diff | Removed | `LOW` |
+| `restraint-no-narrating-comments` | `// Render the header` | No comment | `LOW` |
 
 ## Reporting
 
-**Severity.** `HIGH` is a feature, setting or code path nobody asked for, or a "removed" item that still exists. It is also an element left invisible by a deleted animation's start state. `MEDIUM` is a fallback, a legacy branch, a leftover variable or a single-use abstraction. It is also a toast for a result already on screen, or a build bigger than the ask. So is unasked churn, a file nobody asked for or a callback or timeout still waiting on a deleted animation. `LOW` is a narrating comment or a leftover debug line.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why. An unrequested feature or screen is `HIGH`, though a small unrequested element stays `MEDIUM`.
 
 **Format.** One finding per root cause:
 

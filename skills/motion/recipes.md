@@ -41,7 +41,7 @@ Opacity only, no `x`, `y` or `scale`. With `initial={false}` the first page rend
 | Panel or drawer entering | `400ms` | `--ease-drawer` |
 | Panel or drawer leaving | `350ms` | `--ease-drawer` |
 | Staged entrance | `100ms` between parts | `--ease-out` |
-| List stagger | `30ms` per item, held from the fifth | `--ease-out` |
+| List stagger | `30ms` per item, held at `120ms` from the fifth, `150ms` fade | `--ease-out` |
 | Frequent surface entering | `150ms`, opacity only | `--ease-out` |
 | Container resize | `2ms` per px, `150ms` to `270ms` | `--ease-in-out` |
 | Page change under `mode="wait"` | `150ms` each way | `--ease-in-out` |
@@ -51,7 +51,7 @@ Opacity only, no `x`, `y` or `scale`. With `initial={false}` the first page rend
 | Hold-to-confirm release | `200ms` | `--ease-out` |
 | Drag release | Spring | `stiffness: 500, damping: 30` |
 | Click, key or system spring | Spring | `bounce: 0` |
-| Decorative pointer-follow | Spring | `stiffness: 100, damping: 10` |
+| Decorative pointer-follow | Spring | `stiffness: 100, damping: 20` |
 
 In Motion, pass the same curves as arrays, such as `ease: [0.23, 1, 0.32, 1]`.
 
@@ -143,10 +143,20 @@ function onPointerUp(velocity: number) {
 ```ts
 const DISMISS_DISTANCE = 120;
 const DISMISS_VELOCITY = 0.11;
+const samples: { distance: number; time: number }[] = [];
 
-function shouldDismiss(distance: number, startedAt: number) {
-  const velocity = Math.abs(distance) / (Date.now() - startedAt);
-  return Math.abs(distance) >= DISMISS_DISTANCE || velocity > DISMISS_VELOCITY;
+function track(distance: number) {
+  const time = performance.now();
+  samples.push({ distance, time });
+  while (samples.length > 2 && time - samples[0].time > 100) samples.shift();
+}
+
+function shouldDismiss(distance: number) {
+  track(distance);
+  const first = samples[0];
+  const last = samples[samples.length - 1];
+  const velocity = last.time > first.time ? (last.distance - first.distance) / (last.time - first.time) : 0;
+  return distance >= DISMISS_DISTANCE || velocity > DISMISS_VELOCITY;
 }
 
 function rubberband(overshoot: number, size: number) {
@@ -154,6 +164,8 @@ function rubberband(overshoot: number, size: number) {
   return Math.sign(overshoot) * offset;
 }
 ```
+
+`distance` is positive toward dismissal. Empty `samples` when a drag starts, call `track` on every pointer move and `shouldDismiss` on release, so the speed is read over the last 100ms. Dividing the whole distance by the whole drag time misses a flick at the end of a slow drag.
 
 Run `rubberband` on the distance dragged past a boundary, with `size` the sheet's length along the drag. The sheet slows rather than stopping and never travels past `size`. Call `setPointerCapture` on pointer-down and ignore a second pointer while one is dragging.
 
@@ -173,7 +185,7 @@ Run `rubberband` on the distance dragged past a boundary, with `size` the sheet'
 </AnimatePresence>
 ```
 
-Keep `bounce` at `0`. Without a motion library, keep both icons in the DOM and cross-fade them over `300ms` with `cubic-bezier(0.2, 0, 0, 1)`. An icon that changes on every hover or tab switch swaps instantly instead.
+Keep `bounce` at `0`. Without a motion library, keep both icons in the DOM and cross-fade them over `300ms` on `--ease-out`. An icon that changes on every hover or tab switch swaps instantly instead.
 
 ## Icon morph
 
@@ -249,18 +261,48 @@ const variants = {
 ## Hold to confirm
 
 ```css
+.hold {
+  user-select: none;
+  -webkit-touch-callout: none;
+}
+
 .hold-fill {
   clip-path: inset(0 100% 0 0);
   transition: clip-path 200ms cubic-bezier(0.23, 1, 0.32, 1);
 }
 
-.hold:active .hold-fill {
+.hold[data-holding] .hold-fill {
   clip-path: inset(0 0 0 0);
   transition: clip-path 2s linear;
 }
 ```
 
-The transition on the target state wins, so the fill runs `2s` linear and the release runs `200ms`. Confirm on the fill's `transitionend`.
+```js
+const hold = document.querySelector(".hold");
+const fill = hold.querySelector(".hold-fill");
+
+function start(event) {
+  if (event.type === "keydown" && (event.repeat || (event.key !== "Enter" && event.key !== " "))) return;
+  if (event.type === "pointerdown") hold.setPointerCapture(event.pointerId);
+  hold.dataset.holding = "";
+}
+
+function stop() {
+  delete hold.dataset.holding;
+}
+
+hold.addEventListener("pointerdown", start);
+hold.addEventListener("keydown", start);
+for (const type of ["pointerup", "pointercancel", "keyup", "blur"]) hold.addEventListener(type, stop);
+
+fill.addEventListener("transitionend", (event) => {
+  if (event.propertyName !== "clip-path" || !("holding" in hold.dataset)) return;
+  stop();
+  confirmAction();
+});
+```
+
+The transition on the target state wins, so the fill runs `2s` linear and the release runs `200ms`. The release transition fires `transitionend` too, so the handler confirms only while `data-holding` is still set. `:active` is unreliable on iOS and is never held for Enter, so pointer and key events set the state.
 
 ## Top-layer entrances
 
@@ -330,6 +372,10 @@ In React, wrap the state change in `flushSync` inside the callback so the DOM ha
   view-transition-class: card;
 }
 
+::view-transition {
+  pointer-events: none;
+}
+
 ::view-transition-group(*.card) {
   animation-duration: 200ms;
   animation-timing-function: cubic-bezier(0.77, 0, 0.175, 1);
@@ -342,7 +388,7 @@ In React, wrap the state change in `flushSync` inside the callback so the DOM ha
 }
 ```
 
-Two rendered elements with one name make `transition.ready` reject and skip the transition. `match-element` names by element identity, so it never crosses documents. A shared element across two pages takes the same explicit name on both.
+While a transition runs, its pseudo-elements sit over the page and take every click. `pointer-events: none` on `::view-transition` sends input to the page underneath. Two rendered elements with one name make `transition.ready` reject and skip the transition. `match-element` names by element identity, so it never crosses documents. A shared element across two pages takes the same explicit name on both.
 
 For a multi-page site, both pages carry the opt-in:
 
@@ -485,6 +531,10 @@ import { MotionBlurProvider } from "@web-kits/motion-blur/react";
 | `svg()` | | `feGaussianBlur` along one axis, turned to the motion |
 | `smear()` | `limit = 1.05` | The layer stretched along the motion, with no blur |
 
+The host stays transparent. Backgrounds, borders and shadows go on the layer or inside it, or they stay sharp under the streak. The techniques write the layer's transform, so a tilt or scale goes on an element inside the layer. With the `MotionBlur` component, animate the component and style what sits inside it.
+
+Echo is the only technique shaped like a camera's blur, and the only one that follows rotation, scale and curves. The other three blur the whole layer one amount in one direction, so they suit straight moves only, and a spinner's edges move at different speeds. `squeeze()` and `svg()` turn the layer and its child in opposite directions, so a layer with two children throws. A smear past 1.05 distorts text.
+
 ## Motion blur by hand
 
 For a physics loop or any position you work out yourself, call `render` once a frame. The first call stops the automatic watching.
@@ -516,6 +566,8 @@ const soft: Technique = ({ layer }) => ({
 soft.key = "soft";
 ```
 
+`clear` removes every style `paint` set, and `destroy` removes anything the technique added to the page. A technique built inside a render sets `key`, so an equal one does not rebuild the painter.
+
 Each frame carries `path(t)`, `matrix`, `dx` and `dy` in the element's own px, `streak` in screen px, and `origin`, `width` and `height`.
 
 ## Checking motion blur
@@ -526,5 +578,7 @@ Freeze the motion at its fastest point, with a ¼× control or a paused timeline
 - Echo shows no steps at the streak length you ship.
 - The streak at 60Hz is twice as long as at 120Hz.
 - Nothing stays blurred once the element stops.
+
+A demo played at a quarter of its speed multiplies the shutter by four, so `shutter: 720` keeps the full-speed streak.
 
 `onFrame` reports the streak length in px each frame. A background tab throttles `requestAnimationFrame` and stretches every streak, so check in a focused tab.

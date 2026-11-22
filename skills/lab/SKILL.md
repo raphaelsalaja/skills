@@ -30,25 +30,27 @@ Each entry renders from fixed props and fixture data, never a live request or th
 
 ## 3. Force states open
 
-Render menus, popovers, tooltips and submenus open with their controlled props or `data-*` attributes. Hold hover and focus with `force` on the entry, such as `force="hover"`. A menu that needs a click to see is `lab-states-open`. Use the app's current theme unless the user asked for both. That is `lab-one-theme`.
+Render menus, popovers, tooltips and submenus open with their controlled props or `data-*` attributes. Hold hover and focus with `force` on the entry, such as `force="hover"`. A menu that needs a click to see is `lab-states-open`. The theme follows `defaults`.
 
 Forced overlays must not close or block each other. Opening a second `popover="auto"` closes the first, and a dialog opened with `showModal()` makes the rest of the lab inert. On the lab page only, open dialogs non-modally with `show()` and popovers as `popover="manual"`, through the component's own props where it has them. The component itself keeps the modal, `auto` and `hint` behaviour `overlays` sets. Render portals into their own entry. An open popover that lands outside its entry, such as one the browser centres, is moved under that entry's content by `lab.js`.
 
 After load, count `document.querySelectorAll(":popover-open, dialog[open]")` against the overlays you forced. One menu open where six were forced, or a lab that ignores clicks behind a modal, is `lab-overlays-stay-open`.
 
-`force` rewrites the app's same-origin style rules, so a browser default, such as the built-in focus ring, does not appear. Mark an entry that relies on one as `Not verified`, then check it with the real keyboard.
+`force` has three limits. It rewrites only same-origin style rules, so a browser default such as the built-in focus ring does not appear. It holds the state on the entry's direct child only, so a nested element needs its own entry.
+
+A cross-origin stylesheet cannot be read, so `lab.js` skips it with a console warning. Mark an entry that hits any limit as `Not verified`, then check it with the real keyboard or pointer.
 
 ## 4. Link each entry to its source
 
 Wrap each state in a `lab-entry` naming its component, state and source line, as the header comment in `lab.js` shows. An unlabelled grid is `lab-link-the-source`. When the user asked to tune values, add a `lab-tune` for each custom property with its range.
 
+Source links resolve against `root` on `<lab-page>`, the absolute project root. Pass it at runtime where the framework can, such as `process.cwd()` from server code, never a path copied from another machine. Without it, relative sources show as plain labels. `editor` picks the app that opens them and is `cursor` when unset, so set it to the user's editor.
+
 The grid, labels, filters and controls ship with the skill, so write entries only. A lab page with its own grid, labels or styles is `lab-shipped-frame`.
 
-## 5. Open it
+Open the lab once it is built, as `verify` asks.
 
-Start the dev server and open the lab. A route named in the reply but never opened is `lab-open-it`.
-
-## 6. Keep it out of the release
+## 5. Keep it out of the release
 
 Gate the route and `lab.js` to development, or delete both before release. A lab reachable in production is `lab-not-in-production`.
 
@@ -56,23 +58,21 @@ Gate the route and `lab.js` to development, or delete both before release. A lab
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `lab-every-state` | The resting button only | Rest, hover, pressed, focus, disabled and loading |
-| `lab-cross-the-axes` | Primary in six states, Secondary and Ghost at rest only | Primary, Secondary and Ghost each in all six states |
-| `lab-real-components` | Copied markup for each state | The real `Button` imported |
-| `lab-fixed-props` | `<UserCard id="42" />` fetching from the live API | `<UserCard user={fixtures.user} />` |
-| `lab-states-open` | A menu behind a trigger | `<Menu open>` with its submenu open |
-| `lab-one-theme` | Light and dark side by side, unasked | The app's current theme |
-| `lab-overlays-stay-open` | Six `popover="auto"` menus forced open, one left showing | Each menu as `popover="manual"`, six counted open |
-| `lab-link-the-source` | An unlabelled grid | `Menu / Submenu Open` linked to `menu/index.tsx` |
-| `lab-shipped-frame` | A lab grid and labels written from scratch | `lab.js` loaded, only `lab-entry` elements written |
-| `lab-open-it` | "Added `/lab`" | The lab opened for the user |
-| `lab-not-in-production` | `/lab` live on the production site | The route gated to development |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `lab-every-state` | The resting button only | Rest, hover, pressed, focus, disabled and loading | `MEDIUM` |
+| `lab-cross-the-axes` | Primary in six states, Secondary and Ghost at rest only | Primary, Secondary and Ghost each in all six states | `MEDIUM` |
+| `lab-real-components` | Copied markup for each state | The real `Button` imported | `HIGH` |
+| `lab-fixed-props` | `<UserCard id="42" />` fetching from the live API | `<UserCard user={fixtures.user} />` | `LOW` |
+| `lab-states-open` | A menu behind a trigger | `<Menu open>` with its submenu open | `MEDIUM` |
+| `lab-overlays-stay-open` | Six `popover="auto"` menus forced open, one left showing | Each menu as `popover="manual"`, six counted open | `MEDIUM` |
+| `lab-link-the-source` | An unlabelled grid | `Menu / Submenu Open` linked to `menu/index.tsx` | `LOW` |
+| `lab-shipped-frame` | A lab grid and labels written from scratch | `lab.js` loaded, only `lab-entry` elements written | `MEDIUM` |
+| `lab-not-in-production` | `/lab` live on the production site | The route gated to development | `HIGH` |
 
 ## Reporting
 
-**Severity.** `HIGH` is a lab built from copies, or a lab reachable in production. `MEDIUM` is a missing state, a state that still needs a click or a hand-written lab page. It is also a variant shown in fewer states than its siblings, or a forced overlay that closed another or made the lab inert. `LOW` is an unlabelled entry, or a lab that was not opened for the user. It is also an entry that reads a live request or the current time, or both themes shown unasked.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why.
 
 **Format.** One finding per root cause:
 

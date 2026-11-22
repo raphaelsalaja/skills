@@ -11,6 +11,8 @@ This skill holds the colour rules that apply on every screen. It covers contrast
 
 The contrast ratios here are exact and apply in every theme. They are WCAG 2 ratios, the method conformance claims and accessibility law cite. A ratio is read from the colour the screen draws, never guessed from a token's name. A ratio under the threshold is a finding in any style.
 
+Taste values, such as off-white text, alpha neutrals and the gradient stops, yield to a palette the project already follows. The ratios never yield.
+
 Searching for an existing token belongs to `reuse`. `color-scheme`, `theme-color`, the theme switch, status shown by colour alone and surfaces under reduced transparency belong to `defaults`. Whether a colour should be there at all belongs to `restraint`. A focus ring's style belongs to `defaults`, and its 3:1 change from the unfocused state is checked stop by stop in `keyboard`.
 
 ## Body text clears 4.5:1
@@ -69,11 +71,13 @@ Logos and brand images carry a variant or a treatment that reads in both themes.
 
 ## Increased contrast has its own tokens
 
-Under `@media (prefers-contrast: more)` the role tokens remap. Small text reaches 7:1 and translucent borders turn opaque. Read every colour in light, dark and increased contrast. A theme with no `prefers-contrast: more` block is `color-more-contrast`.
+Under `@media (prefers-contrast: more)` the role tokens remap. Small text reaches 7:1, translucent surfaces turn near-solid and translucent borders turn opaque. Read every colour in light, dark and increased contrast. A theme with no `prefers-contrast: more` block is `color-more-contrast`.
 
-## Gradients blend in oklch and fade on a curve
+## Gradients blend in oklab and fade on a curve
 
-A gradient between two hues interpolates `in oklch`, so its middle stays saturated rather than turning grey. A blue to yellow gradient with a muddy grey middle is `color-gradient-in-oklch`. A `color-mix()` between two hues takes `in oklch` too, because `in srgb` greys the same way.
+A gradient between two hues interpolates `in oklab`, which keeps the middle clean without swinging through a third hue. `in srgb` greys the middle, and a blue to yellow gradient with a muddy grey middle is `color-gradient-interpolation`. A `color-mix()` between two hues takes `in oklab` too.
+
+Use `in oklch` only when a saturated middle is wanted, and name the hue path. `in oklch shorter hue` takes the short way round the wheel, so blue to yellow passes through green. `in oklch longer hue` passes through magenta and red instead.
 
 A fade to transparent, such as a scroll edge or a scrim, takes about 6 stops along an ease-out curve. Two linear stops leave a visible line where the fade meets the solid colour. `linear-gradient(transparent, black 24px)` is `color-eased-gradient`.
 
@@ -89,32 +93,32 @@ Each status colour keeps one meaning. Red marks errors and destructive actions o
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `color-text-contrast` | `color: #999` on white, 2.8:1 | `color: #737373`, 4.7:1 |
-| `color-ui-contrast` | A field edged by `#e5e5e5` on white, 1.3:1 | `border-color: #8a8a8a`, 3.5:1 |
-| `color-accent-color` | A default blue checkbox beside an orange accent | `accent-color: var(--accent)` at 3:1, with `color-scheme: light dark` on the root |
-| `color-measure-composited` | "The token is `#171717`, so it passes" | The ratio of the drawn colour at `opacity: 0.6`, read on screen |
-| `color-ratio-is-the-pass-line` | "White on `#f97316` reads at Lc 58, so it passes" | 2.8:1 fails, so the fill darkens to `#c2410c`, 5.18:1 |
-| `color-contrast-color-mid-tones` | `color: contrast-color(#2277d3)`, black at 4.65:1 and Lc 33 | `color: var(--on-accent)` set to `#ffffff`, 4.52:1 and Lc 76 |
-| `color-scrim-under-text` | White text straight over a photo | An eased scrim from `rgba(0, 0, 0, 0.6)` at the bottom to transparent, under the text |
-| `color-role-tokens` | `color: var(--gray-500)` in `Card` | `color: var(--text-secondary)` |
-| `color-states-from-tokens` | `.button:hover { background: #1d4ed8 }` beside `--accent: #2563eb` | `background: color-mix(in oklch, var(--accent), var(--text-primary) 12%)` |
-| `color-alpha-neutrals` | `background: #f5f5f5` on hover | `background: var(--gray-a3)` on hover |
-| `color-dark-raises-lighter` | A dark popover at the page's `#0a0a0a` | The popover at `#1a1a1a` over the `#0a0a0a` page |
-| `color-dark-tuned-accents` | `#2563eb` links on `#0a0a0a`, 3.8:1 | `#60a5fa` in the dark theme, 7.8:1 |
-| `color-dark-off-white-text` | `--text-primary: #ffffff` on `#0a0a0a`, 19.8:1 | `--text-primary: #ededed`, 16.9:1 |
-| `color-logo-both-themes` | The dark logo on the `#0a0a0a` page | A light logo variant in the dark theme |
-| `color-more-contrast` | One set of role tokens for every contrast setting | A `prefers-contrast: more` block with small text at 7:1 and opaque borders |
-| `color-gradient-in-oklch` | `linear-gradient(to right, #2563eb, #facc15)` | `linear-gradient(in oklch to right, #2563eb, #facc15)` |
-| `color-eased-gradient` | `linear-gradient(transparent, black 24px)` | `linear-gradient(transparent, rgb(0 0 0 / 0.36) 5px, rgb(0 0 0 / 0.64) 10px, rgb(0 0 0 / 0.84) 14px, rgb(0 0 0 / 0.96) 19px, black 24px)` |
-| `color-one-accent` | Section headings in the accent colour | Headings in `--text-primary`, the accent on the primary button |
-| `color-one-primary` | `Save Draft` and `Publish` side by side, both accent-filled | `Publish` filled, `Save Draft` secondary |
-| `color-status-meaning` | A red "New" badge | A neutral or accent badge |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `color-text-contrast` | `color: #999` on white, 2.8:1 | `color: #737373`, 4.7:1 | `HIGH` |
+| `color-ui-contrast` | A field edged by `#e5e5e5` on white, 1.3:1 | `border-color: #8a8a8a`, 3.5:1 | `HIGH` |
+| `color-accent-color` | A default blue checkbox beside an orange accent | `accent-color: var(--accent)` at 3:1, with `color-scheme: light dark` on the root | `LOW` |
+| `color-measure-composited` | "The token is `#171717`, so it passes" | The ratio of the drawn colour at `opacity: 0.6`, read on screen | `MEDIUM` |
+| `color-ratio-is-the-pass-line` | "White on `#f97316` reads at Lc 58, so it passes" | 2.8:1 fails, so the fill darkens to `#c2410c`, 5.18:1 | `MEDIUM` |
+| `color-contrast-color-mid-tones` | `color: contrast-color(#2277d3)`, black at 4.65:1 and Lc 33 | `color: var(--on-accent)` set to `#ffffff`, 4.52:1 and Lc 76 | `MEDIUM` |
+| `color-scrim-under-text` | White text straight over a photo | An eased scrim from `rgba(0, 0, 0, 0.6)` at the bottom to transparent, under the text | `HIGH` |
+| `color-role-tokens` | `color: var(--gray-500)` in `Card` | `color: var(--text-secondary)` | `MEDIUM` |
+| `color-states-from-tokens` | `.button:hover { background: #1d4ed8 }` beside `--accent: #2563eb` | `background: color-mix(in oklch, var(--accent), var(--text-primary) 12%)` | `MEDIUM` |
+| `color-alpha-neutrals` | `background: #f5f5f5` on hover | `background: var(--gray-a3)` on hover | `MEDIUM` |
+| `color-dark-raises-lighter` | A dark popover at the page's `#0a0a0a` | The popover at `#1a1a1a` over the `#0a0a0a` page | `MEDIUM` |
+| `color-dark-tuned-accents` | `#2563eb` links on `#0a0a0a`, 3.8:1 | `#60a5fa` in the dark theme, 7.8:1 | `MEDIUM` |
+| `color-dark-off-white-text` | `--text-primary: #ffffff` on `#0a0a0a`, 19.8:1 | `--text-primary: #ededed`, 16.9:1 | `LOW` |
+| `color-logo-both-themes` | The dark logo on the `#0a0a0a` page | A light logo variant in the dark theme | `MEDIUM` |
+| `color-more-contrast` | One set of role tokens for every contrast setting | A `prefers-contrast: more` block with small text at 7:1, near-solid surfaces and opaque borders | `LOW` |
+| `color-gradient-interpolation` | `linear-gradient(to right, #2563eb, #facc15)` with a grey middle | `linear-gradient(in oklab to right, #2563eb, #facc15)` | `LOW` |
+| `color-eased-gradient` | `linear-gradient(transparent, black 24px)` | `linear-gradient(transparent, rgb(0 0 0 / 0.36) 5px, rgb(0 0 0 / 0.64) 10px, rgb(0 0 0 / 0.84) 14px, rgb(0 0 0 / 0.96) 19px, black 24px)` | `LOW` |
+| `color-one-accent` | Section headings in the accent colour | Headings in `--text-primary`, the accent on the primary button | `LOW` |
+| `color-one-primary` | `Save Draft` and `Publish` side by side, both accent-filled | `Publish` filled, `Save Draft` secondary | `MEDIUM` |
+| `color-status-meaning` | A red "New" badge | A neutral or accent badge | `LOW` |
 
 ## Reporting
 
-**Severity.** `HIGH` is body text under its ratio on a primary surface, a field whose edge fails 3:1 or text over an image with no scrim. `MEDIUM` is a palette step inside a component, a solid neutral that vanishes on a surface or a ratio never read on screen. It is also a dark surface raised by shadow alone or a light accent reused in dark mode. It is also a theme with no increased contrast remap, or a logo lost on a dark surface. It is also two accent-filled buttons in one view or region. It is also a pass claimed from Lc on a failing ratio, `contrast-color()` on a mid-tone fill or a hover colour picked by hand. `LOW` is the accent used for decoration, a status colour carrying a second meaning or a gradient that greys in the middle. It is also a fade on two linear stops, or a native control left in the default accent. It is also pure white body text on a dark page.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why. `color-more-contrast` rises to `MEDIUM` when the project already targets increased contrast.
 
 **Format.** One finding per root cause:
 

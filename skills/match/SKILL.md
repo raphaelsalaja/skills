@@ -9,9 +9,9 @@ This skill rebuilds something the user pointed at in another app, site or design
 
 ## One to one means exact values
 
-When the user says "one to one", "exact" or "like this", every value comes from the reference. A guessed value is a finding. When the user says "inspired by", carry the concept and use the project's own tokens.
+When the user says "one to one", "exact" or "like this", layout, type and motion values come from the reference. Colours come across only when the user asks for them. A guessed value is a finding. When the user says "inspired by", carry the concept and use the project's own tokens.
 
-Use it whenever a message names an app, a URL, a screenshot, a design file or a design reference library. Building with the project's parts belongs to `reuse`. Breaking a reference's motion into tracks on a timeline belongs to `deconstruct`. Checking the result runs in `verify`.
+Use it when the user asks to copy, match or rebuild a named reference: an app, a URL, a screenshot, a design file or a library entry. A reference merely mentioned does not load it, and collecting references belongs to `gather`. Building with the project's parts belongs to `reuse`. Breaking a reference's motion into tracks on a timeline belongs to `deconstruct`. Checking the result runs in `verify`.
 
 ## 1. Open the real source
 
@@ -39,7 +39,7 @@ Hold hover, focus and active with the DevTools protocol's `CSS.forcePseudoState`
 
 ## 4. Copy the named part
 
-Rebuild the part the user named and nothing around it. Asked for the sidebar, copying the whole layout is `match-copy-the-named-part`. Carry the idea, not the brand. Their logo, product names and colours stay behind unless the user asked for them. That is `match-concept-not-brand`.
+Rebuild the part the user named and nothing around it. Asked for the sidebar, copying the whole layout is `match-copy-the-named-part`. Carry the idea, not the brand. Their logo, product names and colours stay behind unless the user asked for them, even under "one to one". That is `match-concept-not-brand`.
 
 ## 5. Compare side by side
 
@@ -53,24 +53,24 @@ The compare page ships with the skill, so write data only. A page with its own m
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `match-inspect-the-source` | A menu rebuilt from memory | The live menu opened and inspected |
-| `match-same-platform` | A desktop app judged by its website | The installed app opened |
-| `match-read-computed-values` | `border-radius: 8px` by eye | The `6px` read from computed styles |
-| `match-rendered-font` | `font-family: "Brand Sans", Arial` copied, `Arial` rendering in the rebuild | Both sides reporting the same family from `CSS.getPlatformFontsForNode` |
-| `match-read-the-motion` | `transition: transform 200ms ease` guessed | `240ms cubic-bezier(0.32, 0.72, 0, 1)` read from `getTiming()` during the change |
-| `match-convert-design-units` | `letter-spacing: -2%` pasted from the design file | `letter-spacing: -0.02em` |
-| `match-measure-at-scale` | `gap: 24px` read off a 2× screenshot | `gap: 12px`, 24 device pixels divided by 2 |
-| `match-inventory-states` | The resting state only | Hover, pressed, open, empty and error rebuilt |
-| `match-copy-the-named-part` | The whole layout copied for "the sidebar" | The sidebar only |
-| `match-concept-not-brand` | Their logo and accent colour shipped | The pattern in the project's tokens |
-| `match-side-by-side` | "Looks close" | Both at one size, differences listed |
-| `match-shipped-compare` | A compare page written from scratch | `compare.html` copied, only `compare.js` written |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `match-inspect-the-source` | A menu rebuilt from memory | The live menu opened and inspected | `HIGH` |
+| `match-same-platform` | A desktop app judged by its website | The installed app opened | `HIGH` |
+| `match-read-computed-values` | `border-radius: 8px` by eye | The `6px` read from computed styles | `MEDIUM` |
+| `match-rendered-font` | `font-family: "Brand Sans", Arial` copied, `Arial` rendering in the rebuild | Both sides reporting the same family from `CSS.getPlatformFontsForNode` | `MEDIUM` |
+| `match-read-the-motion` | `transition: transform 200ms ease` guessed | `240ms cubic-bezier(0.32, 0.72, 0, 1)` read from `getTiming()` during the change | `MEDIUM` |
+| `match-convert-design-units` | `letter-spacing: -2%` pasted from the design file | `letter-spacing: -0.02em` | `MEDIUM` |
+| `match-measure-at-scale` | `gap: 24px` read off a 2× screenshot | `gap: 12px`, 24 device pixels divided by 2 | `MEDIUM` |
+| `match-inventory-states` | The resting state only | Hover, pressed, open, empty and error rebuilt | `HIGH` |
+| `match-copy-the-named-part` | The whole layout copied for "the sidebar" | The sidebar only | `MEDIUM` |
+| `match-concept-not-brand` | Their logo and accent colour shipped | The pattern in the project's tokens | `MEDIUM` |
+| `match-side-by-side` | "Looks close" | Both at one size, differences listed | `MEDIUM` |
+| `match-shipped-compare` | A compare page written from scratch | `compare.html` copied, only `compare.js` written | `MEDIUM` |
 
 ## Reporting
 
-**Severity.** `HIGH` is a rebuild made without opening the source or the same platform, or a missing state the user named. `MEDIUM` is a guessed value under "one to one", a part copied beyond the ask or the reference's brand shipped. It is also a fallback font rendering on either side, guessed motion, a design-file unit pasted unconverted or a screenshot measured in device pixels. So is "looks close" with no side-by-side, or a hand-written compare page. `LOW` is a remaining difference that was found and named.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why. A difference found and named in the comparison is `LOW`.
 
 **Format.** One finding per root cause:
 

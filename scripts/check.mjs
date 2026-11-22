@@ -75,6 +75,13 @@ for (const name of skills) {
   const [prose, rest = ""] = body.split("\n## The pair\n");
   const pair = rest.split("\n## ")[0];
   const ids = [...pair.matchAll(/^\| `([a-z0-9-]+)` \|/gm)].map((match) => match[1]);
+  if (!pair.includes("| Rule | Broken | Replacement | Severity |")) fail(path, "the pair header is not | Rule | Broken | Replacement | Severity |");
+  for (const [row, id] of pair.matchAll(/^\| `([a-z0-9-]+)` \|.*$/gm)) {
+    if (!/\| `(HIGH|MEDIUM|LOW)` \|$/.test(row)) fail(path, `${id} has no HIGH, MEDIUM or LOW in its last column`);
+  }
+  const severity = /^\*\*Severity\.\*\* (.+)$/m.exec(rest.split("\n## Reporting\n")[1] ?? "")?.[1];
+  if (!severity) fail(path, "no **Severity.** paragraph under ## Reporting");
+  else if (severity.split(/\s+/).length > 60) fail(path, `a ${severity.split(/\s+/).length}-word Severity paragraph`);
   for (const id of ids) {
     if (!id.startsWith(`${name}-`)) fail(path, `${id} does not start with ${name}-`);
     if (owners.has(id)) fail(path, `${id} is also in ${owners.get(id)}`);

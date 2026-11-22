@@ -35,13 +35,17 @@ When the user gives read access to real data, add the longest stored value of ea
 
 Build the worst-case fixture beside the demo data. Load it through the same boundary the demo data uses: the fixture file, the mock handler or the component's props. Text typed into the rendered markup or the DOM skips the code that formats, escapes and truncates it, and is `stress-change-the-data`.
 
-Write each fixture value literally, or generate it from a fixed seed. Pin "now" to one instant, such as `2025-06-15T12:00:00Z`, and set every date relative to it. Hand the screen's clock the same instant, through a `now` prop, the formatter's reference date or a development-only clock the switch sets. Otherwise the "Now" case reads "1 year ago". `Math.random()`, an unseeded generator or `new Date()` gives new rows on each reload, so a break cannot be shown twice. That is `stress-fixed-fixture`.
+Write each fixture value literally, or generate it from a fixed seed. Pin "now" to one instant, such as `2025-06-15T12:00:00Z`, and set every date relative to it. Hand the screen's clock the same instant, through `page.clock.setFixedTime()` in the test browser, a `now` prop or the formatter's reference date. Otherwise the "Now" case reads "1 year ago". `Math.random()`, an unseeded generator or `new Date()` gives new rows on each reload, so a break cannot be shown twice. That is `stress-fixed-fixture`.
 
-Add one switch that picks the data set: Demo, Worst Case, Empty, One and 1,000 Rows. It reads and writes `?data=` in the URL as `demo`, `worst`, `empty`, `one` and `1000`, so a reload keeps the case. Build 1,000 Rows by cycling the catalog's cases, so no two neighbours match.
+Serve the data sets from the test browser first, so the app gains no code. Intercept the screen's requests with Playwright's `page.route` or a Mock Service Worker handler and answer with the fixture. A permanent in-app switch on a screen that fetches its data is `stress-intercept-first`.
 
-The switch also carries the worst responses. Slow as `?data=slow` delays every response 3 seconds and then serves the demo data. Failed as `?data=error` answers every request with a 500. What the screen shows then belongs to `states`. A switch that can only serve good data is `stress-slow-and-failed`.
+The sets are Demo, Worst Case, Empty, One and 1,000 Rows. Build 1,000 Rows by cycling the catalog's cases, so no two neighbours match.
 
-Build the switch with the project's own components. Render it in development only and gate the fixture loader the same way. A switch or fixture reachable in production is `stress-dev-only-switch`.
+The worst responses come too. Slow delays every response 3 seconds and then serves the demo data, and Failed answers every request with a 500. What the screen shows then belongs to `states`. Handlers that only serve good data are `stress-slow-and-failed`.
+
+Add an in-app switch only when no request boundary exists, such as data imported at build time. It reads and writes `?data=` as `demo`, `worst`, `empty`, `one`, `1000`, `slow` and `error`, so a reload keeps the case. Build it with the project's own components.
+
+Render the switch in development only and gate the fixture loader the same way. A switch or fixture reachable in production is `stress-dev-only-switch`.
 
 ## 3. Run the catalog
 
@@ -57,7 +61,7 @@ For every case a form can edit, open the form, save without changing anything an
 
 ## 5. Keep the fixture
 
-Keep the worst-case fixture and the switch after the run, beside the demo data. When the project has component, snapshot or visual tests, add one that renders the fixture with the runner it already uses. A fixture deleted once the screen looks fine is `stress-keep-the-fixture`. When the project has no tests, the fixture and the switch are the regression check.
+Keep the worst-case fixture and its route handlers or switch after the run, beside the demo data. When the project has component, snapshot or visual tests, add one that renders the fixture with the runner it already uses. A fixture deleted once the screen looks fine is `stress-keep-the-fixture`. When the project has no tests, the fixture and its handlers are the regression check.
 
 ## 6. Report by case
 
@@ -67,22 +71,23 @@ Return one screenshot per broken case, then the findings in the same order. A fi
 
 Every check is a pair. The broken line sits beside the line that replaces it.
 
-| Rule | Broken | Replacement |
-| --- | --- | --- |
-| `stress-map-every-value` | A fixture of the three values someone remembered | Every rendered value listed with its source and limit |
-| `stress-longest-real-value` | "Titles are `varchar(255)`" with the stored data never measured | "Titles are `varchar(255)`, the longest stored is 212", with both lengths in the fixture |
-| `stress-change-the-data` | A long name typed into the DOM | The name in `fixtures/worst.ts`, loaded through the props |
-| `stress-fixed-fixture` | Names from an unseeded generator, `dueAt: new Date()` | The generator seeded with `7`, `now = "2025-06-15T12:00:00Z"` and `dueAt` 3 days after `now` |
-| `stress-slow-and-failed` | A switch with Demo and Worst Case only | `?data=slow` holding every response 3s and `?data=error` answering 500 |
-| `stress-dev-only-switch` | `?data=worst` working on the production site | The switch and the fixture loader gated to development |
-| `stress-run-the-catalog` | "Nobody has a name that long" | `Christopher Alexander Montgomery III` rendered in the row |
-| `stress-real-container` | A card checked alone at 1440 | The card inside the 280px sidebar it ships in |
-| `stress-keep-the-fixture` | The fixture deleted after the run | `fixtures/worst.ts` kept and rendered by the existing visual test |
-| `stress-name-the-case` | "Long names overflow" | "At 280px, the 64-character email pushes the role off the card" |
+| Rule | Broken | Replacement | Severity |
+| --- | --- | --- | --- |
+| `stress-map-every-value` | A fixture of the three values someone remembered | Every rendered value listed with its source and limit | `MEDIUM` |
+| `stress-longest-real-value` | "Titles are `varchar(255)`" with the stored data never measured | "Titles are `varchar(255)`, the longest stored is 212", with both lengths in the fixture | `LOW` |
+| `stress-change-the-data` | A long name typed into the DOM | The name in `fixtures/worst.ts`, loaded through the props | `MEDIUM` |
+| `stress-fixed-fixture` | Names from an unseeded generator, `dueAt: new Date()` | The generator seeded with `7`, `now = "2025-06-15T12:00:00Z"` and `dueAt` 3 days after `now` | `MEDIUM` |
+| `stress-intercept-first` | A `?data=` switch added to a screen that loads through `fetch` | `page.route("**/api/projects", ...)` answering with `fixtures/worst.ts` | `MEDIUM` |
+| `stress-slow-and-failed` | Handlers for Demo and Worst Case only | A Slow set holding every response 3s and a Failed set answering 500 | `MEDIUM` |
+| `stress-dev-only-switch` | `?data=worst` working on the production site | The switch and the fixture loader gated to development | `HIGH` |
+| `stress-run-the-catalog` | "Nobody has a name that long" | `Christopher Alexander Montgomery III` rendered in the row | `MEDIUM` |
+| `stress-real-container` | A card checked alone at 1440 | The card inside the 280px sidebar it ships in | `MEDIUM` |
+| `stress-keep-the-fixture` | The fixture deleted after the run | `fixtures/worst.ts` kept and rendered by the existing visual test | `LOW` |
+| `stress-name-the-case` | "Long names overflow" | "At 280px, the 64-character email pushes the role off the card" | `LOW` |
 
 ## Reporting
 
-**Severity.** `HIGH` is markup that runs, a crashed render, a value lost on save or a switch reachable in production. `MEDIUM` is text past its box, a clip with no way to read the rest, wrong initials, `NaN`, `Invalid Date` or a raw float. It is also a fixture typed into the markup, a catalog case skipped, a case run outside its real container or a run with no value map. So is a fixture that changes on reload, or a switch with no slow or failed response. `LOW` is a fixture deleted after the run, or a finding that does not name its case. It is also a limit left unmeasured against readable real data.
+**Severity.** Each rule's level is in its pair row. `HIGH` breaks behaviour or loses work, `MEDIUM` is visible and inconsistent and `LOW` is polish. When two levels fit, take the higher one and say why. A break another skill owns, such as clipped text, takes that skill's row level. Markup that runs, a crash or a lost save is `HIGH`.
 
 **Format.** One finding per root cause, naming the case and the width:
 

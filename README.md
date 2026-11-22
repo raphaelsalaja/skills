@@ -17,7 +17,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**scope**](skills/scope/SKILL.md): Changes **exactly what was asked**, keeps what already worked and finishes every item in the message.
 - [**reuse**](skills/reuse/SKILL.md): Reaches for the **project's own components**, then a maintained library, then a native feature, before writing new code.
 - [**restraint**](skills/restraint/SKILL.md): Ships the **smallest thing** that does the job and deletes what nobody asked for.
-- [**copy**](skills/copy/SKILL.md): Writes interface labels in **Title Case**, short and plain, with one-line descriptions and no em dashes.
+- [**copy**](skills/copy/SKILL.md): Writes interface labels, errors, confirm dialogs and statuses, short and plain, in the project's casing or **Title Case** when it has none.
 - [**prose**](skills/prose/SKILL.md): Writes posts and breakdowns that **open on where the author stands**, show the options that lost, give exact numbers and mark every guess as a guess.
 - [**defaults**](skills/defaults/SKILL.md): Applies house defaults for **scroll edges**, surfaces, theme, focus, names, page structure, links, mobile, type, tables, data, loading and sound.
 - [**forms**](skills/forms/SKILL.md): Builds forms that **label every field**, ask for the right keyboard, take typed and pasted input, validate on submit and never ask twice.
@@ -33,7 +33,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**match**](skills/match/SKILL.md): Rebuilds a named reference from its **real source and computed values**, then compares the two side by side.
 - [**rule**](skills/rule/SKILL.md): Turns a **repeated correction** into a short project rule with the broken and fixed line, then applies it to existing code.
 - [**viewports**](skills/viewports/SKILL.md): Renders a page at **every width**, each breakpoint edge, a short landscape phone, 400% zoom, 200% text and spaced, longer, shorter, unbroken or mirrored text, then reports what overflows, clips or hides.
-- [**icons**](skills/icons/SKILL.md): Draws missing icons in the **project's own style**, measured from every icon the set already has and built to morph, then shows the set on one sheet.
+- [**icons**](skills/icons/SKILL.md): Draws a missing icon or adds one the set lacks, in the **project's own style** measured from every icon the set already has, then shows the whole set on one sheet.
 - [**ship**](skills/ship/SKILL.md): Commits, pushes, merges and releases a change, **watches the checks** and confirms it is live. User-invoked.
 - [**prototype**](skills/prototype/SKILL.md): Builds several **real, labelled variants** of one idea on a single page so the user can pick, then deletes the rest. User-invoked.
 - [**lab**](skills/lab/SKILL.md): Builds a temporary page that shows **every variant and state** of real components at once, each linked to its source. User-invoked.
@@ -48,7 +48,7 @@ A skill follows it in `## The pair`: one row per rule id, the broken line in the
 - [**avatar**](skills/avatar/SKILL.md): Draws any object as **a flat character with two capsule eyes**, then animates its whole body so it glances, blinks, breathes, follows the pointer and falls asleep. User-invoked.
 - [**bots**](skills/bots/SKILL.md): Turns chosen Grok Bots into **a shakeable pile**, portfolio cards and an org chart page, each with a link to copy the bot, with private details stripped. User-invoked.
 - [**sketchbook**](skills/sketchbook/SKILL.md): Generates a daily batch of interaction experiments in the project's own stack as **live tiles you keep or kill**, learning your taste with every batch. User-invoked.
-- [**iconset**](skills/iconset/SKILL.md): Builds or redraws **a whole icon library**, from the user's references and an audit of the old set through a style picked from drawn tiles, a written voice and shared parts to one build command. User-invoked.
+- [**iconset**](skills/iconset/SKILL.md): Builds or redraws **a whole icon library** from the user's description and at most 3 questions, a confirmed sample row, shared parts and one build command. User-invoked.
 - [**audit**](skills/audit/SKILL.md): Reviews a change, a session or a whole codebase **against every skill** in this collection and returns one ranked, numbered report. User-invoked.
 
 ## Install
