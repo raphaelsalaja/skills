@@ -25,15 +25,15 @@ Search on the same platform as the work. A desktop or web app takes web and desk
 
 Open the tabs, screenshots, links and design files already in the thread before searching anywhere. They seed the image searches in step 4. Searching Mobbin while the user's screenshots sit open in the browser is `gather-start-with-given`.
 
-When the thread holds no reference, ask for them in the same round as the source question in step 3. Ask for 1–3 products that do the part well, one the user dislikes and why for each. Offer "None, search wide" so the question never blocks.
+When the thread holds no reference, ask for them with the `references` question on the step 3 form. It asks for 1–3 products that do the part well and one the user dislikes, with why. Its "None, search wide" option keeps it from blocking.
 
 Read each answer for the part it does well, so "like Linear" becomes "Linear's dense grouped rows". Add each dislike to the brief after `Not:`, so every search agent avoids it. Searching with no reference and no question asked is `gather-ask-for-references`.
 
 ## 3. Ask which sources to use
 
-Ask one multi-select question with every source in [sources.md](sources.md#which-sources) as its own option, marking each one connected or not. Search only the sources picked.
+Ask with the form in [sources.md](sources.md#which-sources). It splits every source across four multi-select questions, one option per source name. Search only the sources picked. A source missing from the form, a searched source left out or no form at all is `gather-ask-which-sources`.
 
-Where the question tool caps its options, split the list across questions in the order `sources.md` gives. A source missing from the question, a searched source left out or no question at all is `gather-ask-which-sources`.
+The form is the same on every run, so the user learns where each source sits. A form retitled, reworded, split differently or given an option or question of its own is `gather-same-form`.
 
 Connect a picked source that is missing before searching it. How to connect each one is in [sources.md](sources.md). Wait for the answer before searching anywhere. Ask once per brief, so More Like This and "more" keep the same picks.
 
@@ -119,8 +119,9 @@ Every check is a pair. The broken line sits beside the line that replaces it.
 | `gather-split-the-brief` | `query: "desktop settings page with grouped dense options"` | `"settings groups"`, `"preferences list"`, `"dense settings"` | `LOW` |
 | `gather-same-platform` | iOS screens for a desktop app | `platform: "web"` and desktop apps | `MEDIUM` |
 | `gather-start-with-given` | A Mobbin search while the user's tabs are open | The open tabs read first | `MEDIUM` |
-| `gather-ask-for-references` | A Mobbin search started on "settings page" alone | "Which apps do settings well, and which do you dislike?", asked with the sources | `MEDIUM` |
-| `gather-ask-which-sources` | Six sources offered while Savee and Refero go unlisted | Every source in `sources.md` as its own option, marked connected or not | `MEDIUM` |
+| `gather-ask-for-references` | A Mobbin search started on "settings page" alone | The `references` question, asked on the form with the sources | `MEDIUM` |
+| `gather-ask-which-sources` | Six sources offered while Savee and Refero go unlisted | Every source in `sources.md` as its own option | `MEDIUM` |
+| `gather-same-form` | One run titled "Reference sources" with one question, the next "Gather Sources" split three ways | `Gather: Settings Page` with the five questions in `sources.md`, word for word | `MEDIUM` |
 | `gather-boards-through-pond` | "Are.na's API blocks scripted requests, so I'll search it in the browser" while Pond is connected | Pond searched with `source: "arena"`, `"cosmos"` and `"pinterest"` | `MEDIUM` |
 | `gather-parallel-sources` | Pond, then Mobbin, then Cosmos, one after another | One agent per source, started together | `MEDIUM` |
 | `gather-stop-at-usage-limit` | Mobbin searched again after "your monthly usage is high" | "Mobbin says monthly usage is high, so I've stopped searching it" | `MEDIUM` |

@@ -4,7 +4,23 @@ How to reach each source in `SKILL.md`, the files each search agent writes and t
 
 ## Which sources
 
-Before searching, ask which sources to use, with each name below as its own option, in this order. Connect any picked source that is missing, then search only the picked ones.
+Ask with this form on every run, word for word. Between runs only the board title in the form's title changes.
+
+**Title.** `Gather: <board title>`, using the Title Case title written to `board.json`.
+
+| Id | Prompt | Options | Picks |
+| --- | --- | --- | --- |
+| `libraries` | Which libraries and boards should I search? | Every source under [Libraries and boards](#libraries-and-boards), in its order | Many |
+| `screens` | Which product screen libraries should I search? | Every source under [Product screens](#product-screens), in its order | Many |
+| `sites` | Which site galleries should I search? | Every source under [Sites](#sites), in its order | Many |
+| `type-and-code` | Which type, code and motion libraries should I search? | Every source under [Type, code and motion](#type-code-and-motion), in its order | Many |
+| `references` | Name 1–3 products that do this well and one you dislike, with why, under Other. | `None, search wide`, `I'll paste screenshots or links in chat` | One |
+
+Leave out `references` when the thread already holds a reference. A source question left blank picks none of its sources.
+
+Each source option is the source's name and nothing else, such as `Pond` or `Are.na`. No bracketed notes such as "(connected)", "(Recommended)" or "(mostly concepts)", no "None of these" option and no question of the agent's own.
+
+### Libraries and boards
 
 | Source | The user's saves | The site |
 | --- | --- | --- |
@@ -17,27 +33,62 @@ Before searching, ask which sources to use, with each name below as its own opti
 | [Dribbble](https://dribbble.com) | Likes and collections, through Pond when connected | Shots posted by designers, mostly concepts |
 | [Behance](https://www.behance.net) | Appreciations and moodboards, through Pond when connected | Case studies posted by designers, mostly concepts |
 | [Layers](https://layers.to) | Checked when signed in | Work posted by designers, mostly concepts |
+
+### Product screens
+
+| Source | The user's saves | The site |
+| --- | --- | --- |
 | Mobbin | Saved collections | Screens, flows and marketing sections |
-| [Recent](https://recent.design) | Checked when signed in | High-end sites, branding, motion and type, picked daily. The Web filter shows sites only |
 | [Refero](https://refero.design) | Checked when signed in | Real product screens, flows, patterns and elements, mostly web |
-| [Siteinspire](https://www.siteinspire.com) | Checked when signed in | Editorial, typographic sites, filtered by style, type and subject |
-| [Minimal Gallery](https://minimal.gallery) | Checked when signed in | Restrained, functional sites |
-| [Land-book](https://land-book.com) | Checked when signed in | Landing pages, filtered by page type and style |
-| [Saaspo](https://saaspo.com) | Checked when signed in | Software landing, pricing and product pages |
 | [Page Flows](https://pageflows.com) | Checked when signed in | Recorded flows from live web and mobile apps |
 | [Nicely Done](https://nicelydone.club) | Favourites and collections | Screens, components and flows from SaaS apps, searchable by the text inside them |
 | [Design Spells](https://www.designspells.com) | Checked when signed in | Micro-interactions, easter eggs and small details from shipped products |
 | [60fps](https://60fps.design) | Checked when signed in | Recorded motion from mobile apps, tagged by gesture, pattern and effect |
+| [Spotted in Prod](https://www.spottedinprod.com) | Checked when signed in | Clips from shipped iOS apps, tagged by gesture, pattern and visual style, each credited to its makers |
+| [Detail](https://detail.design) | Checked when signed in | Small decisions in shipped products, such as a corner morph or a placeholder drawn from typed text |
+| [Ripplix](https://www.ripplix.com) | Checked when signed in | Recorded micro-interactions from shipped web, mobile, watch and headset apps |
+| [Screensdesign](https://screensdesign.com) | Checked when signed in | Recorded flows from iOS apps |
+| [SaaSFrame](https://www.saasframe.io) | Checked when signed in | SaaS landing pages, product screens and flows |
+| [Component Gallery](https://component.gallery) | Checked when signed in | One component as many public design systems build it |
+
+### Sites
+
+| Source | The user's saves | The site |
+| --- | --- | --- |
+| [Recent](https://recent.design) | Checked when signed in | High-end sites, branding, motion and type, picked daily. The Web filter shows sites only |
+| [Siteinspire](https://www.siteinspire.com) | Checked when signed in | Editorial, typographic sites, filtered by style, type and subject |
+| [Minimal Gallery](https://minimal.gallery) | Checked when signed in | Restrained, functional sites |
+| [Land-book](https://land-book.com) | Checked when signed in | Landing pages, filtered by page type and style |
+| [Saaspo](https://saaspo.com) | Checked when signed in | Software landing, pricing and product pages |
 | [Awwwards](https://www.awwwards.com) | Checked when signed in | Award-winning sites, judged from paid submissions |
 | [One Page Love](https://onepagelove.com) | Checked when signed in | Single-page sites and page sections, picked by hand |
 | [Lapa Ninja](https://www.lapa.ninja) | Checked when signed in | Landing pages with full-page screenshots and recordings |
+| [Details.so](https://www.details.so/inspo) | Checked when signed in | Heroes, footers, page transitions and preloaders from live sites, filed by the part |
+| [Browsing Mode](https://browsingmode.com) | Checked when signed in | Hand-picked sites mixed with other finds from around the web |
+| [CSS Design Awards](https://cssdesignawards.com) | Checked when signed in | Award-winning sites, judged from paid submissions |
+| [Landingfolio](https://www.landingfolio.com) | Checked when signed in | Landing pages and their sections, with code |
+| [Navbar Gallery](https://www.navbar.gallery) | Checked when signed in | Navigation bars from live sites |
+| [Footer Design](https://www.footer.design) | Checked when signed in | Footers from live sites |
+| [Bento Grids](https://bentogrids.com) | Checked when signed in | Bento grid layouts |
+| [Dark Mode Design](https://www.darkmodedesign.com) | Checked when signed in | Sites designed dark |
+
+### Type, code and motion
+
+| Source | The user's saves | The site |
+| --- | --- | --- |
 | [Fonts In Use](https://fontsinuse.com) | Checked when signed in | Type in real work, indexed by typeface |
 | [Typewolf](https://www.typewolf.com) | Checked when signed in | Type on current sites, named by typeface |
 | [CodePen](https://codepen.io) | Likes and collections | Live front-end experiments, mostly concepts |
+| [LottieFiles](https://lottiefiles.com) | Checked when signed in | Lottie animations posted by designers, mostly concepts |
+| [Rive Marketplace](https://rive.app/marketplace/) | Checked when signed in | Interactive Rive files posted by designers, mostly concepts |
 
-One option covers both columns. A picked source gets a search of the user's saves there and a search of the site itself. Mark Are.na, Cosmos, Pinterest, Savee, Dribbble and Behance "through Pond" when Pond is connected.
+### Picked sources
 
-For a site with accounts, open it in the browser and look for the user's likes, boards, collections or bookmarks before searching. When it shows signed out, ask once whether to sign in or search it signed out. A site with no account, or none signed in, gets the site search only.
+One option covers both columns. A picked source gets a search of the user's saves there and a search of the site itself. Connect any picked source that is missing, then search only the picked ones.
+
+For a site with accounts, open it in the browser and look for the user's likes, boards, collections or bookmarks before searching. A site with no account, or none signed in, gets the site search only.
+
+When picked sites show signed out, ask once in one form with the same title. Each site gets the question `sign-in-<site>`, asking "<Site> shows signed out. Sign in, or search it signed out?" Its options are `I'll sign in` and `Search signed out`.
 
 ## Queries
 
@@ -178,7 +229,7 @@ With Pond connected, read the user's saves on Are.na, Cosmos, Pinterest, Savee, 
 | Pinterest | A pin's More Ideas |
 | Savee | Search by colour or by an image |
 
-Read the user's existing channel and board names before creating one. Prefer sites picked by hand to ones that take paid submissions. Dribbble, Behance, Layers and CodePen are mostly concepts, so mark what comes from them.
+Read the user's existing channel and board names before creating one. Prefer sites picked by hand to ones that take paid submissions. Dribbble, Behance, Layers, CodePen, LottieFiles and Rive Marketplace are mostly concepts, so mark what comes from them.
 
 ## Mobbin
 
