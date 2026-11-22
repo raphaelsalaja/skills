@@ -1,0 +1,173 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Switcher Gallery</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: Inter, system-ui, sans-serif;
+        font-size: 14px;
+        line-height: 20px;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      body {
+        margin: 0;
+        padding: 32px;
+        color: light-dark(#171717, #ededed);
+        background: light-dark(#fafafa, #111111);
+      }
+
+      header {
+        display: grid;
+        gap: 4px;
+        margin-bottom: 40px;
+
+        h1 {
+          margin: 0;
+          font-size: 18px;
+          font-weight: 600;
+        }
+
+        p {
+          margin: 0;
+          color: light-dark(#6f6f6f, #a0a0a0);
+        }
+      }
+
+      code {
+        font-family: ui-monospace, monospace;
+        font-size: 13px;
+      }
+
+      section + section {
+        margin-top: 56px;
+      }
+
+      h2 {
+        margin: 0 0 20px;
+        font-size: 15px;
+        font-weight: 600;
+      }
+
+      .entry {
+        display: grid;
+        gap: 8px;
+
+        & + & {
+          margin-top: 32px;
+        }
+      }
+
+      .label {
+        display: flex;
+        gap: 12px;
+        align-items: baseline;
+
+        span {
+          color: light-dark(#8f8f8f, #7a7a7a);
+        }
+      }
+
+      .frames {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+      }
+
+      iframe {
+        display: block;
+        max-width: 100%;
+        background: light-dark(#ffffff, #0a0a0a);
+        border: 0;
+        border-radius: 12px;
+        box-shadow: 0 0 0 1px light-dark(rgb(0 0 0 / 0.08), rgb(255 255 255 / 0.08));
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Switcher</h1>
+      <p>Every state of <code>skills/prototype/switcher.js</code> in light and dark. Edit the file and reload.</p>
+    </header>
+    <main></main>
+    <script>
+      const groups = [
+        [
+          "Bar",
+          [
+            ["rest", "Rest", 160],
+            ["hover-name", "Hover on the Name", 160],
+            ["hover-note", "Hover on Note", 160],
+            ["hover-drop", "Hover on Drop", 160],
+            ["hover-keep", "Hover on Keep", 160],
+            ["hover-copy", "Hover on Copy Prompt", 160],
+            ["pressed-copy", "Pressed Copy Prompt", 160],
+            ["focus-name", "Focus on the Name", 160],
+            ["kept", "Kept", 160],
+            ["dropped", "Dropped", 160],
+            ["top", "Top Position", 160],
+            ["one", "One Variant", 160],
+            ["many", "Twelve Variants", 160],
+            ["long", "Long Name", 160],
+            ["narrow", "Long Name at 360px", 160, 360],
+            ["none", "No Variants", 160],
+          ],
+        ],
+        [
+          "Note",
+          [
+            ["note-open", "Open and Empty", 260],
+            ["note-filled", "Written", 260],
+            ["note-top", "Open From the Top", 260],
+          ],
+        ],
+        [
+          "Prompt",
+          [
+            ["prompt-pick", "No Marks", 340],
+            ["prompt-combine", "Two Kept, One Dropped", 380],
+            ["prompt-drop", "Only Dropped", 340],
+            ["prompt-notes", "With Notes", 400],
+            ["prompt-blocked", "Copy Blocked", 160],
+          ],
+        ],
+        [
+          "Palette",
+          [
+            ["palette", "Open", 560],
+            ["palette-hover", "Pointer on an Option", 560],
+            ["palette-marks", "With Marks", 560],
+            ["palette-filtered", "Filtered", 560],
+            ["palette-empty", "No Match", 560],
+            ["palette-many", "Twelve Variants", 560],
+          ],
+        ],
+      ];
+
+      const main = document.querySelector("main");
+      for (const [title, entries] of groups) {
+        const section = document.createElement("section");
+        section.innerHTML = `<h2>${title}</h2>`;
+        for (const [state, label, height, width = 460] of entries) {
+          const entry = document.createElement("div");
+          entry.className = "entry";
+          entry.innerHTML = `<p class="label"><strong>${label}</strong><span>${state}</span></p><div class="frames"></div>`;
+          for (const theme of ["light", "dark"]) {
+            const frame = document.createElement("iframe");
+            frame.title = `${label}, ${theme}`;
+            frame.src = `frame.html?state=${state}&theme=${theme}`;
+            frame.width = width;
+            frame.height = height;
+            frame.loading = "lazy";
+            entry.querySelector(".frames").append(frame);
+          }
+          section.append(entry);
+        }
+        main.append(section);
+      }
+    </script>
+  </body>
+</html>

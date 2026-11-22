@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Switcher Frame</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+        font-family: Inter, system-ui, sans-serif;
+        font-size: 14px;
+        overflow: hidden;
+      }
+
+      body {
+        margin: 0;
+        padding: 24px 28px;
+        color: light-dark(#171717, #ededed);
+        background: light-dark(#ffffff, #0a0a0a);
+      }
+
+      .fixture {
+        display: grid;
+        gap: 8px;
+        max-width: 480px;
+
+        h1 {
+          margin: 0 0 4px;
+          font-size: 15px;
+          font-weight: 600;
+        }
+      }
+
+      .row {
+        height: 28px;
+        background: light-dark(#f2f2f2, #1a1a1a);
+        border-radius: 6px;
+
+        &:nth-child(odd) {
+          width: 72%;
+        }
+      }
+
+      .clipboard {
+        position: fixed;
+        inset: 12px 12px auto;
+        padding: 8px 10px;
+        font: 12px/16px ui-monospace, "SF Mono", Menlo, monospace;
+        white-space: pre-wrap;
+        color: light-dark(#171717, #ededed);
+        background: light-dark(#f2f2f2, #1a1a1a);
+        border-radius: 6px;
+
+        &:empty {
+          display: none;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <prototype-switcher></prototype-switcher>
+    <output class="clipboard"></output>
+    <script>
+      const params = new URLSearchParams(location.search);
+      const state = params.get("state") ?? "rest";
+      document.documentElement.style.colorScheme = params.get("theme") ?? "light";
+
+      const variants = [
+        ["Inline Pills", "Wins with under 6 filters. Costs a row above the list."],
+        ["Sidebar List", "Wins with many filter groups. Costs 200px of width."],
+        ["Search Field", "Wins for people who type. Costs discoverability on phones."],
+        ["Filter Sheet", "Wins on phones. Costs a tap to open and hides what is applied."],
+        ["Saved Views", "Wins when the same slices repeat. Costs a new view per slice."],
+        ["Command Menu", "Wins for keyboard users. Costs a shortcut to learn."],
+        ["Facet Tree", "Wins with nested categories. Costs depth to scan."],
+        ["Smart Folders", "Wins for repeat queries. Costs setup time."],
+        ["Query Builder", "Wins for power users. Costs a steep first use."],
+        ["Tag Cloud", "Wins with few loose tags. Costs precision."],
+        ["Split View", "Wins on wide screens. Costs half the list width."],
+        ["Quick Toggles", "Wins for two or three common filters. Costs every other filter."],
+      ];
+
+      const setups = {
+        long: { labels: ["Inline Pills With Saved Views And Live Counts", "Sidebar List"] },
+        narrow: { labels: ["Inline Pills With Saved Views And Live Counts", "Sidebar List"] },
+        one: { count: 1 },
+        none: { count: 0 },
+        many: { count: 12, variant: "12" },
+        "palette-many": { count: 12, variant: "12" },
+        top: { top: true },
+        kept: { keep: "inline-pills" },
+        dropped: { drop: "inline-pills" },
+        "prompt-combine": { keep: "inline-pills,saved-views", drop: "filter-sheet" },
+        "prompt-drop": { drop: "sidebar-list,filter-sheet" },
+        "palette-marks": { keep: "inline-pills,saved-views", drop: "filter-sheet" },
+        "note-filled": { notes: { "inline-pills": "Make the counts bigger, and keep the clear button." } },
+        "note-top": { top: true },
+        "prompt-notes": {
+          keep: "inline-pills,saved-views",
+          drop: "filter-sheet",
+          notes: { "inline-pills": "Make the counts bigger.", "saved-views": "Only the view tabs.\nNot the editor." },
+        },
+      };
+      const setup = { count: 5, ...setups[state] };
+
+      const switcher = document.querySelector("prototype-switcher");
+      if (setup.top) switcher.dataset.position = "top";
+      const list = setup.labels ? setup.labels.map((label, i) => [label, variants[i][1]]) : variants.slice(0, setup.count);
+      for (const [label, note] of list) {
+        const section = document.createElement("section");
+        section.dataset.variant = label;
+        section.dataset.note = note;
+        section.innerHTML = `<div class="fixture"><h1>${label}</h1>${'<div class="row"></div>'.repeat(4)}</div>`;
+        switcher.append(section);
+      }
+      const url = new URL(location.href);
+      if (setup.variant) url.searchParams.set("variant", setup.variant);
+      else url.searchParams.delete("variant");
+      for (const mark of ["keep", "drop"]) {
+        if (setup[mark]) url.searchParams.set(mark, setup[mark]);
+        else url.searchParams.delete(mark);
+      }
+      history.replaceState(null, "", url);
+
+      // Frames must not scroll or focus the gallery around them.
+      const focus = HTMLElement.prototype.focus;
+      HTMLElement.prototype.focus = function (options) {
+        focus.call(this, { ...options, preventScroll: true });
+      };
+      Element.prototype.scrollIntoView = function () {
+        const scroller = this.parentElement;
+        if (!scroller || scroller.scrollHeight <= scroller.clientHeight) return;
+        const item = this.getBoundingClientRect();
+        const box = scroller.getBoundingClientRect();
+        if (item.top < box.top) scroller.scrollTop -= box.top - item.top;
+        else if (item.bottom > box.bottom) scroller.scrollTop += item.bottom - box.bottom;
+      };
+      // Frames share one path, so each keeps its notes in memory instead of the tab's sessionStorage.
+      const stored = new Map();
+      if (setup.notes) stored.set(`prototype-switcher:notes:${location.pathname}`, JSON.stringify(setup.notes));
+      Object.defineProperty(window, "sessionStorage", {
+        value: { getItem: (key) => stored.get(key) ?? null, setItem: (key, value) => stored.set(key, value) },
+      });
+      // Copy Prompt's tooltip resets after 1.5s, so the prompt states hold it.
+      if (state.startsWith("prompt-")) {
+        const later = window.setTimeout;
+        window.setTimeout = (callback, delay, ...rest) => (delay === 1500 ? 0 : later(callback, delay, ...rest));
+      }
+      Object.defineProperty(navigator, "clipboard", {
+        value: {
+          writeText: (text) => {
+            if (state === "prompt-blocked") return Promise.reject(new Error("Blocked"));
+            document.querySelector(".clipboard").textContent = text;
+            return Promise.resolve();
+          },
+        },
+      });
+    </script>
+    <script src="../../skills/prototype/switcher.js"></script>
+    <script>
+      {
+        const root = switcher.shadowRoot;
+        const $ = (selector) => root.querySelector(selector);
+
+        // Copies every :hover, :active and :focus-visible rule so data-force="hover" holds the state.
+        const pseudo = /:(hover|active|focus-visible)(?![\w-])/g;
+        const rewrite = (parent) => {
+          const rules = [...parent.cssRules];
+          for (let i = rules.length - 1; i >= 0; i--) {
+            const rule = rules[i];
+            if (rule.cssRules) rewrite(rule);
+            if (!(rule instanceof CSSStyleRule) || !pseudo.test(rule.selectorText)) continue;
+            pseudo.lastIndex = 0;
+            const selector = rule.selectorText.replace(pseudo, '[data-force~="$1"]');
+            parent.insertRule(`${selector} ${rule.cssText.slice(rule.cssText.indexOf("{"))}`, i + 1);
+          }
+        };
+        for (const sheet of root.styleSheets) rewrite(sheet);
+        // Lazy frames start the bar's entrance only once on screen, so it is held still for screenshots.
+        root.styleSheets[0].insertRule(".bar { transition: none !important }", root.styleSheets[0].cssRules.length);
+
+        const force = (selector, ...states) => {
+          for (let node = $(selector); node && node !== root; node = node.parentNode) {
+            const held = new Set((node.dataset.force ?? "").split(" ").filter(Boolean));
+            held.add("hover");
+            if (node.matches(selector)) states.forEach((s) => held.add(s));
+            node.dataset.force = [...held].join(" ");
+          }
+          $(".bar").toggleAttribute("data-warm", true);
+        };
+        const type = (text) => {
+          const query = $(".query");
+          query.value = text;
+          query.dispatchEvent(new Event("input"));
+        };
+        const openPalette = () => {
+          $(".current").click();
+          $(".query").dataset.force = "focus-visible";
+        };
+
+        const actions = {
+          "hover-name": () => force(".current"),
+          "hover-note": () => force(".note-toggle"),
+          "hover-drop": () => force(".drop"),
+          "hover-keep": () => force(".keep"),
+          "hover-copy": () => force(".copy-prompt"),
+          "note-open": () => $(".note-toggle").click(),
+          "note-filled": () => $(".note-toggle").click(),
+          "note-top": () => $(".note-toggle").click(),
+          "prompt-notes": () => $(".copy-prompt").click(),
+          "focus-name": () => ($(".current").dataset.force = "focus-visible"),
+          "pressed-copy": () => force(".copy-prompt", "active"),
+          "prompt-pick": () => $(".copy-prompt").click(),
+          "prompt-combine": () => $(".copy-prompt").click(),
+          "prompt-drop": () => $(".copy-prompt").click(),
+          "prompt-blocked": () => $(".copy-prompt").click(),
+          palette: openPalette,
+          "palette-marks": openPalette,
+          "palette-many": openPalette,
+          "palette-filtered": () => (openPalette(), type("phone")),
+          "palette-empty": () => (openPalette(), type("zzz")),
+          "palette-hover": () => {
+            openPalette();
+            root.querySelectorAll(".option")[2].dispatchEvent(new PointerEvent("pointermove", { bubbles: true }));
+          },
+        };
+        setTimeout(() => actions[state]?.(), 500);
+      }
+    </script>
+  </body>
+</html>

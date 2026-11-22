@@ -6,7 +6,7 @@
     <section data-variant="Sidebar List" data-note="Wins with many filter groups. Costs 240px of width.">...</section>
   </prototype-switcher>
 
-  Each direct child with `data-variant` is one variant. The label is two or three words of Title Case that say how it differs. `data-note` says when the variant wins and what it costs, shown in Show All. Hidden variants stay mounted, so their state survives switching.
+  Each direct child with `data-variant` is one variant. The label is two or three words of Title Case that say how it differs. `data-note` says when the variant wins and what it costs, shown under its name in the palette. Hidden variants stay mounted, so their state survives switching.
 
   Plain HTML, Svelte and Astro: load it with <script src="switcher.js"></script>, or import "./switcher.js" from a module.
 
@@ -41,7 +41,27 @@
 
   With server rendering, add `prototype-switcher:not(:defined) { visibility: hidden }` so the variants do not flash stacked before the script runs.
 
-  The bar renders in a shadow root and inherits only `color-scheme` from the app, so it matches whatever theme the app sets on its root. It sits at the bottom centre with every variant as one button, or at the top centre with `<prototype-switcher data-position="top">` when a variant uses the bottom edge. A row wider than the screen scrolls sideways and keeps the current variant in view. The current variant lives in `?variant=inline-filters`, and Show All in `?variant=all`. Pick copies "Pick Inline Filters from /prototypes/filters". Keys: ← and → step, 1–9 jump, A toggles Show All, P picks, R replays and Escape leaves Show All. Keys are ignored while focus is in a field. A, P and R work only while focus is in the bar or a variant, and a click on a variant puts it there.
+  The bar renders in a shadow root and inherits only `color-scheme` from the app, so it matches whatever theme the app sets on its root. It sits at the bottom centre showing the current variant's name and position, such as "Inline Filters 1/3", or at the top centre with `<prototype-switcher data-position="top">` when a variant uses the bottom edge. The current variant lives in `?variant=inline-filters`.
+
+  The name, or ⌘K and Ctrl+K anywhere, opens a palette listing every variant with its note. Typing filters by name and note, and Enter shows the highlighted variant. A variant that handles ⌘K itself and calls preventDefault keeps the shortcut, and the name still opens the palette.
+
+  Keep and Drop mark the current variant, and the palette shows each mark. Marks live in `?keep=` and `?drop=`, so they survive a reload. Note opens a field for the reviewer's own note on the current variant, kept in sessionStorage for the tab.
+
+  Copy Prompt copies a review built from the marks and notes, and its tooltip says Copied or Copy Blocked. With no marks, the current variant counts as kept:
+
+    Prototype review: /prototypes/filters
+
+    Keep:
+    - Inline Filters
+      Note: Make the counts bigger
+    - Sidebar List
+
+    Drop:
+    - Filter Sheet
+
+    Next: Build one new variant that combines the kept ones, then delete the dropped ones. Follow each note.
+
+  Keys: ← and → step, 1–9 jump, N opens the note, D drops, K keeps, P copies the prompt and R replays. Keys are ignored while focus is in a field. N, D, K, P and R work only while focus is in the bar or a variant, and a click on a variant puts it there.
 
   R takes the current variant out of the page and puts it back, so CSS animations and `@starting-style` entrances run again. It then fires `prototype-replay` on the variant. A component that animates on mount from script remounts by changing its `key` on that event:
 
@@ -58,6 +78,8 @@
     }
 */
 
+"use strict";
+
 if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) {
   const css = `
     :host {
@@ -65,18 +87,12 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
     }
 
     :host([hidden]),
-    .variant[hidden],
-    .head[hidden] {
+    .variant[hidden] {
       display: none;
     }
 
     .variant {
       display: block;
-      scroll-margin: 24px 0 96px;
-    }
-
-    .variants[data-all] .variant + .variant {
-      margin-top: 64px;
     }
 
     .end {
@@ -85,10 +101,6 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
 
     :host([data-position="top"]) .variants {
       padding-top: 80px;
-    }
-
-    :host([data-position="top"]) .variant {
-      scroll-margin: 96px 0 24px;
     }
 
     :host([data-position="top"]) .end {
@@ -159,10 +171,32 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       --radius-menu: 12px;
       --radius-panel: 16px;
       /* kit:tokens end */
+      --neutral-50: light-dark(rgb(0 0 0 / 0.03), rgb(255 255 255 / 0.03));
+      --neutral-100: light-dark(rgb(0 0 0 / 0.07), rgb(255 255 255 / 0.07));
+      --neutral-150: light-dark(rgb(0 0 0 / 0.11), rgb(255 255 255 / 0.11));
+      --accent: light-dark(#2f3037, #ffffff);
+      --text-primary: light-dark(#212126, #ffffff);
+      --text-secondary: light-dark(rgb(0 0 0 / 0.62), rgb(255 255 255 / 0.62));
+      --text-tertiary: light-dark(rgb(33 33 38 / 0.65), rgb(255 255 255 / 0.65));
+      --text-quaternary: light-dark(rgb(0 0 0 / 0.41), rgb(255 255 255 / 0.41));
+      --border-primary: var(--neutral-100);
+      --border-secondary: var(--neutral-150);
+      --background-raised: light-dark(#ffffff, #212126);
+      --background-overlay: var(--background-raised);
+      --background-tertiary: var(--neutral-50);
+      --background-hover: var(--neutral-100);
+      --shadow-ring: 0 0 0 1px var(--neutral-100);
+      --shadow-bar: var(--shadow-ring), 0 2px 4px -1px rgb(0 0 0 / 0.06), 0 6px 16px -4px rgb(0 0 0 / 0.08);
+      --shadow-large: var(--shadow-ring), 0 5px 15px 0 rgb(0 0 0 / 0.08), 0 15px 35px -5px rgb(0 0 0 / 0.2);
+      --shadow-extra-large: var(--shadow-large);
+      --font-sans: ui-sans-serif, system-ui, sans-serif;
+      --radius-control: 6px;
+      --radius-panel: 12px;
+      --radius-kbd: 4px;
       color-scheme: inherit;
       font-family: var(--font-sans);
-      font-size: 14px;
-      line-height: 20px;
+      font-size: 13px;
+      line-height: 18px;
       font-variation-settings: var(--font-weight-400);
       font-optical-sizing: none;
       font-feature-settings: "calt", "ccmp", "locl", "kern", "cv01", "ss03";
@@ -199,40 +233,6 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
     .ui :focus-visible {
       outline: 2px solid var(--accent);
       outline-offset: 2px;
-    }
-
-    .head {
-      position: relative;
-      display: flex;
-      flex-wrap: wrap;
-      gap: 4px 12px;
-      align-items: baseline;
-      margin-bottom: 20px;
-
-      &::before {
-        position: absolute;
-        top: 7px;
-        left: -14px;
-        width: 6px;
-        height: 6px;
-        content: "";
-        background: var(--accent);
-        border-radius: 999px;
-        opacity: 0;
-        scale: 0.5;
-        transition:
-          opacity var(--duration-snappy) var(--ease-out),
-          scale var(--duration-snappy) var(--ease-out);
-      }
-
-      .variant[data-current] > &::before {
-        opacity: 1;
-        scale: 1;
-      }
-    }
-
-    .title {
-      font-variation-settings: var(--font-weight-500);
     }
 
     .note {
@@ -570,23 +570,22 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       position: fixed;
       inset: auto 0 calc(16px + env(safe-area-inset-bottom));
       display: none;
-      gap: 6px;
+      gap: 2px;
       align-items: center;
       width: max-content;
       max-width: calc(100vw - 32px);
       height: 40px;
-      padding: 5px;
+      padding: 4px;
       margin: 0 auto;
       overflow: visible;
-      background: color-mix(in oklab, var(--background-raised) 92%, transparent);
-      border: 1px solid transparent;
-      border-radius: 14px;
-      box-shadow: var(--shadow-extra-large);
+      background: var(--background-raised);
+      border: 0;
+      border-radius: 999px;
+      box-shadow: var(--shadow-bar);
       opacity: 0;
       translate: 0 12px;
       scale: 0.9;
       transform-origin: bottom center;
-      backdrop-filter: blur(12px);
       transition:
         opacity var(--duration-exit) var(--ease-out),
         translate var(--duration-exit) var(--ease-out),
@@ -630,48 +629,91 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
     .divider {
       flex: none;
       width: 1px;
-      height: 12px;
+      height: 16px;
+      margin: 0 4px;
       background: var(--border-secondary);
     }
 
-    .tabs {
-      position: relative;
-      display: flex;
-      flex: 0 1 auto;
-      gap: 2px;
-      min-width: 0;
-      padding: 4px;
-      margin: -4px;
-      overflow-x: auto;
-      scrollbar-width: none;
-      mask-image: linear-gradient(
-        to right,
-        transparent,
-        rgb(0 0 0 / 0.36) calc(var(--fade-start) * 5 / 24),
-        rgb(0 0 0 / 0.64) calc(var(--fade-start) * 10 / 24),
-        rgb(0 0 0 / 0.84) calc(var(--fade-start) * 14 / 24),
-        rgb(0 0 0 / 0.96) calc(var(--fade-start) * 19 / 24),
-        black var(--fade-start),
-        black calc(100% - var(--fade-end)),
-        rgb(0 0 0 / 0.96) calc(100% - var(--fade-end) * 19 / 24),
-        rgb(0 0 0 / 0.84) calc(100% - var(--fade-end) * 14 / 24),
-        rgb(0 0 0 / 0.64) calc(100% - var(--fade-end) * 10 / 24),
-        rgb(0 0 0 / 0.36) calc(100% - var(--fade-end) * 5 / 24),
-        transparent
-      );
-      animation: scroll-fade linear both;
-      animation-timeline: scroll(self inline);
+    .bar :is(.current, .tool-button) {
+      border-radius: 999px;
+      transition:
+        background-color 150ms var(--ease-out),
+        color 150ms var(--ease-out),
+        scale 120ms var(--ease-out);
 
-      &::-webkit-scrollbar {
-        display: none;
+      &:focus-visible {
+        outline-color: color-mix(in oklab, var(--accent) 60%, var(--background-raised));
+        outline-offset: -2px;
       }
     }
 
+    .tipped.find {
+      flex: 0 1 auto;
+      min-width: 0;
+    }
+
+    .current {
+      min-width: 0;
+      max-width: 280px;
+      height: 32px;
+      padding: 0 12px 0 10px;
+      overflow: hidden;
+      color: var(--text-primary);
+      background: var(--background-raised);
+
+      svg {
+        flex: none;
+        color: var(--text-quaternary);
+      }
+
+      .count {
+        flex: none;
+        color: var(--text-tertiary);
+      }
+
+      &:active:not(:disabled) {
+        background: var(--neutral-50);
+        scale: 0.97;
+      }
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .current:hover {
+        background: var(--neutral-50);
+      }
+    }
+
+    .current-label {
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .tool-button {
-      transition: scale 100ms var(--ease-out);
+      width: 32px;
+      height: 32px;
+      color: var(--text-secondary);
 
       &:active {
         scale: 0.92;
+      }
+    }
+
+    .keep {
+      --mark: var(--success);
+    }
+
+    .drop {
+      --mark: var(--danger);
+    }
+
+    .bar :is(.keep, .drop)[aria-pressed="true"] {
+      color: var(--mark);
+      background: color-mix(in oklab, var(--mark) 12%, transparent);
+    }
+
+    @media (hover: hover) and (pointer: fine) {
+      .bar :is(.keep, .drop)[aria-pressed="true"]:hover {
+        background: color-mix(in oklab, var(--mark) 18%, transparent);
       }
     }
 
@@ -688,16 +730,14 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       display: inline-flex;
       gap: 6px;
       align-items: center;
-      height: 24px;
-      padding: 0 8px;
-      font-size: 12px;
-      font-variation-settings: var(--font-weight-500);
+      height: 26px;
+      padding: 0 4px 0 8px;
       white-space: nowrap;
       pointer-events: none;
-      background: var(--background-raised);
-      border: 1px solid transparent;
+      color: #ffffff;
+      background: #000000;
       border-radius: var(--radius-control);
-      box-shadow: var(--shadow-large);
+      box-shadow: 0 0 0 1px light-dark(transparent, rgb(255 255 255 / 0.12));
       opacity: 0;
       translate: -50% 4px;
       transition:
@@ -705,7 +745,15 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
         translate 125ms var(--ease-out);
 
       kbd {
-        color: var(--text-tertiary);
+        min-width: 18px;
+        padding: 0 5px;
+        font-size: 11px;
+        line-height: 18px;
+        font-variation-settings: var(--font-weight-500);
+        color: rgb(255 255 255 / 0.73);
+        text-align: center;
+        background: rgb(255 255 255 / 0.15);
+        border-radius: var(--radius-kbd);
       }
     }
 
@@ -733,51 +781,301 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       transition-delay: 0s;
     }
 
-    .tipped:has(:disabled) .hint,
-    .bar:has([data-toasting]) .hint {
+    .hint[data-show] {
+      padding-inline: 8px;
+      opacity: 1;
+      translate: -50% 0;
+      transition-delay: 0s;
+
+      kbd {
+        display: none;
+      }
+    }
+
+    .bar[data-noting] .hint {
       opacity: 0 !important;
     }
 
-    .toast {
-      gap: 8px;
-      padding-left: 10px;
+    .bar[data-noting] .note-toggle {
+      color: var(--text-primary);
+      background: var(--neutral-50);
+    }
 
-      .tick {
-        flex: none;
-        color: var(--accent);
+    .note-toggle[data-filled]::after {
+      position: absolute;
+      right: 8px;
+      bottom: 8px;
+      width: 5px;
+      height: 5px;
+      content: "";
+      background: currentColor;
+      border-radius: 50%;
+      box-shadow: 0 0 0 1.5px var(--background-raised);
+    }
 
-        path {
-          stroke-dasharray: 1;
-          stroke-dashoffset: 1;
-          transition: stroke-dashoffset 320ms var(--ease-out) 80ms;
+    .note-panel {
+      position: fixed;
+      inset: auto;
+      gap: 4px;
+      max-width: calc(100vw - 16px);
+      padding: 12px 16px 14px;
+      margin: 0;
+      overflow: visible;
+      color: var(--text-primary);
+      background: var(--background-raised);
+      border-radius: var(--radius-panel);
+      box-shadow:
+        var(--shadow-ring),
+        0 1px 2px rgb(0 0 0 / 0.04),
+        0 4px 10px -4px rgb(0 0 0 / 0.06);
+      opacity: 0;
+      translate: -50% 4px;
+      scale: 0.97;
+      transform-origin: bottom center;
+      transition:
+        opacity 120ms var(--ease-out),
+        translate 120ms var(--ease-out),
+        scale 120ms var(--ease-out),
+        display 120ms allow-discrete,
+        overlay 120ms allow-discrete;
+
+      &[data-below] {
+        translate: -50% -4px;
+        transform-origin: top center;
+      }
+
+      &:popover-open {
+        display: grid;
+        opacity: 1;
+        translate: -50% 0;
+        scale: 1;
+        transition-duration: 200ms;
+
+        @starting-style {
+          opacity: 0;
+          translate: -50% 4px;
+          scale: 0.97;
         }
       }
 
-      .count {
-        font-variation-settings: var(--font-weight-400);
-        font-variant-numeric: tabular-nums;
+      &[data-below]:popover-open {
+        @starting-style {
+          translate: -50% -4px;
+        }
+      }
+
+      &:not(:popover-open) {
+        display: none;
+      }
+    }
+
+    .note-label {
+      font-size: 12px;
+      line-height: 16px;
+      color: var(--text-tertiary);
+    }
+
+    .note-field {
+      width: 100%;
+      min-height: 40px;
+      max-height: 160px;
+      line-height: 20px;
+      resize: none;
+      field-sizing: content;
+      background: none;
+
+      &::placeholder {
+        color: var(--text-quaternary);
+      }
+
+      &:focus-visible {
+        outline: none;
+      }
+
+      @media (forced-colors: active) {
+        &:focus-visible {
+          outline: 2px solid CanvasText;
+          outline-offset: 4px;
+        }
+      }
+    }
+
+    .status {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    .option-title {
+      font-variation-settings: var(--font-weight-500);
+    }
+
+    .palette {
+      width: min(544px, calc(100vw - 40px));
+      max-width: none;
+      max-height: none;
+      padding: 0;
+      margin: 64px auto auto;
+      overflow: visible;
+      background: none;
+      border: 0;
+      opacity: 0;
+      translate: 0 -8px;
+      scale: 0.98;
+      transform-origin: top center;
+      transition:
+        opacity 150ms cubic-bezier(0.23, 1, 0.32, 1),
+        translate 150ms cubic-bezier(0.23, 1, 0.32, 1),
+        scale 150ms cubic-bezier(0.23, 1, 0.32, 1),
+        display 150ms allow-discrete,
+        overlay 150ms allow-discrete;
+
+      &::backdrop {
+        background: rgb(0 0 0 / 0);
+        backdrop-filter: blur(0);
+        transition:
+          background-color 150ms cubic-bezier(0.23, 1, 0.32, 1),
+          backdrop-filter 150ms cubic-bezier(0.23, 1, 0.32, 1),
+          display 150ms allow-discrete,
+          overlay 150ms allow-discrete;
+      }
+
+      &[open] {
+        opacity: 1;
+        translate: 0;
+        scale: 1;
+        transition-duration: 220ms;
+
+        @starting-style {
+          opacity: 0;
+          translate: 0 -8px;
+          scale: 0.98;
+        }
+      }
+
+      &[open]::backdrop {
+        background: rgb(0 0 0 / 0.32);
+        backdrop-filter: blur(4px);
+        transition-duration: 220ms;
+      }
+    }
+
+    @starting-style {
+      .palette[open]::backdrop {
+        background: rgb(0 0 0 / 0);
+        backdrop-filter: blur(0);
+      }
+    }
+
+    .palette-body {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      background: var(--background-overlay);
+      border-radius: var(--radius-panel);
+      box-shadow: var(--shadow-extra-large);
+    }
+
+    .query-row {
+      display: flex;
+      flex: none;
+      gap: 10px;
+      align-items: center;
+      height: 48px;
+      padding: 0 16px;
+      color: var(--text-quaternary);
+      border-bottom: 1px solid var(--border-primary);
+    }
+
+    .query {
+      flex: 1;
+      min-width: 0;
+      height: 100%;
+      color: var(--text-primary);
+      background: none;
+
+      &:focus-visible {
+        outline: none;
+      }
+
+      &::placeholder {
         color: var(--text-tertiary);
       }
+    }
 
-      &[data-failed] {
-        padding-left: 12px;
+    .options {
+      display: grid;
+      gap: 2px;
+      max-height: min(360px, 50vh);
+      padding: 4px;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      scrollbar-width: none;
+      list-style: none;
+    }
 
-        .tick,
-        .count {
-          display: none;
-        }
+    .option {
+      display: grid;
+      gap: 2px;
+      min-height: 36px;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: var(--radius-control);
+      transition: background-color 100ms var(--ease-out);
+
+      &[aria-selected="true"] {
+        background: var(--neutral-50);
       }
+    }
 
-      &[data-open] .tick path {
-        stroke-dashoffset: 0;
+    .option-title {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+
+    .showing {
+      padding: 0 6px;
+      font-size: 11px;
+      line-height: 16px;
+      color: var(--text-secondary);
+      border-radius: var(--radius-kbd);
+      box-shadow: var(--shadow-ring), 0 2px 0 -1px rgb(0 0 0 / 0.04);
+    }
+
+    .mark {
+      display: inline-flex;
+      gap: 5px;
+      align-items: center;
+      font-size: 11px;
+      line-height: 16px;
+      color: var(--text-secondary);
+
+      &::before {
+        width: 6px;
+        height: 6px;
+        content: "";
+        background: var(--mark);
+        border-radius: 50%;
       }
+    }
+
+    .no-match {
+      padding: 24px 16px;
+      color: var(--text-tertiary);
+      text-align: center;
     }
 
     @media (prefers-reduced-motion: reduce) {
       .ui,
       .ui *,
       .ui *::before,
-      .ui *::after {
+      .ui *::after,
+      .palette,
+      .palette::backdrop {
         transition-duration: 0s !important;
       }
     }
@@ -787,49 +1085,53 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
     `<svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${paths}</svg>`;
 
   const icons = {
-    grid: icon(
-      '<rect x="2.75" y="2.75" width="4" height="4" rx="1" /><rect x="9.25" y="2.75" width="4" height="4" rx="1" /><rect x="2.75" y="9.25" width="4" height="4" rx="1" /><rect x="9.25" y="9.25" width="4" height="4" rx="1" />',
-    ),
-    check: icon('<path d="M3.5 8.5l3 3 6-7" />'),
+    send: `<svg width="16" height="16" viewBox="0 0 18 18" fill="none" stroke="currentColor" stroke-width="1.6875" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5.75 10.022v4.246c0 .409.464.645.794.404l.74-.539" /><path d="M15.58 2.569L5.75 10.022" /><path d="M2.883 6.935l12.299-4.393c.363-.13.73.183.66.562l-2.196 11.86c-.067.363-.492.531-.789.311L2.754 7.807c-.322-.238-.248-.738.129-.873z" /></svg>`,
+    search: icon('<circle cx="7" cy="7" r="4.25" /><path d="M10.25 10.25l3 3" />'),
+    keep: icon('<path d="M3.25 8.5l3 3 6.5-7" />'),
+    drop: icon('<path d="M4.5 4.5l7 7" /><path d="M11.5 4.5l-7 7" />'),
+    note: icon('<path d="M3.5 12.5l.5-2.5 6.94-6.94a1.5 1.5 0 0 1 2.12 2.12L6 12z" /><path d="M9.5 4.5l2 2" />'),
   };
+  const marks = { keep: "Kept", drop: "Dropped" };
+
+  const mac = /Mac|iPhone|iPad/.test(navigator.platform);
+  const mod = mac ? "⌘" : "Ctrl+";
+
+  const tool = (name, svg, label, key) =>
+    `<button class="tool-button ${name}" type="button" aria-label="${label}" aria-keyshortcuts="${key}">${svg}</button><span class="hint" aria-hidden="true">${label}<kbd>${key}</kbd></span>`;
 
   const template = `
     <style>${css}</style>
     <div class="variants" tabindex="-1"></div>
     <div class="end"></div>
-    <nav class="ui bar" popover="manual" aria-label="Variants" data-frame>
-      <div class="tabs" role="group" aria-label="Variant"></div>
-      <span class="divider" aria-hidden="true"></span>
-      <span class="tipped">
-        <button class="tool-button all" type="button" aria-pressed="false" aria-label="Show All" aria-keyshortcuts="A">${icons.grid}</button>
-        <span class="hint" aria-hidden="true">Show All<kbd>A</kbd></span>
+    <nav class="ui bar" popover="manual" aria-label="Variants">
+      <span class="tipped find">
+        <button class="action current" type="button" aria-haspopup="dialog" aria-keyshortcuts="Meta+K Control+K">${icons.search}<span class="current-label"></span><span class="count"></span></button>
+        <span class="hint" aria-hidden="true">Find<kbd>${mod}K</kbd></span>
       </span>
       <span class="divider" aria-hidden="true"></span>
-      <span class="tipped copy">
-        <button class="tool-button pick-variant" type="button" aria-label="Pick" aria-keyshortcuts="P">${icons.check}</button>
-        <span class="hint" aria-hidden="true">Pick<kbd>P</kbd></span>
-        <output class="toast" popover="manual"><svg class="tick" width="14" height="14" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3.5 8.5l3 3 6-7" pathLength="1" /></svg><span class="label"></span><span class="count"></span></output>
-      </span>
+      <span class="tipped">${tool("note-toggle", icons.note, "Note", "N").replace("<button", '<button popovertarget="note-panel"')}</span>
+      <span class="tipped">${tool("drop", icons.drop, "Drop", "D")}</span>
+      <span class="tipped">${tool("keep", icons.keep, "Keep", "K")}</span>
+      <span class="divider" aria-hidden="true"></span>
+      <span class="tipped">${tool("copy-prompt", icons.send, "Copy Prompt", "P")}</span>
+      <span class="status" role="status"></span>
     </nav>
+    <div class="ui note-panel" id="note-panel" popover="auto">
+      <label class="note-label" for="note-field">Note on <span class="note-variant"></span></label>
+      <textarea class="note-field" id="note-field" rows="2" placeholder="Make the counts bigger" spellcheck="true"></textarea>
+    </div>
+    <dialog class="palette" aria-label="Find a Variant" closedby="any">
+      <div class="ui palette-body">
+        <label class="query-row">${icons.search}<input class="query" type="text" role="combobox" aria-expanded="true" aria-controls="options" aria-autocomplete="list" aria-label="Find a variant" placeholder="Find a variant" autocomplete="off" spellcheck="false" /></label>
+        <ul class="options scroll-fade" id="options" role="listbox" aria-label="Variants"></ul>
+      </div>
+    </dialog>
   `;
 
   const typing =
     "input, textarea, select, [contenteditable]:not([contenteditable='false']), [role='textbox'], [role='combobox'], [role='listbox'], [role='menu'], [role='radiogroup'], [role='slider'], [role='spinbutton'], [role='tablist']";
   const motion = matchMedia("(prefers-reduced-motion: no-preference)");
   const easeOut = "cubic-bezier(0.23, 1, 0.32, 1)";
-
-  // kit:anchor
-  function anchorTo(popover, anchor) {
-    const rect = anchor.getBoundingClientRect();
-    const frame = (anchor.closest("[data-frame]") ?? anchor).getBoundingClientRect();
-    const half = popover.offsetWidth / 2;
-    const edge = document.documentElement.clientWidth - 8;
-    const below = frame.top < popover.offsetHeight + 16;
-    popover.style.left = `${Math.min(edge - half, Math.max(8 + half, rect.left + rect.width / 2))}px`;
-    popover.style.top = `${below ? frame.bottom + 8 : frame.top - 8 - popover.offsetHeight}px`;
-    popover.dataset.side = below ? "below" : "above";
-  }
-  // kit:anchor end
 
   function h(tag, className, ...children) {
     const node = document.createElement(tag);
@@ -849,30 +1151,33 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
     );
   }
 
-  function scrollParent(node) {
-    for (let element = node.parentElement; element; element = element.parentElement) {
-      if (/auto|scroll|overlay/.test(getComputedStyle(element).overflowY) && element.scrollHeight > element.clientHeight) {
-        return element;
-      }
-    }
-    return document.scrollingElement;
-  }
-
   class PrototypeSwitcher extends HTMLElement {
     #root = this.attachShadow({ mode: "open", slotAssignment: "manual" });
     #items = [];
     #index = 0;
     #wanted = null;
-    #all = false;
-    #spyPaused = false;
-    #spyFrame = 0;
     #flight = null;
     #list;
     #bar;
-    #tabs;
-    #allButton;
-    #pickButton;
-    #toast;
+    #current;
+    #currentLabel;
+    #count;
+    #keepButton;
+    #dropButton;
+    #copyButton;
+    #noteButton;
+    #notePanel;
+    #noteVariant;
+    #noteField;
+    #marks = new Map();
+    #notes = new Map();
+    #status;
+    #copiedTimer = 0;
+    #palette;
+    #search;
+    #options;
+    #results = [];
+    #active = 0;
     #warmTimer = 0;
     #observer = new MutationObserver((records) => {
       const changed = records.some((record) =>
@@ -886,18 +1191,62 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       this.#root.innerHTML = template;
       this.#list = this.#root.querySelector(".variants");
       this.#bar = this.#root.querySelector(".bar");
-      this.#tabs = this.#root.querySelector(".tabs");
-      this.#allButton = this.#root.querySelector(".all");
-      this.#pickButton = this.#root.querySelector(".pick-variant");
-      this.#toast = this.#root.querySelector(".toast");
+      this.#current = this.#root.querySelector(".current");
+      this.#currentLabel = this.#root.querySelector(".current-label");
+      this.#count = this.#root.querySelector(".count");
+      this.#keepButton = this.#root.querySelector(".keep");
+      this.#dropButton = this.#root.querySelector(".drop");
+      this.#copyButton = this.#root.querySelector(".copy-prompt");
+      this.#noteButton = this.#root.querySelector(".note-toggle");
+      this.#notePanel = this.#root.querySelector(".note-panel");
+      this.#noteVariant = this.#root.querySelector(".note-variant");
+      this.#noteField = this.#root.querySelector(".note-field");
+      this.#status = this.#root.querySelector(".status");
+      this.#palette = this.#root.querySelector(".palette");
+      this.#search = this.#root.querySelector(".query");
+      this.#options = this.#root.querySelector(".options");
 
-      this.#tabs.addEventListener("click", (event) => {
-        const tab = event.target.closest(".chip");
-        if (tab) this.#show(Number(tab.dataset.index));
+      this.#current.addEventListener("click", () => this.#openPalette());
+      this.#palette.addEventListener("click", (event) => {
+        if (event.target === this.#palette) this.#palette.close();
       });
-      new ResizeObserver(() => this.#reveal()).observe(this.#tabs);
-      this.#allButton.addEventListener("click", () => this.#setAll(!this.#all));
-      this.#pickButton.addEventListener("click", () => this.#pick());
+      this.#search.addEventListener("input", () => {
+        this.#active = 0;
+        this.#renderOptions();
+      });
+      this.#search.addEventListener("keydown", (event) => {
+        if (event.isComposing) return;
+        if (event.key === "ArrowDown" || event.key === "ArrowUp") {
+          event.preventDefault();
+          this.#highlight(this.#active + (event.key === "ArrowDown" ? 1 : -1));
+        } else if (event.key === "Enter") {
+          event.preventDefault();
+          this.#choose(this.#active);
+        }
+      });
+      this.#options.addEventListener("pointermove", (event) => {
+        const option = event.target.closest(".option");
+        if (option) this.#highlight(Number(option.dataset.result));
+      });
+      this.#options.addEventListener("click", (event) => {
+        const option = event.target.closest(".option");
+        if (option) this.#choose(Number(option.dataset.result));
+      });
+
+      this.#keepButton.addEventListener("click", () => this.#mark("keep"));
+      this.#dropButton.addEventListener("click", () => this.#mark("drop"));
+      this.#copyButton.addEventListener("click", () => this.#copyPrompt());
+      this.#noteField.addEventListener("input", () => this.#writeNote());
+      this.#notePanel.addEventListener("beforetoggle", (event) => {
+        const open = event.newState === "open";
+        this.#bar.toggleAttribute("data-noting", open);
+        if (!open) return;
+        this.#fillNote();
+        this.#placeNote();
+      });
+      this.#notePanel.addEventListener("toggle", (event) => {
+        if (event.newState === "open") this.#noteField.focus();
+      });
 
       for (const tipped of this.#root.querySelectorAll(".tipped")) {
         tipped.addEventListener("pointerenter", () => {
@@ -920,6 +1269,7 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
 
     connectedCallback() {
       this.#readURL();
+      this.#readNotes();
       this.#observer.observe(this, {
         childList: true,
         subtree: true,
@@ -927,10 +1277,6 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
         attributeFilter: ["data-variant", "data-note"],
       });
       document.addEventListener("keydown", this.#onKey);
-      document.addEventListener("scroll", this.#onScroll, { capture: true, passive: true });
-      for (const type of ["wheel", "touchmove", "pointerdown"]) {
-        addEventListener(type, this.#resumeSpy, { capture: true, passive: true });
-      }
       addEventListener("popstate", this.#onPopState);
       this.#sync();
     }
@@ -939,24 +1285,31 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       this.#observer.disconnect();
       clearTimeout(this.#warmTimer);
       document.removeEventListener("keydown", this.#onKey);
-      document.removeEventListener("scroll", this.#onScroll, { capture: true });
-      for (const type of ["wheel", "touchmove", "pointerdown"]) {
-        removeEventListener(type, this.#resumeSpy, { capture: true });
-      }
       removeEventListener("popstate", this.#onPopState);
-      cancelAnimationFrame(this.#spyFrame);
     }
 
     #readURL() {
-      const value = new URLSearchParams(location.search).get("variant");
-      this.#all = value === "all";
-      this.#wanted = this.#all ? null : value;
+      const params = new URLSearchParams(location.search);
+      this.#wanted = params.get("variant");
+      this.#marks = new Map();
+      for (const mark of Object.keys(marks)) {
+        for (const slug of params.get(mark)?.split(",") ?? []) if (slug) this.#marks.set(slug, mark);
+      }
     }
 
     #writeURL() {
       const url = new URL(location.href);
-      url.searchParams.set("variant", this.#all ? "all" : this.#items[this.#index].slug);
+      url.searchParams.set("variant", this.#items[this.#index].slug);
+      for (const mark of Object.keys(marks)) {
+        const slugs = this.#marked(mark).map((item) => item.slug);
+        if (slugs.length) url.searchParams.set(mark, slugs.join(","));
+        else url.searchParams.delete(mark);
+      }
       history.replaceState(history.state, "", url);
+    }
+
+    #marked(mark) {
+      return this.#items.filter((item) => this.#marks.get(item.slug) === mark);
     }
 
     #sync() {
@@ -974,24 +1327,12 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
         for (let n = 2; slugs.has(slug); n++) slug = `${slugify(item.label)}-${n}`;
         slugs.add(slug);
         item.slug = slug;
-        item.title.textContent = item.label;
-        item.noteNode.textContent = item.note;
-        item.noteNode.hidden = !item.note;
-        item.tab.textContent = item.label;
-        item.tab.dataset.index = String(index);
-        if (index < 9) item.tab.setAttribute("aria-keyshortcuts", String(index + 1));
-        else item.tab.removeAttribute("aria-keyshortcuts");
         return item;
       });
-      for (const item of previous.values()) {
-        item.wrapper.remove();
-        item.tab.remove();
-      }
+      for (const item of previous.values()) item.wrapper.remove();
 
       const wrappers = this.#items.map((item) => item.wrapper);
       if (wrappers.some((wrapper, index) => this.#list.children[index] !== wrapper)) this.#list.append(...wrappers);
-      const tabs = this.#items.map((item) => item.tab);
-      if (tabs.some((tab, index) => this.#tabs.children[index] !== tab)) this.#tabs.append(...tabs);
       for (const item of this.#items) item.slot.assign(item.element);
 
       const wanted = this.#match(this.#wanted);
@@ -1011,13 +1352,8 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
 
     #createItem(element) {
       const slot = document.createElement("slot");
-      const title = h("span", "title");
-      const noteNode = h("span", "note");
-      const head = h("header", "ui head", title, noteNode);
-      const wrapper = h("div", "variant", head, slot);
-      const tab = h("button", "chip");
-      tab.type = "button";
-      return { element, slot, title, noteNode, head, wrapper, tab };
+      const wrapper = h("div", "variant", slot);
+      return { element, slot, wrapper };
     }
 
     #match(value) {
@@ -1029,44 +1365,40 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
     }
 
     #render() {
-      this.#list.toggleAttribute("data-all", this.#all);
       this.#items.forEach((item, index) => {
-        item.wrapper.hidden = !this.#all && index !== this.#index;
-        item.wrapper.toggleAttribute("data-current", index === this.#index);
-        item.head.hidden = !this.#all;
-        item.tab.setAttribute("aria-pressed", String(index === this.#index));
-        item.tab.tabIndex = index === this.#index ? 0 : -1;
+        item.wrapper.hidden = index !== this.#index;
       });
-      this.#allButton.setAttribute("aria-pressed", String(this.#all));
-      this.#reveal();
+      const item = this.#items[this.#index];
+      const total = this.#items.length;
+      this.#currentLabel.textContent = item?.label ?? "";
+      this.#count.textContent = `${this.#index + 1}/${total}`;
+      const mark = item && this.#marks.get(item.slug);
+      const state = mark ? `, ${marks[mark].toLowerCase()}` : "";
+      this.#current.setAttribute("aria-label", `${item?.label ?? ""}${state}, ${this.#index + 1} of ${total}`);
+      this.#keepButton.setAttribute("aria-pressed", String(mark === "keep"));
+      this.#dropButton.setAttribute("aria-pressed", String(mark === "drop"));
+      this.#noteButton.toggleAttribute("data-filled", Boolean(item && this.#noteOf(item)));
+      if (this.#notePanel.matches(":popover-open")) {
+        this.#fillNote();
+        this.#placeNote();
+      }
     }
 
-    #reveal() {
-      const tab = this.#items[this.#index]?.tab;
-      if (!tab) return;
-      const fade = 24;
-      const start = tab.offsetLeft - fade;
-      const end = tab.offsetLeft + tab.offsetWidth + fade - this.#tabs.clientWidth;
-      if (start < this.#tabs.scrollLeft) this.#tabs.scrollLeft = start;
-      else if (end > this.#tabs.scrollLeft) this.#tabs.scrollLeft = end;
+    #step(delta) {
+      const total = this.#items.length;
+      if (total) this.#show((this.#index + delta + total) % total);
     }
 
     #show(index) {
       if (index < 0 || index >= this.#items.length || index === this.#index) return;
       const direction = Math.sign(index - this.#index);
-      const tabFocused = this.#tabs.contains(this.#root.activeElement);
       const focused = document.activeElement;
+      const from = this.#current.offsetWidth;
       this.#index = index;
       this.#render();
       this.#keepFocus(focused);
-      if (tabFocused) this.#items[index].tab.focus({ preventScroll: true });
       this.#writeURL();
       const { wrapper } = this.#items[index];
-      if (this.#all) {
-        this.#spyPaused = true;
-        wrapper.scrollIntoView({ block: "start", behavior: motion.matches ? "smooth" : "instant" });
-        return;
-      }
       if (!motion.matches) return;
       this.#flight?.cancel();
       this.#flight = wrapper.animate(
@@ -1076,25 +1408,70 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
         ],
         { duration: 280, easing: easeOut },
       );
+      const to = this.#current.offsetWidth;
+      if (from !== to) this.#current.animate({ width: [`${from}px`, `${to}px`] }, { duration: 220, easing: easeOut });
+      for (const part of [this.#currentLabel, this.#count]) {
+        part.animate(
+          [
+            { opacity: 0, translate: `${direction * 6}px 0`, filter: "blur(2px)" },
+            { opacity: 1, translate: "0 0", filter: "blur(0)" },
+          ],
+          { duration: 220, easing: easeOut },
+        );
+      }
     }
 
-    #setAll(all) {
-      const anchor = this.#items[this.#index]?.element;
-      if (all === this.#all || !anchor) return;
-      const before = anchor.getBoundingClientRect().top;
-      const focused = document.activeElement;
-      this.#all = all;
-      this.#flight?.cancel();
-      this.#render();
-      this.#keepFocus(focused);
-      this.#writeURL();
-      this.#spyPaused = true;
-      scrollParent(this).scrollBy({ top: anchor.getBoundingClientRect().top - before, behavior: "instant" });
-      if (!all || !motion.matches) return;
-      const fade = [{ opacity: 0 }, { opacity: 1 }];
-      this.#items.forEach((item, index) => {
-        (index === this.#index ? item.head : item.wrapper).animate(fade, { duration: 260, easing: easeOut });
-      });
+    #animateIcon(button, keyframes, duration) {
+      if (motion.matches) button.querySelector("svg").animate(keyframes, { duration, easing: easeOut });
+    }
+
+    get #notesKey() {
+      return `prototype-switcher:notes:${location.pathname}`;
+    }
+
+    #readNotes() {
+      try {
+        this.#notes = new Map(Object.entries(JSON.parse(sessionStorage.getItem(this.#notesKey)) ?? {}));
+      } catch {
+        this.#notes = new Map();
+      }
+    }
+
+    #writeNote() {
+      const item = this.#items[this.#index];
+      if (!item) return;
+      const text = this.#noteField.value.trim();
+      if (text) this.#notes.set(item.slug, this.#noteField.value);
+      else this.#notes.delete(item.slug);
+      this.#noteButton.toggleAttribute("data-filled", Boolean(text));
+      try {
+        sessionStorage.setItem(this.#notesKey, JSON.stringify(Object.fromEntries(this.#notes)));
+      } catch {}
+    }
+
+    #noteOf(item) {
+      return this.#notes.get(item.slug)?.trim() ?? "";
+    }
+
+    #toggleNote() {
+      this.#noteButton.click();
+    }
+
+    #fillNote() {
+      const item = this.#items[this.#index];
+      this.#noteVariant.textContent = item?.label ?? "";
+      this.#noteField.value = (item && this.#notes.get(item.slug)) ?? "";
+    }
+
+    #placeNote() {
+      const bar = this.#bar.getBoundingClientRect();
+      const panel = this.#notePanel;
+      const below = this.dataset.position === "top";
+      panel.style.left = `${bar.left + bar.width / 2}px`;
+      panel.style.width = `${Math.max(bar.width, 300)}px`;
+      panel.style.top = below ? `${bar.bottom + 8}px` : "auto";
+      panel.style.bottom = below ? "auto" : `${innerHeight - bar.top + 8}px`;
+      panel.toggleAttribute("data-below", below);
     }
 
     #replay() {
@@ -1116,81 +1493,151 @@ if (typeof window !== "undefined" && !customElements.get("prototype-switcher")) 
       this.#list.focus({ preventScroll: true });
     }
 
-    async #pick() {
+    #mark(mark) {
       const item = this.#items[this.#index];
       if (!item) return;
-      const text = `Pick ${item.label} from ${location.pathname}`;
-      const tokens = Math.ceil(text.length / 4);
-      const toast = this.#toast;
+      const on = this.#marks.get(item.slug) !== mark;
+      if (on) this.#marks.set(item.slug, mark);
+      else this.#marks.delete(item.slug);
+      this.#render();
+      this.#writeURL();
+      if (on) this.#animateIcon(mark === "keep" ? this.#keepButton : this.#dropButton, { scale: [0.6, 1] }, 240);
+    }
+
+    #prompt() {
+      const kept = this.#marked("keep");
+      const dropped = this.#marked("drop");
+      if (!kept.length && !dropped.length) kept.push(this.#items[this.#index]);
+      const unmarked = this.#items.filter((item) => !kept.includes(item) && !dropped.includes(item));
+      const sections = [`Prototype review: ${location.pathname}`];
+      for (const [title, items] of [
+        ["Keep", kept],
+        ["Drop", dropped],
+        ["Unmarked", unmarked],
+      ]) {
+        if (items.length) sections.push(`${title}:\n${items.map((item) => this.#line(item)).join("\n")}`);
+      }
+      let next = "Delete the dropped variants and keep the rest on the page for another look.";
+      if (kept.length === 1) next = `Move ${kept[0].label} into the product, then delete the other variants.`;
+      else if (kept.length > 1) next = "Build one new variant that combines the kept ones, then delete the dropped ones.";
+      else if (!unmarked.length) next = "Every variant was dropped. Delete them and start a new round.";
+      if (this.#items.some((item) => this.#noteOf(item))) next += " Follow each note.";
+      sections.push(`Next: ${next}`);
+      return sections.join("\n\n");
+    }
+
+    #line(item) {
+      const note = this.#noteOf(item);
+      if (!note) return `- ${item.label}`;
+      return `- ${item.label}\n  Note: ${note.split("\n").join("\n  ")}`;
+    }
+
+    async #copyPrompt() {
+      if (!this.#items.length) return;
+      const text = this.#prompt();
       const copied = await Promise.resolve()
         .then(() => navigator.clipboard.writeText(text))
         .then(
           () => true,
           () => false,
         );
-      clearTimeout(toast.hide);
-      delete toast.dataset.open;
-      if (!toast.matches(":popover-open")) toast.showPopover();
-      toast.toggleAttribute("data-failed", !copied);
-      toast.querySelector(".label").textContent = copied ? "Copied" : "Copy Failed";
-      toast.querySelector(".count").textContent = `~${tokens.toLocaleString()} ${tokens === 1 ? "token" : "tokens"}`;
-      anchorTo(toast, this.#pickButton);
-      toast.dataset.open = "";
-      toast.parentElement.dataset.toasting = "";
-      toast.hide = setTimeout(() => {
-        delete toast.dataset.open;
-        delete toast.parentElement.dataset.toasting;
-        toast.hide = setTimeout(() => toast.hidePopover(), 200);
-      }, 1600);
+      const hint = this.#copyButton.nextElementSibling;
+      hint.firstChild.textContent = copied ? "Copied" : "Copy Blocked";
+      hint.toggleAttribute("data-show", true);
+      this.#status.textContent = copied ? "Copied the review." : "Copy was blocked.";
+      clearTimeout(this.#copiedTimer);
+      this.#copiedTimer = setTimeout(() => {
+        hint.removeAttribute("data-show");
+        hint.firstChild.textContent = "Copy Prompt";
+      }, 1500);
+      if (copied) {
+        this.#animateIcon(
+          this.#copyButton,
+          [
+            { translate: "0 0", opacity: 1 },
+            { translate: "4px -4px", opacity: 0, offset: 0.45 },
+            { translate: "-4px 4px", opacity: 0, offset: 0.55 },
+            { translate: "0 0", opacity: 1 },
+          ],
+          360,
+        );
+      }
+    }
+
+    #openPalette() {
+      if (!this.#items.length) return;
+      this.#search.value = "";
+      if (!this.#palette.open) this.#palette.showModal();
+      this.#renderOptions();
+      this.#highlight(this.#index);
+      this.#search.focus();
+    }
+
+    #renderOptions() {
+      const query = this.#search.value.trim().toLowerCase();
+      this.#results = this.#items
+        .map((item, index) => ({ item, index }))
+        .filter(({ item }) => !query || `${item.label} ${item.note}`.toLowerCase().includes(query));
+      const options = this.#results.map(({ item, index }, result) => {
+        const title = h("span", "option-title", item.label);
+        if (index === this.#index) title.append(h("span", "showing", "Showing"));
+        const mark = this.#marks.get(item.slug);
+        if (mark) title.append(h("span", `mark ${mark}`, marks[mark]));
+        const option = h("li", "option", title);
+        if (item.note) option.append(h("span", "note", item.note));
+        option.id = `option-${result}`;
+        option.setAttribute("role", "option");
+        option.dataset.result = String(result);
+        return option;
+      });
+      this.#options.replaceChildren(...(options.length ? options : [h("li", "no-match", "No variant matches")]));
+      this.#highlight(this.#active);
+    }
+
+    #highlight(result) {
+      const options = this.#options.querySelectorAll(".option");
+      if (!options.length) {
+        this.#search.removeAttribute("aria-activedescendant");
+        return;
+      }
+      this.#active = Math.min(Math.max(result, 0), options.length - 1);
+      options.forEach((option, i) => option.setAttribute("aria-selected", String(i === this.#active)));
+      const active = options[this.#active];
+      this.#search.setAttribute("aria-activedescendant", active.id);
+      active.scrollIntoView({ block: "nearest" });
+    }
+
+    #choose(result) {
+      const chosen = this.#results[result];
+      if (!chosen) return;
+      this.#palette.close();
+      this.#show(chosen.index);
     }
 
     #onKey = (event) => {
-      this.#spyPaused = false;
       if (!this.#items.length || event.defaultPrevented || event.isComposing) return;
+      if ((event.metaKey || event.ctrlKey) && !event.altKey && !event.shiftKey && event.key.toLowerCase() === "k") {
+        event.preventDefault();
+        this.#openPalette();
+        return;
+      }
       if (event.metaKey || event.ctrlKey || event.altKey || event.shiftKey) return;
       const target = event.composedPath()[0];
       if (target instanceof Element && (target.closest(typing) || target.isContentEditable)) return;
 
       const key = event.key.toLowerCase();
       const inside = event.composedPath().includes(this);
-      if (key === "arrowleft") this.#show(this.#index - 1);
-      else if (key === "arrowright") this.#show(this.#index + 1);
+      if (key === "arrowleft") this.#step(-1);
+      else if (key === "arrowright") this.#step(1);
       else if (/^[1-9]$/.test(key) && Number(key) <= this.#items.length) this.#show(Number(key) - 1);
-      else if (key === "a" && inside) this.#setAll(!this.#all);
-      else if (key === "p" && inside) this.#pick();
+      else if (key === "k" && inside) this.#mark("keep");
+      else if (key === "d" && inside) this.#mark("drop");
+      else if (key === "n" && inside) this.#toggleNote();
+      else if (key === "p" && inside) this.#copyPrompt();
       else if (key === "r" && inside) this.#replay();
-      else if (key === "escape" && this.#all) this.#setAll(false);
       else return;
       event.preventDefault();
     };
-
-    #resumeSpy = () => {
-      this.#spyPaused = false;
-    };
-
-    #onScroll = (event) => {
-      if (!this.#all || this.#spyPaused || this.#spyFrame) return;
-      const scroller = event.target === document ? document.scrollingElement : event.target;
-      if (!(scroller instanceof Element) || !scroller.contains(this)) return;
-      this.#spyFrame = requestAnimationFrame(() => {
-        this.#spyFrame = 0;
-        this.#spy(scroller);
-      });
-    };
-
-    #spy(scroller) {
-      const line = innerHeight / 3;
-      let index = 0;
-      this.#items.forEach((item, i) => {
-        if (item.wrapper.getBoundingClientRect().top <= line) index = i;
-      });
-      const last = this.#items.length - 1;
-      const atEnd = scroller.scrollTop + scroller.clientHeight >= scroller.scrollHeight - 2;
-      if (atEnd && this.#items[last].wrapper.getBoundingClientRect().top < innerHeight) index = last;
-      if (index === this.#index) return;
-      this.#index = index;
-      this.#render();
-    }
 
     #onPopState = () => {
       this.#readURL();

@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Switcher Bar</title>
+    <style>
+      :root {
+        color-scheme: light dark;
+      }
+
+      body {
+        margin: 0;
+        background: light-dark(#ffffff, #0a0a0a);
+      }
+    </style>
+  </head>
+  <body>
+    <prototype-switcher>
+      <section data-variant="Inline Pills" data-note="Wins with under 6 filters. Costs a row above the list."></section>
+      <section data-variant="Sidebar List" data-note="Wins with many filter groups. Costs 200px of width."></section>
+      <section data-variant="Search Field" data-note="Wins for people who type. Costs discoverability on phones."></section>
+      <section data-variant="Filter Sheet" data-note="Wins on phones. Costs a tap to open and hides what is applied."></section>
+      <section data-variant="Saved Views" data-note="Wins when the same slices repeat. Costs a new view per slice."></section>
+    </prototype-switcher>
+    <script src="../../skills/prototype/switcher.js"></script>
+    <script>
+      const sheet = document.querySelector("prototype-switcher").shadowRoot.styleSheets[0];
+      sheet.insertRule(".bar { inset: 0 !important; margin: auto }", sheet.cssRules.length);
+    </script>
+  </body>
+</html>
