@@ -20,7 +20,10 @@ const found = {
   notation: tally(),
   utilities: tally(),
 };
-const flags = { ":focus-visible": false, "prefers-reduced-motion": false, "tabular-nums": false };
+const flagPatterns = { ":focus-visible": /:focus-visible|(?<![\w-])focus-visible:/, "prefers-reduced-motion": /prefers-reduced-motion/, "tabular-nums": /tabular-nums/ };
+const flags = Object.fromEntries(Object.keys(flagPatterns).map((flag) => [flag, false]));
+const classCall = /\b(?:cn|clsx|classnames|classNames|twMerge|twJoin|cva|tv)\(/g;
+const fragment = /(?:href|to|id|for)=\{?["'`]$|url\(["']?$/;
 const tokenFiles = new Set();
 let tokens = 0;
 let files = 0;
@@ -30,6 +33,19 @@ const lengths = (value) => value.match(/-?\d*\.?\d+(px|rem|em)\b/g) ?? [];
 const each = (text, pattern, fn) => {
   for (const match of text.matchAll(pattern)) fn(match);
 };
+
+// The text between a call's parentheses, skipping parentheses inside strings.
+function callArguments(text, start) {
+  let depth = 1;
+  for (let index = start; index < text.length; index += 1) {
+    const char = text[index];
+    if (char === '"' || char === "'" || char === "`") {
+      for (index += 1; index < text.length && text[index] !== char; index += 1) if (text[index] === "\\") index += 1;
+    } else if (char === "(") depth += 1;
+    else if (char === ")" && --depth === 0) return text.slice(start, index);
+  }
+  return text.slice(start);
+}
 
 function walk(path) {
   let stats;
@@ -57,23 +73,30 @@ function read(path, text) {
   });
 
   each(text, /border(?:-[a-z]+)*-radius\s*:\s*([^;}\n]+)/g, (match) => lengths(match[1]).forEach((value) => count(found.radius, value)));
-  each(text, /(?:padding|margin|gap|row-gap|column-gap)(?:-[a-z]+)?\s*:\s*([^;}\n]+)/g, (match) => lengths(match[1]).forEach((value) => count(found.spacing, value)));
+  each(text, /(?<![\w-])(?:padding|margin|gap|row-gap|column-gap)(?:-[a-z]+)*\s*:\s*([^;}\n]+)/g, (match) => lengths(match[1]).forEach((value) => count(found.spacing, value)));
   each(text, /font-size\s*:\s*([^;}\n]+)/g, (match) => lengths(match[1]).forEach((value) => count(found.fontSize, value)));
-  each(text, /@media[^{]*?\((?:min|max)-width\s*:\s*([\d.]+(?:px|rem|em))/g, (match) => count(found.breakpoints, match[1]));
+  each(text, /@media([^{]*)\{/g, (media) =>
+    each(media[1], /(?<![\w-])(?:min-|max-)?width\s*(?::|[<>]=?)\s*([\d.]+(?:px|rem|em))|([\d.]+(?:px|rem|em))\s*[<>]=?\s*(?=width\b)/g, (match) => count(found.breakpoints, match[1] ?? match[2])),
+  );
 
   each(text, /(?:transition|animation)(?:-duration)?\s*:\s*([^;}\n]+)/g, (match) => {
-    (match[1].match(/\b\d*\.?\d+m?s\b/g) ?? []).forEach((value) => count(found.durations, value));
+    (match[1].match(/(?<![\w.])\d*\.?\d+m?s\b/g) ?? []).forEach((value) => count(found.durations, value.replace(/^\./, "0.")));
     (match[1].match(/cubic-bezier\([^)]*\)|var\(--[\w-]*ease[\w-]*\)|\bease(?:-in-out|-in|-out)?\b|\blinear\b/g) ?? []).forEach((value) => count(found.easing, value));
   });
 
-  each(text, /#[0-9a-fA-F]{3,8}\b(?![\w-])/g, () => count(found.notation, "hex"));
+  each(text, /(?<![\w&#])#(?:[0-9a-f]{8}|[0-9a-f]{6}|[0-9a-f]{3,4})(?![\w-])(?!\s*\{)/gi, (match) => {
+    if (!fragment.test(text.slice(Math.max(0, match.index - 12), match.index))) count(found.notation, "hex");
+  });
   each(text, /\b(rgba?|hsla?|oklch|oklab|lab|lch|color-mix)\(/g, (match) => count(found.notation, match[1].replace(/a$/, "")));
 
-  each(text, /\bclass(?:Name)?=\{?["'`]([^"'`]+)["'`]/g, (attribute) =>
-    each(attribute[1], /(?<![\w:-])(?:[a-z]+:)*(rounded(?:-[trbl]{1,2})?|p[trblxyse]?|m[trblxyse]?|gap(?:-[xy])?|text)-(\[[^\]]+\]|xs|sm|base|lg|[2-9]?xl|full|none|px|\d+(?:\.\d+)?)(?![\w-])/g, (match) => count(found.utilities, `${match[1]}-${match[2]}`)),
-  );
+  const classLists = [];
+  each(text, /\bclass(?:Name)?=\{?["'`]([^"'`]+)["'`]/g, (attribute) => classLists.push(attribute[1]));
+  each(text, classCall, (call) => each(callArguments(text, call.index + call[0].length), /(["'`])((?:\\.|(?!\1)[^\\])*)\1/g, (literal) => classLists.push(literal[2])));
+  for (const list of classLists) {
+    each(list, /(?<![\w:-])(?:[a-z]+:)*(rounded(?:-[trbl]{1,2})?|p[trblxyse]?|m[trblxyse]?|gap(?:-[xy])?|text)-(\[[^\]]+\]|xs|sm|base|lg|[2-9]?xl|full|none|px|\d+(?:\.\d+)?)(?![\w-])/g, (match) => count(found.utilities, `${match[1]}-${match[2]}`));
+  }
 
-  for (const flag of Object.keys(flags)) if (text.includes(flag)) flags[flag] = true;
+  for (const [flag, pattern] of Object.entries(flagPatterns)) if (pattern.test(text)) flags[flag] = true;
 }
 
 for (const root of roots) walk(root);

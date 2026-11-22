@@ -1,7 +1,7 @@
 // Run in the page (DevTools console, Runtime.evaluate or page.evaluate).
 // Returns { findings, unverified } with the contrast of each visible text run and field edge.
 // Text results also carry lc, the APCA lightness contrast, as a second read beside the ratio.
-// Colours are composited over the backgrounds behind them before the ratio is read.
+// Colours are composited over the backgrounds behind them, at every ancestor's opacity, before the ratio is read.
 // Options: set window.__colorOptions = { root } before running.
 // Call window.__color.highlight() afterwards to draw numbered overlays.
 ((options = {}) => {
@@ -114,11 +114,26 @@
   const canvasColour = parse(getComputedStyle(probe).backgroundColor);
   probe.remove();
 
+  // Skips what no one can see: hidden, transparent, clipped to nothing or parked off the page.
+  // Content below the fold or inside a scroll container still counts.
   const isVisible = (el) => {
+    if (el.closest("[inert], svg")) return false;
+    if (el.checkVisibility && !el.checkVisibility({ opacityProperty: true, visibilityProperty: true })) return false;
+    if (getComputedStyle(el).visibility !== "visible") return false;
     const rect = el.getBoundingClientRect();
-    const style = getComputedStyle(el);
-    if (!rect.width || !rect.height || style.visibility === "hidden") return false;
-    return !el.closest("[inert], svg");
+    if (rect.width <= 1 || rect.height <= 1) return false;
+    if (rect.right + scrollX <= 0 || rect.bottom + scrollY <= 0) return false;
+    if (rect.left + scrollX >= document.documentElement.scrollWidth) return false;
+    for (let node = el; node; node = node.parentElement) {
+      const style = getComputedStyle(node);
+      if (Number(style.opacity) === 0) return false;
+      if (style.clip === "rect(0px, 0px, 0px, 0px)" || /^inset\(50%/.test(style.clipPath)) return false;
+      if (node === el || !/hidden|clip/.test(style.overflow)) continue;
+      const box = node.getBoundingClientRect();
+      if (box.width <= 1 || box.height <= 1) return false;
+      if (rect.right <= box.left || rect.left >= box.right || rect.bottom <= box.top || rect.top >= box.bottom) return false;
+    }
+    return true;
   };
 
   const describe = (el) => {
@@ -138,22 +153,37 @@
     return text ? `${parts.join(" > ")} "${text}"` : parts.join(" > ");
   };
 
-  // The colour drawn behind an element, plus the opacity its own subtree is drawn at.
-  const backdrop = (el, from = el) => {
-    const layers = [];
-    let opacity = 1;
+  const mix = (bottom, top, amount) => ({
+    r: bottom.r + (top.r - bottom.r) * amount,
+    g: bottom.g + (top.g - bottom.g) * amount,
+    b: bottom.b + (top.b - bottom.b) * amount,
+    a: 1,
+  });
+
+  // The colour drawn behind an element, and draw(ink) for a colour painted inside it.
+  // Every ancestor's background and opacity counts, so a faded card fades its text and its fill.
+  const backdrop = (from) => {
+    const chain = [];
     let image = false;
+    let covered = false;
     for (let node = from; node; node = node.parentElement) {
       const style = getComputedStyle(node);
-      if (style.backgroundImage !== "none") image = true;
-      const colour = parse(style.backgroundColor);
-      if (colour.a > 0) layers.push(colour);
-      if (colour.a >= 1) break;
-      opacity *= Number(style.opacity);
+      const fill = parse(style.backgroundColor);
+      const opacity = Number(style.opacity);
+      if (!covered && style.backgroundImage !== "none") image = true;
+      if (fill.a >= 1) covered = true;
+      if (opacity < 1) covered = false;
+      chain.push({ fill, opacity });
     }
-    let colour = canvasColour;
-    for (const layer of layers.reverse()) colour = over(layer, colour);
-    return { colour, opacity, image };
+    const paint = (index, behind, ink) => {
+      const { fill, opacity } = chain[index];
+      let inner = fill.a > 0 ? over(fill, behind) : behind;
+      if (index > 0) inner = paint(index - 1, inner, ink);
+      else if (ink) inner = over(ink, inner);
+      return mix(behind, inner, opacity);
+    };
+    const draw = (ink) => (chain.length ? paint(chain.length - 1, canvasColour, ink) : canvasColour);
+    return { colour: draw(null), draw, image };
   };
 
   const add = (list, rule, el, detail, measured) => {
@@ -181,8 +211,7 @@
   const checkText = (el, colourValue, style, label) => {
     if (el.closest(":disabled, [aria-disabled='true']")) return;
     const ground = backdrop(el);
-    const ink = parse(colourValue);
-    const drawn = over({ ...ink, a: ink.a * ground.opacity }, ground.colour);
+    const drawn = ground.draw(parse(colourValue));
     const measured = ratio(drawn, ground.colour);
     const required = isLarge(style) ? 3 : 4.5;
     const values = {
@@ -224,13 +253,21 @@
     if (!isVisible(field)) continue;
     const style = getComputedStyle(field);
     if (field.placeholder && !field.value) {
-      checkText(field, getComputedStyle(field, "::placeholder").color, style, "Placeholder");
+      const placeholder = getComputedStyle(field, "::placeholder").color;
+      if (placeholder === style.color) {
+        add(unverified, "color-text-contrast", field,
+          "Placeholder colour read back as the field's own colour, so the pseudo-element may not have resolved. Crop it and read the ratio",
+          { color: placeholder });
+      } else {
+        checkText(field, placeholder, style, "Placeholder");
+      }
     }
     if (field.disabled || !field.parentElement) continue;
-    const outside = backdrop(field, field.parentElement).colour;
-    const fill = over(parse(style.backgroundColor), outside);
+    const outside = backdrop(field.parentElement).colour;
+    const inside = backdrop(field);
+    const fill = inside.colour;
     const width = Number.parseFloat(style.borderBottomWidth) || 0;
-    const edge = width ? over(parse(style.borderBottomColor), fill) : fill;
+    const edge = width ? inside.draw(parse(style.borderBottomColor)) : fill;
     const best = Math.max(ratio(fill, outside), ratio(edge, outside));
     if (best < 3) {
       const suggestion = nearestPassing(edge, outside, 3);

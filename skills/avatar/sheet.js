@@ -24,11 +24,13 @@
       copies[i].removeAttribute("class");
     });
     for (const node of copy.querySelectorAll("[id]")) {
-      const from = `#${node.id}`;
+      // Match the whole id, so renaming #eye leaves #eye-l alone.
+      const from = new RegExp(`#${node.id.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")}(?![\\w-])`, "g");
       node.id = `${node.id}-sheet-${index}`;
       for (const el of copies) {
         for (const attr of [...el.attributes]) {
-          if (attr.value.includes(from)) el.setAttribute(attr.name, attr.value.replaceAll(from, `#${node.id}`));
+          const value = attr.value.replace(from, `#${node.id}`);
+          if (value !== attr.value) el.setAttribute(attr.name, value);
         }
       }
     }

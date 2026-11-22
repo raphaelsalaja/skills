@@ -34,7 +34,9 @@
 
   Times are milliseconds on one clock. `at` places a state or an event on it, and a segment starts `delay` after its `on` event. Labels take Title Case.
 
-  `easing` is kept as written: a cubic-bezier, linear() or steps() string, a keyword, or a spring. A spring is { stiffness, damping, mass } or { bounce, duration }, with duration in seconds as Motion takes it. A spring may leave out the segment `duration`.
+  `easing` is kept as written: a cubic-bezier, linear() or steps() string, a keyword, or a spring. A spring is { stiffness, damping, mass }, { visualDuration, bounce } or { duration, bounce }, with times in seconds as Motion takes them. As in Motion, stiffness, damping or mass win over the duration forms. A spring may leave out the segment `duration`.
+
+  `fps` is the capture rate, 60 when left out, and sets how far ← and → step.
 
   A value is a number, a list such as [12, 0] for translate or a string that switches when its segment ends. Every value is written to `property` as CSS, so a label or icon swap sets a custom property that CSS reads, such as property "--label" with from "\"Copy\"" and to "\"Copied\"", and `.label::after { content: var(--label) }` in the preview css. `unit` follows each number. `template` wraps the value, such as "blur($)". `note` explains a track, such as the frame rate its timings were read at.
 
@@ -42,7 +44,7 @@
 
   The preview renders at width by height in a shadow root. It inherits the page tokens, such as var(--gray-1), and its transitions are off. `recording` is optional: a capture of the original, where `start` is the time in the video that matches 0. Crop it to the preview frame so Wipe lines up.
 
-  The rebuild imports this same file, so the viewer and the shipped motion read one object.
+  The rebuild loads this same file, with `import "./timeline.js"` or a script tag, and reads `window.timeline`, so the viewer and the shipped motion read one object.
 
   Copy Timeline writes this object. Paste it over this file.
 
@@ -2462,16 +2464,31 @@
         toast.hide = setTimeout(() => toast.hidePopover(), 200);
       }
 
+      function timeToast() {
+        if (!("open" in toast.dataset)) return;
+        clearTimeout(toast.hide);
+        if (!toast.querySelector("button") && !toast.matches(":hover, :focus-within")) toast.hide = setTimeout(hideToast, 4000);
+      }
+
       function showToast(anchor, message, action) {
         clearTimeout(toast.hide);
         hideTip();
         delete toast.dataset.open;
         if (!toast.matches(":popover-open")) toast.showPopover();
         toast.replaceChildren(message, ...(action ? [action] : []));
+        action?.addEventListener("click", hideToast, { once: true });
         anchorTo(toast, anchor);
         toast.dataset.open = "";
-        toast.hide = setTimeout(hideToast, action ? 5000 : 1600);
+        timeToast();
       }
+
+      toast.addEventListener("pointerenter", () => clearTimeout(toast.hide));
+      toast.addEventListener("focusin", () => clearTimeout(toast.hide));
+      toast.addEventListener("pointerleave", timeToast);
+      toast.addEventListener("focusout", timeToast);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && "open" in toast.dataset) hideToast();
+      });
 
       async function copy(text, anchor) {
         const tokens = Math.ceil(text.length / 4).toLocaleString();
@@ -2524,7 +2541,7 @@
       // kit:overlays end
 
       const svg = "http://www.w3.org/2000/svg";
-      const frameStep = 1000 / 60;
+      const frameStep = 1000 / (timeline.fps ?? 60);
 
       const external = `<svg width="12" height="12" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 4.5h6v6M11.5 4.5l-7 7" /></svg>`;
       const playIcon = `<svg width="14" height="14" viewBox="0 0 16 16" fill="currentColor"><path d="M5 3.4v9.2a.6.6 0 0 0 .9.5l7.4-4.6a.6.6 0 0 0 0-1L5.9 2.9a.6.6 0 0 0-.9.5z" /></svg>`;
@@ -2650,9 +2667,22 @@
         return linearCurve(easing) ?? stepsCurve(easing);
       }
 
+      function springKind(easing) {
+        if (["stiffness", "damping", "mass"].some((key) => key in easing)) return "physics";
+        if ("visualDuration" in easing) return "visual";
+        if ("bounce" in easing || "duration" in easing) return "duration";
+        return "physics";
+      }
+
       function springConfig(easing) {
-        if (!("bounce" in easing) && !("duration" in easing)) {
+        const kind = springKind(easing);
+        if (kind === "physics") {
           return { stiffness: easing.stiffness ?? 100, damping: easing.damping ?? 10, mass: easing.mass ?? 1 };
+        }
+        if (kind === "visual") {
+          const root = (2 * Math.PI) / (Math.min(10, Math.max(0.01, easing.visualDuration)) * 1.2);
+          const ratio = Math.min(1, Math.max(0.05, 1 - (easing.bounce ?? 0)));
+          return { stiffness: root * root, damping: 2 * ratio * root, mass: 1 };
         }
         const ratio = Math.min(1, Math.max(0.05, 1 - (easing.bounce ?? 0.3)));
         const seconds = Math.min(10, Math.max(0.01, easing.duration ?? 0.8));
@@ -2909,7 +2939,7 @@
       }
 
       function settles(source) {
-        return isSpring(source) && source.duration === undefined && !("bounce" in source.easing) && !("duration" in source.easing);
+        return isSpring(source) && source.duration === undefined && springKind(source.easing) !== "duration";
       }
 
       function viewSpan() {
@@ -4066,12 +4096,13 @@
       }
 
       function springRow(source, label, key) {
-        const fallback = { stiffness: 100, damping: 10, mass: 1, bounce: 0.3, duration: 0.8 }[key];
+        const visual = "visualDuration" in source.easing;
+        const fallback = { stiffness: 100, damping: 10, mass: 1, bounce: visual ? 0 : 0.3, duration: 0.8, visualDuration: 0.3 }[key];
         const origin = () => originals.get(source)?.easing;
         return row(label, numberInput(label, () => source.easing[key] ?? fallback, (next) => {
           source.easing[key] = next;
           clearFlag(source, "easing");
-        }, key === "duration" ? "s" : null), {
+        }, key === "duration" || key === "visualDuration" ? "s" : null), {
           flagged: () => source.notVerified?.includes("easing"),
           edited: () => typeof origin() === "object" && source.easing[key] !== origin()[key],
           revert: () => {
@@ -4179,7 +4210,7 @@
       }
 
       function sameCurve(easing) {
-        if ("bounce" in easing || "duration" in easing) {
+        if (springKind(easing) !== "physics") {
           const { stiffness, damping } = springConfig(easing);
           return `Same as stiffness ${Math.round(stiffness)}, damping ${round(damping, 1)}, mass 1`;
         }
@@ -4251,7 +4282,9 @@
               below: [h("div", { class: "line" }, h("span", { class: "line-value" }, curve)), bezierPad(source)],
             }));
           }
-        } else if ("bounce" in source.easing || "duration" in source.easing) {
+        } else if (springKind(source.easing) === "visual") {
+          fields.push(springRow(source, "Bounce", "bounce"), springRow(source, "Visual Duration", "visualDuration"));
+        } else if (springKind(source.easing) === "duration") {
           fields.push(springRow(source, "Bounce", "bounce"), springRow(source, "Spring Duration", "duration"));
         } else {
           fields.push(springRow(source, "Stiffness", "stiffness"), springRow(source, "Damping", "damping"), springRow(source, "Mass", "mass"));

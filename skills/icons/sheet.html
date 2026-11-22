@@ -14,15 +14,16 @@
   };
 
   Paste each icon's markup exactly as the project ships it. Names take Title Case. Mark drawn glyphs `new: true`
-  and logos `brand: true`. Brand marks are listed but never measured. `sizes` is optional. Where concepts.md marks
-  icons Swaps, mark those `swaps: true` too: once any icon carries it, only those are held to the morph form.
+  and logos `brand: true`. Brand marks are listed but never measured. `sizes` is optional. Mark a new icon
+  `swaps: true` when it changes in place into another or the user asks for a morph. Only those take the morph form.
 
   An agent reads the results through the browser rather than the clipboard: window.__icons.specMarkdown() is Copy
   Spec, window.__icons.findingsText() is Copy Findings and window.__icons.outliers lists existing icons off the spec.
 
   The sheet measures every existing icon, derives the spec from the whole set and lints each icon against it.
-  An existing icon off the spec is an outlier, not a finding. New icons are also checked for the morph form and the
-  voice: free curves, corner radii and parts per icon, each against the range the set already draws.
+  An existing icon off the spec is an outlier, not a finding. New icons are also checked for the voice, and those
+  marked swaps for the morph form. The voice is free curves, corner radii and parts per icon, each against the
+  range the set already draws.
   The grid filters by view, style and size. Review shows Pixels, Weight, Context and Morph. Clicking an icon opens a dialog
   to inspect, customise, morph and copy prompts. Copy Spec writes icon-spec.md. Copy Findings lists what the new
   icons miss. Icons pasted or dropped on the page are measured and linted for that session only.
@@ -762,7 +763,7 @@
           decimals: Math.max(0, ...(icon.svg.match(/\d\.\d+/g) ?? []).map((value) => value.split(".")[1].length)),
           transform: /\stransform=/.test(icon.svg),
           hex: /#[0-9a-f]{3,8}\b|rgb\(/i.test(icon.svg),
-          ids: /\s(id|class|style)=/.test(icon.svg),
+          ids: /\s(id|style)=/.test(icon.svg),
           masks: elements.some((element) => ["clipPath", "mask", "filter", "image", "text", "use"].includes(element.tagName)) ||
             /\s(clip-path|mask|filter)=/.test(icon.svg),
           coverage: await coverage(icon.svg, viewBox),
@@ -848,8 +849,7 @@
         };
       }
 
-      const swapping = sheet.icons.some((icon) => icon.swaps);
-      const morphs = (icon) => Boolean(icon.new) && (!swapping || Boolean(icon.swaps) || Boolean(icon.added));
+      const morphs = (icon) => Boolean(icon.new) && Boolean(icon.swaps);
 
       function lint(entry, spec) {
         const misses = [];
@@ -874,12 +874,12 @@
         }
         if (entry.decimals > 3) add("icons-lint-the-spec", `${entry.decimals} decimals, the limit is 3`);
         if (entry.transform) add("icons-lint-the-spec", "a transform");
-        if (entry.ids || entry.masks) add("icons-lint-the-spec", "an id, class, style, mask or clip path");
+        if (entry.ids || entry.masks) add("icons-lint-the-spec", "an id, style, mask or clip path");
         if (morphs(entry.icon)) {
           const { others, slots, shapes } = entry.morph;
           const { slots: wanted, segments } = spec.morph;
           if (others.length) add("icons-morph-form", `${others.join(", ")} element, the morph form is paths only`);
-          if (slots !== wanted) add("icons-morph-form", `${slots} paths, every new icon has ${wanted}`);
+          if (slots !== wanted) add("icons-morph-form", `${slots} paths, every swapping icon has ${wanted}`);
           if (shapes.some((shape) => shape === null)) add("icons-morph-form", "a path that is not M followed by explicit C segments");
           const counts = [...new Set(shapes.filter(Boolean))].filter((count) => count !== segments);
           if (counts.length) add("icons-morph-form", `${counts.join(", ")} segments in a path, every path has ${segments}`);
@@ -948,7 +948,7 @@
           ["Ink Coverage", ranges || "Not measured"],
           ...voiceLines(spec.voice),
           ["Elements", spec.tags.filter((tag) => tag !== "svg").join(", ")],
-          ["Morph Form", spec.morph.slots ? `${spec.morph.slots} paths of M and ${spec.morph.segments} C segments` : "No new icons yet"],
+          ["Morph Form", spec.morph.slots ? `${spec.morph.slots} paths of M and ${spec.morph.segments} C segments` : "No icon marked swaps"],
         ];
       }
 
@@ -1792,7 +1792,7 @@
             "",
             `The spec, measured from the ${spec.count} icons in \`${sheet.source}\`:`,
             specBlock(spec),
-            ...(icon.new ? ["", `Keep it in the morph form: ${form.slots} paths, each an M followed by ${form.segments} explicit C segments.`] : []),
+            ...(morphs(icon) ? ["", `Keep it in the morph form: ${form.slots} paths, each an M followed by ${form.segments} explicit C segments.`] : []),
             "",
             "Current markup:",
             "",
@@ -1843,7 +1843,8 @@
             "Match the spec:",
             specBlock(spec),
             "",
-            `Draw it in the morph form, ${form.slots} paths of M and ${form.segments} C segments, so it morphs into the other new icons. Use ${icon.name} as the reference for weight and padding:`,
+            ...(morphs(icon) ? [`Draw it in the morph form, ${form.slots} paths of M and ${form.segments} C segments, so it morphs like ${icon.name}.`] : []),
+            `Use ${icon.name} as the reference for weight and padding:`,
             "",
             fence(markup),
             "",
@@ -2468,7 +2469,7 @@
               return tile(result, player.node, `${result.icon.name} to ${next.icon.name}`);
             }));
             tiles.setAttribute("data-large", "");
-            content.replaceChildren(players.length ? tiles : h("p", { class: "empty" }, "Morphs show once two new icons of one kind are in the morph form."));
+            content.replaceChildren(players.length ? tiles : h("p", { class: "empty" }, "Morphs show once two new icons of one kind are marked swaps and drawn in the morph form."));
             if (players.length) playAll(players);
             return;
           }

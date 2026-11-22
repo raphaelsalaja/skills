@@ -12,7 +12,7 @@
       {
         n: 1,
         rule: "alignment-shared-edge",
-        severity: "High",
+        severity: "HIGH",
         element: 'section.card > h2 "Billing"',
         file: "app/settings/card.tsx:42",
         measured: { offset: 2, line: 312 },
@@ -27,7 +27,7 @@
 
   Each measure.js finding maps onto one entry. Keep `rule`, `measured` and `rect`, rename `id` to `n`, `where` to `element` and `detail` to `note`, then add `severity`, `file` and `status`. Renumber after dropping or merging candidates, so `n` matches the order of the list.
 
-  `severity` is "High", "Medium" or "Low". `status` is "Confirmed" or "Not Verified". `verdict` is "Block" or "Approve". `file` is optional, and the element stands in for it when no source line is found. `note` is one short clause with no full stop. In `measured`, numbers read as px and arrays as px lists, except `count`. Write a string for any other unit.
+  `severity` is "HIGH", "MEDIUM" or "LOW", as in the skill's pair table. The page shows it in Title Case. `status` is "Confirmed" or "Not Verified". `verdict` is "Block" or "Approve". `file` is optional, and the element stands in for it when no source line is found. `note` is one short clause with no full stop. In `measured`, numbers read as px and arrays as px lists, except `count`. Write a string for any other unit.
 
   `rect` is in page CSS pixels, as measure.js returns it. The screenshot starts at the page origin, either the viewport at scroll 0 or the full page, captured at `scale`. Outlines and zoomed crops are drawn from these rects at runtime, so nothing is baked into the image. `guides` is optional: measured edges in page CSS pixels, each { x } or { y }. The crop centres on them and labels the distance between neighbours.
 -->
@@ -1196,7 +1196,7 @@
       .finding-severity {
         color: var(--text-tertiary);
 
-        &[data-severity="High"] {
+        &[data-severity="HIGH"] {
           color: var(--danger);
         }
       }
@@ -1430,16 +1430,31 @@
         toast.hide = setTimeout(() => toast.hidePopover(), 200);
       }
 
+      function timeToast() {
+        if (!("open" in toast.dataset)) return;
+        clearTimeout(toast.hide);
+        if (!toast.querySelector("button") && !toast.matches(":hover, :focus-within")) toast.hide = setTimeout(hideToast, 4000);
+      }
+
       function showToast(anchor, message, action) {
         clearTimeout(toast.hide);
         hideTip();
         delete toast.dataset.open;
         if (!toast.matches(":popover-open")) toast.showPopover();
         toast.replaceChildren(message, ...(action ? [action] : []));
+        action?.addEventListener("click", hideToast, { once: true });
         anchorTo(toast, anchor);
         toast.dataset.open = "";
-        toast.hide = setTimeout(hideToast, action ? 5000 : 1600);
+        timeToast();
       }
+
+      toast.addEventListener("pointerenter", () => clearTimeout(toast.hide));
+      toast.addEventListener("focusin", () => clearTimeout(toast.hide));
+      toast.addEventListener("pointerleave", timeToast);
+      toast.addEventListener("focusout", timeToast);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && "open" in toast.dataset) hideToast();
+      });
 
       async function copy(text, anchor) {
         const tokens = Math.ceil(text.length / 4).toLocaleString();
@@ -1504,7 +1519,8 @@
 
       const report = window.report;
       const findings = report.findings;
-      const severities = ["High", "Medium", "Low"];
+      const severities = ["HIGH", "MEDIUM", "LOW"];
+      const levelName = (level) => level && level.charAt(0) + level.slice(1).toLowerCase();
       const storageKey = `alignment:${location.pathname}`;
       const picked = new Set(JSON.parse(localStorage.getItem(storageKey) || "[]"));
       const keyOf = (finding) => `${finding.rule} ${finding.element} ${finding.note}`;
@@ -1545,7 +1561,7 @@
       $("severity-filter").append(
         option("", "All Severities", findings.length),
         ...present.map((level) =>
-          option(level, level, findings.filter((finding) => finding.severity === level).length),
+          option(level, levelName(level), findings.filter((finding) => finding.severity === level).length),
         ),
       );
       $("severity-filter").addEventListener("change", (event) => {
@@ -1634,7 +1650,7 @@
             h("span", {}, finding.note),
             h("span", { class: "finding-meta" }, meta.join(" · ")),
           ),
-          h("span", { class: "finding-severity", "data-severity": finding.severity }, finding.severity),
+          h("span", { class: "finding-severity", "data-severity": finding.severity }, levelName(finding.severity)),
         );
         finding.row = h("li", { class: "finding" }, button, pick);
         finding.pick = pick;
@@ -1660,7 +1676,7 @@
         ...[...byRule]
           .sort((a, b) => rank(a) - rank(b) || b[1].length - a[1].length)
           .map(([rule, members]) =>
-            h("tr", {}, h("td", {}, rule), h("td", {}, String(members.length)), h("td", {}, highest(members))),
+            h("tr", {}, h("td", {}, rule), h("td", {}, String(members.length)), h("td", {}, levelName(highest(members)))),
           ),
       );
       $("summary-section").hidden = findings.length === 0;
@@ -1755,7 +1771,7 @@
 
         const { x, y, width, height } = current.rect;
         const rows = [
-          ["Severity", current.severity],
+          ["Severity", levelName(current.severity)],
           ["Status", current.status],
           ["Element", current.element],
           ...(current.file ? [["File", current.file]] : []),

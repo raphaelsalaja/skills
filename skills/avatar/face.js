@@ -100,11 +100,12 @@ export function drawEyes(face, gaze, lid, head) {
     const [point, tangent] = turn(forward, right, radians(face.split * (index ? 1 : -1)));
     const c = Math.cos(radians(eye.tilt));
     const s = Math.sin(radians(eye.tilt));
+    // The lid closes along the eye's own height axis, so a tilted eye stays tilted as it blinks.
     const squash = 0.06 + 0.94 * clamp(Math.min(lid, eye.open));
     const matrix = [
       tangent[0] * c + up[0] * s,
-      (tangent[1] * c + up[1] * s) * squash,
-      -tangent[0] * s + up[0] * c,
+      tangent[1] * c + up[1] * s,
+      (-tangent[0] * s + up[0] * c) * squash,
       (-tangent[1] * s + up[1] * c) * squash,
       head.x + point[0] * head.rx,
       head.y + point[1] * head.ry,

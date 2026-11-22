@@ -1197,16 +1197,31 @@
         toast.hide = setTimeout(() => toast.hidePopover(), 200);
       }
 
+      function timeToast() {
+        if (!("open" in toast.dataset)) return;
+        clearTimeout(toast.hide);
+        if (!toast.querySelector("button") && !toast.matches(":hover, :focus-within")) toast.hide = setTimeout(hideToast, 4000);
+      }
+
       function showToast(anchor, message, action) {
         clearTimeout(toast.hide);
         hideTip();
         delete toast.dataset.open;
         if (!toast.matches(":popover-open")) toast.showPopover();
         toast.replaceChildren(message, ...(action ? [action] : []));
+        action?.addEventListener("click", hideToast, { once: true });
         anchorTo(toast, anchor);
         toast.dataset.open = "";
-        toast.hide = setTimeout(hideToast, action ? 5000 : 1600);
+        timeToast();
       }
+
+      toast.addEventListener("pointerenter", () => clearTimeout(toast.hide));
+      toast.addEventListener("focusin", () => clearTimeout(toast.hide));
+      toast.addEventListener("pointerleave", timeToast);
+      toast.addEventListener("focusout", timeToast);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && "open" in toast.dataset) hideToast();
+      });
 
       async function copy(text, anchor) {
         const tokens = Math.ceil(text.length / 4).toLocaleString();

@@ -1,6 +1,9 @@
-// Run in the page once per viewport (DevTools console, Runtime.evaluate or page.evaluate).
+// Run in the page once per viewport: pass this file's contents to Runtime.evaluate or page.evaluate,
+// or load it with Playwright's page.addScriptTag({ path }).
 // Returns { viewport, pageOverflow, scrollbar, breakpoints, findings } for sideways overflow, clipped text,
 // small targets and fixed or sticky bars that crowd a short screen.
+// A sideways-scroll culprit under aria-hidden, inert or visibility: hidden carries measured.hidden: true.
+// Marks clipped by a tight line-height leave scrollHeight unchanged, so tall scripts are judged on a screenshot.
 // breakpoints is { widths, edges, gaps, unreadSheets }: every width query in the loaded stylesheets, each
 // breakpoint with the width 1px below it, and each max-width and min-width pair that leaves widths unmatched.
 // unreadSheets counts cross-origin stylesheets whose rules the page cannot read.
@@ -35,12 +38,12 @@
   const round = (value) => Math.round(value * 10) / 10;
   const px = (value) => Number.parseFloat(value) || 0;
 
-  const isVisible = (el) => {
+  const hasBox = (el) => {
     const rect = el.getBoundingClientRect();
-    const style = getComputedStyle(el);
-    if (!rect.width || !rect.height || style.visibility === "hidden") return false;
-    return !el.closest("[inert], [aria-hidden=true]");
+    return rect.width > 0 && rect.height > 0;
   };
+  // Hidden boxes still take layout, so they can scroll the page sideways while showing nothing.
+  const isHidden = (el) => getComputedStyle(el).visibility === "hidden" || Boolean(el.closest("[inert], [aria-hidden=true]"));
 
   const describe = (el) => {
     const parts = [];
@@ -78,15 +81,19 @@
 
   const clipsX = (style) => ["hidden", "clip", "auto", "scroll"].includes(style.overflowX);
 
-  const elements = [...root.querySelectorAll("*")].filter(
-    (el) => !el.closest("svg") && !["SCRIPT", "STYLE", "TEMPLATE"].includes(el.tagName) && isVisible(el),
+  const laidOut = [...root.querySelectorAll("*")].filter(
+    (el) => !el.closest("svg") && !["SCRIPT", "STYLE", "TEMPLATE"].includes(el.tagName) && hasBox(el),
   );
+  const elements = laidOut.filter((el) => !isHidden(el));
 
-  // 1. Sideways scroll: the outermost elements past the right edge that no ancestor clips.
+  // 1. Sideways scroll: the outermost elements past the end edge that no ancestor clips, hidden ones included.
+  // A right-to-left page scrolls toward the left, so there the end edge is x = 0.
+  const rtl = getComputedStyle(document.documentElement).direction === "rtl";
+  const past = (rect) => (rtl ? -rect.left : rect.right - width);
   const pageOverflow = document.documentElement.scrollWidth - width;
   if (pageOverflow > 0) {
-    const culprits = elements.filter((el) => {
-      if (el.getBoundingClientRect().right <= width + 1) return false;
+    const culprits = laidOut.filter((el) => {
+      if (past(el.getBoundingClientRect()) <= 1) return false;
       if (getComputedStyle(el).position === "fixed") return false;
       for (let node = el.parentElement; node && node !== document.documentElement; node = node.parentElement) {
         if (clipsX(getComputedStyle(node))) return false;
@@ -98,21 +105,49 @@
       const rect = el.getBoundingClientRect();
       // A box as wide as the window, scrollbar included, is a 100vw box.
       const viewportWide = scrollbar > 0 && (Math.abs(rect.width - innerWidth) < 1 || Math.abs(rect.right - innerWidth) < 1);
+      const hidden = isHidden(el);
       add(viewportWide ? "viewports-classic-scrollbar" : "viewports-no-sideways-scroll", el,
-        `Ends ${round(rect.right - width)}px past the ${width}px viewport${viewportWide ? `, as wide as the window and its ${scrollbar}px scrollbar` : ""}`,
-        { right: round(rect.right), viewport: width, scrollbar });
+        `${hidden ? "Hidden, yet ends" : "Ends"} ${round(past(rect))}px past the ${rtl ? "left" : "right"} edge of the ${width}px viewport${viewportWide ? `, as wide as the window and its ${scrollbar}px scrollbar` : ""}`,
+        { left: round(rect.left), right: round(rect.right), viewport: width, scrollbar, rtl, hidden });
     }
   }
 
-  // 2. Clipped text: text cut by a clipping box with no ellipsis or line clamp.
+  // 2. Clipped text: a clipping box whose own text, direct or nested, runs past its edge with no ellipsis
+  // or line clamp. Text inside a nearer box that clips or scrolls on that axis belongs to that box.
+  const clips = (value) => value === "hidden" || value === "clip";
+  const textPast = (el, axis) => {
+    const style = getComputedStyle(el);
+    const box = el.getBoundingClientRect();
+    const left = box.left + px(style.borderLeftWidth);
+    const top = box.top + px(style.borderTopWidth);
+    const property = axis === "x" ? "overflowX" : "overflowY";
+    const walker = document.createTreeWalker(el, NodeFilter.SHOW_TEXT);
+    const range = document.createRange();
+    while (walker.nextNode()) {
+      const node = walker.currentNode;
+      if (!node.textContent.trim()) continue;
+      let owned = true;
+      for (let parent = node.parentElement; parent && parent !== el; parent = parent.parentElement) {
+        if (getComputedStyle(parent)[property] !== "visible") {
+          owned = false;
+          break;
+        }
+      }
+      if (!owned) continue;
+      range.selectNodeContents(node);
+      for (const rect of range.getClientRects()) {
+        if (!rect.width || !rect.height) continue;
+        if (axis === "x" ? rect.right > left + el.clientWidth + 1 || rect.left < left - 1 : rect.bottom > top + el.clientHeight + 1) return true;
+      }
+    }
+    return false;
+  };
   for (const el of elements) {
     const style = getComputedStyle(el);
-    const hasText = [...el.childNodes].some((node) => node.nodeType === 3 && node.textContent.trim());
-    if (!hasText) continue;
-    const cutX = ["hidden", "clip"].includes(style.overflowX) && el.scrollWidth > el.clientWidth + 1 &&
-      style.textOverflow !== "ellipsis";
-    const cutY = ["hidden", "clip"].includes(style.overflowY) && el.scrollHeight > el.clientHeight + 1 &&
-      (style.webkitLineClamp ?? "none") === "none";
+    const cutX = clips(style.overflowX) && el.scrollWidth > el.clientWidth + 1 &&
+      style.textOverflow !== "ellipsis" && textPast(el, "x");
+    const cutY = clips(style.overflowY) && el.scrollHeight > el.clientHeight + 1 &&
+      (style.webkitLineClamp ?? "none") === "none" && textPast(el, "y");
     if (cutX || cutY) {
       add("viewports-no-clipped-text", el,
         `Text cut ${cutX ? "sideways" : "at the bottom"}: ${cutX ? el.scrollWidth : el.scrollHeight}px of content in ${cutX ? el.clientWidth : el.clientHeight}px`,

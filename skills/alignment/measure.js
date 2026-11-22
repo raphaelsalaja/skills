@@ -1,5 +1,7 @@
-// Run in the page (DevTools console, Runtime.evaluate or page.evaluate).
+// Run in the page: pass this file's contents to Runtime.evaluate or page.evaluate.
 // Returns { findings } measured from the rendered layout and the glyph ink.
+// Checks shared-edge, even-gaps, on-scale, padding-over-gap, icon-side-padding, ink-centre, icon-with-label,
+// optical-glyph, shared-baseline, whole-pixels, concentric-radius and concentric-floor.
 // Options: set window.__alignmentOptions = { root, scale, tolerance } before running.
 ((options = {}) => {
   const root = options.root ?? document.body;
@@ -71,11 +73,16 @@
     `${style.fontStyle} ${style.fontWeight} ${style.fontSize} ${style.fontFamily}`;
 
   // Ink box of a text node: where the glyphs draw, not the line box.
+  // The range starts at the first glyph, so leading whitespace counts only where it renders.
   const textInk = (node) => {
-    const text = node.textContent.trim();
+    const raw = node.textContent;
+    const lead = /^[ \t\n\r\f]*/.exec(raw)[0].length;
+    const trail = /[ \t\n\r\f]*$/.exec(raw.slice(lead))[0].length;
+    const text = raw.slice(lead, raw.length - trail);
     if (!text) return null;
     const range = document.createRange();
-    range.selectNodeContents(node);
+    range.setStart(node, lead);
+    range.setEnd(node, raw.length - trail);
     const rects = [...range.getClientRects()];
     if (rects.length !== 1) return null;
     const [box] = rects;
@@ -83,36 +90,75 @@
     canvas.font = fontOf(style);
     const metrics = canvas.measureText(text);
     const cap = canvas.measureText("H").actualBoundingBoxAscent;
-    const lead = node.textContent.length - node.textContent.trimStart().length;
-    const offset = lead ? canvas.measureText(" ".repeat(lead)).width : 0;
     const baseline = box.top + metrics.fontBoundingBoxAscent;
-    const left = box.left + offset - metrics.actualBoundingBoxLeft;
     return {
-      left,
-      right: box.left + offset + metrics.actualBoundingBoxRight,
+      left: box.left - metrics.actualBoundingBoxLeft,
+      right: box.left + metrics.actualBoundingBoxRight,
       top: baseline - cap,
       bottom: baseline,
       centerY: baseline - cap / 2,
     };
   };
 
-  // Ink box of an inline SVG: its drawn contents mapped to screen pixels.
+  // Ink box of an inline SVG: the painted shapes mapped to screen pixels. A shape with no fill and no
+  // stroke, such as a full-viewBox `M0 0h24v24H0z` spacer, draws nothing and is left out.
+  // centroid is the mean of points sampled evenly along every painted outline, where the glyph's weight sits.
+  const painted = (shape) => {
+    if (shape.closest("defs, clipPath, mask, symbol, pattern, marker")) return false;
+    const style = getComputedStyle(shape);
+    if (style.display === "none" || style.visibility === "hidden" || Number(style.opacity) === 0) return false;
+    if (shape.matches("use, image")) return true;
+    const clear = (paint) => paint === "none" || /^rgba\(.*,\s*0\)$/.test(paint) || paint === "transparent";
+    const fill = !clear(style.fill) && Number(style.fillOpacity) > 0;
+    const stroke = !clear(style.stroke) && Number(style.strokeOpacity) > 0 && (Number.parseFloat(style.strokeWidth) || 0) > 0;
+    return fill || stroke;
+  };
   const svgInk = (svg) => {
     try {
-      const box = svg.getBBox();
-      const matrix = svg.getScreenCTM();
-      if (!matrix || !box.width) return null;
-      const a = new DOMPoint(box.x, box.y).matrixTransform(matrix);
-      const b = new DOMPoint(box.x + box.width, box.y + box.height).matrixTransform(matrix);
-      const stroke =
-        (Number.parseFloat(getComputedStyle(svg).strokeWidth) || 0) * matrix.a * 0.5;
+      const shapes = [...svg.querySelectorAll("path, circle, ellipse, line, polyline, polygon, rect, text, use, image")].filter(painted);
+      let left = Infinity;
+      let right = -Infinity;
+      let top = Infinity;
+      let bottom = -Infinity;
+      let sumX = 0;
+      let sumY = 0;
+      let samples = 0;
+      let sampled = true;
+      for (const shape of shapes) {
+        const box = shape.getBBox();
+        const matrix = shape.getScreenCTM();
+        if (!matrix || (!box.width && !box.height)) continue;
+        const style = getComputedStyle(shape);
+        const stroke = style.stroke === "none" ? 0 : (Number.parseFloat(style.strokeWidth) || 0) * Math.hypot(matrix.a, matrix.b) * 0.5;
+        for (const [x, y] of [[box.x, box.y], [box.x + box.width, box.y], [box.x, box.y + box.height], [box.x + box.width, box.y + box.height]]) {
+          const point = new DOMPoint(x, y).matrixTransform(matrix);
+          left = Math.min(left, point.x - stroke);
+          right = Math.max(right, point.x + stroke);
+          top = Math.min(top, point.y - stroke);
+          bottom = Math.max(bottom, point.y + stroke);
+        }
+        if (typeof shape.getTotalLength !== "function") {
+          sampled = false;
+          continue;
+        }
+        const length = shape.getTotalLength();
+        const count = Math.max(8, Math.round(length * 4));
+        for (let i = 0; i < count; i++) {
+          const point = shape.getPointAtLength((length * (i + 0.5)) / count).matrixTransform(matrix);
+          sumX += point.x;
+          sumY += point.y;
+          samples += 1;
+        }
+      }
+      if (left === Infinity) return null;
       return {
-        left: Math.min(a.x, b.x) - stroke,
-        right: Math.max(a.x, b.x) + stroke,
-        top: Math.min(a.y, b.y) - stroke,
-        bottom: Math.max(a.y, b.y) + stroke,
-        centerY: (a.y + b.y) / 2,
-        centerX: (a.x + b.x) / 2,
+        left,
+        right,
+        top,
+        bottom,
+        centerY: (top + bottom) / 2,
+        centerX: (left + right) / 2,
+        centroid: sampled && samples ? { x: sumX / samples, y: sumY / samples } : null,
       };
     } catch {
       return null;
@@ -203,7 +249,12 @@
     const gaps = rects.slice(1).map((rect, i) =>
       column ? rect.top - rects[i].bottom : rect.left - rects[i].right,
     );
-    const spread = Math.max(...gaps) - Math.min(...gaps);
+    // A gap at least twice the usual one is a deliberate group break, not a miss.
+    const tally = new Map();
+    for (const gap of gaps) tally.set(round(gap), (tally.get(round(gap)) ?? 0) + 1);
+    const [usual] = [...tally.entries()].sort((a, b) => b[1] - a[1] || a[0] - b[0])[0];
+    const kept = usual > 0 ? gaps.filter((gap) => gap < usual * 2) : gaps;
+    const spread = Math.max(...kept) - Math.min(...kept);
     if (spread >= 1 && spread <= 24) {
       add("alignment-even-gaps", parent,
         `${column ? "Stacked" : "Row of"} ${kids.length} siblings with gaps from ${round(Math.min(...gaps))} to ${round(Math.max(...gaps))}px`,
@@ -212,12 +263,16 @@
   }
 
   // 3. On scale: spacing values that are not a multiple of the scale.
+  // The icon side of a control may sit 2px under an on-scale text side, as alignment-icon-side-padding asks.
+  const opposite = { paddingLeft: "paddingRight", paddingRight: "paddingLeft" };
   const offScale = new Map();
   for (const el of elements) {
     const style = getComputedStyle(el);
+    const hasIcon = [...el.children].some((kid) => kid.tagName.toLowerCase() === "svg" || kid.querySelector(":scope > svg"));
     for (const prop of ["paddingTop", "paddingRight", "paddingBottom", "paddingLeft", "rowGap", "columnGap", "marginTop", "marginBottom"]) {
       const value = Number.parseFloat(style[prop]);
       if (!value || value <= 2 || value % scale === 0) continue;
+      if (hasIcon && opposite[prop] && Number.parseFloat(style[opposite[prop]]) === value + 2 && (value + 2) % scale === 0) continue;
       const key = `${prop} ${round(value)}px`;
       if (!offScale.has(key)) offScale.set(key, []);
       offScale.get(key).push(el);
@@ -271,17 +326,38 @@
       top: Math.min(...parts.map((p) => p.top)),
       bottom: Math.max(...parts.map((p) => p.bottom)),
     };
+    // A lone asymmetric icon moved toward its light side carries the nudge alignment-optical-glyph asks for.
+    const lone = !texts.length && icons.length === 1 && icons[0].centroid ? icons[0] : null;
+    const lean = lone && {
+      x: lone.centroid.x - lone.centerX,
+      y: lone.centroid.y - lone.centerY,
+      offX: lone.centerX - (box.left + box.right) / 2,
+      offY: lone.centerY - (box.top + box.bottom) / 2,
+      leansX: Math.abs(lone.centroid.x - lone.centerX) >= Math.max(1, (lone.right - lone.left) * 0.04),
+      leansY: Math.abs(lone.centroid.y - lone.centerY) >= Math.max(1, (lone.bottom - lone.top) * 0.04),
+    };
+    const nudgedY = lean && lean.leansY && Math.abs(lean.offY) >= 0.5 && Math.sign(lean.offY) !== Math.sign(lean.y);
     const topInset = ink.top - box.top;
     const bottomInset = box.bottom - ink.bottom;
-    if (Math.abs(topInset - bottomInset) >= 2) {
+    if (Math.abs(topInset - bottomInset) >= 2 && !nudgedY) {
       add("alignment-ink-centre", el,
         `Ink sits ${round(Math.abs(topInset - bottomInset) / 2)}px ${topInset > bottomInset ? "low" : "high"}: ${round(topInset)}px above, ${round(bottomInset)}px below`,
         { above: round(topInset), below: round(bottomInset) });
     }
-    if (box.padding.left === box.padding.right) {
+    // Equal side padding: beside an icon, the icon's empty edge leaves its side wider; text alone sits off centre.
+    if (box.padding.left === box.padding.right && texts.length === 1) {
       const left = ink.left - box.left;
       const right = box.right - ink.right;
-      if (Math.abs(left - right) >= 2 && left < 48 && right < 48) {
+      if (icons.length === 1 && left < 48 && right < 48) {
+        const leading = icons[0].centerX < texts[0].left;
+        const iconSide = leading ? left : right;
+        const textSide = leading ? right : left;
+        if (iconSide - textSide >= 1) {
+          add("alignment-icon-side-padding", el,
+            `Equal padding beside a ${leading ? "leading" : "trailing"} icon: ${round(iconSide)}px of space on the icon side and ${round(textSide)}px on the text side`,
+            { iconSide: round(iconSide), textSide: round(textSide), padding: round(box.padding.left) });
+        }
+      } else if (!icons.length && Math.abs(left - right) >= 2 && left < 48 && right < 48) {
         add("alignment-ink-centre", el,
           `Equal padding but ${round(left)}px of space on the left and ${round(right)}px on the right`,
           { left: round(left), right: round(right) });
@@ -295,13 +371,16 @@
           { offset: round(off) });
       }
     }
-    if (!texts.length && icons.length === 1) {
-      const offX = icons[0].centerX - (box.left + box.right) / 2;
-      const offY = icons[0].centerY - (box.top + box.bottom) / 2;
-      if (Math.abs(offX) >= 1 || Math.abs(offY) >= 1) {
+    // Optical glyph: a lone icon whose ink box is centred while its weight sits to one side, such as a play
+    // triangle. The centroid comes from the outline, so a candidate is confirmed on the screenshot.
+    if (lean) {
+      const unnudgedX = lean.leansX && Math.abs(lean.offX) < 0.5;
+      const unnudgedY = lean.leansY && Math.abs(lean.offY) < 0.5;
+      if (unnudgedX || unnudgedY) {
+        const toward = unnudgedX ? (lean.x < 0 ? "right" : "left") : (lean.y < 0 ? "down" : "up");
         add("alignment-optical-glyph", el,
-          `Icon box is ${round(offX)}px across and ${round(offY)}px down from centre. Confirm against the ink in a screenshot`,
-          { x: round(offX), y: round(offY) });
+          `Asymmetric glyph centred by its ink box, its weight ${round(Math.abs(unnudgedX ? lean.x : lean.y))}px off centre. Nudge it ${toward}`,
+          { weightX: round(lean.x), weightY: round(lean.y), offsetX: round(lean.offX), offsetY: round(lean.offY) });
       }
     }
   }
@@ -334,10 +413,13 @@
   // Whole pixels: a translated box off the pixel grid blurs its text and hairlines at 1x.
   const offGrid = (value) => Math.abs(value - Math.round(value)) >= 0.25;
   const fractional = elements.filter((el) => {
-    const transform = getComputedStyle(el).transform;
-    if (transform === "none") return false;
-    const matrix = new DOMMatrixReadOnly(transform);
-    if (matrix.a !== 1 || matrix.b !== 0 || matrix.c !== 0 || matrix.d !== 1) return false;
+    const style = getComputedStyle(el);
+    if (style.transform === "none" && style.translate === "none") return false;
+    if (style.rotate !== "none" || style.scale !== "none") return false;
+    if (style.transform !== "none") {
+      const matrix = new DOMMatrixReadOnly(style.transform);
+      if (matrix.a !== 1 || matrix.b !== 0 || matrix.c !== 0 || matrix.d !== 1) return false;
+    }
     const rect = el.getBoundingClientRect();
     return offGrid(rect.left + scrollX) || offGrid(rect.top + scrollY);
   });
@@ -349,7 +431,8 @@
       { x: round(rect.left + scrollX), y: round(rect.top + scrollY), width: round(rect.width), height: round(rect.height) });
   }
 
-  // 7. Concentric radius: a nested surface's radius should be the outer radius minus the inset.
+  // 7. Concentric radius: a nested surface's radius should be the outer radius minus the inset,
+  // held at a 2px floor when that falls below 2px.
   for (const outer of elements.filter(hasSurface)) {
     const outerRadius = Number.parseFloat(getComputedStyle(outer).borderTopLeftRadius);
     if (!outerRadius) continue;
@@ -361,8 +444,12 @@
       if (inset < 1 || inset > 16 || Math.abs(i.left - o.left - (i.top - o.top)) > 1) continue;
       const innerRadius = Number.parseFloat(getComputedStyle(inner).borderTopLeftRadius);
       if (innerRadius >= Math.min(i.width, i.height) / 2) continue;
-      const expected = Math.max(outerRadius - inset, 0);
-      if (innerRadius && Math.abs(innerRadius - expected) > 2) {
+      const expected = Math.max(outerRadius - inset, 2);
+      if (outerRadius - inset < 2 && innerRadius < 2) {
+        add("alignment-concentric-floor", inner,
+          `Radius ${round(innerRadius)}px inside a ${round(outerRadius)}px corner at ${round(inset)}px inset, under the 2px floor`,
+          { radius: round(innerRadius), expected: 2 });
+      } else if (Math.abs(innerRadius - expected) > 2) {
         add("alignment-concentric-radius", inner,
           `Radius ${round(innerRadius)}px inside a ${round(outerRadius)}px corner at ${round(inset)}px inset, expected about ${round(expected)}px`,
           { radius: round(innerRadius), expected: round(expected) });

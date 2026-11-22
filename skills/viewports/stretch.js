@@ -1,5 +1,6 @@
 // Run in the page (DevTools console, Runtime.evaluate or page.evaluate).
 // Lengthens every visible text run the way translation does, then returns { mode, stretched }.
+// It finds nothing itself: run overflow.js again after each mode for the findings.
 // Runs under 11 characters double, under 31 grow 60% and longer runs grow 40%.
 // window.__stretch.run(mode) puts the original text back, then applies another case:
 // "long" is the default, "unbreakable" swaps in values with no spaces, "short" the shortest values,

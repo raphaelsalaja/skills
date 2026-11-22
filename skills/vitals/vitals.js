@@ -1,6 +1,8 @@
-// Run in the page 5s after a cold load (DevTools console, Runtime.evaluate with awaitPromise, or page.evaluate).
-// Reads the load's buffered entries and resolves to { devServer, navigation, lcp, cls, longTasks, interactions,
-// blockingScripts, media, fonts }.
+// Run in the page 5s after a cold load: pass this file's contents to page.evaluate, or to Runtime.evaluate with
+// awaitPromise: true. Reads the load's buffered entries and resolves to { devServer, navigation, lcp, cls, longTasks,
+// interactions, renderBlocking, media, fonts }.
+// longTasks.blocking sums each long animation frame's blockingDuration, or each long task's time past 50ms where
+// those frames are missing. It is not Total Blocking Time, which counts only between first paint and interactive.
 // Touch nothing before running it: shifts within 500ms of an input do not count, so a click hides them.
 // Run it again after Back: navigation reads "back_forward" only when the back/forward cache missed,
 // and notRestoredReasons says why.
@@ -118,6 +120,7 @@
     .map((entry) => ({
       at: round(entry.startTime),
       duration: round(entry.duration),
+      blocking: round(entry.blockingDuration ?? entry.duration - 50),
       beforeLcp: Boolean(largest) && entry.startTime < largest.startTime,
       scripts: (entry.scripts ?? []).map((script) => ({
         source: script.sourceURL,
@@ -141,9 +144,30 @@
   };
   const images = [...document.querySelectorAll("img")];
   const videos = [...document.querySelectorAll("video")];
-  const unsized = [...images, ...videos].filter(
-    (el) => !(el.getAttribute("width") && el.getAttribute("height")) && getComputedStyle(el).aspectRatio === "auto",
-  );
+  // Sized by CSS when a copy with no source, swapped into the same slot, lays out at the same box,
+  // as a Next.js <Image fill> does inside a sized parent. A video whose metadata has not arrived cannot be judged.
+  const sizedByCss = (el) => {
+    const box = el.getBoundingClientRect();
+    if (el instanceof HTMLVideoElement && el.readyState < 1) return false;
+    const copy = el.cloneNode(false);
+    for (const name of ["src", "srcset", "alt", "poster"]) copy.removeAttribute(name);
+    const display = el.style.getPropertyValue("display");
+    const priority = el.style.getPropertyPriority("display");
+    el.before(copy);
+    el.style.setProperty("display", "none", "important");
+    const blank = copy.getBoundingClientRect();
+    copy.remove();
+    if (display) el.style.setProperty("display", display, priority);
+    else el.style.removeProperty("display");
+    return Math.abs(blank.width - box.width) <= 1 && Math.abs(blank.height - box.height) <= 1;
+  };
+  const unsized = [...images, ...videos].filter((el) => {
+    if (el.getAttribute("width") && el.getAttribute("height")) return false;
+    if (getComputedStyle(el).aspectRatio !== "auto") return false;
+    const box = el.getBoundingClientRect();
+    if (!box.width || !box.height) return false;
+    return !sizedByCss(el);
+  });
   const skipped = [...document.body.querySelectorAll("*")].filter(
     (el) => getComputedStyle(el).contentVisibility === "auto" && above(el),
   );
@@ -159,10 +183,16 @@
       needed: Math.round(drawn * devicePixelRatio),
     }));
 
-  // Classic scripts in the head that stop the parser until they download and run.
-  const blockingScripts = [...document.head.querySelectorAll("script[src]")]
-    .filter((el) => !el.async && !el.defer && el.type !== "module")
-    .map((el) => el.src);
+  // Scripts and stylesheets the browser held the first paint for. Where resource timing lacks renderBlockingStatus,
+  // classic scripts in the head stand in, and stylesheets go unlisted.
+  const statusKnown = resources.some((entry) => "renderBlockingStatus" in entry);
+  const renderBlocking = statusKnown
+    ? resources
+        .filter((entry) => entry.renderBlockingStatus === "blocking")
+        .map((entry) => ({ url: entry.name, type: entry.initiatorType, loaded: round(entry.responseEnd) }))
+    : [...document.head.querySelectorAll("script[src]")]
+        .filter((el) => !el.async && !el.defer && el.type !== "module")
+        .map((el) => ({ url: el.src, type: "script", loaded: null }));
 
   // Signs of a development server: hot reload clients and framework development overlays.
   const devServer = Boolean(
@@ -171,10 +201,17 @@
     ) || window.__NEXT_DATA__?.buildId === "development",
   );
 
+  // Fonts fetched from CSS, and fonts preloaded through <link rel="preload" as="font">, as next/font does.
+  const fontFile = /\.(woff2?|ttf|otf)(\?|#|$)/i;
+  const preloaded = new Set([...document.querySelectorAll('link[rel~="preload"][as="font"]')].map((link) => link.href));
   const fonts = resources
-    .filter((entry) => entry.initiatorType === "css" && /\.(woff2?|ttf|otf)(\?|$)/.test(entry.name))
+    .filter((entry) =>
+      (entry.initiatorType === "css" && fontFile.test(entry.name)) ||
+      (entry.initiatorType === "link" && (preloaded.has(entry.name) || fontFile.test(entry.name))),
+    )
     .map((entry) => ({
       url: entry.name,
+      preloaded: entry.initiatorType === "link",
       loaded: round(entry.responseEnd),
       afterFirstPaint: fcp !== null && entry.responseEnd > fcp,
     }));
@@ -193,13 +230,14 @@
       count: long.length,
       longest: long[0]?.duration ?? 0,
       over200: long.filter((task) => task.duration > 200).length,
-      blocking: round(long.reduce((sum, task) => sum + task.duration - 50, 0)),
+      blocking: round(long.reduce((sum, task) => sum + task.blocking, 0)),
+      blockingFrom: frames.length ? "long-animation-frame" : "longtask",
       tasks: long.slice(0, 10),
     },
     interactions: [...interactions.values()]
       .sort((a, b) => b.duration - a.duration)
       .map((entry) => ({ name: entry.name, target: describe(entry.target), duration: round(entry.duration) })),
-    blockingScripts,
+    renderBlocking,
     media: {
       oversized,
       highPriority: images.filter((el) => el.getAttribute("fetchpriority") === "high").map(describe),

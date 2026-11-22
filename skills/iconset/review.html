@@ -5,22 +5,21 @@
 
   window.review = {
     title: "Pond Icons",
-    step: "Style",
-    next: "Pick a direction. The seed set is drawn in it next.",
+    step: "Sample",
+    next: "Confirm the sample. The full set is drawn in it next.",
     font: "Inter, sans-serif",
     labelSize: 14,
     labelWeight: 400,
     sizes: [16, 24],
     sections: [
-      { kind: "images", title: "Your References", note: "What you linked, loved and disliked.",
-        items: [{ name: "Linked set", src: "refs/linked.png", note: "Loved: soft corners" }] },
-      { kind: "options", title: "Directions", note: "The same hard icons in each direction.",
-        items: [{ name: "Round", note: "2 stroke, round ends, 3 radius",
-          icons: [{ name: "Folder", label: "Projects", svg: { 16: "<svg viewBox=\"0 0 16 16\" ...>", 24: "<svg ...>" } }] }] },
-      { kind: "rows", title: "In Context", note: "Beside the product's own labels.",
-        items: [{ name: "Inbox", svg: "<svg ...>" }] },
-      { kind: "grid", title: "Audit", items: [{ name: "directory", svg: "<svg ...>", note: "Duplicate of folder" }] },
-      { kind: "grid", title: "Seed", items: [{ name: "Folder", svg: "<svg ...>", new: true }] },
+      { kind: "images", title: "Your References", note: "What you sent, if anything.",
+        items: [{ name: "Your screenshot", src: "refs/screenshot.png", note: "Loved: soft corners" }] },
+      { kind: "rows", title: "Sample", note: "8 of your icons beside the product's own labels.",
+        items: [{ name: "Inbox", svg: { 16: "<svg viewBox=\"0 0 16 16\" ...>", 24: "<svg ...>" } }] },
+      { kind: "options", title: "Variants", note: "Each changes one property. Pick the closest.",
+        items: [{ name: "Round ends", note: "Ends only, radius and stroke unchanged",
+          icons: [{ name: "Folder", label: "Projects", svg: "<svg ...>" }] }] },
+      { kind: "grid", title: "Full Set", items: [{ name: "Folder", svg: "<svg ...>", new: true }] },
       { kind: "pairs", title: "Migration", items: [{ name: "arrow-up", before: "<svg ...>", after: "<svg ...>", state: "Coupled" }] }
     ]
   };
@@ -36,19 +35,17 @@
     face.load();
   }
 
-  Kinds: images shows screenshots of references, options compares whole cards (directions, a concept's candidates
-  or one-change variants), rows sets icons beside labels in the product's font, grid shows a set and pairs puts each
-  old icon beside its replacement. Any item may carry `source`, the set or page it came from, and a grid item may
-  carry `note`, such as why the audit flags it. An option card sets its icons with a `label` in product rows, or its
+  Kinds: images shows the pictures the user sent, options compares one-change variants as whole cards, rows sets
+  icons beside labels in the product's font, grid shows a set and pairs puts each old icon beside its replacement.
+  Any item may carry `source`, the set or page it came from, and a grid item may carry `note`, such as what changed. An option card sets its icons with a `label` in product rows, or its
   first 3 icons when none has one.
 
   Any svg may be one string or one drawing per size, keyed like `sizes`. The size switch shows each size's own drawing
   and scales a single string. A section with `size` always shows that size, and `labelSize` and `labelWeight` set its
-  rows' type, such as a stroke test at 24 beside a 20px medium title. A pairs item's `state` may be any word, such
-  as Must or Should for the voice.
+  rows' type, such as the 24 sample beside a 20px medium title. A pairs item's `state` may be any word.
 
   The bar sets the theme (Both splits every section into light and dark), the size and live overrides for stroke,
-  caps and joins. Second Colour fills any element marked data-layer="back" with the accent. Squint blurs every icon
+  caps and joins. Second Colour tints any element marked data-layer, the accent or a duo back, with the accent. Squint blurs every icon
   by 1px, so two icons that blur into one shape show at a glance. Clicking an item picks it.
   Copy Feedback writes the picks, the overrides and the notes as one message for the agent. Picks and notes are kept
   per step, so a new checkpoint starts clean. Radius and shape changes need a redraw, so the page cannot preview them.
@@ -1032,8 +1029,11 @@
         filter: blur(1px);
       }
 
-      :root[data-duo] .glyph [data-layer="back"] {
+      :root[data-duo] .glyph [data-layer] {
         color: var(--accent);
+      }
+
+      :root[data-duo] .glyph [data-layer="back"] {
         fill: var(--accent);
       }
 
@@ -1317,16 +1317,31 @@
         toast.hide = setTimeout(() => toast.hidePopover(), 200);
       }
 
+      function timeToast() {
+        if (!("open" in toast.dataset)) return;
+        clearTimeout(toast.hide);
+        if (!toast.querySelector("button") && !toast.matches(":hover, :focus-within")) toast.hide = setTimeout(hideToast, 4000);
+      }
+
       function showToast(anchor, message, action) {
         clearTimeout(toast.hide);
         hideTip();
         delete toast.dataset.open;
         if (!toast.matches(":popover-open")) toast.showPopover();
         toast.replaceChildren(message, ...(action ? [action] : []));
+        action?.addEventListener("click", hideToast, { once: true });
         anchorTo(toast, anchor);
         toast.dataset.open = "";
-        toast.hide = setTimeout(hideToast, action ? 5000 : 1600);
+        timeToast();
       }
+
+      toast.addEventListener("pointerenter", () => clearTimeout(toast.hide));
+      toast.addEventListener("focusin", () => clearTimeout(toast.hide));
+      toast.addEventListener("pointerleave", timeToast);
+      toast.addEventListener("focusout", timeToast);
+      document.addEventListener("keydown", (event) => {
+        if (event.key === "Escape" && "open" in toast.dataset) hideToast();
+      });
 
       async function copy(text, anchor) {
         const tokens = Math.ceil(text.length / 4).toLocaleString();

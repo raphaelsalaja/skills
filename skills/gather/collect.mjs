@@ -144,6 +144,7 @@ async function pool(list, size, task) {
 }
 
 async function build(live) {
+  failures.clear();
   await mkdir(candidatesDir, { recursive: true });
   await mkdir(imgDir, { recursive: true });
 

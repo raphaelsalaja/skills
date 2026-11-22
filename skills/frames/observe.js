@@ -1,9 +1,13 @@
-// Run in the page before the interaction (DevTools console, Runtime.evaluate or page.evaluate).
+// Run in the page before the interaction: pass this file's contents to page.evaluate, or to Runtime.evaluate with
+// awaitPromise: true. It resolves after sampling the display's frame rate for 500ms, so keep the page idle until then.
 // Call window.__frames.start(), perform the interaction, then window.__frames.stop().
-// stop() returns frame gaps, long animation frames, interaction latency and layout shift for that window.
-// It also returns scrollWrites, the elements whose inline style a scroll handler wrote while recording, and
-// listeners, { blocking, scroll }: every wheel or touch listener without passive and every scroll listener.
+// stop() returns frame gaps, long animation frames and interaction latency for that window. The frame budget is the
+// idle display rate, so a page held at 30fps on a 60Hz display counts every other frame as dropped.
+// It also returns scrollWrites, the elements whose inline style changed inside a scroll listener or in the animation
+// frame after a scroll event. Any style written in that frame counts, so an unrelated frame loop shows up there too.
+// listeners, { blocking, scroll }, lists every wheel or touch listener without passive and every scroll listener.
 // listeners is null unless this script ran through Runtime.evaluate with includeCommandLineAPI: true.
+// Paint cost is not visible here; it needs a trace.
 // inputs counts pointerdown, keydown and click as { trusted, untrusted }. Only trusted input reaches interactions.
 // Keep the tab visible while recording, or the browser throttles requestAnimationFrame.
 // throttled reads true when over half the recording passed in frame gaps over 50ms that no blocking script
@@ -58,10 +62,38 @@
   let gaps = [];
   let longFrames = [];
   let events = [];
-  let shift = 0;
   let observers = [];
   let scrollWrites = new Map();
   let styleObserver = null;
+  // True from a scroll event through the animation frame that follows it, until the next task.
+  let afterScroll = false;
+  const onScroll = () => {
+    requestAnimationFrame(() => {
+      afterScroll = true;
+      setTimeout(() => {
+        afterScroll = false;
+      });
+    });
+  };
+
+  // The display's frame interval, sampled while the page sits idle before recording.
+  let idleFrame = null;
+  const sampleIdle = () =>
+    new Promise((resolve) => {
+      const samples = [];
+      let previous = 0;
+      const startedSampling = performance.now();
+      const step = (now) => {
+        if (previous) samples.push(now - previous);
+        previous = now;
+        if (now - startedSampling < 500) return requestAnimationFrame(step);
+        samples.sort((a, b) => a - b);
+        idleFrame = samples[Math.floor(samples.length / 2)] ?? null;
+        resolve(idleFrame);
+      };
+      requestAnimationFrame(step);
+    });
+
   // Event timing ignores untrusted input, so a click the tool dispatches from script never reaches interactions.
   let inputs = { trusted: 0, untrusted: 0 };
   const onInput = (event) => {
@@ -92,17 +124,20 @@
       gaps = [];
       longFrames = [];
       events = [];
-      shift = 0;
       observers = [];
       scrollWrites = new Map();
       inputs = { trusted: 0, untrusted: 0 };
       for (const type of inputTypes) addEventListener(type, onInput, { capture: true, passive: true });
+      addEventListener("scroll", onScroll, { capture: true, passive: true });
       // Mutation callbacks run while the listener's event is still current, so window.event names a scroll handler.
       styleObserver = new MutationObserver((list) => {
-        if (window.event?.type !== "scroll") return;
+        const inListener = window.event?.type === "scroll";
+        if (!inListener && !afterScroll) return;
         for (const record of list) {
           const key = describe(record.target);
-          scrollWrites.set(key, (scrollWrites.get(key) ?? 0) + 1);
+          const count = scrollWrites.get(key) ?? { inListener: 0, nextFrame: 0 };
+          count[inListener ? "inListener" : "nextFrame"] += 1;
+          scrollWrites.set(key, count);
         }
       });
       styleObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["style"], subtree: true });
@@ -141,10 +176,8 @@
             presentation: entry.startTime + entry.duration - entry.processingEnd,
           });
         }, { durationThreshold: 16 }),
-        layoutShift: observe("layout-shift", (entry) => {
-          if (!entry.hadRecentInput) shift += entry.value;
-        }),
         listeners: Boolean(listenersOf),
+        idleFrame: idleFrame !== null,
       };
       requestAnimationFrame(tick);
       return supported;
@@ -159,9 +192,11 @@
       }
       styleObserver.disconnect();
       for (const type of inputTypes) removeEventListener(type, onInput, { capture: true });
+      removeEventListener("scroll", onScroll, { capture: true });
 
       const sorted = [...gaps].sort((a, b) => a - b);
-      const frame = sorted[Math.floor(sorted.length / 2)] ?? 1000 / 60;
+      // Without an idle sample, fall back to the fastest tenth of the recorded gaps, never their median.
+      const frame = idleFrame ?? sorted[Math.floor(sorted.length / 10)] ?? 1000 / 60;
       const dropped = gaps.reduce((count, gap) => count + Math.max(0, Math.round(gap / frame) - 1), 0);
 
       const interactions = new Map();
@@ -191,18 +226,23 @@
         throttled,
         refresh: Math.round(1000 / frame),
         budget: round(frame),
+        budgetFrom: idleFrame ? "idle" : "recording",
         frames: gaps.length,
         dropped,
         worstGap: round(sorted.at(-1) ?? 0),
         longAnimationFrames: longFrames.sort((a, b) => b.duration - a.duration),
         interactions: slowest,
         inputs,
-        layoutShift: Math.round(shift * 1000) / 1000,
-        scrollWrites: [...scrollWrites].map(([element, writes]) => ({ element, writes })).sort((a, b) => b.writes - a.writes),
+        scrollWrites: [...scrollWrites]
+          .map(([element, count]) => ({ element, ...count, writes: count.inListener + count.nextFrame }))
+          .sort((a, b) => b.writes - a.writes),
         listeners: readListeners(),
       };
     },
   };
 
-  return `Recorder ready, listener checks ${listenersOf ? "on" : "off: evaluate with includeCommandLineAPI: true to turn them on"}. Call window.__frames.start(), perform the interaction, then window.__frames.stop().`;
+  return sampleIdle().then(
+    (frame) =>
+      `Recorder ready at ${frame ? Math.round(1000 / frame) : "an unknown"}Hz idle, listener checks ${listenersOf ? "on" : "off: evaluate with includeCommandLineAPI: true, or call DOMDebugger.getEventListeners"}. Call window.__frames.start(), perform the interaction, then window.__frames.stop().`,
+  );
 })();

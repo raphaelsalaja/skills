@@ -1,7 +1,7 @@
 /*
   Lab. Copy this file into the app and load it once on a development-only route. Then write entries only.
 
-  <lab-page title="Components" root="/Users/me/app">
+  <lab-page title="Components" root="/absolute/path/to/project" editor="cursor">
     <lab-tune property="--accent" label="Accent" min="0" max="360" value="234" format="oklch(0.746 0.156 {})"></lab-tune>
     <lab-tune property="--radius-pill" label="Pill Radius" min="0" max="16" value="16" format="{}px"></lab-tune>
 
@@ -15,8 +15,10 @@
 
   <lab-page>
     title   The page title in Title Case, such as "Components".
-    root    The absolute project root. Each `source` path resolves against it.
-    editor  "cursor" by default. Any scheme name such as "vscode" opens <scheme>://file/<file>:<line>.
+    root    Optional. The absolute project root, which each relative `source` resolves against. Pass it at runtime where the
+            framework can, such as `process.cwd()` from server code. Without it, a relative `source` shows as a plain label.
+    editor  Optional. The editor that opens source links, "cursor" when unset. Any scheme name such as "vscode" opens
+            <scheme>://file/<file>:<line>.
             A value with braces is a URL template, such as "idea://open?file={file}&line={line}".
             The template fills {file}, {path}, {root}, {line} and {column}.
 
@@ -25,7 +27,9 @@
     state      The state shown, such as "Submenu Open".
     source     The file and line that renders the state, relative to root, such as "src/menu.tsx:42".
     force      Optional. Pseudo-classes held on the entry's top element: "hover", "active", "focus", "focus-visible" or "focus-within".
-               Same-origin rules are rewritten so `.button:hover` also matches that element.
+               Same-origin rules are rewritten so `.button:hover` also matches that element. Only the entry's direct child
+               takes the state, so a nested element needs its own entry. A cross-origin sheet cannot be read and is skipped
+               with a console warning.
 
   <lab-tune>
     property  The CSS custom property to set on the root element, such as "--accent".
@@ -51,7 +55,7 @@
         import("./lab.js");
       }, []);
       return (
-        <lab-page title="Components" root="/Users/me/app">
+        <lab-page title="Components" root="/absolute/path/to/project" editor="cursor">
           <lab-entry component="Menu" state="Submenu Open" source="src/components/menu/index.tsx:42">
             <Menu open />
           </lab-entry>
@@ -1165,11 +1169,17 @@
     }
   }
 
+  const skippedSheets = new WeakSet();
+
   function forceStates() {
     for (const styleSheet of [...document.styleSheets, ...document.adoptedStyleSheets]) {
       try {
         forceRules(styleSheet.cssRules);
-      } catch {}
+      } catch {
+        if (skippedSheets.has(styleSheet)) continue;
+        skippedSheets.add(styleSheet);
+        console.warn(`lab: force skipped ${styleSheet.href ?? "a stylesheet"}, which is cross-origin. Serve it from the app or add crossorigin to its <link>.`);
+      }
     }
   }
 
@@ -1257,12 +1267,14 @@
       if (!source) return;
       const page = this.closest("lab-page");
       const root = page?.getAttribute("root") ?? "";
-      if (!root && !/^(\/|[a-z]:[\\/])/i.test(source) && !warned) {
+      const linkable = Boolean(root) || /^(\/|[a-z]:[\\/])/i.test(source);
+      if (!linkable && !warned) {
         warned = true;
-        console.warn('lab: set root="/absolute/project/path" on <lab-page> so source links open.');
+        console.warn('lab: set root="/absolute/path/to/project" on <lab-page> so source links open.');
       }
       const [path, line] = source.split(/:(?=\d)/);
-      this.#source.href = editorHref(page?.getAttribute("editor") || "cursor", root, source);
+      if (linkable) this.#source.href = editorHref(page?.getAttribute("editor") || "cursor", root, source);
+      else this.#source.removeAttribute("href");
       this.#source.title = source;
       this.#source.innerHTML = external;
       this.#source.prepend(`${path.split(/[\\/]/).pop()}${line ? `:${line}` : ""}`);

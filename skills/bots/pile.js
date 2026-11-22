@@ -117,11 +117,12 @@ function watchShake(onShake) {
  * canStart() holds the first drop, such as until a fade-in ends. Call wake() when it may have changed.
  */
 export function createPile({ stage, pieces, hulls, center, span, on = {}, canStart = () => true }) {
-  const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const reducedQuery = window.matchMedia("(prefers-reduced-motion: reduce)");
+  let reduced = reducedQuery.matches;
   const coarse = window.matchMedia("(pointer: coarse)").matches;
-  const width = stage.clientWidth;
-  const height = stage.clientHeight;
-  const { size, columns, radius, minX, maxX, maxY } = plan(width, height, pieces.length);
+  let width = stage.clientWidth;
+  let height = stage.clientHeight;
+  let { size, columns, radius, minX, maxX, maxY } = plan(width, height, pieces.length);
   const rand = seeded(42);
 
   const engine = Engine.create({
@@ -130,11 +131,17 @@ export function createPile({ stage, pieces, hulls, center, span, on = {}, canSta
     positionIterations: 14,
     velocityIterations: 8,
   });
-  const walls = [
-    Bodies.rectangle(width / 2, maxY + radius + 40, width + 80, 80, { isStatic: true }),
-    Bodies.rectangle(minX - radius - 40, height / 2, 80, height * 4, { isStatic: true }),
-    Bodies.rectangle(maxX + radius + 40, height / 2, 80, height * 4, { isStatic: true }),
-  ];
+  let walls = [];
+  const placeWalls = () => {
+    Composite.remove(engine.world, walls);
+    walls = [
+      Bodies.rectangle(width / 2, maxY + radius + 40, width + 80, 80, { isStatic: true }),
+      Bodies.rectangle(minX - radius - 40, height / 2, 80, height * 4, { isStatic: true }),
+      Bodies.rectangle(maxX + radius + 40, height / 2, 80, height * 4, { isStatic: true }),
+    ];
+    Composite.add(engine.world, walls);
+  };
+  placeWalls();
 
   const scale = size / span;
   const outlines = hulls.map((hull) =>
@@ -159,7 +166,7 @@ export function createPile({ stage, pieces, hulls, center, span, on = {}, canSta
     Body.setAngularVelocity(body, (rand() - 0.5) * 0.12);
     return body;
   });
-  Composite.add(engine.world, [...walls, ...bodies]);
+  Composite.add(engine.world, bodies);
 
   const cleanup = [];
   const listen = (target, type, handler) => {
@@ -294,23 +301,16 @@ export function createPile({ stage, pieces, hulls, center, span, on = {}, canSta
   };
 
   // Reduced motion: run the drop offline and draw the settled pile once. A shake reshuffles instantly.
-  if (reduced) {
-    const settle = () => {
-      for (let step = 0; step < PILE.settleSteps; step++) Engine.update(engine, 1000 / 60);
-      for (const body of bodies) Sleeping.set(body, true);
-      draw(true);
-    };
-    settle();
-    shakeNow = () => {
-      scatter();
-      settle();
-    };
-    return api;
-  }
+  const settle = () => {
+    for (let step = 0; step < PILE.settleSteps; step++) Engine.update(engine, 1000 / 60);
+    for (const body of bodies) Sleeping.set(body, true);
+    draw(true);
+  };
 
   const felt = bodies.map(() => Number.NEGATIVE_INFINITY);
   let heard = Number.NEGATIVE_INFINITY;
   const hit = (event) => {
+    if (reduced) return;
     const now = performance.now();
     let loudest = 0;
     for (const { bodyA, bodyB, collision } of event.pairs) {
@@ -362,7 +362,8 @@ export function createPile({ stage, pieces, hulls, center, span, on = {}, canSta
   };
   shakeNow = () => {
     scatter();
-    start();
+    if (reduced) settle();
+    else start();
   };
 
   // The drag is a spring, not a teleport, and the world keeps stepping, so the held bot shoves its neighbours.
@@ -381,7 +382,7 @@ export function createPile({ stage, pieces, hulls, center, span, on = {}, canSta
   };
   pieces.forEach((node, index) => {
     listen(node, "pointerdown", (event) => {
-      if (event.button !== 0) return;
+      if (event.button !== 0 || reduced) return;
       const body = bodies[index];
       on.grab?.();
       release();
@@ -414,7 +415,7 @@ export function createPile({ stage, pieces, hulls, center, span, on = {}, canSta
   listen(stage, "pointercancel", up);
 
   api.wake = () => {
-    if (visible && !frame && canStart()) start();
+    if (visible && !reduced && !frame && canStart()) start();
   };
   const observer = new IntersectionObserver(([entry]) => {
     visible = Boolean(entry?.isIntersecting);
@@ -424,5 +425,40 @@ export function createPile({ stage, pieces, hulls, center, span, on = {}, canSta
   observer.observe(stage);
   cleanup.push(() => observer.disconnect());
 
+  listen(reducedQuery, "change", (event) => {
+    reduced = event.matches;
+    if (!reduced) return;
+    stop();
+    release();
+    settle();
+  });
+
+  // The stage is 300px tall, 340px under 480px wide, so a resize can change the mark size and the walls.
+  const resize = () => {
+    if (stage.clientWidth === width && stage.clientHeight === height) return;
+    width = stage.clientWidth;
+    height = stage.clientHeight;
+    const next = plan(width, height, pieces.length);
+    const factor = next.size / size;
+    if (factor !== 1) {
+      bodies.forEach((body, index) => {
+        Body.scale(body, factor, factor);
+        offsets[index] = { x: offsets[index].x * factor, y: offsets[index].y * factor };
+      });
+    }
+    ({ size, columns, radius, minX, maxX, maxY } = next);
+    placeWalls();
+    for (const body of bodies) {
+      Sleeping.set(body, false);
+      Body.setPosition(body, { x: Math.min(maxX, Math.max(minX, body.position.x)), y: Math.min(maxY, body.position.y) });
+    }
+    if (reduced) settle();
+    else api.wake();
+  };
+  const sizer = new ResizeObserver(resize);
+  sizer.observe(stage);
+  cleanup.push(() => sizer.disconnect());
+
+  if (reduced) settle();
   return api;
 }
